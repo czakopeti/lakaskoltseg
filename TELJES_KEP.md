@@ -61,6 +61,22 @@ Minden, amit egy lakással kapcsolatban ki lehet számolni vagy el kell dönteni
 
 Banki ajánlatok rangsora, ingatlanár-becslő, hirdetéskereső, ügyvédkereső. Ezekhez vagy fizetős adat kell, vagy a hitelközvetítők terepe.
 
+# Alapelv: csak magától frissülő adat (2026. november 18.)
+
+Az oldalra csak olyan adat kerül, amely ember nélkül is naprakész marad: vagy a gép tölti le és írja át (forrással, dátummal, ésszerűségi ellenőrzéssel), vagy a gép figyeli a forrását, és változáskor jelez. Amit egyik módon sem lehet frissen tartani, az nem kerül ki.
+
+| Adat | Hogyan frissül |
+|---|---|
+| Jogszabályi szabályok (illeték, szja, Wekerle Plusz, MNB) | A forrásfigyelő hetente letölti a forrásoldalt, és változáskor jelez. Az átírás ellenőrzést kíván, nem automatikus. |
+| KSH infláció | Most: januárban jelez, ha hiányzik az előző év. Cél: a KSH-ból maga tölti le. |
+| PMÁP kamat | Most: a forrásfigyelő jelez. Cél: az Államkincstár oldaláról maga olvassa ki. |
+| KSH lakásárindex, négyzetméterárak, lakbérek (tervezett) | Negyedévente vagy évente a KSH-ból maga tölti le; ha a letöltés vagy az ésszerűségi ellenőrzés hibát ad, a régi érték marad, és jelez. |
+| ÉTDR összesítés (tervezett) | Az Építési Pulzus közzétett összesítő fájljából, hetente. |
+| Cikkek (tervezett) | Minden szám az adatfájlból jön, ahogy a kalkulátoroké; a szabály változásával a cikk is változik. |
+| Változásnapló, adattáblák (tervezett) | Építéskor készülnek az adatfájlból és a git-előzményből. |
+| Becslések (ügyvéd, értékbecslés, jutalék) | A forrásfigyelő a forráscikkeket is figyeli. Ezek a legkevésbé friss tételek, ezért mindig átírhatók, és becslésként jelöljük őket. |
+| Budapesti kerületi Airbnb-szabályok | Csak dátummal ellátott összefoglaló; a forrásai a figyelőben vannak. Adatbázist nem építünk belőle, mert nem frissíthető megbízhatóan. |
+
 # Hogyan frissül magától
 
 Három réteg van, és mindegyik ingyenes (nyilvános tároló, GitHub Actions).
