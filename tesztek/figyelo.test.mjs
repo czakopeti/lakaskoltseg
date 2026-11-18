@@ -33,6 +33,13 @@ test('csak a számot és mértéket tartalmazó mondatok számítanak: a változ
   const cikk = (extra) => `<main><h1>Illeték</h1><p>${hosszu} A határidő 30 nap. Az illetékmentesség értékhatára 50 millió forint. ${extra}</p></main><aside>Népszerű: a nyugdíj 3,6%-kal nő ${Math.random()}</aside>`;
   const elso = { v: VALTOZAT, ...ertekel(f, undefined, cikk('Olvasták: 1234-szer. Ajánló: Így rendezd be a nappalit.')) };
   assert.equal(ertekel(f, elso, cikk('Olvasták: 5678-szor. Ajánló: Tíz tipp a kertedhez.')).allapot, 'valtozatlan');
+  // Csak eltűnt egy mondat: először vár, a második egymás utáni hiánynál szól
+  const hianyos = cikk('').replace('A határidő 30 nap. ', '');
+  const h1 = ertekel(f, elso, hianyos);
+  assert.equal(h1.allapot, 'valtozatlan');
+  assert.deepEqual(h1.tenyek, elso.tenyek, 'az alap nem változik, amíg nincs megerősítve');
+  assert.equal(ertekel(f, { ...elso, hiany: h1.hiany }, hianyos).allapot, 'valtozott');
+  assert.deepEqual(tenyek('Szja tv. 57/A. § (4) bekezdés a) pont Ugrás a myNAV oldalamra.'), [], 'felületi szöveg nem ténymondat');
   const v = ertekel(f, elso, cikk('').replace('30 nap', '15 nap'));
   assert.equal(v.allapot, 'valtozott');
   assert.deepEqual(v.ujMondatok, ['A határidő 15 nap.']);
