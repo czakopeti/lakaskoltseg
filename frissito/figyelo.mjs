@@ -1,6 +1,6 @@
 // Forrásfigyelő: minden forrásoldalt letölt, amelyre a data/szabalyok.json hivatkozik (és a data/figyelo.json külön listáját),
 // a szövegéből kiválogatja a számot tartalmazó mondatokat (mérték, összeg, határidő, jogszabályhely), és ezeket veti össze a legutóbb látottakkal.
-// A hirdetések, ajánlott cikkek és számlálók így nem adnak téves riasztást. Adatot NEM ír át: ha egy forrás megváltozott,
+// Minden oldalt kétszer tölt le, és csak a mindkétszer szereplő mondatot nézi. A hirdetések, ajánlott cikkek és számlálók így nem adnak téves riasztást. Adatot NEM ír át: ha egy forrás megváltozott,
 // jelentést ad (a workflow ebből GitHub-jegyet nyit), a szabályt ember vagy az ütemezett Claude-futás vizsgálja felül.
 import { createHash } from 'node:crypto';
 import { olvas, ir, maBudapest } from '../forras/adat.mjs';
