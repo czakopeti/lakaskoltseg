@@ -39,13 +39,14 @@ export function fooldal(k) {
 <div class="hero-szoveg">
 <h1>Mennyibe kerül igazán egy lakás?</h1>
 <p class="valasz">Illeték, adó, hitel és minden mellékköltség forintra kiszámolva, ha veszel, eladsz vagy kiadsz. Minden szám mellett ott a jogszabály és a nap, amikor utoljára ellenőriztük.</p>
-<nav class="gyors" aria-label="A leggyakoribb kalkulátorok">${GYORS.map(([u, n]) => `<a href="${L.l(u)}">${n}</a>`).join('')}</nav>
+<div class="kezdo"><a class="fo-gomb" href="${L.l(INDULO_UT)}">Számold ki, mennyi pénz kell a vételhez</a><span>Önerő, illeték és minden díj egy lapon, időrendben.</span></div>
+<nav class="gyors" aria-label="Más kalkulátorok"><span class="gyors-cim">Vagy válassz:</span>${GYORS.slice(1).map(([u, n]) => `<a href="${L.l(u)}">${n}</a>`).join('')}</nav>
 <p class="hero-tenyek"><span><b>${sz('illetek.altalanos_mertek').szazalek}%</b> illeték</span><span><b>${sz('szja_eladas.ado_mertek').szazalek}%</b> szja eladáskor</span><span><b>${sz('wekerle_plusz.kamat').uj_szazalek}% és ${sz('wekerle_plusz.kamat').hasznalt_szazalek}%</b> Wekerle Plusz</span></p>
 </div>
 <a class="hero-kartya" href="${L.l(INDULO_UT)}">
 <span class="hk-minta">Minta: 50 millió forintos lakás, 40 millió forint hitellel</span>
 <span class="hk-mi">Ennyi saját pénz kell</span>
-<span class="hk-szam">${M.fmt(p.osszes)}<small> Ft</small></span>
+<span class="hk-szam">${M.kozelitoen(p.osszes)}<small> Ft</small></span>
 <span class="hk-sav" aria-hidden="true"><i class="s1" style="--w:${ar(p.onero)}%"></i><i class="s2" style="--w:${ar(ill)}%"></i><i class="s3" style="--w:${ar(dij)}%"></i></span>
 <span class="hk-jel"><span class="j1">önerő ${M.tized(p.onero / 1e6, 1)} M</span><span class="j2">illeték ${M.tized(ill / 1e6, 1)} M</span><span class="j3">díjak ${M.tized(dij / 1e6, 1)} M</span></span>
 <span class="hk-ido">${p.lepesek.slice(0, 4).map((l) => `<span><span>${l.nev}</span><b>${M.fmt(l.ft)} Ft</b></span>`).join('')}</span>
@@ -293,7 +294,7 @@ ${sor('', negyzetek('kitol', 'Kitől veszed?', [['magan', 'Magánszemélytől'],
 <fieldset>${reszCim('', 'Eladott lakás')}
 <p class="fieldset-megj">Ha a vétel előtt ${cs.elotte_ev} éven belül eladtál egy lakást, vagy utána ${cs.utana_ev} éven belül eladod, csak a különbözet után fizetsz.</p>
 ${sor('', szamMezo({ id: 'eladottErtek', cim: 'Az eladott lakás ára', me: 'Ft', placeholder: 'pl. 52 000 000', min: 0, szeles: true, sugo: 'Ha csak a hányadodat adtad el, a rád eső rész.' }))}
-${sor('', negyzetek('eladasMikor', 'Mikor adtad vagy adod el?', [['elotte', `A vétel előtt ${cs.elotte_ev} éven belül`], ['utana', `A vétel után ${cs.utana_ev} éven belül`], ['regebben', 'Régebben']], ''))}
+${sor('', negyzetek('eladasMikor', 'Mikor adtad vagy adod el?', [['elotte', `A vétel előtt ${cs.mentes_elotte_ev} éven belül`], ['elotte5', `${cs.mentes_elotte_ev}–${cs.elotte_ev} évvel a vétel előtt`], ['utana', `A vétel után ${cs.utana_ev} éven belül`], ['regebben', 'Régebben']], ''))}
 </fieldset>
 <fieldset>${reszCim('', 'Rád vonatkozik?')}
 ${sor('', jelolo('elso', 'Ez az első lakásod', 'Nincs és nem is volt lakásod, és lakásban 50%-os vagy nagyobb tulajdoni hányadod.'))}
@@ -319,7 +320,7 @@ ${sor('', szamMezo({ id: 'haszonelvezoKor', cim: 'A haszonélvező életkora', m
 <p>Az illetéket a NAV határozat alapján szabja ki. Az adásvételi szerződést az ügyvéd nyújtja be a földhivatalhoz, és a kedvezményt is ilyenkor, a B400-as adatlapon kell kérni.</p>`,
     kerdesek: [
       { k: 'Mikor kell kifizetni az illetéket?', v: [`Nem a szerződéskor, hanem amikor megkapod a NAV határozatát: a kézbesítéstől számított ${sz('fizetesi_hatarido').ertek.nap} napon belül. Ez a vétel után általában néhány hónap.`] },
-      { k: 'Mi az a cserét pótló vétel?', v: [esc(sz('cserepotlo').szoveg), `2026. január 1-je óta az eladás a vétel előtt ${cs.elotte_ev} éven belül is beszámít, korábban 3 év volt a határ.`] },
+      { k: 'Mi az a cserét pótló vétel?', v: [esc(sz('cserepotlo').szoveg), esc(sz('cserepotlo').megjegyzes)] },
       { k: 'Jár kedvezmény a Wekerle Plusz vagy az Otthon Start mellé?', v: [esc(sz('tamogatott_hitel').szoveg)] },
       { k: 'Mennyi az illeték, ha csak a lakás felét veszem meg?', v: ['A rád eső rész értéke után fizetsz. Egy 60 millió forintos lakás feléért az illeték alapja 30 millió forint.', `A 35 év alattiak kedvezményénél viszont az egész lakás értéke számít: ha az ${f.ertekhatar_ft / 1e6} millió forint felett van, a fele sem kedvezményes.`] },
       { k: 'Ki számít első lakásszerzőnek?', v: ['Akinek nincs és nem is volt lakástulajdona, lakásban 50%-os vagy nagyobb tulajdoni hányada, és lakáshoz kapcsolódó, bejegyzett vagyoni értékű joga.'] },
@@ -725,6 +726,7 @@ ${sor('', negyzetek('kitol', 'Kitől veszed?', [['magan', 'Magánszemélytől'],
 </fieldset>
 <fieldset>${reszCim('III.', 'A hitel')}
 ${sor('', szamMezo({ id: 'hitel', cim: 'Hitelösszeg', me: 'Ft', placeholder: 'pl. 40 000 000', min: 0, szeles: true, sugo: 'Ha nem veszel fel hitelt, hagyd üresen.' }))}
+${sor('', szamMezo({ id: 'bankErtek', cim: 'A bank által megállapított forgalmi érték', me: 'Ft', placeholder: 'ha tudod', min: 0, szeles: true, sugo: 'Az értékbecslés után a bank ebből számolja, mennyi hitelt adhat. Ha a vételárnál kisebb, több önerő kell.' }))}
 ${sor('', jelolo('tamogatott', 'Wekerle Plusz vagy más államilag támogatott hitel', 'A közjegyző munkadíjának 15%-át fizeted, és a banki díjak együtt legfeljebb 30 000 forintot tehetnek ki.'))}
 </fieldset>
 <fieldset>${reszCim('', 'Rád vonatkozik?')}

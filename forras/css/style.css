@@ -175,6 +175,7 @@ p { margin: 0; text-wrap: pretty; }
 .vegosszeg .mi { display: block; font-size: 15px; font-weight: 600; }
 .vegosszeg .mennyi { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 8px; font: 750 clamp(40px, 5vw, 62px)/1.02 var(--cim); letter-spacing: -.045em; margin: 6px 0 0; font-variant-numeric: tabular-nums lining-nums; }
 .vegosszeg .mennyi .ft { font-size: .42em; font-weight: 650; letter-spacing: -.01em; }
+.vegosszeg .megj.pontos { margin-top: 4px; font-size: 13.5px; }
 .vegosszeg .megj { margin-top: 10px; font-size: 15px; line-height: 1.5; color: rgba(20, 22, 27, .78); max-width: 34em; }
 .vegosszeg .datum-nagy { font: 750 34px/1.1 var(--cim); letter-spacing: -.03em; }
 .villan { animation: villan .5s var(--lagy); }
@@ -378,9 +379,13 @@ a.jel:hover { filter: brightness(1.15); }
 .hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 48px; align-items: center; padding: 64px 0 40px; }
 .hero h1 { font-size: clamp(42px, 6.4vw, 84px); line-height: .96; letter-spacing: -.045em; font-weight: 780; }
 .hero .valasz { margin-top: 22px; font-size: 20px; line-height: 1.5; color: var(--tinta2); max-width: 32em; }
-.gyors { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+.kezdo { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin-top: 30px; }
+.fo-gomb { text-decoration: none; font: 700 18px/1.2 var(--cim); letter-spacing: -.01em; background: var(--tinta); color: var(--hatter); padding: 18px 26px; border-radius: 99px; box-shadow: 0 0 0 0 var(--sarga); transition: transform .2s var(--lagy), box-shadow .2s; }
+.fo-gomb:hover { transform: translateY(-2px); box-shadow: 0 0 0 5px var(--sarga); }
+.kezdo span { font-size: 14.5px; color: var(--tinta2); max-width: 18em; }
+.gyors { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 22px; }
+.gyors-cim { font-size: 14.5px; color: var(--tinta2); margin-right: 4px; }
 .gyors a { text-decoration: none; font-weight: 600; font-size: 15px; padding: 10px 16px; border-radius: 99px; background: var(--felulet); transition: background .15s, transform .15s var(--lagy); }
-.gyors a:first-child { background: var(--tinta); color: var(--hatter); }
 .gyors a:hover { background: var(--sarga); color: #14161B; transform: translateY(-1px); }
 .hero-tenyek { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 26px; font-size: 14.5px; color: var(--tinta2); }
 .hero-tenyek b { font: 750 18px var(--cim); color: var(--tinta); letter-spacing: -.02em; margin-right: 4px; }

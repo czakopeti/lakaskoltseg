@@ -103,3 +103,16 @@ Egy másik értékelés öt fejlesztést javasolt. Pontozás (K: kereslet, R: r�
 | Kalkulátorok összekapcsolása | 4 | 4 | 5 | **Kész** a „Következő lépés” linkjeivel: a vásárlási lánc (induló költség, hitel, Wekerle Plusz, illeték, bérlés vagy vétel) továbbadja az árat. Közös, böngészőben tárolt profilt nem építünk, mert az űrlapnak üresen kell nyílnia, és ami a látogató gépén marad, azt mi nem látjuk. |
 | Letölthető, megosztható eredmény | 3 | 3 | 5 | **Kész**: a nyomtatás (és a PDF-be mentés) egyoszlopos kimutatás fejléccel, a nyitott levezetéssel és a forráslistával; a megosztható link már megvolt. Külön PDF-generátor nem kell, a böngésző tudja. |
 | Ellenőrizhető számítási motor | 5 | 5 | 5 | Megvan: 55 teszt publikált példákkal, a kedvezmények közül a legkedvezőbbet választjuk, heti forrásfigyelő. |
+
+# Külső audit (2026. november 18., második kör)
+
+| Megállapítás | Mit csináltunk |
+|---|---|
+| A GitHub Pages-en a kanonikus cím a még nem élő pages.dev | Az előnézet a saját címét írja a kanonikus címbe és a strukturált adatokba (`ELONEZET_DOMAIN`). A megosztott link eddig is az aktuális címet használta. |
+| Nincs egyértelmű kezdőpont | A főoldalon egy fő gomb: „Számold ki, mennyi pénz kell a vételhez”, a többi kalkulátor alatta. |
+| A Wekerle Plusz „jogosult vagy” üzenete banki jóváhagyásnak hathat | „Megfelelsz a rendelet feltételeinek. A hitelt a bank bírálja el…” |
+| A becsléseket tartalmazó végösszeg túl pontosnak tűnik | Becsült tétel esetén a végösszeg kerekítve („kb. 12,9 millió Ft”), alatta a forintra pontos szám. Ha minden becsült tételt beírsz, nincs kerekítés. |
+| A bérlés–vétel alapfeltevése vitatható | Az eredmény alatt kiemelve: feltevés, nem előrejelzés, és a két szélső forgatókönyv eredménye. |
+| Vitatott szabályok | Cserét pótló vétel: a teljes mentességnél 3 év, a különbözetnél 5 év (Itv. 26. § (1) y), 21. § (2) b)); az űrlapon külön választható, és az eredmény jelzi. Wekerle Plusz illeték: az Itv. mentességei között nem szerepel, mentesség nélkül számolunk. |
+| Nincs banki forgalmiérték-mező | Az induló költségnél választható mező; a hitel felső határát ebből számoljuk. |
+| Adatátadás böngészőben tárolva | Nem építjük: az űrlap üresen nyílik. A linkek továbbadják a beírt számokat, és minden számítás megosztható. |

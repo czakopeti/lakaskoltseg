@@ -47,19 +47,20 @@
           "nev": "Cserét pótló vétel",
           "ertek": {
             "elotte_ev": 5,
+            "mentes_elotte_ev": 3,
             "utana_ev": 1,
             "tobb_eladas_ev": 3
           },
-          "szoveg": "Ha a vásárlás előtt 5 éven belül vagy utána 1 éven belül eladod a másik lakásodat, csak a két forgalmi érték különbözete után fizetsz illetéket. Ha az új lakás az olcsóbb, nincs illeték.",
-          "jogszabaly": "Itv. 21. § (2)–(5), a 2025. évi LXXXIII. törvény módosításával, 2026. január 1-jétől",
+          "szoveg": "Ha a vétel előtt 5 éven belül vagy utána 1 éven belül eladod a másik lakásodat, és az új lakás a drágább, csak a két forgalmi érték különbözete után fizetsz illetéket. Ha az új lakás az olcsóbb, nincs illeték, de ehhez az eladás a vétel előtt legfeljebb 3 éve történhetett. Több lakás cseréjénél is 3 év a határ.",
+          "jogszabaly": "Itv. 21. § (2) b) és (4), 26. § (1) y)",
           "forras": {
-            "nev": "Önadózó: Változtak a cserepótló vétel illetékkedvezmény szabályai",
-            "url": "https://www.onadozo.hu/hirek/valtoztak-a-cserepotlo-vetel-illetekkedvezmeny-szabalyai-13944",
-            "kelt": "2026-01-08"
+            "nev": "Ingatlan.com Tudástár: Változott 2026-ban a lakásvásárlás illetéke",
+            "url": "https://tudastar.ingatlan.com/hirek/valtozott-2026-ban-a-lakasvasarlas-illeteke-trukkos-hataridok-a-cseret-potlo-vetelnel/",
+            "kelt": "2026-01-19"
           },
           "szint": "masodlagos",
           "ellenorizve": "2026-11-18",
-          "megjegyzes": "Több lakás eladásánál a 21. § (4) bekezdés 3 éves időszaka változatlan maradt (Önadózó). A NAV összefoglaló oldala (2026. október 14-i állapot) még 3 évet ír az egy eladásos esetre is. A kalkulátor egy eladott lakással számol."
+          "megjegyzes": "2026. január 1-jétől a különbözet utáni illetéknél 5 év lett a határ, a teljes mentességnél és a több lakásos cserénél 3 év maradt. A PROAB és a Naturahírek ugyanígy írja; a cikk szerzője szerint ez valószínűleg szerkesztési hiba, amelyet később kiigazíthatnak. Amíg nem így lesz, a törvény betűjével számolunk."
         },
         {
           "kulcs": "elso_lakas_35",
@@ -676,7 +677,8 @@
             "kelt": ""
           },
           "szint": "masodlagos",
-          "ellenorizve": "2026-11-18"
+          "ellenorizve": "2026-11-18",
+          "megjegyzes": "A K&H és a Grantis összevetése szerint a Wekerle Plusz önmagában nem ad illetékmentességet; az Economx 2026. november 4-i cikke egy hitelszakértőt idéz, aki szerint a jogosultak mentességet kaphatnak. A rendelet nem rendelkezik illetékről, és az Itv. mentességei között a Wekerle Plusz nem szerepel, ezért mentesség nélkül számolunk."
         },
         {
           "kulcs": "piaci_kamat",
@@ -1331,18 +1333,6 @@
       "rogzitve": "2026-11-18"
     },
     {
-      "tema": "illetek",
-      "mi": "Cserét pótló vétel: a több eladott lakásra vonatkozó 3 éves időszak és az egy eladásos 5 év pontos viszonya.",
-      "teendo": "A hatályos Itv. 21. § szövegével és a NAV 19. információs füzetével összevetni.",
-      "rogzitve": "2026-11-18"
-    },
-    {
-      "tema": "wekerle_plusz",
-      "mi": "Ellentmondó forrás: jár-e illetékmentesség a Wekerle Plusz mellé.",
-      "teendo": "A NAV 19. információs füzetének következő kiadásában megnézni.",
-      "rogzitve": "2026-11-18"
-    },
-    {
       "tema": "ingyenes",
       "mi": "Mostoha- és nevelt gyermek, illetve bejegyzett élettárs öröklése: a 20 millió forintos mentesség és a bejegyzett élettárs helyzete csak szaksajtóból ismert.",
       "teendo": "A hatályos Itv. 16. §-ával és a NAV 31. információs füzetével összevetni.",
@@ -1352,6 +1342,18 @@
       "tema": "rovid_tav",
       "mi": "A budapesti moratórium 2026. december 31-én lejár. Hogy 2027-től melyik kerületben mi lesz a szabály, még nem tudni.",
       "teendo": "Január elején a kerületi rendeleteket egyenként átnézzük.",
+      "rogzitve": "2026-11-18"
+    },
+    {
+      "tema": "illetek",
+      "mi": "Cserét pótló vétel: a teljes mentességnél (olcsóbb új lakás) 3 év, a különbözet utáni illetéknél 5 év a határ. A szaksajtó szerint ez szerkesztési hiba lehet.",
+      "teendo": "Az Itv. módosításait figyeljük; ha a 3 évet 5-re igazítják, átírjuk.",
+      "rogzitve": "2026-11-18"
+    },
+    {
+      "tema": "wekerle_plusz",
+      "mi": "Egy szaksajtócikk szerint a Wekerle Plusz mellé illetékmentesség járhat, a bankok és más források szerint nem. Az Itv. mentességei között nem szerepel, ezért mentesség nélkül számolunk.",
+      "teendo": "A NAV 19. információs füzetének következő kiadásában megnézni.",
       "rogzitve": "2026-11-18"
     }
   ]

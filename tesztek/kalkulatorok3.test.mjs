@@ -134,3 +134,52 @@ test('rövid vagy hosszú távú kiadás: adózási módok, áfahatár, forduló
   assert.equal(r.hosszu.ado, S.berbeadas(adat, { havi: 260000, honap: 12, koltseg: 360000, ev: 2026 }).ado);
   assert.ok(S.rovidTav(adat, { ...alap, ejszaka: 40 }).hiba);
 });
+
+test('határesetek: cserét pótló vétel két határideje', () => {
+  const ill = (b) => S.illetek(adat, { ertek: 40e6, ...b });
+  // drágább új lakás, 3–5 éve eladva: a különbözet után
+  assert.equal(ill({ ertek: 60e6, eladottErtek: 40e6, eladasMikor: 'elotte5' }).ado, 800000);
+  // olcsóbb új lakás, 3 éven belül: mentes
+  assert.equal(ill({ eladottErtek: 50e6, eladasMikor: 'elotte' }).ado, 0);
+  // olcsóbb új lakás, 3–5 éve: a törvény betűje szerint nincs mentesség, a teljes 4% jár
+  const r = ill({ eladottErtek: 50e6, eladasMikor: 'elotte5' });
+  assert.equal(r.ado, 1600000);
+  assert.equal(r.lehetosegek.find((x) => x.kulcs === 'cserepotlo').jar, false);
+  // a panel jelzi a kettős határidőt
+  assert.match(M.kalkHtml('illetek', adat, { ertek: '40000000', eladottErtek: '50000000', eladasMikor: 'elotte5' }).html, /kettős a határidő/);
+});
+
+test('határesetek: értékhatárok pontosan a határon', () => {
+  const f = S.szabaly(adat, 'illetek.elso_lakas_35').ertek, uj = S.szabaly(adat, 'illetek.uj_lakas').ertek;
+  assert.equal(S.illetek(adat, { ertek: f.ertekhatar_ft, elso: true, fiatal35: true }).ado, S.altalanosIlletek(adat, f.ertekhatar_ft) / 2);
+  assert.equal(S.illetek(adat, { ertek: f.ertekhatar_ft + 1, elso: true, fiatal35: true }).ado, S.altalanosIlletek(adat, f.ertekhatar_ft + 1));
+  assert.equal(S.illetek(adat, { ertek: uj.mentes_resz_ft, ujVallalkozotol: true }).ado, 0);
+  assert.equal(S.illetek(adat, { ertek: uj.ertekhatar_ft, ujVallalkozotol: true }).ado, S.altalanosIlletek(adat, uj.ertekhatar_ft - uj.mentes_resz_ft));
+  assert.equal(S.illetek(adat, { ertek: uj.ertekhatar_ft + 1, ujVallalkozotol: true }).ado, S.altalanosIlletek(adat, uj.ertekhatar_ft + 1));
+  // eladás: a szerzést követő 5. évben már nincs adó, a 4.-ben még van
+  assert.equal(S.eladasSzja(adat, { eladasiAr: 50e6, szerzesEv: 2021, eladasEv: 2026, szerzesiErtek: 30e6 }).ado, 0);
+  assert.ok(S.eladasSzja(adat, { eladasiAr: 50e6, szerzesEv: 2022, eladasEv: 2026, szerzesiErtek: 30e6 }).ado > 0);
+  // a 200 milliós illetékplafon
+  assert.equal(S.altalanosIlletek(adat, 20e9), 200e6);
+});
+
+test('a bank alacsonyabb értékbecslése több önerőt kér', () => {
+  const r = S.indulo(adat, { vetelar: 50e6, hitel: 40e6, bankErtek: 45e6 });
+  assert.equal(r.hfmMax, 36e6);
+  assert.equal(r.hfmFelett, true);
+  assert.equal(S.indulo(adat, { vetelar: 50e6, hitel: 36e6, bankErtek: 45e6 }).hfmFelett, false);
+  assert.match(M.kalkHtml('indulo', adat, { vetelar: '50000000', hitel: '40000000', bankErtek: '45000000' }).html, /általa megállapított/);
+});
+
+test('becsült eredmény kerekítve, a pontos szám mellette', () => {
+  assert.equal(M.kozelitoen(12905400), 'kb. 12,9 millió');
+  assert.equal(M.kozelitoen(863160).replace(/\s/g, ' '), 'kb. 863 000');
+  const h = M.kalkHtml('indulo', adat, { vetelar: '50000000', hitel: '40000000' }).html;
+  assert.match(h, /kb\. 12,9 millió/);
+  assert.match(h, /Forintra pontosan 12\s905\s400 Ft/);
+  // ha minden becsült tételt beírtál, nincs kerekítés
+  const p = M.kalkHtml('indulo', adat, { vetelar: '50000000', hitel: '40000000', ugyvedi: '400000', ertekbecsles: '0', folyositas: '0' }).html;
+  assert.doesNotMatch(p, /kb\./);
+  // Wekerle: a megfelelés nem banki jóváhagyás
+  assert.match(M.kalkHtml('wekerle', adat, {}).html, /A hitelt a bank bírálja el/);
+});

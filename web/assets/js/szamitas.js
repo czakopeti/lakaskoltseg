@@ -137,9 +137,13 @@ export function illetek(adat, b) {
   const eladott = nem0(b.eladottErtek) * (b.eladottHanyad === '' || b.eladottHanyad == null ? 100 : Number(b.eladottHanyad)) / 100;
   const cs = sz('cserepotlo').ertek;
   if (eladott > 0) {
-    const ablakban = b.eladasMikor === 'elotte' || b.eladasMikor === 'utana';
-    l.push({ kulcs: 'cserepotlo', nev: 'Cserét pótló vétel', ado: ablakban ? altalanosIlletek(adat, alap - eladott) : null, jar: ablakban, kulonbozet: Math.max(0, alap - eladott), eladott,
-      miert: ablakban ? (alap <= eladott ? 'az új lakás nem drágább az eladottnál' : `a ${fmtSzam(alap - eladott)} Ft különbözet ${sz('altalanos_mertek').ertek.szazalek}%-a`) : `csak akkor jár, ha az eladás a vétel előtt ${cs.elotte_ev} éven belül vagy utána ${cs.utana_ev} éven belül történik` });
+    // 'elotte': a vétel előtt 3 éven belül, 'elotte5': 3–5 éve, 'utana': a vétel után 1 éven belül.
+    // A teljes mentesség (olcsóbb új lakás) csak 3 éven belüli eladásnál jár (Itv. 26. § (1) y)), a különbözet 5 éven belül (21. § (2) b)).
+    const olcsobb = alap <= eladott;
+    const ablakban = b.eladasMikor === 'elotte' || b.eladasMikor === 'utana' || (b.eladasMikor === 'elotte5' && !olcsobb);
+    l.push({ kulcs: 'cserepotlo', nev: 'Cserét pótló vétel', ado: ablakban ? altalanosIlletek(adat, alap - eladott) : null, jar: ablakban, kulonbozet: Math.max(0, alap - eladott), eladott, vitas: b.eladasMikor === 'elotte5',
+      miert: ablakban ? (olcsobb ? 'az új lakás nem drágább az eladottnál' : `a ${fmtSzam(alap - eladott)} Ft különbözet ${sz('altalanos_mertek').ertek.szazalek}%-a`)
+        : b.eladasMikor === 'elotte5' ? `olcsóbb új lakásnál a mentesség csak ${cs.mentes_elotte_ev} éven belüli eladásnál jár` : `csak akkor jár, ha az eladás a vétel előtt ${cs.elotte_ev} éven belül vagy utána ${cs.utana_ev} éven belül történik` });
   }
   const uj = sz('uj_lakas').ertek;
   if (b.ujVallalkozotol) {
@@ -448,7 +452,9 @@ export function indulo(adat, b) {
   const ill = illetek(adat, { ertek: ar, ujVallalkozotol: uj, rokon: b.kitol === 'rokon', csok: b.csok === true, elso: b.elso === true, fiatal35: b.fiatal35 === true });
   const hfm = szabaly(adat, 'hitel.hfm').ertek;
   const hfmSz = b.elso === true ? hfm.elso_lakas : hfm.altalanos;
-  const hfmMax = Math.floor(ar * hfmSz / 100);
+  // A bank a saját értékbecslése szerinti forgalmi értékből számol; ha ez a vételárnál kisebb, több önerő kell
+  const bankErtek = megadott(b.bankErtek) && Number(b.bankErtek) > 0 ? Number(b.bankErtek) : ar;
+  const hfmMax = Math.floor(bankErtek * hfmSz / 100);
   const hitel = hitelBe;
   const onero = ar - hitel;
   const tam = b.tamogatott === true && hitel > 0;
@@ -481,7 +487,7 @@ export function indulo(adat, b) {
   ].filter(Boolean);
   const megtakaritas = megadott(b.megtakaritas) ? nem0(b.megtakaritas) : null;
   return { ar, hitel, onero, oneroSzazalek: onero / ar * 100, tam, illetek: ill, tetelek, mellek, egyeb, osszes, foglalo, foglaloSzazalek: fsz, lepesek,
-    hfmSz, hfmMax, hfmFelett: hitel > hfmMax, uj, ugyvedSz,
+    hfmSz, hfmMax, hfmFelett: hitel > hfmMax, bankErtek, bankAlacsonyabb: bankErtek < ar, uj, ugyvedSz, becsult: tetelek.some((t) => !t.sajat && ['ugyvedi', 'ertekbecsles', 'folyositas'].includes(t.kulcs)),
     megtakaritas, hiany: megtakaritas === null ? null : osszes - megtakaritas, vetelarFelett: osszes - onero };
 }
 const tized1 = (n) => String(Math.round(n * 10) / 10).replace('.', ',');

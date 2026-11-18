@@ -11,6 +11,8 @@ import * as M from './forras/js/megjelenites.mjs';
 const elonezet = process.argv.includes('--elonezet');
 const KI = join(GYOKER, elonezet ? 'elonezet' : 'web');
 const cfg = olvas('config.json');
+// Az előnézet (GitHub Pages) a saját címét írja a kanonikus címbe és a strukturált adatokba, hogy ne mutasson nem élő domainre
+if (process.argv.includes('--elonezet') && process.env.ELONEZET_DOMAIN) cfg.domain = process.env.ELONEZET_DOMAIN.replace(/\/+$/, '');
 const adat = betoltAdat();
 const ma = maBudapest();
 const ev = Number(ma.slice(0, 4));

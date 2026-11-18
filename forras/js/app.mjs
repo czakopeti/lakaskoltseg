@@ -113,7 +113,7 @@ function frissit(panel, html, valtozott) {
   const cel = Number(m.dataset.osszeg);
   if (valtozott && !mintaMutat && elozoOsszeg !== null && elozoOsszeg !== cel) {
     m.closest('.vegosszeg')?.classList.add('villan');
-    if (!csendes) {
+    if (!csendes && !m.hasAttribute('data-kozelito')) {
       const span = $('.ertek', m), tol = elozoOsszeg, t0 = performance.now();
       const lep = (t) => { const x = Math.min(1, (t - t0) / 380); span.textContent = M.fmt(tol + (cel - tol) * (1 - (1 - x) ** 3)); if (x < 1) requestAnimationFrame(lep); };
       requestAnimationFrame(lep);
@@ -121,7 +121,7 @@ function frissit(panel, html, valtozott) {
   }
   elozoOsszeg = cel;
   if (mini && mintaMutat) mini.dataset.van = '';
-  else if (mini) { mini.dataset.van = '1'; $('.mi', mini).textContent = $('.vegosszeg .mi', panel)?.textContent || ''; $('.mennyi', mini).textContent = `${M.fmt(cel)} Ft`; }
+  else if (mini) { mini.dataset.van = '1'; $('.mi', mini).textContent = $('.vegosszeg .mi', panel)?.textContent || ''; $('.mennyi', mini).textContent = `${m.hasAttribute('data-kozelito') ? M.kozelitoen(cel) : M.fmt(cel)} Ft`; }
 }
 
 const ures = (e, mezok) => mezok.every((k) => e[k] === '' || e[k] == null);

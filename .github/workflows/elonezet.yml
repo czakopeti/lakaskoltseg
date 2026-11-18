@@ -25,8 +25,11 @@ jobs:
         with:
           node-version: 22
       - run: node --test tesztek/*.test.mjs
+      - id: pages
+        uses: actions/configure-pages@v5
       - run: node epit.mjs --elonezet
-      - uses: actions/configure-pages@v5
+        env:
+          ELONEZET_DOMAIN: ${{ steps.pages.outputs.base_url }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: elonezet
