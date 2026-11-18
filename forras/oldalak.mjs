@@ -81,7 +81,7 @@ ${sz.nyitott.length ? `<h2 id="nyitott">Amit még ellenőrzünk</h2>
 <p>A „becslés” jelölésű tételek a mi feltevéseink, mindegyik egy közzétett forrásra támaszkodik. A saját számaid ezeknél mindig pontosabbak, ezért a kalkulátorokban mindegyiket átírhatod.</p>
 <ul>${sz.temak.flatMap((t) => t.tetelek.filter((x) => x.becsles).map((x) => `<li><a href="#${t.id}">${esc(x.nev)}</a>: ${esc(x.szoveg)} <span class="halk">Forrás: <a href="${esc(x.forras.url)}" rel="noopener" target="_blank">${esc(x.forras.nev)}</a>.</span></li>`)).join('')}</ul>
 <h2>Hogyan frissül?</h2>
-<p>A szabályokat egy adatfájlban tartjuk, tételenként az ellenőrzés napjával. Ha jogszabály változik, a tételt átírjuk, és a dátum is frissül.${ellenorzesKesik(adat.allapot.utolso_ellenorzes, k.ma) ? ' A legutóbbi teljes ellenőrzés több mint 45 napja volt, a felülvizsgálat esedékes.' : ''}</p>
+<p>A szabályokat egy adatfájlban tartjuk, tételenként az ellenőrzés napjával. Minden hétfőn egy program letölti az összes forrásoldalt, és ha valamelyik megváltozott, jelez nekünk; januárban azt is figyeli, megjelent-e a KSH éves inflációs adata. Ha jogszabály változik, a tételt átírjuk, és a dátum is frissül.${ellenorzesKesik(adat.allapot.utolso_ellenorzes, k.ma) ? ' A legutóbbi teljes ellenőrzés több mint 45 napja volt, a felülvizsgálat esedékes.' : ''}</p>
 <p class="halk">Legutóbbi ellenőrzés: ${datumHu(adat.allapot.utolso_ellenorzes || k.ma)}.</p>
 <h2>Hibát találtál?</h2>
 <p>${k.cfg.kapcsolat_email ? `Írj a ${esc(k.cfg.kapcsolat_email)} címre. Minden jelzést megnézünk.` : 'Az oldal alján lévő dobozban jelezheted.'}</p>
@@ -774,7 +774,7 @@ export function berlesVetelOldal(k) {
   const p = S.berlesVetel({ ...adat, inflacio: adat.inflacio }, { vetelar: 50e6, onero: 10e6, berlet: 220000, kozos: 25000, evek: 10 });
   const infEv = Object.keys(adat.inflacio.evek).sort().pop();
   return kalkOldal(k, {
-    ut: BERLES_UT, tipus: 'berlesvetel', nev: 'Bérlés vagy vétel', temak: ['illetek', 'haszonelvezet', 'hitel', 'vetel_koltsegek', 'wekerle_plusz', 'berles_vetel'],
+    ut: BERLES_UT, tipus: 'berlesvetel', nev: 'Bérlés vagy vétel', temak: ['illetek', 'haszonelvezet', 'hitel', 'vetel_koltsegek', 'wekerle_plusz', 'berles_vetel', 'szja_eladas'],
     adatExtra: { inflacio: adat.inflacio },
     oldalCim: 'Albérlet vagy lakásvásárlás kalkulátor: melyikkel jársz jobban?',
     leiras: 'Bérlés vagy hitelből vétel: a vagyonod N év múlva három forgatókönyvben, az illetékkel, a mellékköltségekkel, a karbantartással, és ha bérelsz, a pénzed állampapírban.',
@@ -798,6 +798,8 @@ ${sor('', szamMezo({ id: 'evek', cim: 'Időtáv', me: 'év', placeholder: '10', 
 ${sor('', szamMezo({ id: 'arNo', cim: 'A lakásár változása évente', me: '%', placeholder: M.tized(p.infSz, 1), tized: true, sugo: `Alapesetben a KSH ${infEv}. évi átlagos inflációja. A borúlátó és a derűlátó változat ${bv('forgatokonyv').elteres_szazalekpont} százalékponttal tér el.` }))}
 ${sor('', szamMezo({ id: 'berNo', cim: 'A bérleti díj változása évente', me: '%', placeholder: M.tized(p.infSz, 1), tized: true }))}
 ${sor('', szamMezo({ id: 'hozam', cim: 'A befektetés hozama', me: '%', placeholder: M.tized(bv('allampapir').szazalek, 1), tized: true, sugo: 'Amit a bérlő a megmaradó pénzén keres. Alapesetben a Prémium Magyar Állampapír kamata.' }))}
+${sor('', jelolo('eladod', 'A végén eladod a lakást', 'Levonjuk a közvetítő díját, és ha öt éven belül adod el, az eladás adóját is.'))}
+${sor('', szamMezo({ id: 'kozvetito', cim: 'Közvetítői díj eladáskor', me: '%', placeholder: M.tized(bv('kozvetito').szazalek, 1), tized: true, sugo: 'Csak akkor számít, ha a végén eladod.' }))}
 ${sor('', szamMezo({ id: 'karbantartas', cim: 'Karbantartás évente', me: '%', placeholder: M.tized(bv('karbantartas').szazalek, 1), tized: true, sugo: 'A lakás értékének ennyi százaléka megy el évente javításra, festésre, gépcserére.' }))}
 </fieldset>`,
     cikk: `<h2>Hogyan számolunk?</h2>
@@ -810,7 +812,7 @@ ${sor('', szamMezo({ id: 'karbantartas', cim: 'Karbantartás évente', me: '%', 
       { k: 'Mikor éri meg lakást venni?', v: ['Ha hosszú távra tervezel, a bérleti díj közel van a törlesztőhöz, és a lakásárak legalább az inflációval nőnek. Kamattámogatott hitellel, például a Wekerle Plusszal, a vétel hamarabb előre kerül.'] },
       { k: 'Mennyit hoz a pénz, ha nem veszek lakást?', v: [esc(S.szabaly(adat, 'berles_vetel.allampapir').szoveg)] },
     ],
-    forrasKulcsok: ['berles_vetel.allampapir', 'berles_vetel.karbantartas', 'berles_vetel.forgatokonyv', 'wekerle_plusz.piaci_kamat', 'illetek.altalanos_mertek', 'vetel_koltsegek.ugyvedi'],
+    forrasKulcsok: ['berles_vetel.allampapir', 'berles_vetel.karbantartas', 'berles_vetel.forgatokonyv', 'berles_vetel.kozvetito', 'wekerle_plusz.piaci_kamat', 'illetek.altalanos_mertek', 'vetel_koltsegek.ugyvedi'],
   });
 }
 

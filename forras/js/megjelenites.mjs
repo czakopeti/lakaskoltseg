@@ -518,7 +518,16 @@ export function berlesVetelPanel(adat, r) {
   const [bo, , de] = r.forgatokonyvek;
   const elo = (x) => `${x.kulonbseg >= 0 ? 'a vétel' : 'a bérlés'} ${kozelitoen(Math.abs(x.kulonbseg))} Ft-tal jobb`;
   h += megjegyzes(`Ez feltevés, nem előrejelzés. A lakásárak alakulását senki sem tudja, az infláció csak kiindulópont. Ha a lakásárak évente ${tized(bo.arNo, 1)}%-kal nőnek, ${elo(bo)}; ha ${tized(de.arNo, 1)}%-kal, ${elo(de)}. Írd át a feltevéseket, és nézd meg, hogyan változik.`, 'figyelem');
-  h += `<div class="ket-modszer"><div class="modszer vagyon${vesz ? ' nyero' : ''}"><p class="m-cim">Ha megveszed</p><p class="m-nagy">${fmt(a.vetel / 1e6)}<small> millió Ft</small></p><p class="m-al">a lakás ${fmt(a.ertek / 1e6)} millió, mínusz ${fmt(a.tartozas / 1e6)} millió tartozás, plusz a befektetés</p></div><div class="modszer vagyon${vesz ? '' : ' nyero'}"><p class="m-cim">Ha bérelsz</p><p class="m-nagy">${fmt(a.berles / 1e6)}<small> millió Ft</small></p><p class="m-al">a kezdő pénz és a havi különbség befektetve</p></div></div>`;
+  h += `<div class="ket-modszer"><div class="modszer vagyon${vesz ? ' nyero' : ''}"><p class="m-cim">Ha megveszed</p><p class="m-nagy">${fmt(a.vetel / 1e6)}<small> millió Ft</small></p><p class="m-al">a lakás ${fmt(a.ertek / 1e6)} millió, mínusz ${fmt(a.tartozas / 1e6)} millió tartozás${r.eladod ? `, ${fmt(a.levonas / 1e6)} millió eladási költség` : ''}, plusz a befektetés. Mai értéken ${tized(a.vetelMa / 1e6, 1)} millió.</p></div><div class="modszer vagyon${vesz ? '' : ' nyero'}"><p class="m-cim">Ha bérelsz</p><p class="m-nagy">${fmt(a.berles / 1e6)}<small> millió Ft</small></p><p class="m-al">a kezdő pénz és a havi különbség befektetve. Mai értéken ${tized(a.berlesMa / 1e6, 1)} millió.</p></div></div>`;
+  const V = r.valodi;
+  h += `<p class="panel-cim">Mennyibe kerül valójában havonta a saját lakás?</p><ul class="tetelek">`;
+  h += tetel('A hitel kamata', `${ftx(V.kamat)}/hó`, { al: 'az első évben; a tőketörlesztés nem költség, az a lakásban marad' });
+  if (V.kozos) h += tetel('Közös költség és biztosítás', `${ftx(V.kozos)}/hó`, { forras: 'sajat' });
+  h += tetel(`Karbantartás, évi ${tized(r.karbSz, 1)}%`, `${ftx(V.karbantartas)}/hó`, { forras: 'becsles' });
+  h += tetel('A lekötött saját pénz elmaradt hozama', `${ftx(V.elmaradt)}/hó`, { forras: 'becsles', al: `${fmt(r.kezdo)} Ft × ${tized(r.hozam, 1)}% ÷ 12: ennyit hozna, ha nem a lakásban lenne` });
+  h += tetel('Ami nem tér vissza', `${ftx(V.osszes)}/hó`, { cls: 'vegso' });
+  h += `</ul><ul class="tetelek masodik">${tetel(`Ha a lakás évi ${tized(r.arNo, 1)}%-kal drágul`, `−${ftx(V.ertekNo)}/hó`, { cls: 'levonas', forras: 'becsles' })}${tetel('A saját lakás valódi költsége', `${ftx(V.netto)}/hó`, { cls: 'vegso' })}${tetel('Összevetésül a bérleti díj', `${ftx(r.berlet)}/hó`, { forras: 'sajat' })}</ul>`;
+  h += megjegyzes(V.netto < r.berlet ? `Az első évben a saját lakás havonta nagyjából ${ftx(r.berlet - V.netto)}-tal kevesebbe kerül, mint a bérlés.` : `Az első évben a saját lakás havonta nagyjából ${ftx(V.netto - r.berlet)}-tal többe kerül, mint a bérlés. Hosszabb távon a bérleti díj emelkedése és a hitel csökkenő kamata fordíthat ezen.`);
   // Évről évre: a két vagyon az alapesetben
   const max = Math.max(...a.evente.map((x) => Math.max(x.vetel, x.berles)), 1);
   h += `<p class="panel-cim" id="parok-cim">Évről évre, alapesetben</p><ol class="parok" aria-labelledby="parok-cim">${a.evente.map((x, i) => `<li style="--v:${(Math.max(0, x.vetel) / max * 100).toFixed(1)}%;--b:${(Math.max(0, x.berles) / max * 100).toFixed(1)}%;--i:${i}"><span class="pr-v" aria-hidden="true"></span><span class="pr-b" aria-hidden="true"></span><span class="pr-ev">${x.ev}.</span><span class="sr">${x.ev}. év: vétel ${fmt(x.vetel)} Ft, bérlés ${fmt(x.berles)} Ft</span></li>`).join('')}</ol><p class="parok-jel" aria-hidden="true"><span class="j-v">vétel</span><span class="j-b">bérlés</span></p>`;
@@ -540,7 +549,7 @@ export function berlesVetelPanel(adat, r) {
   ]);
   h = jelekkel(h);
   if (r.hfmFelett) h += megjegyzes(`Ekkora önerővel a bank nem ad hitelt: legfeljebb a forgalmi érték ${r.hfmSz}%-át adhatja.`, 'figyelem');
-  h += megjegyzes('Nem számoltuk: az eladás költségét, ha a végén eladnád; a bérlő kaucióját; és hogy a bérlő tényleg befekteti-e a különbséget. Wekerle Plusszal írd be a 3% vagy 5% kamatot.', 'halk');
+  h += megjegyzes(`${r.eladod ? `A végén eladással számolunk: ${tized(r.kozvSz, 1)}% közvetítői díj, és öt éven belül az eladás adója. ` : 'Az eladás költségét nem számoltuk; ha a végén eladnád, kapcsold be a feltevéseknél. '}Nem számoltuk a bérlő kaucióját, és hogy a bérlő tényleg befekteti-e a különbséget. A rezsi mindkét esetben a tiéd, ezért nincs benne. Wekerle Plusszal írd be a 3% vagy 5% kamatot.`, 'halk');
   return h;
 }
 
@@ -652,7 +661,7 @@ export const KALKULATOROK = {
   berlesvetel: {
     kulcs: ['vetelar', 'berlet'],
     minta: () => ({ adat: { vetelar: '50000000', onero: '10000000', berlet: '220000', kozos: '25000', evek: '10' }, leiras: 'egy 50 millió forintos lakás 10 millió forint önerővel, vagy egy hasonló lakás bérlése havi 220 000 forintért, 10 évre' }),
-    panel: (adat, e) => { const o = (k) => (e[k] === '' || e[k] == null ? '' : sz(e[k])); return berlesVetelPanel(adat, S.berlesVetel(adat, { vetelar: sz(e.vetelar), onero: o('onero'), berlet: sz(e.berlet), kozos: sz(e.kozos), evek: o('evek'), kamat: o('kamat'), futamido: o('futamido'), arNo: o('arNo'), berNo: o('berNo'), hozam: o('hozam'), karbantartas: o('karbantartas') })); },
+    panel: (adat, e) => { const o = (k) => (e[k] === '' || e[k] == null ? '' : sz(e[k])); return berlesVetelPanel(adat, S.berlesVetel(adat, { vetelar: sz(e.vetelar), onero: o('onero'), berlet: sz(e.berlet), kozos: sz(e.kozos), evek: o('evek'), kamat: o('kamat'), futamido: o('futamido'), arNo: o('arNo'), berNo: o('berNo'), hozam: o('hozam'), karbantartas: o('karbantartas'), eladod: e.eladod === true, kozvetito: o('kozvetito') })); },
   },
   lakasvaltas: {
     kulcs: ['eladasiAr', 'vetelar'],

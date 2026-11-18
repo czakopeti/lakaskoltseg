@@ -1173,6 +1173,24 @@
           "szint": "masodlagos",
           "becsles": true,
           "ellenorizve": "2026-11-18"
+        },
+        {
+          "kulcs": "kozvetito",
+          "nev": "Ingatlanközvetítő eladáskor",
+          "ertek": {
+            "szazalek": 3
+          },
+          "szoveg": "Ha a végén eladod a lakást, a közvetítő jellemzően az eladási ár 3–5%-át kéri; az átlag 3% körül van.",
+          "jogszabaly": "Szabad megállapodás",
+          "forras": {
+            "nev": "Economx: Ingatlanközvetítői jutalékok körkép",
+            "url": "https://www.economx.hu/ingatlan/2026/07/20/ingatlankozvetites-jutalekok-korkep/",
+            "kelt": "2026-07-20"
+          },
+          "szint": "masodlagos",
+          "becsles": true,
+          "ellenorizve": "2026-11-18",
+          "megjegyzes": "Az Economx szerint Magyarországon a díjak 1–5% között szóródnak, és az átlag 3% alá csökkent; a BiztosDöntés 3–5%-ot ír."
         }
       ]
     },

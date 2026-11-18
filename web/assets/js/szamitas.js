@@ -494,7 +494,7 @@ const tized1 = (n) => String(Math.round(n * 10) / 10).replace('.', ',');
 
 /* ---------------- Bérlés vagy vétel ---------------- */
 /** Havi léptékű modell: ugyanannyi pénz megy ki mindkét úton; ami az egyikben kevesebb, az befektetésbe kerül. */
-function berlesVetelFut({ ar, hitel, kamat, futamido, kezdo, berlet, kozos, karbSz, arNo, berNo, hozam, evek }) {
+function berlesVetelFut({ ar, hitel, kamat, futamido, kezdo, berlet, kozos, karbSz, arNo, berNo, hozam, evek, eladasLevonas = () => 0 }) {
   const rH = kamat / 100 / 12, n = futamido * 12;
   const havi = hitel > 0 ? torlesztoKamatbol(hitel, n, kamat) : 0;
   const rB = Math.pow(1 + hozam / 100, 1 / 12) - 1;
@@ -510,7 +510,8 @@ function berlesVetelFut({ ar, hitel, kamat, futamido, kezdo, berlet, kozos, karb
     if (d > 0) berlesBef += d; else vetelBef += -d;
     ertek *= Math.pow(1 + arNo / 100, 1 / 12);
     if (m % 12 === 0) {
-      evente.push({ ev: m / 12, vetel: ertek - tartozas + vetelBef, berles: berlesBef, ertek, tartozas, berlet: rent });
+      const levonas = eladasLevonas(ertek, m / 12);
+      evente.push({ ev: m / 12, vetel: ertek - tartozas + vetelBef - levonas, berles: berlesBef, ertek, tartozas, berlet: rent, levonas });
       rent *= 1 + berNo / 100; kozosM *= 1 + berNo / 100;
     }
   }
@@ -544,14 +545,34 @@ export function berlesVetel(adat, b) {
   if (ind.hiba) return ind;
   const kezdo = ind.osszes; // a vevő ennyi saját pénzt ad ki; a bérlő ugyanennyit befektet
   const el = bv('forgatokonyv').elteres_szazalekpont;
-  const alap = { ar, hitel, kamat, futamido, kezdo, berlet, kozos, karbSz, berNo, hozam, evek };
+  // Ha a végén eladod: közvetítő, és öt éven belül az eladás adója (a szerzés költségeit levonva)
+  const eladod = b.eladod === true;
+  const kozvSz = megadott(b.kozvetito) ? Number(b.kozvetito) : bv('kozvetito').szazalek;
+  const ugyved = ind.tetelek.find((t) => t.kulcs === 'ugyvedi')?.ft || 0;
+  const ev0 = Number(adat.ev) || new Date().getFullYear();
+  const eladasLevonas = eladod ? (ertek, ev) => {
+    const kozv = ertek * kozvSz / 100;
+    const szja = eladasSzja(adat, { eladasiAr: ertek, szerzesEv: ev0, eladasEv: ev0 + ev, szerzesiErtek: ar, szerzesKoltseg: ind.illetek.ado + ugyved, eladasKoltseg: kozv });
+    return kozv + (szja.hiba ? 0 : szja.ado);
+  } : () => 0;
+  const alap = { ar, hitel, kamat, futamido, kezdo, berlet, kozos, karbSz, berNo, hozam, evek, eladasLevonas };
   const fk = [['borulato', 'Borúlátó', arNo - el], ['alap', 'Alapeset', arNo], ['derulato', 'Derűlátó', arNo + el]].map(([kulcs, nev, a]) => {
     const r = berlesVetelFut({ ...alap, arNo: a });
     const elso = r.evente.find((x) => x.vetel >= x.berles);
     return { kulcs, nev, arNo: a, vetel: Math.round(r.vege.vetel), berles: Math.round(r.vege.berles), kulonbseg: Math.round(r.vege.vetel - r.vege.berles), fordul: elso ? elso.ev : null, ertek: Math.round(r.vege.ertek), tartozas: Math.round(r.vege.tartozas), evente: r.evente, havi: Math.round(r.havi) };
   });
   const a = fk[1];
-  return { ar, onero, hitel, kamat, kamatSajat: megadott(b.kamat), futamido, berlet, kozos, evek, arNo, berNo, hozam, karbSz, infSz, infEv: utolso, kezdo, indulo: ind,
+  // Mai értéken: a jövőbeli forintot az infláció feltevésével visszaszámoljuk
+  const defl = Math.pow(1 + infSz / 100, -evek);
+  for (const f of fk) { f.vetelMa = Math.round(f.vetel * defl); f.berlesMa = Math.round(f.berles * defl); f.levonas = Math.round(f.evente[f.evente.length - 1].levonas || 0); }
+  // A saját lakás valódi havi költsége az első évben: ami nem tér vissza (kamat, közös költség, karbantartás, a lekötött pénz elmaradt hozama)
+  const haviT = hitel > 0 ? torlesztoKamatbol(hitel, futamido * 12, kamat) : 0;
+  let t = hitel, elsoKamat = 0;
+  for (let i = 0; i < 12 && t > 0; i++) { const k = t * kamat / 100 / 12; elsoKamat += k; t -= haviT - k; }
+  const valodi = { kamat: Math.round(elsoKamat / 12), kozos, karbantartas: Math.round(ar * karbSz / 1200), elmaradt: Math.round(kezdo * hozam / 1200), ertekNo: Math.round(ar * arNo / 1200) };
+  valodi.osszes = valodi.kamat + valodi.kozos + valodi.karbantartas + valodi.elmaradt;
+  valodi.netto = valodi.osszes - valodi.ertekNo;
+  return { ar, onero, hitel, eladod, kozvSz, kozvSajat: megadott(b.kozvetito), valodi, defl, kamat, kamatSajat: megadott(b.kamat), futamido, berlet, kozos, evek, arNo, berNo, hozam, karbSz, infSz, infEv: utolso, kezdo, indulo: ind,
     havi: a.havi, elsoHaviVetel: Math.round(a.havi + kozos + ar * karbSz / 100 / 12), forgatokonyvek: fk, alap: a, nyero: a.kulonbseg >= 0 ? 'vetel' : 'berles', elteres: el,
     hfmFelett: ind.hfmFelett, hfmSz: ind.hfmSz };
 }

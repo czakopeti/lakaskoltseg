@@ -183,3 +183,24 @@ test('becsült eredmény kerekítve, a pontos szám mellette', () => {
   // Wekerle: a megfelelés nem banki jóváhagyás
   assert.match(M.kalkHtml('wekerle', adat, {}).html, /A hitelt a bank bírálja el/);
 });
+
+test('bérlés vagy vétel: eladás a végén, mai érték, valódi havi költség', () => {
+  const alap = { vetelar: 40e6, onero: 40e6, berlet: 200000, evek: 5, arNo: 0, berNo: 0, hozam: 0, karbantartas: 0 };
+  const r = S.berlesVetel(adat, { ...alap, eladod: true });
+  assert.equal(r.alap.vetel, 40e6 + 200000 * 12 * 5 - 40e6 * 0.03, 'a közvetítő díja levonva, nyereség nélkül nincs adó');
+  // gyors drágulásnál öt éven belül az eladás adója is levonódik
+  const d = S.berlesVetel(adat, { ...alap, evek: 3, arNo: 10, eladod: true });
+  const e = d.alap.evente[2];
+  const kozv = e.ertek * 0.03;
+  const szja = S.eladasSzja(adat, { eladasiAr: e.ertek, szerzesEv: 2026, eladasEv: 2029, szerzesiErtek: 40e6, szerzesKoltseg: d.indulo.illetek.ado + d.indulo.tetelek.find((t) => t.kulcs === 'ugyvedi').ft, eladasKoltseg: kozv }).ado;
+  assert.ok(szja > 0);
+  assert.ok(Math.abs(e.levonas - (kozv + szja)) < 1);
+  // mai érték
+  const m = S.berlesVetel(adat, { ...alap, evek: 10 });
+  assert.equal(m.alap.vetelMa, Math.round(m.alap.vetel * Math.pow(1 + m.infSz / 100, -10)));
+  // valódi havi költség: hitel nélkül csak a lekötött pénz elmaradt hozama és a karbantartás
+  const v = S.berlesVetel(adat, { ...alap, hozam: 6, karbantartas: 1 }).valodi;
+  assert.equal(v.kamat, 0);
+  assert.equal(v.elmaradt, Math.round(S.indulo(adat, { vetelar: 40e6 }).osszes * 6 / 1200));
+  assert.equal(v.karbantartas, Math.round(40e6 * 1 / 1200));
+});
