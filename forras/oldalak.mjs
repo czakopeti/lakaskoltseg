@@ -2,7 +2,7 @@
 // Most a váz van itt: főoldal (munkaverzió), források, rólunk, jogi oldalak. A kalkulátorok a tartalomterv szerint jönnek.
 import * as M from './js/megjelenites.mjs';
 import * as S from './js/szamitas.mjs';
-import { CSOPORTOK, oldal, oldalfej, ellenorzesKesik, morzsaLd, tovabb, esc, datumHu, forgalmi, elszamolas, sor, kod, szamMezo, reszCim, gyik, gyikLd, alkalmazasLd, forrasLista, alaprajzNagy } from './sablon.mjs';
+import { CSOPORTOK, oldal, oldalfej, ellenorzesKesik, morzsaLd, tovabb, esc, datumHu, forgalmi, elszamolas, sor, kod, szamMezo, reszCim, gyik, gyikLd, alkalmazasLd, forrasLista, lakasMakett } from './sablon.mjs';
 
 /* ======================= FŐOLDAL ======================= */
 /**
@@ -14,9 +14,20 @@ export const FOOLDAL_KARTYAK = {
   'forrasok/': [() => 'Minden szabály, amivel számolunk: jogszabályhely, forrás, és mikor ellenőriztük utoljára.', 'Megnézem'],
 };
 
+/** A makett zászlói: a négy leggyakoribb mérték, mind az adatfájlból. A link a kalkulátorra vagy a forrásra visz. */
+function zaszlok(k, L) {
+  const sz = (kulcs) => S.szabaly(k.adat, kulcs).ertek;
+  const wp = sz('wekerle_plusz.kamat');
+  return [
+    { x: 70, y: 48, ertek: `${sz('illetek.altalanos_mertek').szazalek}%`, cim: 'illeték, ha veszel', href: `${L.l('forrasok/')}#illetek` },
+    { x: 380, y: 60, ertek: `${sz('szja_eladas.ado_mertek').szazalek}%`, cim: 'adó, ha nyereséggel adod el', href: L.l(ELADAS_UT) },
+    { x: 390, y: 215, ertek: `${sz('berbeadas.ado_mertek').szazalek}%`, cim: 'adó, ha kiadod', href: `${L.l('forrasok/')}#berbeadas` },
+    { x: 75, y: 240, ertek: `${wp.uj_szazalek}% és ${wp.hasznalt_szazalek}%`, cim: 'Wekerle Plusz kamat', href: `${L.l('forrasok/')}#wekerle_plusz` },
+  ];
+}
 export function fooldal(k) {
   const tartalom = (L) => `
-<div class="keret nyito"><div>${oldalfej(L, { fo: true, cim: 'Mennyibe kerül venni, eladni vagy kiadni egy lakást?', valasz: 'Illeték, adó és hitel, forinttal kiszámolva. Minden szabály mellett ott a jogszabály és a nap, amikor utoljára ellenőriztük.' }).replace('<div class="keret oldalfej', '<div class="oldalfej')}</div>${alaprajzNagy()}</div>
+<div class="keret nyito"><div>${oldalfej(L, { fo: true, cim: 'Mennyibe kerül venni, eladni vagy kiadni egy lakást?', valasz: 'Illeték, adó és hitel, forinttal kiszámolva. Minden szabály mellett ott a jogszabály és a nap, amikor utoljára ellenőriztük.' }).replace('<div class="keret oldalfej', '<div class="oldalfej')}</div>${lakasMakett(zaszlok(k, L))}</div>
 ${CSOPORTOK.map((cs) => `<section class="szakasz" id="${cs.id}"><div class="keret">
 <h2>${cs.cim}</h2>
 <p class="csoport-bevezeto">${cs.bevezeto}</p>

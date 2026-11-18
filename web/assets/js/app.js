@@ -1,7 +1,7 @@
 // Böngészős réteg: menü, űrlapok, élő elszámolás, megosztható link.
 // Szerverre csak az megy, amit a látogató a visszajelzés-dobozban maga elküld.
-import * as S from './szamitas.js?v=7155427e';
-import * as M from './megjelenites.js?v=7155427e';
+import * as S from './szamitas.js?v=ae3aade8';
+import * as M from './megjelenites.js?v=ae3aade8';
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -33,6 +33,23 @@ if (fg && fiok?.showModal) {
   $('.fiok-zar', fiok)?.addEventListener('click', zar);
   fiok.addEventListener('click', (ev) => { if (ev.target === fiok) zar(); });
   fiok.addEventListener('cancel', (ev) => { ev.preventDefault(); zar(); });
+}
+
+/* ---------- A főoldal makettje: a szélességhez igazodik, és az egérrel finoman forgatható ---------- */
+const szin = $('[data-makett]');
+if (szin) {
+  const meretez = () => szin.style.setProperty('--k', Math.min(1, szin.clientWidth / 620).toFixed(3));
+  meretez();
+  if ('ResizeObserver' in window) new ResizeObserver(meretez).observe(szin);
+  if (!csendes && matchMedia('(hover: hover)').matches) {
+    szin.addEventListener('pointermove', (ev) => {
+      const r = szin.getBoundingClientRect();
+      const x = (ev.clientX - r.left) / r.width - 0.5, y = (ev.clientY - r.top) / r.height - 0.5;
+      szin.style.setProperty('--rz', `${(-34 + x * 22).toFixed(1)}deg`);
+      szin.style.setProperty('--rx', `${(58 - y * 10).toFixed(1)}deg`);
+    });
+    szin.addEventListener('pointerleave', () => { szin.style.removeProperty('--rz'); szin.style.removeProperty('--rx'); });
+  }
 }
 
 /* ---------- Űrlap-segédek ---------- */
@@ -86,6 +103,8 @@ function frissit(panel, html, valtozott) {
   // Ha semmi nem változott (például a mező elhagyásakor jövő „change” az „input” után), nem rajzoljuk újra:
   // különben az épp kattintott link (Következő lépés, forrásjelölés) kicserélődne a kattintás alatt.
   if (panel._utolso === html) return;
+  // Az első kirajzolás után a belépő animációk (lépcső) nem játszódnak újra minden billentyűnél
+  if (panel._utolso !== undefined) panel.classList.add('nyugodt');
   panel._utolso = html;
   panel.innerHTML = html;
   const kesz = !panel.querySelector('.ures');

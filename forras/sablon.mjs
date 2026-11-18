@@ -59,22 +59,36 @@ export function alaprajzJel() {
 <path d="M40 276H260M40 270V282M260 270V282M160 270V282M282 60V250M276 60H288M276 250H288" stroke-width="1"/>
 </svg>`;
 }
-/** A főoldal alaprajza: egy 54 négyzetméteres, kétszobás lakás, méretvonalakkal. A falak egyszer kirajzolódnak. */
-export function alaprajzNagy() {
-  const fal = (d) => `<path class="fal" pathLength="1" d="${d}"/>`;
-  return `<svg class="alaprajz" viewBox="0 0 584 420" role="img" aria-label="Egy 54 négyzetméteres, kétszobás lakás alaprajza méretvonalakkal">
-${fal('M40 50H520V340H40Z')}${fal('M300 50V180')}${fal('M300 226V340')}${fal('M300 180H380')}${fal('M424 180H520')}${fal('M40 232H120')}${fal('M164 232H300')}${fal('M190 232V340')}
-<g class="ker">
-<path class="vekony" d="M380 180A44 44 0 0 1 424 224M120 232A44 44 0 0 0 164 276M300 226A46 46 0 0 1 254 180M236 340A40 40 0 0 1 276 300"/>
-<path class="vekony" d="M90 45H210M90 55H210M350 45H470M350 55H470M515 230V300M525 230V300M35 262V312M45 262V312"/>
-<text x="170" y="138" text-anchor="middle">nappali</text><text class="nm" x="170" y="158" text-anchor="middle">21,4 m²</text>
-<text x="410" y="112" text-anchor="middle">hálószoba</text><text class="nm" x="410" y="132" text-anchor="middle">12,8 m²</text>
-<text x="410" y="266" text-anchor="middle">konyha</text><text class="nm" x="410" y="286" text-anchor="middle">9,6 m²</text>
-<text x="115" y="294" text-anchor="middle">fürdő</text><text class="nm" x="115" y="314" text-anchor="middle">4,7 m²</text>
-<text x="245" y="278" text-anchor="middle">előtér</text><text class="nm" x="245" y="296" text-anchor="middle">5,5 m²</text>
-<path class="meret" d="M40 378H520M40 370V386M520 370V386M300 370V386M36 382L44 374M296 382L304 374M516 382L524 374M546 50V340M538 50H554M538 340H554M542 54L550 46M542 344L550 336"/>
-<text class="m" x="170" y="402" text-anchor="middle">4,85</text><text class="m" x="410" y="402" text-anchor="middle">4,10</text><text class="m" x="566" y="195" text-anchor="middle" transform="rotate(90 566 195)">5,40</text>
-</g></svg>`;
+/**
+ * A főoldal makettje: a lakás alaprajza először síkban kirajzolódik, aztán megdől, a falak felállnak belőle,
+ * végül zászlók szúródnak a szobákba a legfontosabb mértékekkel. Tisztán CSS 3D, kép és könyvtár nélkül.
+ * zaszlok: [{ x, y, cim, ertek, href }] (a hely az alaprajz 480×290-es rácsán). Saját rajz, nem valódi lakás.
+ */
+export function lakasMakett(zaszlok = []) {
+  // [x1, y1, x2, y2, fajta]: v = vízszintes (x mentén), f = függőleges (y mentén); ablak, alacsony = a néző felőli, levágott fal
+  const FALAK = [
+    [0, 0, 50, 0], [50, 0, 170, 0, 'ablak'], [170, 0, 310, 0], [310, 0, 430, 0, 'ablak'], [430, 0, 480, 0],
+    [480, 0, 480, 180], [480, 180, 480, 250, 'ablak'], [480, 250, 480, 290],
+    [260, 0, 260, 130], [260, 176, 260, 290], [260, 130, 340, 130], [384, 130, 480, 130],
+    [0, 182, 80, 182], [124, 182, 260, 182], [150, 182, 150, 290],
+    [0, 0, 0, 290, 'alacsony'], [0, 290, 196, 290, 'alacsony'], [236, 290, 480, 290, 'alacsony'],
+  ];
+  const fal = ([x1, y1, x2, y2, fajta = ''], i) => {
+    const fugg = x1 === x2;
+    return `<i class="fal ${fugg ? 'f' : 'v'}${fajta ? ` ${fajta}` : ''}" style="left:${x1}px;top:${y1}px;width:${fugg ? y2 - y1 : x2 - x1}px;--i:${i}"></i>`;
+  };
+  const vonal = (d) => `<path pathLength="1" d="${d}"/>`;
+  return `<div class="szin" data-makett>
+<div class="haz">
+<div class="padlo"><svg viewBox="0 0 480 290" aria-hidden="true">
+<g class="rajz">${vonal('M0 0H480V290H0Z')}${vonal('M260 0V130')}${vonal('M260 176V290')}${vonal('M260 130H340')}${vonal('M384 130H480')}${vonal('M0 182H80')}${vonal('M124 182H260')}${vonal('M150 182V290')}</g>
+<g class="ivek"><path d="M340 130A44 44 0 0 1 384 174M80 182A44 44 0 0 0 124 226M260 176A46 46 0 0 1 214 130M196 290A40 40 0 0 1 236 250"/></g>
+<g class="nevek"><text x="130" y="96">nappali</text><text x="370" y="72">hálószoba</text><text x="370" y="222">konyha</text><text x="75" y="246">fürdő</text><text x="205" y="240">előtér</text></g>
+</svg></div>
+${FALAK.map(fal).join('')}
+${zaszlok.map((z, i) => `<div class="zaszlo" style="left:${z.x}px;top:${z.y}px;--i:${i}"><a href="${z.href}"><b>${esc(z.ertek)}</b><span>${esc(z.cim)}</span></a></div>`).join('\n')}
+</div>
+</div>`;
 }
 
 /** Érkeztető bélyegző a dátummal: a forrásolt szabályokkal számolt eredmény jele. */

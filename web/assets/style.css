@@ -822,3 +822,86 @@ h3 { font-weight: 600; }
 @media (max-width: 980px) { .forgalmi { padding-left: 32px; } }
 @media (max-width: 600px) { .forgalmi { padding-left: 20px; } }
 @media (max-width: 980px) { .sor .kod { display: none; } }
+
+/* ================= Mozgás ================= */
+/* Oldalváltás: a böngésző lágyan úsztatja át a két oldalt (ahol tudja) */
+@view-transition { navigation: auto; }
+
+/* --- A makett: síkrajz, megdől, a falak felállnak, zászlók --- */
+.nyito { grid-template-columns: minmax(0, 1fr) minmax(0, 600px); }
+.szin { position: relative; width: 100%; aspect-ratio: 620 / 500; --k: 1; --rx: 58deg; --rz: -34deg; --fal: 56px; }
+.haz { position: absolute; left: 50%; top: 56%; width: 480px; height: 290px; margin: -145px 0 0 -240px; transform-style: preserve-3d; transform: scale(var(--k)) rotateX(var(--rx)) rotateZ(var(--rz)); transition: transform .5s cubic-bezier(.2, .8, .2, 1); animation: dol 1.5s cubic-bezier(.65, 0, .25, 1) 1.5s backwards; }
+@keyframes megjelen { from { opacity: 0; } }
+@keyframes dol { from { transform: scale(var(--k)) rotateX(0deg) rotateZ(0deg); } }
+.haz::before { content: ""; position: absolute; inset: 0; background: var(--tinta); opacity: .16; filter: blur(16px); transform: translate3d(20px, 30px, -1px); animation: megjelen 1.2s ease 2.2s backwards; }
+.padlo { position: absolute; inset: 0; background: var(--lap); box-shadow: 0 0 0 1.5px var(--tinta); }
+.padlo svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.padlo .rajz path { fill: none; stroke: var(--tinta); stroke-width: 4; stroke-dasharray: 1; stroke-dashoffset: 1; animation: rajzol 1.2s cubic-bezier(.6, 0, .3, 1) forwards; }
+.padlo .rajz path:nth-child(n+2) { animation-duration: .5s; animation-delay: calc(.75s + var(--n, 0) * 1ms); }
+.padlo .rajz path:nth-child(2) { animation-delay: .8s; } .padlo .rajz path:nth-child(3) { animation-delay: .88s; } .padlo .rajz path:nth-child(4) { animation-delay: .96s; } .padlo .rajz path:nth-child(5) { animation-delay: 1.04s; } .padlo .rajz path:nth-child(6) { animation-delay: 1.12s; } .padlo .rajz path:nth-child(7) { animation-delay: 1.2s; } .padlo .rajz path:nth-child(8) { animation-delay: 1.28s; }
+.padlo .ivek path { fill: none; stroke: var(--toll); stroke-width: 1.3; animation: megjelen .5s ease 1.3s backwards; }
+.padlo .nevek text { font-family: var(--cim); font-size: 15px; font-weight: 500; fill: var(--tinta2); text-anchor: middle; animation: megjelen .5s ease 1.4s backwards; }
+.fal { position: absolute; display: block; height: var(--fal); transform-origin: 0 0; background: var(--lap); border: 1.5px solid var(--tinta); transform: rotateX(90deg); animation: emel .75s cubic-bezier(.2, 1.35, .4, 1) backwards; animation-delay: calc(2.5s + var(--i) * 65ms); }
+.fal.f { transform: rotateZ(90deg) rotateX(90deg); animation-name: emel-f; background: color-mix(in srgb, var(--lap) 88%, var(--toll)); }
+.fal.alacsony { height: 13px; }
+.fal.ablak { background: linear-gradient(to bottom, var(--lap) 0 34%, color-mix(in srgb, var(--toll) 22%, transparent) 34% 84%, var(--lap) 84%); }
+.fal.f.ablak { background: linear-gradient(to bottom, color-mix(in srgb, var(--lap) 88%, var(--toll)) 0 34%, color-mix(in srgb, var(--toll) 22%, transparent) 34% 84%, color-mix(in srgb, var(--lap) 88%, var(--toll)) 84%); }
+@keyframes emel { from { transform: rotateX(90deg) scaleY(0); opacity: 0; } }
+@keyframes emel-f { from { transform: rotateZ(90deg) rotateX(90deg) scaleY(0); opacity: 0; } }
+/* A zászló mindig szembenéz: visszaforgatjuk a ház dőlését, és nem kicsinyítjük a makettel */
+.zaszlo { position: absolute; width: 0; height: 0; transform-style: preserve-3d; transform: translateZ(76px) rotateZ(calc(-1 * var(--rz))) rotateX(calc(-1 * var(--rx))) scale(calc(1 / var(--k))); animation: zaszlo .6s cubic-bezier(.2, 1.4, .4, 1) backwards; animation-delay: calc(3.9s + var(--i) * 140ms); }
+@keyframes zaszlo { from { transform: translateZ(190px) rotateZ(calc(-1 * var(--rz))) rotateX(calc(-1 * var(--rx))) scale(calc(1 / var(--k))); opacity: 0; } }
+.zaszlo a { position: absolute; left: 0; bottom: 0; transform: translateX(-50%); display: grid; justify-items: center; gap: 1px; white-space: nowrap; text-decoration: none; background: var(--toll); color: var(--lap); padding: 5px 11px 6px; border-radius: 3px; line-height: 1.15; transition: translate .2s ease, background .2s; }
+.zaszlo a::after { content: ""; position: absolute; left: 50%; top: 100%; width: 1.5px; height: calc(66px * var(--k)); background: var(--toll); }
+.zaszlo a::before { content: ""; position: absolute; left: 50%; top: calc(100% + 66px * var(--k)); width: 7px; height: 7px; margin: -3.5px 0 0 -3px; border-radius: 50%; background: var(--toll); }
+.zaszlo b { font-size: 19px; font-weight: 600; letter-spacing: -.01em; }
+.zaszlo span { font-size: 12.5px; font-weight: 500; opacity: .92; }
+.zaszlo a:hover, .zaszlo a:focus-visible { translate: 0 -5px; background: var(--tinta); }
+.zaszlo a:hover::after, .zaszlo a:focus-visible::after { height: calc(66px * var(--k) + 5px); background: var(--tinta); }
+@media (max-width: 900px) { .nyito { grid-template-columns: 1fr; } .szin { max-width: 560px; } }
+@media (max-width: 520px) { .zaszlo b { font-size: 16px; } .zaszlo span { font-size: 11px; } .zaszlo a { padding: 4px 8px 5px; } }
+
+/* --- Az eredmény --- */
+/* A méretvonal kihúzódik, amikor új összeg jön */
+.vegosszeg .mennyi::after { transform-origin: left center; animation: meret .5s cubic-bezier(.3, 0, .2, 1) backwards; }
+@keyframes meret { from { transform: scaleX(0); } }
+/* A beírósor aláhúzása tollal húzódik végig */
+.beir { position: relative; }
+.beir:focus-within { box-shadow: none; border-bottom-color: var(--tinta); background: transparent; }
+.beir::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1.5px; height: 2.5px; background: var(--toll); transform: scaleX(0); transform-origin: left center; transition: transform .35s cubic-bezier(.3, 0, .2, 1); }
+.beir:focus-within::after { transform: scaleX(1); }
+/* Lépcső: évről évre kisebb az adóköteles rész */
+.lepcso { list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0; align-items: end; border-bottom: 1.5px solid var(--tinta); }
+.lepcso li { display: grid; grid-template-rows: auto 132px; justify-items: stretch; align-items: end; position: relative; padding-bottom: 0; }
+.lp-szazalek { text-align: center; font-size: 14px; font-weight: 600; color: var(--tinta2); padding-bottom: 5px; font-variant-numeric: tabular-nums lining-nums; align-self: end; grid-row: 1; transform: translateY(calc((100 - var(--p)) * 1.32px)); }
+.lp-oszlop { grid-row: 2; height: calc(var(--p) * 1%); min-height: 2px; background: var(--kiemel); border: 1.5px solid var(--tinta); border-bottom: 0; margin-right: -1.5px; transform-origin: bottom; animation: no .7s cubic-bezier(.2, 1.2, .4, 1) backwards; animation-delay: calc(.25s + var(--i) * 80ms); }
+.lepcso li:last-child .lp-oszlop { margin-right: 0; }
+.lp-ev { position: absolute; top: 100%; left: 0; right: 0; text-align: center; font-size: 13.5px; padding-top: 7px; color: var(--tinta2); line-height: 1.2; font-variant-numeric: tabular-nums lining-nums; }
+.lp-ev small { display: block; font-size: 11.5px; }
+.lepcso { margin-bottom: 48px; }
+.lepcso li.most .lp-oszlop { background: var(--toll); border-color: var(--toll); }
+.lepcso li.most .lp-szazalek, .lepcso li.most .lp-ev { color: var(--toll); font-weight: 700; }
+.lepcso li.most .lp-szazalek { font-size: 17px; }
+@keyframes no { from { transform: scaleY(0); } }
+.lp-szazalek { animation: megjelen .4s ease backwards; animation-delay: calc(.6s + var(--i) * 80ms); }
+.nyugodt .lp-oszlop, .nyugodt .lp-szazalek { animation: none; }
+.nyugodt .lepcso li.most .lp-oszlop { animation: kiemel .45s cubic-bezier(.2, 1.4, .4, 1); }
+@keyframes kiemel { from { transform: scaleY(.82); } }
+/* A bélyegző koppanására a lap megrezzen */
+.elszamolas:has(.pecset.ut) { animation: koppan .28s ease-out 1s; }
+@keyframes koppan { 30% { transform: translate(1.5px, 2.5px) rotate(.15deg); } 100% { transform: none; } }
+/* A főoldal listájában a cím alatt méretvonal húzódik ki */
+.lista h3 { position: relative; justify-self: start; padding-bottom: 9px; }
+.lista h3::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 9px; background: linear-gradient(var(--toll), var(--toll)) center / 100% 1.5px no-repeat, linear-gradient(var(--toll), var(--toll)) left center / 1.5px 9px no-repeat, linear-gradient(var(--toll), var(--toll)) right center / 1.5px 9px no-repeat; transform: scaleX(0); transform-origin: left center; transition: transform .4s cubic-bezier(.3, 0, .2, 1); }
+.lista a:hover h3::after, .lista a:focus-visible h3::after { transform: scaleX(1); }
+/* A főcím soronként érkezik */
+.nyito h1 { animation: felusz .7s cubic-bezier(.2, .8, .2, 1) .1s backwards; }
+.nyito .valasz { animation: felusz .7s cubic-bezier(.2, .8, .2, 1) .35s backwards; }
+@keyframes felusz { from { opacity: 0; transform: translateY(14px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .haz, .haz::before, .padlo .rajz path, .padlo .ivek path, .padlo .nevek text, .fal, .zaszlo, .lp-oszlop, .lp-szazalek, .vegosszeg .mennyi::after, .elszamolas:has(.pecset.ut), .nyito h1, .nyito .valasz { animation: none !important; }
+  .padlo .rajz path { stroke-dashoffset: 0; }
+  .haz, .beir::after, .lista h3::after, .zaszlo a { transition: none; }
+  @view-transition { navigation: none; }
+}
