@@ -8,6 +8,7 @@ import { olvas, ir, maBudapest } from '../forras/adat.mjs';
 /** A HTML látható szövege, szóközökre egyszerűsítve. A kihagy lista mintái (például változó dátumok) kimaradnak. */
 export function szovegge(html, kihagy = []) {
   let t = String(html)
+    .replace(/<!--[\s\S]*?-->/g, ' ')
     .replace(/<(script|style|noscript|svg|nav|header|footer|aside|form|iframe|template)[\s\S]*?<\/\1>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&[a-z]+;|&#\d+;/gi, ' ');
@@ -24,13 +25,18 @@ export function szakasz(szoveg, tol = '', ig = '') {
 export const lenyomat = (s) => createHash('sha256').update(s).digest('hex').slice(0, 16);
 
 // A szabályok szempontjából érdekes mondat: van benne szám, és mérték, összeg, idő vagy jogszabályhely.
+const REKLAM = /(PROMÓCIÓ|Hirdetés|Szponzorált|THM.*Részletek|textbox_adv|-->)/i;
 const TENY = /(%|százalék|forint|\bFt\b|§|millió|ezer|\bév|\bnap|hónap|határid|mérték|kamat)/i;
 /** A szöveg „ténymondatai”: számot és mértéket tartalmazó mondatok, sorba rendezve, ismétlés nélkül. */
 export function tenyek(szoveg) {
-  const m = szoveg.split(/(?<=[.!?;])\s+(?=[A-ZÁÉÍÓÖŐÚÜŰ0-9(„"])/u).map((x) => x.trim()).filter((x) => x.length >= 12 && x.length <= 600 && /\d/.test(x) && TENY.test(x));
+  // A felkiáltó és kérdő mondat többnyire ajánlott cikk címe vagy reklám, a szabályt kijelentő mondat írja le; a reklámblokkot is kihagyjuk.
+  const m = szoveg.split(/(?<=[.!?;])\s+(?=[A-ZÁÉÍÓÖŐÚÜŰ0-9(„"])/u).map((x) => x.trim())
+    .filter((x) => x.length >= 12 && x.length <= 400 && /\d/.test(x) && TENY.test(x) && !/[!?]$/.test(x) && !REKLAM.test(x));
   return [...new Set(m)].sort();
 }
 const rovid = (x) => lenyomat(x).slice(0, 10);
+/** A mondatválogatás változata: ha a szabályai változnak, minden forrás csendben új alapot kap, téves riasztás nélkül. */
+export const VALTOZAT = 2;
 
 /** A figyelendő források: a szabályok forrásai (melyik szabály függ tőlük), és a külön felvett oldalak. */
 export function forrasLista(szabalyok, kulon = []) {
@@ -56,7 +62,7 @@ export function ertekel(forras, elozo, html) {
   if (sz == null || sz.length < 200) return { allapot: 'gyanus', ok: sz == null ? 'a figyelt szakasz jelzője nincs az oldalon' : 'az oldal szövege túl rövid' };
   const t = tenyek(sz);
   const most = { tenyek: t.map(rovid), hossz: sz.length };
-  if (!elozo?.tenyek) return { allapot: 'uj', ...most };
+  if (!elozo?.tenyek || elozo.v !== VALTOZAT) return { allapot: 'uj', ...most };
   const regi = new Set(elozo.tenyek), uj = new Set(most.tenyek);
   const ujMondatok = t.filter((x) => !regi.has(rovid(x)));
   const eltunt = elozo.tenyek.filter((h) => !uj.has(h)).length;
@@ -70,8 +76,10 @@ export function ertekel(forras, elozo, html) {
  * Visszaad: { jelent, allapot } – az allapot a figyelő állapotába kerül, a régi lenyomat megmarad.
  */
 export function gondAllapot(elozo, ok, ma) {
-  const jelent = !elozo?.gond || elozo.gond !== ok;
-  return { jelent, allapot: { ...(elozo || {}), gond: ok, gondOta: jelent ? ma : elozo.gondOta, ellenorizve: ma } };
+  // Ha ugyanez a gond az elmúlt 60 napban már volt (az oldal csak néha tilt le), nem szólunk újra.
+  const nemregVolt = elozo?.utolsoGond === ok && elozo.utolsoGondNap && (Date.parse(ma) - Date.parse(elozo.utolsoGondNap)) / 864e5 <= 60;
+  const jelent = elozo?.gond ? elozo.gond !== ok : !nemregVolt;
+  return { jelent, allapot: { ...(elozo || {}), gond: ok, gondOta: elozo?.gond === ok ? elozo.gondOta : ma, utolsoGond: ok, utolsoGondNap: ma, ellenorizve: ma } };
 }
 
 async function letolt(url) {
@@ -101,7 +109,7 @@ export async function futtat({ leto = letolt } = {}) {
       if (e.allapot === 'valtozatlan' || (e.allapot === 'valtozott' && forras.automata)) jelentes.valtozatlan++;
       else jelentes[e.allapot].push({ url: forras.url, nev: forras.nev, szabalyok: forras.szabalyok, ok: e.ok, elozoLatva: elozo?.latva, ujMondatok: e.ujMondatok, eltunt: e.eltunt });
       // Változásnál az új lenyomatot rögzítjük, hogy ugyanarról egyszer szóljunk; a jegy őrzi, hogy felül kell vizsgálni.
-      if (e.tenyek) f.allapot[forras.url] = { hossz: e.hossz, tenyek: e.tenyek, latva: e.allapot === 'valtozatlan' ? elozo.latva : ma, ellenorizve: ma };
+      if (e.tenyek) f.allapot[forras.url] = { v: VALTOZAT, hossz: e.hossz, tenyek: e.tenyek, latva: e.allapot === 'valtozatlan' ? elozo.latva : ma, ellenorizve: ma, ...(elozo?.utolsoGond ? { utolsoGond: elozo.utolsoGond, utolsoGondNap: elozo.utolsoGondNap } : {}) };
     } catch (err) {
       gond('hiba', String(err.message || err));
     }
