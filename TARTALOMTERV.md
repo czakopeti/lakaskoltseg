@@ -31,7 +31,11 @@ Pontozás 1–5: **kereslet** (hányan keresik), **rés** (mennyire gyenge, ami 
 - Az eladás szja-jánál **2017 óta nincs különbség lakás és nem lakás között**, mindenre az ötéves skála érvényes. A money.hu kalkulátorából tehát ez nem hiányzik.
 - A T/7712. törvényjavaslat az első lakást szerzők illetékét írná át (50 millió forintig mentesség). Az állapota nincs megerősítve.
 
-## Sorrend
+## Állapot (2026. november 18., este)
+
+Mind az öt kalkulátor kész: eladás szja-ja, illeték, lakásváltás, lakáskiadás, Wekerle Plusz. A tovább építendőket a `TELJES_KEP.md` tartja.
+
+## Az eredeti sorrend
 
 1. Vizuális identitás (tulajdoni lap és adásvételi szerződés), név, logó.
 2. Eladás szja-ja.

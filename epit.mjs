@@ -60,7 +60,11 @@ if (existsSync(join(GYOKER, 'forras/kepek'))) for (const f of readdirSync(join(G
 const k = { cfg, adat, ma, ev, elonezet, verzio };
 const oldalak = [
   ['', O.fooldal(k)],
+  [O.ILLETEK_UT, O.illetekOldal(k)],
+  [O.WEKERLE_UT, O.wekerleOldal(k)],
+  [O.VALTAS_UT, O.lakasvaltasOldal(k)],
   [O.ELADAS_UT, O.eladasOldal(k)],
+  [O.KIADAS_UT, O.kiadasOldal(k)],
   ['forrasok/', O.forrasokOldal(k)],
   ['rolunk/', O.rolunkOldal(k)],
   ['impresszum/', O.impresszumOldal(k)],
@@ -127,6 +131,10 @@ https://:version.:project.pages.dev/*
 `}`);
   // A szöveges térkép az AI-asszisztenseknek: ugyanazok a csoportok és ugyanaz a sorrend, mint a főoldalon.
   const LLMS = {
+    'vagyonszerzesi-illetek-kalkulator/': `lakásvásárlás illetéke (4%) és minden kedvezmény: cserét pótló vétel 5 éven belüli eladással, új lakás vállalkozótól, 35 év alatti első lakásszerző, CSOK Plusz, egyenes ági rokon; a legkedvezőbb kiválasztásával`,
+    'wekerle-plusz-kalkulator/': `a Wekerle Plusz hitel feltételei a 298/2026. Korm. rendelet paragrafusaival (18–45 év, 50 millió forint, 3% új és 5% használt lakásra, ár- és négyzetméterár-korlát), havi törlesztő és a támogatás értéke`,
+    'lakasvaltas-kalkulator/': `eladás és vétel egy lapon: az eladás szja-ja, a régi hitel, az illeték a cserét pótló kedvezménnyel, és mennyi hitel kell az új lakáshoz`,
+    'lakaskiadas-ado-kalkulator/': `lakáskiadás szja-ja: 10% költséghányad vagy tételes elszámolás, a döntési pont, negyedéves adóelőleg és bevallás naptárfájlban`,
     'ingatlaneladas-szja-kalkulator/': `az eladott lakás, ház vagy telek személyi jövedelemadója a szerzés és az eladás évéből, az elszámolható költségekkel; mikortól adómentes, és meddig kell bevallani`,
     'forrasok/': `minden szabály jogszabályhelye, forrása és az ellenőrzés napja`,
     'rolunk/': `független, ingyenes, forrással; mi hivatalos, mi saját adat, mi becslés`,

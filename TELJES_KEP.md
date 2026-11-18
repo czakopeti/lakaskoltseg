@@ -1,15 +1,17 @@
 # A teljes kép (2026. november 18.)
 
+Kész: 5 kalkulátor. A következő jelöltek a pontszám szerint: mennyi hitelt kaphatsz (MNB adósságfék), öröklési és ajándékozási illeték, haszonélvezet értéke, építményadó településenként, bérleti díj emelése a KSH inflációjával.
+
 Minden, amit egy lakással kapcsolatban ki lehet számolni vagy el kell dönteni, élethelyzet szerint. Pontozás 1–5: kereslet, rés, megépíthető (van-e ellenőrizhető, géppel figyelhető forrása). **Kész** = fent van. **Terv** = megépül, sorrendben. **Jelölt** = a szabályokat még forrásból ellenőrizni kell, addig a pontszám becslés. **Nem** = nem építjük.
 
 ## Veszel
 
 | Oldal | K | R | M | Állapot |
 |---|---|---|---|---|
-| Vagyonszerzési illeték, minden kedvezménnyel | 5 | 3 | 3 | Terv (2.) |
+| Vagyonszerzési illeték, minden kedvezménnyel | 5 | 3 | 4 | **Kész** |
 | A vétel teljes költsége: illeték, ügyvéd, földhivatal, értékbecslés, közjegyző | 4 | 4 | 3 | Jelölt |
 | Mennyi hitelt kaphatsz: jövedelem, önerő, az MNB adósságfék-szabályai | 5 | 3 | 4 | Jelölt |
-| Wekerle Plusz jogosultság és törlesztő | 5 | 2 | 5 | Terv (5.) |
+| Wekerle Plusz jogosultság és törlesztő | 5 | 2 | 5 | **Kész** |
 | Melyik támogatás jár: Wekerle Plusz, CSOK Plusz, babaváró, falusi CSOK | 5 | 3 | 3 | Jelölt |
 | Új lakás: áfa, illetékkedvezmény, fizetési ütemezés | 3 | 4 | 3 | Jelölt |
 | Venni vagy bérelni | 4 | 4 | 3 | Jelölt |
@@ -21,13 +23,13 @@ Minden, amit egy lakással kapcsolatban ki lehet számolni vagy el kell dönteni
 |---|---|---|---|---|
 | Eladás szja-ja | 4 | 4 | 5 | **Kész** |
 | Mennyi marad az eladási árból: közvetítő, szja, hitel végtörlesztése | 4 | 4 | 4 | Jelölt |
-| Lakásváltás: eladás és vétel együtt | 4 | 5 | 3 | Terv (3.) |
+| Lakásváltás: eladás és vétel együtt | 4 | 5 | 4 | **Kész** |
 
 ## Kiadod
 
 | Oldal | K | R | M | Állapot |
 |---|---|---|---|---|
-| Lakáskiadás adója: 10% vagy tételes | 4 | 4 | 4 | Terv (4.) |
+| Lakáskiadás adója: 10% vagy tételes | 4 | 4 | 5 | **Kész** |
 | Hozam: megéri-e kiadásra venni | 4 | 4 | 3 | Jelölt |
 | Rövid távú kiadás (szálláshely): tételes átalány, helyi szabályok | 3 | 4 | 2 | Jelölt |
 | Bérleti díj emelése az inflációval (KSH) | 3 | 4 | 5 | Jelölt |
@@ -51,7 +53,7 @@ Minden, amit egy lakással kapcsolatban ki lehet számolni vagy el kell dönteni
 
 ## Mindegyikhez
 
-- Határidő naptárfájlban (az szja-oldalon kész).
+- Határidő naptárfájlban (kész az eladás szja-jánál és a lakáskiadásnál).
 - Forrás és dátum minden tételnél, JSON-adatcsatorna, llms.txt (kész).
 - „Az én lakásom” lap a böngészőben mentett adatokkal: csak ha három-négy kalkulátor már kész.
 

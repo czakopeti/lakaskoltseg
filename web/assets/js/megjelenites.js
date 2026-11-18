@@ -1,6 +1,6 @@
 // Az elszámolás (eredmény) HTML-je. Ugyanezt használja az építő (a HTML-ben már benne van a szám)
 // és a böngésző (élő számolás), így a kettő nem térhet el.
-import * as S from './szamitas.js?v=b301b154';
+import * as S from './szamitas.js?v=db03edd2';
 
 const nf = new Intl.NumberFormat('hu-HU', { useGrouping: 'always' });
 export const fmt = (n) => nf.format(Math.round(n));
@@ -132,4 +132,139 @@ export function eladasPanel(adat, r) {
     h += `<button class="szoveg-gomb naptar-gomb" type="button" data-naptar="${r.bevallas}" data-naptar-cim="Ingatlaneladás szja-ja: bevallás és befizetés" data-naptar-leiras="A ${r.eladasEv}. évi eladás adója: ${fmt(r.ado)} Ft. Az éves szja-bevallásban kell szerepeltetni.">A határidőt a naptáramba teszem</button>`;
   }
   return h;
+}
+
+/* ---------- Vagyonszerzési illeték ---------- */
+export function illetekPanel(adat, r) {
+  if (r.hiba) return hianyPanel(r.hiba);
+  const f = (k) => S.szabaly(adat, `illetek.${k}`).forras.url;
+  const kedv = r.legjobb.kulcs !== 'altalanos';
+  let h = vegosszeg('Fizetendő vagyonszerzési illeték', r.ado, kedv ? `${r.legjobb.nev}: ${r.legjobb.miert}. Kedvezmény nélkül ${ftx(r.altalanos)} lenne.` : `A forgalmi érték ${S.szabaly(adat, 'illetek.altalanos_mertek').ertek.szazalek}%-a. Kedvezmény nem jár a megadott adatokkal.`);
+  h += '<ul class="tetelek">';
+  h += tetel('Vételár', ftx(r.ertek), { forras: 'sajat', al: 'Az illeték alapja a NAV által megállapított forgalmi érték. Ha ez eltér a vételártól, az illeték is eltér.' });
+  if (r.hanyad < 100) h += tetel(`A rád eső rész: ${tized(r.hanyad, 2)}%`, ftx(r.alap), { forras: 'sajat' });
+  h += tetel('Általános mérték', ftx(r.altalanos), { forras: 'hivatalos', forrasUrl: f('altalanos_mertek') });
+  if (kedv) h += tetel(r.legjobb.nev, `−${ftx(r.megtakaritas)}`, { cls: 'levonas', forras: 'hivatalos', forrasUrl: f(r.legjobb.kulcs) });
+  h += tetel('Fizetendő illeték', ftx(r.ado), { cls: 'vegso' });
+  h += '</ul>';
+  if (r.lehetosegek.length > 1) {
+    h += `<p class="panel-cim">Melyik kedvezmény jár?</p><ul class="tetelek lehetosegek">${r.lehetosegek.map((x) => `<li class="${x === r.legjobb ? 'kiemelt-sor' : ''}${x.jar ? '' : ' nem-jar'}"><span>${x.nev}<span class="al">${x.miert}</span></span><span class="ossz-ertek">${x.jar ? ftx(x.ado) : 'nem jár'}</span></li>`).join('')}</ul>`;
+    h += megjegyzes('Ha több kedvezmény is jár, a neked legkedvezőbbel számolunk. A kedvezményt a NAV-nál kell kérni, általában az adásvételi szerződés benyújtásakor, a B400-as adatlapon.');
+  }
+  h = jelekkel(h);
+  if (r.ado > 0) h += megjegyzes(`Az illetéket nem a szerződéskor fizeted, hanem a NAV határozata alapján, a kézbesítéstől számított ${r.hatarido_nap} napon belül.${r.reszletben ? ` Első lakásnál kérelemre ${r.reszletben} havi részletben, pótlék nélkül is fizetheted.` : ''}`);
+  return h;
+}
+
+/* ---------- Wekerle Plusz ---------- */
+const JEL_OK = { true: ['ok', 'teljesül'], false: ['nem', 'nem teljesül'], null: ['nincs', 'add meg'] };
+export function wekerlePanel(adat, r) {
+  if (r.hiba) return hianyPanel(r.hiba);
+  const src = S.szabaly(adat, 'wekerle_plusz.kamat').forras.url;
+  const allapot = r.jogosult === true ? 'A megadott adatok alapján jogosult vagy.' : r.jogosult === false ? `${r.nemOk.length === 1 ? 'Egy feltétel' : `${r.nemOk.length} feltétel`} nem teljesül: ${r.nemOk.map((x) => x.nev.toLowerCase()).join(', ')}.` : `Még ${r.hianyzik.length === 1 ? 'egy adat' : `${r.hianyzik.length} adat`} hiányzik a döntéshez: ${r.hianyzik.map((x) => x.nev.toLowerCase()).join(', ')}.`;
+  let h = vegosszeg('Havi törlesztő', r.havi, `${fmt(r.hitel)} Ft hitel ${r.ev} évre, ${tized(r.kamat, 1)}% fix kamattal. ${allapot}`);
+  h += `<p class="panel-cim">A feltételek, a rendelet szerint</p><ul class="feltetelek">${r.feltetelek.map((x) => `<li class="f-${JEL_OK[x.ok][0]}"><span class="f-jel" aria-hidden="true"></span><span><b>${x.nev}</b> <span class="sr">${JEL_OK[x.ok][1]}</span><span class="al">${x.szoveg} <a href="${src}" target="_blank" rel="noopener">${x.par}</a></span></span></li>`).join('')}</ul>`;
+  h += '<ul class="tetelek">';
+  h += tetel('Vételár', ftx(r.ar), { forras: 'sajat' });
+  h += tetel('Önerő', `−${ftx(r.onero)}`, { cls: 'levonas', forras: r.oneroFeltetelezett ? 'becsles' : 'sajat', al: r.oneroFeltetelezett ? 'A legkisebb önerővel számoltunk, add meg a sajátodat.' : '' });
+  h += tetel('Hitelösszeg', ftx(r.hitel));
+  h += tetel(`Kamat: ${tized(r.kamat, 1)}%`, `${ftx(r.kamatOssz)}`, { forras: 'hivatalos', forrasUrl: src, al: `${r.ev} év alatt, összesen ${ftx(r.osszesen)}-ot fizetsz vissza` });
+  h += tetel(`Ugyanez ${tized(r.piaciKamat, 1)}% kamattal`, `${ftx(r.piaciHavi)}/hó`, { forras: r.piaciSajat ? 'sajat' : 'becsles', forrasUrl: S.szabaly(adat, 'wekerle_plusz.piaci_kamat').forras.url, al: 'támogatás nélküli piaci hitelnél' });
+  h += tetel('Ennyit ér a támogatás', ftx(r.megtakaritas), { cls: 'vegso', al: `${r.ev} év alatt` });
+  h += '</ul>';
+  h = jelekkel(h);
+  h += megjegyzes(`A vételár mellé illetéket is fizetsz, mert a Wekerle Plusz nem ad mentességet, és az illeték a hitelbe sem számítható bele. Kedvezmény nélkül ez ${ftx(r.illetek)}.`);
+  h += megjegyzes(`${r.bentlakas} évig a lakásban kell laknod, ezalatt nem adhatod ki, és elidegenítési és terhelési tilalom van rajta.`);
+  return h;
+}
+
+/* ---------- Lakáskiadás adója ---------- */
+export function kiadasPanel(adat, r) {
+  if (r.hiba) return hianyPanel(r.hiba);
+  const src = (k) => S.szabaly(adat, `berbeadas.${k}`).forras.url;
+  const nev = { koltseghanyad: `${r.kh}% költséghányaddal`, teteles: 'tételes költségelszámolással' };
+  let h = vegosszeg(`Éves személyi jövedelemadó, ${nev[r.jobb]}`, r.ado, r.kulonbseg ? `Ez ${ftx(r.kulonbseg)}-tal kevesebb, mint a másik módszerrel. Havonta átlagosan ${ftx(r.haviAdo)} az adó.` : 'A két módszer ugyanannyi adót ad.');
+  h += '<ul class="tetelek">';
+  h += tetel(`Bérleti díj: ${r.honap} hónap`, ftx(r.havi * r.honap), { forras: 'sajat' });
+  if (r.bevetel > r.havi * r.honap) h += tetel('Egyéb bevétel', ftx(r.bevetel - r.havi * r.honap), { forras: 'sajat', al: 'például megtérített közös költség, átalány rezsi' });
+  if (r.berelt) h += tetel('Bérleti díj, amit máshol fizetsz', `−${ftx(r.berelt)}`, { cls: 'levonas', forras: 'hivatalos', forrasUrl: src('berelt_lakas') });
+  h += '</ul>';
+  h += `<div class="ket-modszer">${['koltseghanyad', 'teteles'].map((m) => { const x = m === 'teteles' ? r.B : r.A; return `<div class="modszer${r.jobb === m ? ' nyero' : ''}"><p class="m-cim">${m === 'teteles' ? 'Tételes elszámolás' : `${r.kh}% költséghányad`} ${jel('hivatalos', src(m))}</p><p class="m-al">${m === 'teteles' ? `${ftx(r.koltseg)} igazolt költség levonva` : `${ftx(r.alap * r.kh / 100)} költségnek számít, számla nélkül`}</p><p class="m-sor"><span>Jövedelem</span><span>${ftx(x.jovedelem)}</span></p><p class="m-sor m-ado"><span>Adó, ${r.kulcs}%</span><span>${ftx(x.ado)}</span></p></div>`; }).join('')}</div>`;
+  // A döntési pont: méretvonal, rajta a te költséged
+  const max = Math.max(r.dontesiPont * 2, r.koltseg * 1.15, 1);
+  const pos = (v) => Math.min(100, (v / max) * 100);
+  h += `<p class="panel-cim">Mikor jobb a tételes elszámolás?</p><div class="dontes" style="--d:${pos(r.dontesiPont)}%;--k:${pos(r.koltseg)}%"><div class="d-sav"><span class="d-bal">10% jobb</span><span class="d-jobb">tételes jobb</span></div><span class="d-pont" aria-hidden="true"></span><span class="d-te" aria-hidden="true"></span></div><p class="d-felirat">Évi <b>${ftx(r.dontesiPont)}</b> igazolt költség felett a tételes elszámolás az olcsóbb. ${r.koltseg ? `A te költséged ${ftx(r.koltseg)}.` : 'Költséget nem adtál meg.'}</p>`;
+  h = jelekkel(h);
+  if (r.ado > 0) {
+    const negyed = Math.round(r.ado / 4);
+    h += megjegyzes(`${r.honap === 12 ? `Negyedévente nagyjából ${ftx(negyed)} adóelőleget fizetsz` : 'Negyedévente adóelőleget fizetsz az abban a negyedévben kapott bérleti díj után'}, a negyedévet követő hónap 12-ig: ${r.elolegek.map((e) => datumHu(e.nap).replace(/^\d{4}\. /, '').replace(/\.$/, '')).join(', ')}. Az éves bevallás határideje ${datumHu(r.bevallas)}`);
+    const lista = [...r.elolegek.map((e) => ({ nap: e.nap, cim: `Lakáskiadás: ${e.negyedev}. negyedévi adóelőleg`, leiras: `A ${r.ev}. ${e.negyedev}. negyedévi bérleti díj adóelőlege${r.honap === 12 ? `, nagyjából ${fmt(negyed)} Ft` : ''}.` })), { nap: r.bevallas, cim: 'Szja-bevallás: a lakáskiadás jövedelme', leiras: `A ${r.ev}. évi bérbeadás jövedelme önálló tevékenységként.` }];
+    h += `<button class="szoveg-gomb naptar-gomb" type="button" data-naptar-lista="${esc(JSON.stringify(lista))}">A határidőket a naptáramba teszem</button>`;
+  }
+  return h;
+}
+
+/* ---------- Lakásváltás ---------- */
+export function lakasvaltasPanel(adat, r) {
+  if (r.hiba) return hianyPanel(r.hiba);
+  const nincsHiany = r.hiany <= 0;
+  let h = vegosszeg(nincsHiany ? 'Ennyi marad a váltás után' : 'Ennyi hitel kell még a váltáshoz', Math.abs(r.hiany), nincsHiany ? 'Az eladásból és a megtakarításodból kifizeted az új lakást és minden költségét.' : 'Az eladásból kapott pénz és a megtakarításod után ennyi hiányzik az új lakás árához és költségeihez.');
+  h += `<div class="valtas"><div class="v-oldal"><p class="m-cim">Eladás</p><ul class="tetelek">`;
+  h += tetel('Eladási ár', ftx(r.elado), { forras: 'sajat' });
+  if (r.kozvetito) h += tetel('Ingatlanközvetítő', `−${ftx(r.kozvetito)}`, { cls: 'levonas', forras: 'sajat' });
+  if (r.tartozas) h += tetel('A régi hitel végtörlesztése', `−${ftx(r.tartozas)}`, { cls: 'levonas', forras: 'sajat' });
+  h += tetel('Személyi jövedelemadó', r.szja.ado ? `−${ftx(r.szja.ado)}` : (r.szjaHianyzik ? '?' : ftx(0)), { cls: 'levonas', forras: r.szjaHianyzik ? '' : 'hivatalos', forrasUrl: S.szabaly(adat, 'szja_eladas.jovedelem_hanyad').forras.url, al: r.szjaHianyzik ? 'Add meg a szerzés évét és értékét, és kiszámoljuk.' : r.szja.hanyad ? `a számított összeg ${r.szja.hanyad}%-a után` : 'a szerzést követő 5. évtől nincs' });
+  h += tetel('Ennyit kapsz kézhez', ftx(r.kapsz), { cls: 'vegso' });
+  h += `</ul></div><div class="v-oldal"><p class="m-cim">Vétel</p><ul class="tetelek">`;
+  h += tetel('Vételár', ftx(r.vetel), { forras: 'sajat' });
+  h += tetel('Illeték, cserét pótló vétellel', `+${ftx(r.illetek.ado)}`, { forras: 'hivatalos', forrasUrl: S.szabaly(adat, 'illetek.cserepotlo').forras.url, al: r.illetekMegtakaritas ? `kedvezmény nélkül ${ftx(r.illetekNelkul)} lenne` : '' });
+  if (r.vetelKoltseg) h += tetel('Ügyvéd, értékbecslés, egyéb', `+${ftx(r.vetelKoltseg)}`, { forras: 'sajat' });
+  h += tetel('Ennyi kell az új lakáshoz', ftx(r.kell), { cls: 'vegso' });
+  h += '</ul></div></div>';
+  if (r.megtakaritas) h += `<ul class="tetelek"><li class="levonas"><span>Megtakarításod ${jel('sajat')}</span><span class="ossz-ertek">−${ftx(r.megtakaritas)}</span></li></ul>`;
+  h = jelekkel(h);
+  if (r.illetekMegtakaritas) h += megjegyzes(`A cserét pótló vétel ${ftx(r.illetekMegtakaritas)} illetéket spórol: csak a két lakás értékének különbözete után fizetsz.`);
+  h += megjegyzes(r.sorrend === 'elobb_vesz' ? `Ha előbb veszel, a régi lakást a vétel után ${r.utanaEv} éven belül el kell adnod, hogy a kedvezmény járjon. Addig a két lakás árát egyszerre kell előteremtened, ehhez gyakran áthidaló hitel kell.` : `Ha előbb adod el, az új lakást az eladás után ${r.elotteEv} éven belül kell megvenned, hogy a kedvezmény járjon.`);
+  return h;
+}
+
+/* ---------- A kalkulátorok közös leírása: ugyanez fut az építéskor (minta) és a böngészőben ---------- */
+const sz = (v) => (v === '' || v == null ? NaN : Number(String(v).replace(/[\s  ]/g, '').replace(',', '.')));
+const ures = (e, mezok) => mezok.every((k) => e[k] === '' || e[k] == null || e[k] === false);
+export const KALKULATOROK = {
+  eladas: {
+    kulcs: ['eladasiAr', 'szerzesiErtek', 'szerzesEv'],
+    minta: (ev) => ({ adat: { eladasiAr: '60000000', szerzesiErtek: '50000000', szerzesKoltseg: '2000000', szerzesEv: String(ev - 2), eladasEv: String(ev) }, leiras: `egy ${ev - 2}-ben 50 millió forintért vett és ${rag(ev, 'ban', 'ben')} 60 millió forintért eladott lakás, 2 millió forint illetékkel és ügyvédi díjjal` }),
+    panel: (adat, e) => eladasPanel(adat, S.eladasSzja(adat, { eladasEv: e.eladasEv === '' || e.eladasEv == null ? adat.ev : sz(e.eladasEv), szerzesEv: sz(e.szerzesEv), eladasiAr: sz(e.eladasiAr), szerzesiErtek: e.szerzesiErtek === '' || e.szerzesiErtek == null ? '' : sz(e.szerzesiErtek), szerzesKoltseg: sz(e.szerzesKoltseg), beruhazas: sz(e.beruhazas), eladasKoltseg: sz(e.eladasKoltseg) })),
+  },
+  illetek: {
+    kulcs: ['ertek'],
+    minta: () => ({ adat: { ertek: '68000000', eladottErtek: '52000000', eladasMikor: 'elotte' }, leiras: 'egy 68 millió forintos lakás, miközben az előző lakásodat két éve 52 millióért adtad el' }),
+    panel: (adat, e) => illetekPanel(adat, S.illetek(adat, { ertek: sz(e.ertek), hanyad: e.hanyad === '' || e.hanyad == null ? 100 : sz(e.hanyad), ujVallalkozotol: e.kitol === 'vallalkozo', rokon: e.kitol === 'rokon', csok: e.csok === true, elso: e.elso === true, fiatal35: e.fiatal35 === true, eladottErtek: sz(e.eladottErtek), eladasMikor: e.eladasMikor || 'elotte' })),
+  },
+  wekerle: {
+    kulcs: ['vetelar', 'eletkor', 'onero', 'alapterulet'],
+    minta: () => ({ adat: { vetelar: '62000000', alapterulet: '54', onero: '12000000', eletkor: '31', tulajdon: 'nincs', ingatlan: 'lakas', allapot: 'hasznalt' }, leiras: 'egy 31 éves vevő, 62 millió forintos, 54 négyzetméteres használt lakás, 12 millió forint önerővel' }),
+    panel: (adat, e) => wekerlePanel(adat, S.wekerle(adat, { vetelar: sz(e.vetelar), alapterulet: e.alapterulet, onero: e.onero, eletkor: e.eletkor, eletkor2: e.kozos === true ? e.eletkor2 : '', tulajdon: e.tulajdon || '', ingatlan: e.ingatlan || 'lakas', allapot: e.allapot || 'hasznalt', futamido: e.futamido, piaciKamat: e.piaciKamat === '' || e.piaciKamat == null ? '' : sz(e.piaciKamat), ujVallalkozotol: e.allapot === 'uj' })),
+  },
+  kiadas: {
+    kulcs: ['havi'],
+    minta: (ev) => ({ adat: { havi: '260000', honap: '12', koltseg: '420000', ev: String(ev) }, leiras: 'havi 260 000 forintért egész évben kiadott lakás, évi 420 000 forint számlával igazolt költséggel' }),
+    panel: (adat, e) => kiadasPanel(adat, S.berbeadas(adat, { havi: sz(e.havi), honap: e.honap, egyeb: sz(e.egyeb), koltseg: sz(e.koltseg), ertekcsokkenes: sz(e.ertekcsokkenes), berelt: sz(e.berelt), ev: adat.ev })),
+  },
+  lakasvaltas: {
+    kulcs: ['eladasiAr', 'vetelar'],
+    minta: (ev) => ({ adat: { eladasiAr: '60000000', szerzesEv: String(ev - 7), szerzesiErtek: '35000000', kozvetito: '1800000', hitelTartozas: '8000000', vetelar: '85000000', vetelKoltseg: '900000', megtakaritas: '5000000', sorrend: 'elobb_elad' }, leiras: `egy ${ev - 7}-ben 35 millióért vett lakás eladása 60 millióért, 8 millió forint hiteltartozással, és egy 85 milliós lakás vétele 5 millió forint megtakarítással` }),
+    panel: (adat, e) => lakasvaltasPanel(adat, S.lakasvaltas(adat, { eladasiAr: sz(e.eladasiAr), szerzesEv: e.szerzesEv, szerzesiErtek: e.szerzesiErtek === '' || e.szerzesiErtek == null ? '' : sz(e.szerzesiErtek), koltsegek: sz(e.koltsegek), kozvetito: sz(e.kozvetito), hitelTartozas: sz(e.hitelTartozas), vetelar: sz(e.vetelar), vetelKoltseg: sz(e.vetelKoltseg), megtakaritas: sz(e.megtakaritas), eladasEv: adat.ev, sorrend: e.sorrend })),
+  },
+};
+/** A kalkulátor eredménye. Üres űrlapnál címkézett minta: { html, minta }. */
+export function kalkHtml(tipus, adat, e = {}) {
+  const k = KALKULATOROK[tipus];
+  if (!k) return { html: uresPanel('Töltsd ki az űrlapot.'), minta: false };
+  if (!ures(e, k.kulcs)) return { html: k.panel(adat, e), minta: false };
+  const m = k.minta(adat.ev);
+  const be = { ...e };
+  for (const [kk, v] of Object.entries(m.adat)) if (be[kk] === '' || be[kk] == null || be[kk] === false) be[kk] = v;
+  return { html: mintaJelzes(m.leiras, 'Írd be a saját adataidat, és a minta helyett azokkal számolunk.') + k.panel(adat, be), minta: true };
 }

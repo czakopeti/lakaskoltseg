@@ -2,11 +2,25 @@
 
 > A lakásköltség független, ingyenes magyar oldal a lakásvásárlás, a lakáseladás és a lakáskiadás költségeiről: vagyonszerzési illeték, ingatlaneladás személyi jövedelemadója, lakáskiadás adója, kamattámogatott hitel. Minden szabálynál ott a jogszabályhely, a forrás és az ellenőrzés napja. Nem hatóság és nem hitelközvetítő. Legutóbbi ellenőrzés: 2026. november 18.
 
-## Eladod a lakásod
+## Lakást veszel
 
-Mennyi marad az eladási árból, és mit kér belőle az adóhivatal.
+Amit a vételáron felül fizetsz, és a kamattámogatott hitel, amely jár neked.
 
+- [Vagyonszerzési illeték](https://lakaskoltseg.pages.dev/vagyonszerzesi-illetek-kalkulator/): lakásvásárlás illetéke (4%) és minden kedvezmény: cserét pótló vétel 5 éven belüli eladással, új lakás vállalkozótól, 35 év alatti első lakásszerző, CSOK Plusz, egyenes ági rokon; a legkedvezőbb kiválasztásával
+- [Wekerle Plusz hitel](https://lakaskoltseg.pages.dev/wekerle-plusz-kalkulator/): a Wekerle Plusz hitel feltételei a 298/2026. Korm. rendelet paragrafusaival (18–45 év, 50 millió forint, 3% új és 5% használt lakásra, ár- és négyzetméterár-korlát), havi törlesztő és a támogatás értéke
+
+## Eladod, és másikat veszel
+
+A két ügylet egy lapon, mert az egyik adója és a másik illetéke összefügg.
+
+- [Lakásváltás](https://lakaskoltseg.pages.dev/lakasvaltas-kalkulator/): eladás és vétel egy lapon: az eladás szja-ja, a régi hitel, az illeték a cserét pótló kedvezménnyel, és mennyi hitel kell az új lakáshoz
 - [Ingatlaneladás szja-ja](https://lakaskoltseg.pages.dev/ingatlaneladas-szja-kalkulator/): az eladott lakás, ház vagy telek személyi jövedelemadója a szerzés és az eladás évéből, az elszámolható költségekkel; mikortól adómentes, és meddig kell bevallani
+
+## Kiadod a lakásod
+
+Mennyi adó jár a bérleti díj után, és mikor kell befizetni.
+
+- [Lakáskiadás adója](https://lakaskoltseg.pages.dev/lakaskiadas-ado-kalkulator/): lakáskiadás szja-ja: 10% költséghányad vagy tételes elszámolás, a döntési pont, negyedéves adóelőleg és bevallás naptárfájlban
 
 ## Adatok és források
 

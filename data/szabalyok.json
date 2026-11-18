@@ -45,10 +45,10 @@
           "ertek": {
             "elotte_ev": 5,
             "utana_ev": 1,
-            "tobb_eladas": "legkedvezobb"
+            "tobb_eladas_ev": 3
           },
-          "szoveg": "Ha a vásárlás előtt 5 éven belül vagy utána 1 éven belül eladod a másik lakásodat, csak a két forgalmi érték különbözete után fizetsz. Ha az új lakás az olcsóbb, nincs illeték. Több eladásnál a neked legkedvezőbbet lehet beszámítani.",
-          "jogszabaly": "Itv. 21. § (2)–(5), 2026. január 1-jétől",
+          "szoveg": "Ha a vásárlás előtt 5 éven belül vagy utána 1 éven belül eladod a másik lakásodat, csak a két forgalmi érték különbözete után fizetsz illetéket. Ha az új lakás az olcsóbb, nincs illeték.",
+          "jogszabaly": "Itv. 21. § (2)–(5), a 2025. évi LXXXIII. törvény módosításával, 2026. január 1-jétől",
           "forras": {
             "nev": "Önadózó: Változtak a cserepótló vétel illetékkedvezmény szabályai",
             "url": "https://www.onadozo.hu/hirek/valtoztak-a-cserepotlo-vetel-illetekkedvezmeny-szabalyai-13944",
@@ -56,7 +56,7 @@
           },
           "szint": "masodlagos",
           "ellenorizve": "2026-11-18",
-          "megjegyzes": "A NAV összefoglaló oldala (2026. október 14-i állapot) még 3 évet ír. Az Ingatlan.com és a money.hu szerint a több lakás eladására vonatkozó bekezdésben 3 év maradt. A törvény hatályos szövegével össze kell vetni, mielőtt kalkulátor épül rá."
+          "megjegyzes": "Több lakás eladásánál a 21. § (4) bekezdés 3 éves időszaka változatlan maradt (Önadózó). A NAV összefoglaló oldala (2026. október 14-i állapot) még 3 évet ír az egy eladásos esetre is. A kalkulátor egy eladott lakással számol."
         },
         {
           "kulcs": "elso_lakas_35",
@@ -84,7 +84,7 @@
             "mentes_resz_ft": 15000000,
             "ertekhatar_ft": 30000000
           },
-          "szoveg": "Ha az új lakás forgalmi értéke legfeljebb 15 millió forint, nincs illeték. 15 és 30 millió forint között a 15 millió forintra eső illetéket nem kell megfizetni. 30 millió forint felett nincs kedvezmény.",
+          "szoveg": "Ha vállalkozótól veszel értékesítésre épített, még nem használt lakást, és nem számítasz be eladott lakást: 15 millió forintos forgalmi értékig nincs illeték, 15 és 30 millió forint között a 15 millió forintra eső illetéket nem kell megfizetni. 30 millió forint felett nincs kedvezmény.",
           "jogszabaly": "Itv. 26. § (1) f)",
           "forras": {
             "nev": "Adózóna: Új építésű lakás vásárlása: az illetékmentesség",
@@ -96,11 +96,11 @@
         },
         {
           "kulcs": "csok_plusz",
-          "nev": "CSOK Plusz hitellel vett lakás",
+          "nev": "CSOK Plusz vagy falusi CSOK",
           "ertek": {
             "mentes": true
           },
-          "szoveg": "A CSOK Plusz kölcsönnel szerzett lakás illetékmentes.",
+          "szoveg": "A CSOK Plusz kölcsönnel vagy falusi CSOK-kal szerzett lakás illetékmentes.",
           "jogszabaly": "Itv. 26. § (1)",
           "forras": {
             "nev": "NAV: Az ingatlan-adásvétel adózási szabályai",
@@ -115,18 +115,19 @@
           "kulcs": "tamogatott_hitel",
           "nev": "Otthon Start és Wekerle Plusz hitel",
           "ertek": {
-            "mentes": false
+            "mentes": false,
+            "hitelbe_szamithato": false
           },
-          "szoveg": "A kamattámogatott hitel önmagában nem ad illetékmentességet. A 4% jár, hacsak más kedvezmény nem vonatkozik rád.",
+          "szoveg": "Az Otthon Start és a Wekerle Plusz hitel nem ad illetékmentességet. A 4% jár, hacsak más kedvezmény nem vonatkozik rád, és az illetéket a hitelösszegbe sem lehet beleszámítani.",
           "jogszabaly": "Itv. 26. §",
           "forras": {
-            "nev": "Bankmonitor: Lényeges változás a lakásvásárlások illetékfizetésénél",
-            "url": "https://bankmonitor.hu/?p=105069",
+            "nev": "K&H: Wekerle Plusz lakáshitel, gyakori kérdések",
+            "url": "https://www.kh.hu/cikkek/allami-tamogatasok",
             "kelt": ""
           },
           "szint": "masodlagos",
           "ellenorizve": "2026-11-18",
-          "megjegyzes": "Az Otthon Startra ellenőrzött állítás. A Wekerle Pluszra külön forrást kell keresni."
+          "megjegyzes": "A money.hu egyik szakértőjét idéző cikkek (Economx, 2026. november 4.) szerint a Wekerle Plusz mellé illetékmentesség járhat. A bank saját tájékoztatója és a Grantis szerint nem. A rendelet szövegében erről nincs rendelkezés, ezért a mentesség nélkül számolunk."
         },
         {
           "kulcs": "egyenesagi",
@@ -297,15 +298,32 @@
           "ertek": {
             "szazalek": 15
           },
-          "szoveg": "A jövedelem 15%-a. Szociális hozzájárulási adót a tartós lakáskiadás után nem kell fizetni.",
-          "jogszabaly": "Szja tv. 8. §, 17. §",
+          "szoveg": "A jövedelem 15%-a személyi jövedelemadó.",
+          "jogszabaly": "Szja tv. 8. §, 16–17. §",
           "forras": {
-            "nev": "Infostart: NAV: erre érdemes figyelniük a lakásbérlőknek",
-            "url": "https://infostart.hu/belfold/2025/08/04/nav-erre-erdemes-figyelniuk-a-lakasberloknek",
-            "kelt": "2025-08-04"
+            "nev": "NAV: Lakáskiadás",
+            "url": "https://nav.gov.hu/Elethelyzetek-adozasa/vagyonugyek/Lakaskiadas",
+            "kelt": "2026-10-14"
+          },
+          "szint": "elsodleges",
+          "ellenorizve": "2026-11-18"
+        },
+        {
+          "kulcs": "csak_szja",
+          "nev": "Más adó",
+          "ertek": {
+            "szocho": false
+          },
+          "szoveg": "A tartós lakáskiadás jövedelme után csak személyi jövedelemadót kell fizetni.",
+          "jogszabaly": "Szocho tv.",
+          "forras": {
+            "nev": "Infostart: Fontos kérdéseket tisztáz az adóhatóság",
+            "url": "https://infostart.hu/gazdasag/2022/08/21/fontos-kerdeseket-tisztaz-az-adohatosag",
+            "kelt": "2022-08-21"
           },
           "szint": "masodlagos",
-          "ellenorizve": "2026-11-18"
+          "ellenorizve": "2026-11-18",
+          "megjegyzes": "A NAV lakáskiadási oldala csak az szja-t említi."
         },
         {
           "kulcs": "koltseghanyad",
@@ -313,44 +331,92 @@
           "ertek": {
             "szazalek": 10
           },
-          "szoveg": "A teljes bevétel 90%-a a jövedelem. Ilyenkor az adott évben minden önálló tevékenységednél ezt kell alkalmaznod, és más költséget nem számolhatsz el.",
-          "jogszabaly": "Szja tv. 18. §",
+          "szoveg": "A bevétel 90%-a után fizetsz adót. Költségbizonylat nem kell, de a 10%-on felül más költséget nem számolhatsz el.",
+          "jogszabaly": "Szja tv. 17. § (2)",
           "forras": {
-            "nev": "Adózóna: Ezt tudnia kell, ha bérbe adna házat",
-            "url": "https://adozona.hu/szja_ekho_kulonado/Ezt_tudnia_kell_ha_berbeadna_hazat_mutatjuk_0DU39N",
-            "kelt": ""
+            "nev": "NAV: Lakáskiadás",
+            "url": "https://nav.gov.hu/Elethelyzetek-adozasa/vagyonugyek/Lakaskiadas",
+            "kelt": "2026-10-14"
           },
-          "szint": "masodlagos",
-          "ellenorizve": "2026-11-18"
+          "szint": "elsodleges",
+          "ellenorizve": "2026-11-18",
+          "megjegyzes": "Ha a 10%-ot választod, az adott évben minden önálló tevékenységednél ezt kell alkalmaznod (Adózóna)."
         },
         {
           "kulcs": "teteles",
           "nev": "Tételes költségelszámolás",
           "ertek": {},
-          "szoveg": "A bevételből levonhatók az igazolt költségek (rezsi, felújítás) és az értékcsökkenés. Levonható a más településen, 90 napot meghaladóan bérelt lakásod bérleti díja is.",
-          "jogszabaly": "Szja tv. 17–18. §, 3. melléklet",
+          "szoveg": "A bevételből levonhatod a bérbeadással kapcsolatos, számlával igazolt kiadásokat: rezsi, karbantartás, javítás, felújítás és az értékcsökkenés.",
+          "jogszabaly": "Szja tv. 3. és 11. melléklet",
           "forras": {
-            "nev": "Adózóna: Mindig legyen érvényes lakásbérleti szerződés – hívja fel a figyelmet a NAV",
-            "url": "https://adozona.hu/altalanos/NAV_a_berloknek_a_berbevett_lakasrol_mindig_56UGLF",
-            "kelt": ""
+            "nev": "NAV: Lakáskiadás",
+            "url": "https://nav.gov.hu/Elethelyzetek-adozasa/vagyonugyek/Lakaskiadas",
+            "kelt": "2026-10-14"
           },
-          "szint": "masodlagos",
+          "szint": "elsodleges",
+          "ellenorizve": "2026-11-18"
+        },
+        {
+          "kulcs": "bevetel",
+          "nev": "Mi számít bevételnek",
+          "ertek": {},
+          "szoveg": "A bérleti díj és a megtérített összegek, például a közös költség. A pontosan mért és áthárított közüzemi díj nem bevétel, az átalányban kapott rezsi igen.",
+          "jogszabaly": "Szja tv. 3. melléklet",
+          "forras": {
+            "nev": "NAV: Lakáskiadás",
+            "url": "https://nav.gov.hu/Elethelyzetek-adozasa/vagyonugyek/Lakaskiadas",
+            "kelt": "2026-10-14"
+          },
+          "szint": "elsodleges",
+          "ellenorizve": "2026-11-18"
+        },
+        {
+          "kulcs": "berelt_lakas",
+          "nev": "Ha te is bérelsz máshol",
+          "ertek": {
+            "min_nap": 90
+          },
+          "szoveg": "Ha más településen 90 napnál hosszabban bérelsz lakást, a bérleti díját levonhatod a bérbeadás bevételéből, feltéve, hogy arra a lakásra nem számolsz el költséget.",
+          "jogszabaly": "Szja tv. 17. § (3)",
+          "forras": {
+            "nev": "NAV: Lakáskiadás",
+            "url": "https://nav.gov.hu/Elethelyzetek-adozasa/vagyonugyek/Lakaskiadas",
+            "kelt": "2026-10-14"
+          },
+          "szint": "elsodleges",
           "ellenorizve": "2026-11-18"
         },
         {
           "kulcs": "adoeloleg",
           "nev": "Adóelőleg",
           "ertek": {
-            "gyakorisag": "negyedev"
+            "nap": 12
           },
-          "szoveg": "Negyedévente adóelőleget kell fizetni, a jövedelmet az éves szja-bevallásban kell szerepeltetni.",
+          "szoveg": "Negyedévente fizetsz adóelőleget, a negyedévet követő hónap 12-ig. Ha a bérlő cég vagy egyéni vállalkozó, ő vonja le és fizeti be.",
           "jogszabaly": "Szja tv. 46–49. §",
           "forras": {
-            "nev": "Infostart: NAV: erre érdemes figyelniük a lakásbérlőknek",
-            "url": "https://infostart.hu/belfold/2025/08/04/nav-erre-erdemes-figyelniuk-a-lakasberloknek",
-            "kelt": "2025-08-04"
+            "nev": "NAV: Lakáskiadás",
+            "url": "https://nav.gov.hu/Elethelyzetek-adozasa/vagyonugyek/Lakaskiadas",
+            "kelt": "2026-10-14"
           },
-          "szint": "masodlagos",
+          "szint": "elsodleges",
+          "ellenorizve": "2026-11-18"
+        },
+        {
+          "kulcs": "bevallas",
+          "nev": "Bevallás",
+          "ertek": {
+            "honap": 5,
+            "nap": 20
+          },
+          "szoveg": "A jövedelmet az éves szja-bevallásban, önálló tevékenységből származó jövedelemként kell szerepeltetni, a következő év május 20-ig.",
+          "jogszabaly": "Szja tv.",
+          "forras": {
+            "nev": "NAV: Lakáskiadás",
+            "url": "https://nav.gov.hu/Elethelyzetek-adozasa/vagyonugyek/Lakaskiadas",
+            "kelt": "2026-10-14"
+          },
+          "szint": "elsodleges",
           "ellenorizve": "2026-11-18"
         },
         {
@@ -359,14 +425,14 @@
           "ertek": {
             "kell": false
           },
-          "szoveg": "Tartós lakáskiadáshoz nem kell adószám. Rövid távú szálláshely-szolgáltatáshoz kell.",
-          "jogszabaly": "Áfa tv. 86. §",
+          "szoveg": "Lakás tartós kiadásához nem kell adószám, elég az adóazonosító jel. Garázshoz, áfás bérbeadáshoz és egyéni vállalkozóként kell.",
+          "jogszabaly": "Áfa tv.",
           "forras": {
-            "nev": "Adózóna: Lakáskiadás adója: megszólalt a NAV",
-            "url": "https://adozona.hu/szja_ekho_kulonado/Lakaskiadas_adoja__megszolalt_a_NAV_LIKW79",
-            "kelt": ""
+            "nev": "NAV: Lakáskiadás",
+            "url": "https://nav.gov.hu/Elethelyzetek-adozasa/vagyonugyek/Lakaskiadas",
+            "kelt": "2026-10-14"
           },
-          "szint": "masodlagos",
+          "szint": "elsodleges",
           "ellenorizve": "2026-11-18"
         }
       ]
@@ -541,6 +607,39 @@
           },
           "szint": "elsodleges",
           "ellenorizve": "2026-11-18"
+        },
+        {
+          "kulcs": "illetek",
+          "nev": "Illeték",
+          "ertek": {
+            "mentes": false
+          },
+          "szoveg": "A Wekerle Plusz hitel nem ad illetékmentességet, és az illetéket a hitelösszegbe sem lehet beleszámítani. A 4% jár, hacsak más kedvezmény nem vonatkozik rád.",
+          "jogszabaly": "Itv. 26. §; a rendelet nem rendelkezik róla",
+          "forras": {
+            "nev": "K&H: Wekerle Plusz lakáshitel",
+            "url": "https://www.kh.hu/hitel/lakashitel/wekerle-plusz",
+            "kelt": ""
+          },
+          "szint": "masodlagos",
+          "ellenorizve": "2026-11-18"
+        },
+        {
+          "kulcs": "piaci_kamat",
+          "nev": "Összehasonlító piaci kamat",
+          "ertek": {
+            "szazalek": 6.5
+          },
+          "szoveg": "Ezzel a kamattal vetjük össze, mennyit ér a támogatás. Nem egy bank ajánlata, a saját ajánlatodat beírhatod.",
+          "jogszabaly": "Feltevés",
+          "forras": {
+            "nev": "Bankmonitor: Wekerle Plusz hitel 2026",
+            "url": "https://bankmonitor.hu/wekerle-plusz-hitel/",
+            "kelt": "2026-11-12"
+          },
+          "szint": "masodlagos",
+          "becsles": true,
+          "ellenorizve": "2026-11-18"
         }
       ]
     }
@@ -548,20 +647,20 @@
   "nyitott": [
     {
       "tema": "illetek",
-      "mi": "A T/7712. számú törvényjavaslat az első lakást szerzők illetékét írná át: 50 millió forintig mentesség, 50 és 100 millió forint között kedvezmény. Nem sikerült megerősíteni, hogy elfogadták-e. A 2026 őszi szakcikkek még a 15 millió forintos szabályt írják.",
-      "teendo": "A parlament.hu irományadatainál megnézni az állapotát, mielőtt az illetékkalkulátor elkészül.",
+      "mi": "A T/7712. számú törvényjavaslat az első lakást szerzők illetékét írná át (50 millió forintig mentesség). Nem találtunk nyomát, hogy elfogadták volna, a 2026-os források a 15 millió forintos szabályt írják, ezért azzal számolunk.",
+      "teendo": "A parlament.hu irományadatainál megnézni az állapotát.",
       "rogzitve": "2026-11-18"
     },
     {
       "tema": "illetek",
-      "mi": "Cserét pótló vétel: az 5 éves visszatekintés és a több eladás közti választás pontos szövege (Itv. 21. §). A NAV összefoglaló oldala még 3 évet ír.",
-      "teendo": "A hatályos Itv. szövegével és a NAV 19. információs füzetével összevetni.",
+      "mi": "Cserét pótló vétel: a több eladott lakásra vonatkozó 3 éves időszak és az egy eladásos 5 év pontos viszonya.",
+      "teendo": "A hatályos Itv. 21. § szövegével és a NAV 19. információs füzetével összevetni.",
       "rogzitve": "2026-11-18"
     },
     {
-      "tema": "berbeadas",
-      "mi": "A lakáskiadás tételei szaksajtóból származnak.",
-      "teendo": "A NAV 10. információs füzetének 2026-os kiadásával összevetni.",
+      "tema": "wekerle_plusz",
+      "mi": "Ellentmondó forrás: jár-e illetékmentesség a Wekerle Plusz mellé.",
+      "teendo": "A NAV 19. információs füzetének következő kiadásában megnézni.",
       "rogzitve": "2026-11-18"
     }
   ]

@@ -905,3 +905,56 @@ h3 { font-weight: 600; }
   .haz, .beir::after, .lista h3::after, .zaszlo a { transition: none; }
   @view-transition { navigation: none; }
 }
+
+/* ================= Az új eredményelemek ================= */
+/* Wekerle Plusz: feltételek, mint egy kipipált ellenőrzőlista */
+.feltetelek { list-style: none; margin: 12px 0 18px; padding: 0; border-top: 1.5px solid var(--tinta); }
+.feltetelek li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--vonal); font-size: 15.5px; animation: megjelen .35s ease backwards; animation-delay: calc(var(--n, 0) * 50ms); }
+.feltetelek li:nth-child(2) { --n: 1; } .feltetelek li:nth-child(3) { --n: 2; } .feltetelek li:nth-child(4) { --n: 3; } .feltetelek li:nth-child(5) { --n: 4; } .feltetelek li:nth-child(6) { --n: 5; }
+.nyugodt .feltetelek li { animation: none; }
+.feltetelek .al { display: block; font-size: 13.5px; color: var(--tinta2); margin-top: 2px; }
+.feltetelek .al a { color: var(--toll); white-space: nowrap; }
+.f-jel { width: 20px; height: 20px; margin-top: 2px; border: 1.5px solid var(--tinta); border-radius: 3px; position: relative; }
+.f-ok .f-jel { background: var(--toll); border-color: var(--toll); }
+.f-ok .f-jel::after { content: ""; position: absolute; left: 5px; top: 2px; width: 6px; height: 10px; border: solid var(--lap); border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); animation: pipa .3s ease-out backwards .1s; }
+@keyframes pipa { from { clip-path: inset(0 0 100% 0); } }
+.f-nem .f-jel { border-color: var(--hiba); }
+.f-nem .f-jel::before, .f-nem .f-jel::after { content: ""; position: absolute; left: 8px; top: 2px; width: 1.5px; height: 13px; background: var(--hiba); transform: rotate(45deg); }
+.f-nem .f-jel::after { transform: rotate(-45deg); }
+.f-nem b { color: var(--hiba); }
+.f-nincs .f-jel { border-style: dashed; border-color: var(--tinta2); }
+.f-nincs b { color: var(--tinta2); }
+/* Illeték: a kedvezmények összevetése */
+.lehetosegek li.nem-jar > span:first-child, .lehetosegek li.nem-jar .ossz-ertek { color: var(--tinta2); }
+.lehetosegek li.nem-jar .ossz-ertek { font-weight: 400; }
+.lehetosegek li.kiemelt-sor .ossz-ertek { color: var(--toll); }
+.tetelek li.kiemelt-sor .ossz-ertek { color: var(--toll); }
+/* Lakáskiadás: a két módszer egymás mellett */
+.ket-modszer { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0 6px; }
+.modszer { border: 1px solid var(--vonal2); border-radius: 3px; padding: 14px 16px 12px; position: relative; transition: border-color .3s, box-shadow .3s; }
+.modszer.nyero { border-color: var(--toll); box-shadow: 4px 4px 0 var(--kiemel); }
+.modszer.nyero::before { content: "olcsóbb"; position: absolute; top: -10px; right: 12px; background: var(--toll); color: var(--lap); font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 2px; }
+.m-cim { font-weight: 600; font-size: 15.5px; margin: 0; }
+.m-al { font-size: 13.5px; color: var(--tinta2); margin: 2px 0 10px; }
+.m-sor { display: flex; justify-content: space-between; gap: 10px; font-size: 15px; padding: 5px 0; border-top: 1px solid var(--vonal); font-variant-numeric: tabular-nums lining-nums; }
+.m-ado { font-weight: 600; }
+.modszer.nyero .m-ado span:last-child { color: var(--toll); }
+@media (max-width: 520px) { .ket-modszer { grid-template-columns: 1fr; } }
+/* A döntési pont: méretvonal, rajta a határ és a te költséged */
+.dontes { position: relative; margin: 34px 0 10px; height: 34px; }
+.d-sav { position: absolute; left: 0; right: 0; top: 14px; height: 6px; background: linear-gradient(90deg, var(--kiemel) 0 var(--d), color-mix(in srgb, var(--toll) 28%, transparent) var(--d) 100%); border-radius: 3px; }
+.d-sav span { position: absolute; top: 12px; font-size: 12.5px; color: var(--tinta2); }
+.d-bal { left: 0; } .d-jobb { right: 0; }
+.d-pont { position: absolute; left: var(--d); top: 6px; width: 1.5px; height: 22px; background: var(--tinta); }
+.d-te { position: absolute; left: var(--k); top: -14px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--toll); box-shadow: 0 0 0 3px var(--lap); transition: left .5s cubic-bezier(.3, 1.3, .4, 1); }
+.d-te::after { content: ""; position: absolute; left: 6.25px; top: 14px; width: 1.5px; height: 14px; background: var(--toll); }
+.d-felirat { font-size: 14.5px; color: var(--tinta2); margin: 18px 0 0; }
+.d-felirat b { color: var(--tinta); font-weight: 600; }
+/* Lakásváltás: a két ügylet egymás alatt, mindkettő a saját végösszegével */
+.valtas { display: grid; gap: 4px; margin-top: 18px; }
+.v-oldal { border-top: 1.5px solid var(--tinta); padding-top: 12px; }
+.v-oldal + .v-oldal { margin-top: 18px; }
+.v-oldal .m-cim { font-size: 17px; }
+.v-oldal .tetelek { margin-top: 4px; }
+/* A főoldal négy csoportja: két hasábban, a lista ugyanaz */
+@media (prefers-reduced-motion: reduce) { .feltetelek li, .f-ok .f-jel::after { animation: none; } .d-te { transition: none; } }

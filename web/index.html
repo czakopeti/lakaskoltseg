@@ -19,7 +19,7 @@
 <meta name="theme-color" content="#0D1F47" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="/assets/fonts/jost-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/assets/style.css?v=16117897">
+<link rel="stylesheet" href="/assets/style.css?v=b9ca212f">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"lakásköltség: lakásvásárlás, -eladás és -kiadás költségei","description":"Vagyonszerzési illeték, ingatlaneladás adója, lakáskiadás adója és kamattámogatott hitel, forrással és dátummal.","url":"https://lakaskoltseg.pages.dev/","inLanguage":"hu","dateModified":"2026-11-18","isPartOf":{"@type":"WebSite","name":"lakásköltség","url":"https://lakaskoltseg.pages.dev/"},"publisher":{"@type":"Organization","name":"lakásköltség","url":"https://lakaskoltseg.pages.dev/"}}</script>
 </head>
 <body>
@@ -27,11 +27,11 @@
 <header class="fejlec"><div class="keret">
 <button class="fiok-gomb" type="button" aria-label="Menü" aria-haspopup="dialog" aria-controls="fiok" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Menü</span></button>
 <div class="marka-blokk"><a class="jegy" href="/" aria-label="lakásköltség, főoldal"><span class="logo logo-szoveg">lakásköltség</span></a></div>
-<nav class="menu" id="fomenu" aria-label="Fő menü"><a href="/ingatlaneladas-szja-kalkulator/">Eladás adója</a><a href="/forrasok/">Források</a><a href="/rolunk/">Rólunk</a></nav>
+<nav class="menu" id="fomenu" aria-label="Fő menü"><a href="/vagyonszerzesi-illetek-kalkulator/">Illeték</a><a href="/wekerle-plusz-kalkulator/">Wekerle Plusz</a><a href="/lakasvaltas-kalkulator/">Lakásváltás</a><a href="/ingatlaneladas-szja-kalkulator/">Eladás adója</a><a href="/lakaskiadas-ado-kalkulator/">Kiadás adója</a></nav>
 </div></header>
 <dialog class="fiok" id="fiok" aria-label="Minden oldal">
 <div class="fiok-fej"><a class="jegy" href="/" aria-label="lakásköltség, főoldal"><span class="logo logo-szoveg">lakásköltség</span></a><button class="fiok-zar" type="button" aria-label="Menü bezárása">✕</button></div>
-<nav aria-label="Minden oldal"><h2>Eladod a lakásod</h2><ul><li><a href="/ingatlaneladas-szja-kalkulator/"><span><b>Eladás adója</b><small>Mennyi szja-t fizetsz, és mikortól semennyit</small></span></a></li></ul><h2>Adatok és források</h2><ul><li><a href="/forrasok/"><span><b>Honnan vannak a számok?</b><small>Minden szabály forrása és dátuma</small></span></a></li></ul><h2>Az oldalról</h2><ul><li><a href="/rolunk/"><span><b>Rólunk és szerkesztői elvek</b></span></a></li></ul></nav>
+<nav aria-label="Minden oldal"><h2>Lakást veszel</h2><ul><li><a href="/vagyonszerzesi-illetek-kalkulator/"><span><b>Illeték</b><small>Mennyi, és melyik kedvezmény jár</small></span></a></li><li><a href="/wekerle-plusz-kalkulator/"><span><b>Wekerle Plusz</b><small>Jogosultság és törlesztő</small></span></a></li></ul><h2>Eladod, és másikat veszel</h2><ul><li><a href="/lakasvaltas-kalkulator/"><span><b>Lakásváltás</b><small>Eladás és vétel együtt, hitelszükséglet</small></span></a></li><li><a href="/ingatlaneladas-szja-kalkulator/"><span><b>Eladás adója</b><small>Mennyi szja-t fizetsz, és mikortól semennyit</small></span></a></li></ul><h2>Kiadod a lakásod</h2><ul><li><a href="/lakaskiadas-ado-kalkulator/"><span><b>Kiadás adója</b><small>10% vagy tételes, határidőkkel</small></span></a></li></ul><h2>Adatok és források</h2><ul><li><a href="/forrasok/"><span><b>Honnan vannak a számok?</b><small>Minden szabály forrása és dátuma</small></span></a></li></ul><h2>Az oldalról</h2><ul><li><a href="/rolunk/"><span><b>Rólunk és szerkesztői elvek</b></span></a></li></ul></nav>
 </dialog>
 <main id="tartalom">
 
@@ -43,17 +43,31 @@
 <g class="nevek"><text x="130" y="96">nappali</text><text x="370" y="72">hálószoba</text><text x="370" y="222">konyha</text><text x="75" y="246">fürdő</text><text x="205" y="240">előtér</text></g>
 </svg></div>
 <i class="fal v" style="left:0px;top:0px;width:50px;--i:0"></i><i class="fal v ablak" style="left:50px;top:0px;width:120px;--i:1"></i><i class="fal v" style="left:170px;top:0px;width:140px;--i:2"></i><i class="fal v ablak" style="left:310px;top:0px;width:120px;--i:3"></i><i class="fal v" style="left:430px;top:0px;width:50px;--i:4"></i><i class="fal f" style="left:480px;top:0px;width:180px;--i:5"></i><i class="fal f ablak" style="left:480px;top:180px;width:70px;--i:6"></i><i class="fal f" style="left:480px;top:250px;width:40px;--i:7"></i><i class="fal f" style="left:260px;top:0px;width:130px;--i:8"></i><i class="fal f" style="left:260px;top:176px;width:114px;--i:9"></i><i class="fal v" style="left:260px;top:130px;width:80px;--i:10"></i><i class="fal v" style="left:384px;top:130px;width:96px;--i:11"></i><i class="fal v" style="left:0px;top:182px;width:80px;--i:12"></i><i class="fal v" style="left:124px;top:182px;width:136px;--i:13"></i><i class="fal f" style="left:150px;top:182px;width:108px;--i:14"></i><i class="fal f alacsony" style="left:0px;top:0px;width:290px;--i:15"></i><i class="fal v alacsony" style="left:0px;top:290px;width:196px;--i:16"></i><i class="fal v alacsony" style="left:236px;top:290px;width:244px;--i:17"></i>
-<div class="zaszlo" style="left:70px;top:48px;--i:0"><a href="/forrasok/#illetek"><b>4%</b><span>illeték, ha veszel</span></a></div>
+<div class="zaszlo" style="left:70px;top:48px;--i:0"><a href="/vagyonszerzesi-illetek-kalkulator/"><b>4%</b><span>illeték, ha veszel</span></a></div>
 <div class="zaszlo" style="left:380px;top:60px;--i:1"><a href="/ingatlaneladas-szja-kalkulator/"><b>15%</b><span>adó, ha nyereséggel adod el</span></a></div>
-<div class="zaszlo" style="left:390px;top:215px;--i:2"><a href="/forrasok/#berbeadas"><b>15%</b><span>adó, ha kiadod</span></a></div>
-<div class="zaszlo" style="left:75px;top:240px;--i:3"><a href="/forrasok/#wekerle_plusz"><b>3% és 5%</b><span>Wekerle Plusz kamat</span></a></div>
+<div class="zaszlo" style="left:390px;top:215px;--i:2"><a href="/lakaskiadas-ado-kalkulator/"><b>15%</b><span>adó, ha kiadod</span></a></div>
+<div class="zaszlo" style="left:75px;top:240px;--i:3"><a href="/wekerle-plusz-kalkulator/"><b>3% és 5%</b><span>Wekerle Plusz kamat</span></a></div>
 </div>
 </div></div>
-<section class="szakasz" id="eladas"><div class="keret">
-<h2>Eladod a lakásod</h2>
-<p class="csoport-bevezeto">Mennyi marad az eladási árból, és mit kér belőle az adóhivatal.</p>
+<section class="szakasz" id="veszel"><div class="keret">
+<h2>Lakást veszel</h2>
+<p class="csoport-bevezeto">Amit a vételáron felül fizetsz, és a kamattámogatott hitel, amely jár neked.</p>
 <ul class="lista">
+<li><a href="/vagyonszerzesi-illetek-kalkulator/"><h3>Vagyonszerzési illeték</h3><p>Mennyi illetéket fizetsz a megvett lakás után, és melyik kedvezmény jár: cserét pótló vétel, új lakás, első lakás 35 év alatt, CSOK Plusz.</p><span class="ugrik">Kiszámolom</span></a></li>
+<li><a href="/wekerle-plusz-kalkulator/"><h3>Wekerle Plusz hitel</h3><p>Feltételenként megnézi, megkapod-e a hitelt, és mennyi lesz a havi törlesztő 3% vagy 5% kamattal.</p><span class="ugrik">Megnézem</span></a></li>
+</ul></div></section>
+<section class="szakasz" id="valtasz"><div class="keret">
+<h2>Eladod, és másikat veszel</h2>
+<p class="csoport-bevezeto">A két ügylet egy lapon, mert az egyik adója és a másik illetéke összefügg.</p>
+<ul class="lista">
+<li><a href="/lakasvaltas-kalkulator/"><h3>Lakásváltás</h3><p>Eladás és vétel egy lapon: mennyit kapsz kézhez, mennyibe kerül az új lakás, és mennyi hitel kell még.</p><span class="ugrik">Kiszámolom</span></a></li>
 <li><a href="/ingatlaneladas-szja-kalkulator/"><h3>Ingatlaneladás szja-ja</h3><p>Mennyi adót fizetsz, ha eladod a lakásod, a házad vagy a telked, mit vonhatsz le, és melyik évtől nem fizetsz semmit.</p><span class="ugrik">Kiszámolom</span></a></li>
+</ul></div></section>
+<section class="szakasz" id="kiadod"><div class="keret">
+<h2>Kiadod a lakásod</h2>
+<p class="csoport-bevezeto">Mennyi adó jár a bérleti díj után, és mikor kell befizetni.</p>
+<ul class="lista">
+<li><a href="/lakaskiadas-ado-kalkulator/"><h3>Lakáskiadás adója</h3><p>Mennyi adót fizetsz a bérleti díj után, és melyik a jobb: a 10% költséghányad vagy a tételes elszámolás.</p><span class="ugrik">Kiszámolom</span></a></li>
 </ul></div></section>
 <section class="szakasz" id="adatok"><div class="keret">
 <h2>Adatok és források</h2>
@@ -67,9 +81,9 @@
 <p><strong>Független oldal, nem hatóság és nem hitelközvetítő.</strong> A jogszabályok és a NAV közzétett tájékoztatói alapján számolunk. A számítások tájékoztató jellegűek, és nem helyettesítik az adótanácsadást vagy az ügyvédet. A ténylegesen fizetendő adót és illetéket a NAV határozata tartalmazza.</p>
 <p>A szabályokat rendszeresen összevetjük a forrásokkal. Legutóbbi ellenőrzés: 2026. november 18.</p>
 </div>
-<nav class="lablec-csoportok" aria-label="Az oldal tartalma"><div><h2>Eladod a lakásod</h2><ul><li><a href="/ingatlaneladas-szja-kalkulator/">Eladás adója</a></li></ul></div><div><h2>Adatok és források</h2><ul><li><a href="/forrasok/">Honnan vannak a számok?</a></li></ul></div><div><h2>lakásköltség</h2><ul><li><a href="/rolunk/">Rólunk és szerkesztői elvek</a></li><li><a href="/adatvedelem/">Adatvédelem</a></li><li><a href="/impresszum/">Impresszum</a></li></ul></div></nav>
+<nav class="lablec-csoportok" aria-label="Az oldal tartalma"><div><h2>Lakást veszel</h2><ul><li><a href="/vagyonszerzesi-illetek-kalkulator/">Illeték</a></li><li><a href="/wekerle-plusz-kalkulator/">Wekerle Plusz</a></li></ul></div><div><h2>Eladod, és másikat veszel</h2><ul><li><a href="/lakasvaltas-kalkulator/">Lakásváltás</a></li><li><a href="/ingatlaneladas-szja-kalkulator/">Eladás adója</a></li></ul></div><div><h2>Kiadod a lakásod</h2><ul><li><a href="/lakaskiadas-ado-kalkulator/">Kiadás adója</a></li></ul></div><div><h2>Adatok és források</h2><ul><li><a href="/forrasok/">Honnan vannak a számok?</a></li></ul></div><div><h2>lakásköltség</h2><ul><li><a href="/rolunk/">Rólunk és szerkesztői elvek</a></li><li><a href="/adatvedelem/">Adatvédelem</a></li><li><a href="/impresszum/">Impresszum</a></li></ul></div></nav>
 </div></footer>
 
-<script type="module" src="/assets/js/app.js?v=16117897"></script>
+<script type="module" src="/assets/js/app.js?v=b9ca212f"></script>
 </body>
 </html>

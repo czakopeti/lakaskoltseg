@@ -5,9 +5,11 @@ import { datumHu, fmt, honapHu } from './js/megjelenites.mjs';
 export const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 export const MENU = [
+  { ut: 'vagyonszerzesi-illetek-kalkulator/', nev: 'Illeték' },
+  { ut: 'wekerle-plusz-kalkulator/', nev: 'Wekerle Plusz' },
+  { ut: 'lakasvaltas-kalkulator/', nev: 'Lakásváltás' },
   { ut: 'ingatlaneladas-szja-kalkulator/', nev: 'Eladás adója' },
-  { ut: 'forrasok/', nev: 'Források' },
-  { ut: 'rolunk/', nev: 'Rólunk' },
+  { ut: 'lakaskiadas-ado-kalkulator/', nev: 'Kiadás adója' },
 ];
 /**
  * Az oldal szerkezete: minden tartalmi oldal pontosan egy csoportban. Ebből épül a főoldal, a balról beúszó menü,
@@ -15,8 +17,16 @@ export const MENU = [
  * Az elemek: [cím, név, rövid mondat a menübe, és ha kell, a hosszabb név a főoldalra és az llms.txt-be].
  */
 export const CSOPORTOK = [
-  { id: 'eladas', cim: 'Eladod a lakásod', bevezeto: 'Mennyi marad az eladási árból, és mit kér belőle az adóhivatal.', elemek: [
+  { id: 'veszel', cim: 'Lakást veszel', bevezeto: 'Amit a vételáron felül fizetsz, és a kamattámogatott hitel, amely jár neked.', elemek: [
+    ['vagyonszerzesi-illetek-kalkulator/', 'Illeték', 'Mennyi, és melyik kedvezmény jár', 'Vagyonszerzési illeték'],
+    ['wekerle-plusz-kalkulator/', 'Wekerle Plusz', 'Jogosultság és törlesztő', 'Wekerle Plusz hitel'],
+  ] },
+  { id: 'valtasz', cim: 'Eladod, és másikat veszel', bevezeto: 'A két ügylet egy lapon, mert az egyik adója és a másik illetéke összefügg.', elemek: [
+    ['lakasvaltas-kalkulator/', 'Lakásváltás', 'Eladás és vétel együtt, hitelszükséglet', 'Lakásváltás'],
     ['ingatlaneladas-szja-kalkulator/', 'Eladás adója', 'Mennyi szja-t fizetsz, és mikortól semennyit', 'Ingatlaneladás szja-ja'],
+  ] },
+  { id: 'kiadod', cim: 'Kiadod a lakásod', bevezeto: 'Mennyi adó jár a bérleti díj után, és mikor kell befizetni.', elemek: [
+    ['lakaskiadas-ado-kalkulator/', 'Kiadás adója', '10% vagy tételes, határidőkkel', 'Lakáskiadás adója'],
   ] },
   { id: 'adatok', cim: 'Adatok és források', bevezeto: 'A szabályok, amelyekkel számolunk, forrással és dátummal.', elemek: [
     ['forrasok/', 'Honnan vannak a számok?', 'Minden szabály forrása és dátuma'],
@@ -35,7 +45,7 @@ export const csoportja = (ut) => CSOPORTOK.find((cs) => cs.elemek.some(([u]) => 
 const HAMBURGER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 
 /** A kalkulátorok címe a kalkulátor kulcsa szerint: a „Következő lépés” linkjeihez (app.mjs). */
-export const KALK_UTAK = { eladas: 'ingatlaneladas-szja-kalkulator/' };
+export const KALK_UTAK = { eladas: 'ingatlaneladas-szja-kalkulator/', illetek: 'vagyonszerzesi-illetek-kalkulator/', wekerle: 'wekerle-plusz-kalkulator/', kiadas: 'lakaskiadas-ado-kalkulator/', lakasvaltas: 'lakasvaltas-kalkulator/' };
 
 /** Linkkészítő: élesben /ut/, előnézetben relatív útvonal index.html-lel. */
 export function linkelo(oldalUt, elonezet) {

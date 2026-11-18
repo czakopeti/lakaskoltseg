@@ -1,7 +1,7 @@
 // Böngészős réteg: menü, űrlapok, élő elszámolás, megosztható link.
 // Szerverre csak az megy, amit a látogató a visszajelzés-dobozban maga elküld.
-import * as S from './szamitas.js?v=b301b154';
-import * as M from './megjelenites.js?v=b301b154';
+import * as S from './szamitas.js?v=db03edd2';
+import * as M from './megjelenites.js?v=db03edd2';
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -151,32 +151,16 @@ const ures = (e, mezok) => mezok.every((k) => e[k] === '' || e[k] == null);
 // Minden kalkulátor egy függvény: (adat, e, form) → az elszámolás HTML-je. A kulcs a form data-kalk értéke.
 // Üres űrlapnál címkézett mintát mutat (mintaMutat = true), a látogató adatai soha nincsenek előre kitöltve.
 let mintaMutat = false;
-const MINTAK = {
-  eladas: (adat) => ({ adat: { eladasiAr: '60000000', szerzesiErtek: '50000000', szerzesKoltseg: '2000000', szerzesEv: String(adat.ev - 2), eladasEv: String(adat.ev) }, leiras: `egy ${adat.ev - 2}-ben 50 millió forintért vett és ${adat.ev}-ben 60 millió forintért eladott lakás, 2 millió forint illetékkel és ügyvédi díjjal`, kerd: 'Írd be a saját adataidat, és a minta helyett azokkal számolunk.' }),
-};
-function mintaval(tipus, adat, e, form) {
-  const m = typeof MINTAK[tipus] === 'function' ? MINTAK[tipus](adat) : MINTAK[tipus];
-  if (!m) return M.uresPanel('Töltsd ki az űrlapot.');
-  const be = { ...e };
-  for (const [k, v] of Object.entries(m.adat)) if (be[k] === '' || be[k] == null || be[k] === false) be[k] = v;
-  const html = KALK[tipus](adat, be, form, true);
-  mintaMutat = true;
-  return M.mintaJelzes(m.leiras, m.kerd) + html;
-}
-const KALK = {
-  eladas: (adat, e, form, minta = false) => {
-    if (!minta && ures(e, ['eladasiAr', 'szerzesiErtek', 'szerzesEv'])) return mintaval('eladas', adat, e, form);
-    const r = S.eladasSzja(adat, { eladasEv: e.eladasEv === '' ? adat.ev : szam(e.eladasEv), szerzesEv: szam(e.szerzesEv), eladasiAr: szam(e.eladasiAr), szerzesiErtek: e.szerzesiErtek === '' ? '' : szam(e.szerzesiErtek), szerzesKoltseg: szam(e.szerzesKoltseg), beruhazas: szam(e.beruhazas), eladasKoltseg: szam(e.eladasKoltseg) });
-    return r.hiba ? M.hianyPanel(r.hiba) : M.eladasPanel(adat, r);
-  },
-};
+// A kalkulátorok az M.KALKULATOROK közös leírásából: ugyanaz számol az építéskor (minta) és itt.
+const KALK = Object.fromEntries(Object.keys(M.KALKULATOROK).map((t) => [t, (adat, e) => { const r = M.kalkHtml(t, adat, e); mintaMutat = r.minta; return r.html; }]));
 
 /* ---------- Határidő a naptárba: a böngésző készíti a fájlt, hozzánk nem jut el semmi ---------- */
 document.addEventListener('click', (ev) => {
-  const g = ev.target.closest?.('[data-naptar]');
+  const g = ev.target.closest?.('[data-naptar], [data-naptar-lista]');
   if (!g) return;
   meres('naptar');
-  const fajl = S.naptarFajl({ nap: g.dataset.naptar, cim: g.dataset.naptarCim, leiras: g.dataset.naptarLeiras, azonosito: g.closest('[data-kalk-nev]')?.dataset.kalkNev || 'hatarido', host: location.hostname || 'lakaskoltseg' });
+  const kozos = { azonosito: g.closest('[data-kalk-nev]')?.dataset.kalkNev || 'hatarido', host: location.hostname || 'lakaskoltseg' };
+  const fajl = S.naptarFajl(g.dataset.naptarLista ? { ...kozos, esemenyek: JSON.parse(g.dataset.naptarLista) } : { ...kozos, nap: g.dataset.naptar, cim: g.dataset.naptarCim, leiras: g.dataset.naptarLeiras });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([fajl], { type: 'text/calendar;charset=utf-8' }));
   a.download = 'hatarido.ics';
