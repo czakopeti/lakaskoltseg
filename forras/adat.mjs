@@ -17,6 +17,7 @@ export function betoltAdat() {
     szabalyok: olvas('data/szabalyok.json'),
     inflacio: olvas('data/inflacio.json'),
     allapot: olvas('data/allapot.json'),
+    valtozasok: olvas('data/valtozasok.json'),
   };
 }
 

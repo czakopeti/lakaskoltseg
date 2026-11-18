@@ -26,11 +26,12 @@ export const lenyomat = (s) => createHash('sha256').update(s).digest('hex').slic
 export function forrasLista(szabalyok, kulon = []) {
   const m = new Map();
   for (const t of szabalyok.temak) for (const x of t.tetelek) {
-    const e = m.get(x.forras.url) || { url: x.forras.url, nev: x.forras.nev, szabalyok: [] };
+    const e = m.get(x.forras.url) || { url: x.forras.url, nev: x.forras.nev, szabalyok: [], automata: true };
     e.szabalyok.push(`${t.id}.${x.kulcs}`);
+    e.automata = e.automata && !!x.automata; // csak akkor, ha a forrás minden szabályát az önálló frissítő kezeli
     m.set(x.forras.url, e);
   }
-  for (const k of kulon) m.set(k.url, { szabalyok: [], ...m.get(k.url), ...k });
+  for (const k of kulon) m.set(k.url, { szabalyok: [], ...m.get(k.url), automata: false, ...k });
   return [...m.values()];
 }
 
@@ -65,7 +66,8 @@ export async function futtat({ leto = letolt } = {}) {
     const elozo = f.allapot[forras.url];
     try {
       const e = ertekel(forras, elozo, await leto(forras.url));
-      if (e.allapot === 'valtozatlan') jelentes.valtozatlan++;
+      // Amit az önálló frissítő (frissito/automata.mjs) kezel, arról nem kell jegy: ott a szám magától átáll, a gond külön jelentésbe megy
+      if (e.allapot === 'valtozatlan' || (e.allapot === 'valtozott' && forras.automata)) jelentes.valtozatlan++;
       else jelentes[e.allapot].push({ url: forras.url, nev: forras.nev, szabalyok: forras.szabalyok, ok: e.ok, elozoLatva: elozo?.latva });
       // Változásnál az új lenyomatot rögzítjük, hogy ugyanarról egyszer szóljunk; a jegy őrzi, hogy felül kell vizsgálni.
       if (e.lenyomat) f.allapot[forras.url] = { lenyomat: e.lenyomat, hossz: e.hossz, latva: e.allapot === 'valtozatlan' ? elozo.latva : ma, ellenorizve: ma };

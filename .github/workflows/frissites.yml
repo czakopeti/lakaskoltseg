@@ -1,12 +1,15 @@
 name: Heti frissítés
-# Hétfőnként (és január első napjaiban naponta) összeveti a forrásokat a legutóbb látott szövegükkel,
+# Hétfőnként (és január 1–20. között naponta, amíg a KSH közli az éves inflációt), illetve ha a frissítők kódja változik, összeveti a forrásokat a legutóbb látott szövegükkel,
 # lefuttatja a teszteket, újraépíti az oldalt (a dátumfüggő részek így maguktól átállnak), és ha kell, jegyet nyit.
 # Nyilvános tárolóban a GitHub Actions ingyenes.
 on:
   schedule:
     - cron: '23 4 * * 1'
-    - cron: '23 4 1-7 1 *'
+    - cron: '23 4 1-20 1 *'
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['frissito/**', '.github/workflows/frissites.yml']
 permissions:
   contents: write
   issues: write
@@ -22,8 +25,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Önálló frissítők (KSH infláció, PMÁP-kamat)
+        run: node frissito/automata.mjs > /tmp/automata.md
       - name: Forrásfigyelő
-        run: node frissito/figyelo.mjs > /tmp/jegy.md
+        run: |
+          node frissito/figyelo.mjs > /tmp/jegy.md
+          if [ -s /tmp/automata.md ]; then { [ -s /tmp/jegy.md ] || echo "Forrásfigyelő, $(TZ=Europe/Budapest date +%F)."; echo; cat /tmp/automata.md; } >> /tmp/jegy.md; fi
       - name: Tesztek
         run: node --test tesztek/*.test.mjs
       - name: Építés

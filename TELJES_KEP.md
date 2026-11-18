@@ -68,12 +68,13 @@ Az oldalra csak olyan adat kerül, amely ember nélkül is naprakész marad: vag
 | Adat | Hogyan frissül |
 |---|---|
 | Jogszabályi szabályok (illeték, szja, Wekerle Plusz, MNB) | A forrásfigyelő hetente letölti a forrásoldalt, és változáskor jelez. Az átírás ellenőrzést kíván, nem automatikus. |
-| KSH infláció | Most: januárban jelez, ha hiányzik az előző év. Cél: a KSH-ból maga tölti le. |
-| PMÁP kamat | Most: a forrásfigyelő jelez. Cél: az Államkincstár oldaláról maga olvassa ki. |
+| KSH infláció | Gépi (`frissito/automata.mjs`). Január 8-tól naponta keresi a KSH decemberi gyorstájékoztatójában (angol változat), és ha a cím és a szöveg ugyanazt a számot adja, és a szám hihető, maga veszi fel. Január 15-től az elavulás-őr is szól, ha még mindig hiányzik. |
+| PMÁP kamat | Gépi. Hetente kiolvassa a „KAMAT: x%” sort az Államkincstár oldaláról; 0 és 30% között, és legfeljebb 8 százalékpontos ugrásnál írja át. Különben a régi marad, és jegy nyílik. A forrásfigyelő erről az oldalról nem nyit külön jegyet. |
 | KSH lakásárindex, négyzetméterárak, lakbérek (tervezett) | Negyedévente vagy évente a KSH-ból maga tölti le; ha a letöltés vagy az ésszerűségi ellenőrzés hibát ad, a régi érték marad, és jelez. |
 | ÉTDR összesítés (tervezett) | Az Építési Pulzus közzétett összesítő fájljából, hetente. |
 | Cikkek (tervezett) | Minden szám az adatfájlból jön, ahogy a kalkulátoroké; a szabály változásával a cikk is változik. |
-| Változásnapló, adattáblák (tervezett) | Építéskor készülnek az adatfájlból és a git-előzményből. |
+| Változásnapló | `data/valtozasok.json`. A gépi frissítő minden átírást beír (nap, régi és új érték, forrás); a Források oldal „Mi változott?” része ebből készül. A kézi átírásokat a heti felülvizsgálat veszi fel. |
+| Adattáblák (tervezett) | Építéskor készülnek az adatfájlból. |
 | Becslések (ügyvéd, értékbecslés, jutalék) | A forrásfigyelő a forráscikkeket is figyeli. Ezek a legkevésbé friss tételek, ezért mindig átírhatók, és becslésként jelöljük őket. |
 | Budapesti kerületi Airbnb-szabályok | Csak dátummal ellátott összefoglaló; a forrásai a figyelőben vannak. Adatbázist nem építünk belőle, mert nem frissíthető megbízhatóan. |
 
@@ -85,7 +86,9 @@ Három réteg van, és mindegyik ingyenes (nyilvános tároló, GitHub Actions).
 2. **Forrásfigyelő** (`frissito/figyelo.mjs`, `.github/workflows/frissites.yml`). Hétfőnként letölt minden oldalt, amelyre a `data/szabalyok.json` hivatkozik, és összeveti a szövegét a legutóbb látottal. Új szabály forrása magától bekerül a figyeltek közé. Ha egy forrás megváltozott, `forrasvaltozas` címkéjű jegyet nyit az érintett szabályok kulcsával, és a GitHub e-mailt küld. Ha semmi nem változott, a „Legutóbbi ellenőrzés” dátuma lép.
 3. **Felülvizsgálat.** A jegy alapján a szabályt ember vagy egy ütemezett Claude-futás írja át. Jogszabályszöveget gép magától nem vesz át: egy rosszul értelmezett bekezdés rossz adót számolna.
 
-Ami már gépi: a KSH éves átlagos inflációjának elavulás-őre (január 15-től jegyet nyit, ha az előző év hiányzik).
+Ami már gépi: a KSH éves átlagos inflációja és a PMÁP-kamat önálló frissítője (`frissito/automata.mjs`, a heti futás első lépése), és az infláció elavulás-őre (január 15-től jegyet nyit, ha az előző év hiányzik).
+
+A heti felülvizsgálatot egy ütemezett Claude-futás végzi, hétfőnként 6:47-kor (Budapest), a forrásfigyelő után. A nyitott `forrasvaltozas` jegyek alapján átírja az egyértelmű változást forrással, a többit a nyitott listára veszi, és szól Péternek.
 
 Ami még hiányzik a teljes fedéshez:
 

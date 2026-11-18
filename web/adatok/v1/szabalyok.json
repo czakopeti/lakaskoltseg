@@ -1141,7 +1141,8 @@
           },
           "szint": "elsodleges",
           "ellenorizve": "2026-11-18",
-          "megjegyzes": "A kamat minden évben változik, a KSH januári inflációs adata után. A forrásfigyelő jelez, ha az Államkincstár oldalán más szám áll."
+          "megjegyzes": "A kamat minden évben változik, a KSH januári inflációs adata után. Az önálló frissítő hetente kiolvassa az Államkincstár oldaláról, és ha a szám hihető, magától átírja.",
+          "automata": true
         },
         {
           "kulcs": "karbantartas",

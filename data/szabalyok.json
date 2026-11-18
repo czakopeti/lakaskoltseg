@@ -205,14 +205,7 @@
           "kulcs": "jovedelem_hanyad",
           "nev": "Mennyi a jövedelem a számított összegből",
           "ertek": {
-            "szazalek_evenkent": [
-              100,
-              100,
-              90,
-              60,
-              30,
-              0
-            ]
+            "szazalek_evenkent": [100, 100, 90, 60, 30, 0]
           },
           "szoveg": "A számított összeg (bevétel mínusz költségek) 100%-a a szerzés évében és az azt követő évben, 90%-a a második, 60%-a a harmadik, 30%-a a negyedik évben. Az ötödik évtől nincs adóköteles jövedelem.",
           "jogszabaly": "Szja tv. 62. § (4)",
@@ -849,26 +842,10 @@
           "nev": "Holtig tartó haszonélvezet",
           "ertek": {
             "savok": [
-              [
-                0,
-                24,
-                10
-              ],
-              [
-                25,
-                50,
-                8
-              ],
-              [
-                51,
-                65,
-                6
-              ],
-              [
-                66,
-                200,
-                4
-              ]
+              [0, 24, 10],
+              [25, 50, 8],
+              [51, 65, 6],
+              [66, 200, 4]
             ]
           },
           "szoveg": "Az egyévi érték szorozva a haszonélvező életkora szerint: 25 év alatt 10-zel, 25 és 50 év között 8-cal, 51 és 65 év között 6-tal, 65 év felett 4-gyel.",
@@ -1019,36 +996,12 @@
           "nev": "Közjegyzői okirat a hitelhez",
           "ertek": {
             "savok": [
-              [
-                500000,
-                20000,
-                0
-              ],
-              [
-                5000000,
-                20000,
-                1
-              ],
-              [
-                10000000,
-                65000,
-                0.5
-              ],
-              [
-                200000000,
-                90000,
-                0.25
-              ],
-              [
-                500000000,
-                565000,
-                0.2
-              ],
-              [
-                1000000000000000,
-                1165000,
-                0.1
-              ]
+              [500000, 20000, 0],
+              [5000000, 20000, 1],
+              [10000000, 65000, 0.5],
+              [200000000, 90000, 0.25],
+              [500000000, 565000, 0.2],
+              [1000000000000000, 1165000, 0.1]
             ],
             "tamogatott_szazalek": 15
           },
@@ -1138,7 +1091,8 @@
           },
           "szint": "elsodleges",
           "ellenorizve": "2026-11-18",
-          "megjegyzes": "A kamat minden évben változik, a KSH januári inflációs adata után. A forrásfigyelő jelez, ha az Államkincstár oldalán más szám áll."
+          "megjegyzes": "A kamat minden évben változik, a KSH januári inflációs adata után. Az önálló frissítő hetente kiolvassa az Államkincstár oldaláról, és ha a szám hihető, magától átírja.",
+          "automata": true
         },
         {
           "kulcs": "karbantartas",
