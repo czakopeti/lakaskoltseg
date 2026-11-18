@@ -1,0 +1,34 @@
+name: Domain-ellenőrzés
+# Kézzel indítható: DNS, az oldal válasza, a JavaScript-fájlok frissessége és a végpontok a config.json szerinti címen.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ellenoriz:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ellenőrzés
+        run: |
+          D=$(node -p 'JSON.parse(require("fs").readFileSync("config.json","utf8")).domain')
+          H=${D#https://}
+          for t in NS A; do echo "== $H $t"; dig +short $t "$H" @1.1.1.1; done
+          for u in "$D/" "$D/forrasok/"; do
+            echo "== $u"; curl -sSI -m 20 "$u" | grep -iE "^(HTTP|location|x-robots-tag|cache-control)" || true
+          done
+          for f in szamitas megjelenites app; do
+            echo "== /assets/js/$f.js"; curl -sSI -m 20 "$D/assets/js/$f.js" | grep -iE "^(cache-control|etag|age|cf-cache-status)" || true
+          done
+          echo "== a lap melyik app.js-t tölti (élő / tároló)"
+          curl -sS -m 20 "$D/forrasok/" | grep -o 'js/app.js?v=[a-z0-9]*' || true
+          grep -o 'js/app.js?v=[a-z0-9]*' web/forrasok/index.html || true
+          echo "== GET /api/visszajelzes"; curl -sS -m 20 -w "\n%{http_code}\n" "$D/api/visszajelzes" || true
+          echo "== GET /api/meres"; curl -sS -m 20 -w "\n%{http_code}\n" "$D/api/meres" || true
+          echo "== idegen oldalról tiltva (403 várható)"; curl -sS -m 20 -o /dev/null -w "%{http_code}\n" -X POST -H 'origin: https://pelda.example' -H 'content-type: application/json' -d '{"ut":"/x/","ertek":"fel"}' "$D/api/visszajelzes" || true
+          echo "== adatcsatorna"; curl -sS -m 20 -o /dev/null -w "%{http_code} %{content_type}\n" "$D/adatok/v1/index.json" || true
+          echo "== sitemap oldalai"
+          for u in $(curl -sS -m 20 "$D/sitemap.xml" | grep -o '<loc>[^<]*' | sed 's/<loc>//'); do
+            printf '%s %s\n' "$(curl -sS -m 20 -o /dev/null -w '%{http_code}' "$u")" "$u"
+          done

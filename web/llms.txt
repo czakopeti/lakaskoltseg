@@ -1,0 +1,17 @@
+# lakásköltség
+
+> A lakásköltség független, ingyenes magyar oldal a lakásvásárlás, a lakáseladás és a lakáskiadás költségeiről: vagyonszerzési illeték, ingatlaneladás személyi jövedelemadója, lakáskiadás adója, kamattámogatott hitel. Minden szabálynál ott a jogszabályhely, a forrás és az ellenőrzés napja. Nem hatóság és nem hitelközvetítő. Legutóbbi ellenőrzés: 2026. november 18.
+
+## Adatok és források
+
+A szabályok, amelyekkel számolunk, forrással és dátummal.
+
+- [Honnan vannak a számok?](https://lakaskoltseg.pages.dev/forrasok/): minden szabály jogszabályhelye, forrása és az ellenőrzés napja
+
+## Gépi adatok
+
+- [JSON-adatcsatorna](https://lakaskoltseg.pages.dev/adatok/v1/index.json): a szabályok gépi formában, forrással és dátummal; regisztráció és kulcs nélkül, CC BY 4.0
+
+## Az oldalról
+
+- [Rólunk és szerkesztői elvek](https://lakaskoltseg.pages.dev/rolunk/): független, ingyenes, forrással; mi hivatalos, mi saját adat, mi becslés

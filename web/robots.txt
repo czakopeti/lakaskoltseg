@@ -1,0 +1,3 @@
+# Munkaverzió: egyetlen oldal se kerüljön keresőbe.
+User-agent: *
+Allow: /

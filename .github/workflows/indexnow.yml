@@ -1,0 +1,65 @@
+name: IndexNow
+# Minden élesítés után szól a Bingnek (és rajta keresztül a ChatGPT keresőjének és a Copilotnak),
+# mely oldalak változtak. A Google ezt nem használja, ott a sitemap.xml és a Search Console számít.
+on:
+  push:
+    branches: [main]
+    paths: ['web/**']
+  workflow_dispatch:
+    inputs:
+      mind:
+        description: 'Az összes oldalt beküldi, nem csak a változottakat'
+        type: boolean
+        default: false
+permissions:
+  contents: read
+# Egyszerre csak egy beküldés fusson: két párhuzamos kérésre a Bing 403-mal válaszolt.
+concurrency:
+  group: indexnow
+  cancel-in-progress: false
+jobs:
+  bekuld:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 2
+      - name: Várunk, amíg a Cloudflare kiteszi az új változatot
+        run: sleep 90   # a Cloudflare kb. egy perc alatt kiteszi a változást
+      - name: Változott oldalak beküldése
+        env:
+          MIND: ${{ inputs.mind }}
+        run: |
+          node --input-type=module -e '
+          import { readFileSync, existsSync } from "node:fs";
+          import { execSync } from "node:child_process";
+          const cfg = JSON.parse(readFileSync("config.json", "utf8"));
+          if (!cfg.eles || !cfg.indexnow_kulcs) { console.log("Nincs élesítve vagy nincs kulcs."); process.exit(0); }
+          const host = new URL(cfg.domain).host;
+          // A sitemap lastmod-ja oldalanként csak valódi tartalomváltozáskor lép (epit.mjs), ezért azt vetjük össze
+          // az előző változattal: a napi ellenőrzés dátumcseréje miatt nem küldünk be minden oldalt.
+          const olvasSitemap = (x) => new Map([...x.matchAll(/<loc>([^<]+)<\/loc><lastmod>([^<]+)<\/lastmod>/g)].map((m) => [m[1], m[2]]));
+          const most = olvasSitemap(existsSync("web/sitemap.xml") ? readFileSync("web/sitemap.xml", "utf8") : "");
+          let urlek = [...most.keys()];
+          if (process.env.MIND !== "true") {
+            let elozo = new Map();
+            try { elozo = olvasSitemap(execSync("git show HEAD~1:web/sitemap.xml", { encoding: "utf8" })); } catch {}
+            urlek = urlek.filter((u) => elozo.get(u) !== most.get(u));
+          }
+          if (!urlek.length) { console.log("Nincs változott oldal."); process.exit(0); }
+          const body = JSON.stringify({ host, key: cfg.indexnow_kulcs, keyLocation: `${cfg.domain}/${cfg.indexnow_kulcs}.txt`, urlList: urlek });
+          console.log(urlek.join("\n"));
+          // 403/429/5xx: a Bing átmenetileg elutasít (túl sűrű beküldés, kulcs-újraellenőrzés). Kétszer újrapróbáljuk.
+          let r;
+          for (const varj of [0, 90, 240]) {
+            if (varj) { console.log(`Újra ${varj} mp múlva…`); await new Promise((ok) => setTimeout(ok, varj * 1000)); }
+            r = await fetch("https://api.indexnow.org/indexnow", { method: "POST", headers: { "content-type": "application/json; charset=utf-8" }, body });
+            console.log(r.status, await r.text());
+            if (r.status < 400 || ![403, 429, 500, 502, 503].includes(r.status)) break;
+          }
+          if (r.status < 400) process.exit(0);
+          if ([403, 429, 500, 502, 503].includes(r.status)) { console.log(`::warning::IndexNow ${r.status}: átmeneti elutasítás, a következő élesítés újra beküldi. A Google-t ez nem érinti.`); process.exit(0); }
+          process.exit(1);
+          '

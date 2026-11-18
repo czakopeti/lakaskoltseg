@@ -1,0 +1,23 @@
+{
+  "marka": "lakásköltség",
+  "domain": "https://lakaskoltseg.pages.dev",
+  "eles": false,
+  "kapcsolat_email": "",
+  "indexnow_kulcs": "",
+  "uzemelteto": {
+    "nev": "Czakó Péter",
+    "tipus": "magánszemély",
+    "telefon": "+36 30 478 2946",
+    "szekhely": "",
+    "adoszam": "",
+    "nyilvantartasi_szam": ""
+  },
+  "tarhely": {
+    "nev": "Cloudflare, Inc.",
+    "cim": "101 Townsend St, San Francisco, CA 94107, USA",
+    "web": "https://www.cloudflare.com"
+  },
+  "megjegyzes": "Munkanév és ideiglenes cím. Az eles: true csak akkor kapcsolható be, ha megvan a végleges név, a domain, a kapcsolati e-mail és az IndexNow-kulcs. Amíg eles: false, minden oldal noindex.",
+  "szlogen": "",
+  "visszajelzes_repo": "czakopeti/lakaskoltseg-visszajelzes"
+}
