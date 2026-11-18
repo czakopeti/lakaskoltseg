@@ -73,7 +73,7 @@
       "ellenorizve": "2026-11-18"
     },
     "https://biztosdontes.hu/cikkek/illetekmentesseg": {
-      "hossz": 13799,
+      "hossz": 13777,
       "tenyek": [
         "90f5292209",
         "f3c1011aec",
@@ -93,7 +93,7 @@
         "83c8e71885",
         "340678f071",
         "5d0e530884",
-        "176daf6751",
+        "c818b92e2f",
         "25a19e6ec9",
         "a9ef24e348",
         "80cb6b0121"
@@ -102,12 +102,21 @@
       "ellenorizve": "2026-11-18"
     },
     "https://tudastar.ingatlan.com/hirek/valtozott-2026-ban-a-lakasvasarlas-illeteke-trukkos-hataridok-a-cseret-potlo-vetelnel/": {
-      "lenyomat": "47b229a8a43834b9",
       "hossz": 5637,
+      "tenyek": [
+        "52d7c786e7",
+        "5225660377",
+        "7c660a81ed",
+        "25c9c37997",
+        "442bc8ecba",
+        "50c1be10f5",
+        "967b4fa349",
+        "5b95b4b7c5",
+        "b972654ba9",
+        "77718455c0"
+      ],
       "latva": "2026-11-18",
-      "ellenorizve": "2026-11-18",
-      "gond": "az oldal szövege túl rövid",
-      "gondOta": "2026-11-18"
+      "ellenorizve": "2026-11-18"
     },
     "https://www.kh.hu/cikkek/allami-tamogatasok": {
       "hossz": 17157,
@@ -322,7 +331,7 @@
       "ellenorizve": "2026-11-18"
     },
     "https://infostart.hu/gazdasag/2022/08/21/fontos-kerdeseket-tisztaz-az-adohatosag": {
-      "hossz": 10382,
+      "hossz": 10383,
       "tenyek": [
         "933e08aa54",
         "c09f923c50"
@@ -594,7 +603,9 @@
       "hossz": 28829,
       "tenyek": [],
       "latva": "2026-11-18",
-      "ellenorizve": "2026-11-18"
+      "ellenorizve": "2026-11-18",
+      "gond": "HTTP 403",
+      "gondOta": "2026-11-18"
     },
     "https://www.bdo.hu/hu-hu/aktualitasok-blog/blog/ingatlan-es-vagyonszerzes-adozasa-2026-illetekmentesseg-es-az-ingatlaneladas-szja-ja": {
       "hossz": 13825,
@@ -791,7 +802,7 @@
       "ellenorizve": "2026-11-18"
     },
     "https://biztosdontes.hu/cikkek/mnb-hitelek-koltsegeinek-csokkentese": {
-      "hossz": 11327,
+      "hossz": 11290,
       "tenyek": [
         "82d942f1e0",
         "37b0525bb6",
@@ -827,21 +838,39 @@
         "e394e657ec",
         "f0298acb24",
         "03b041b248",
-        "b8d8cdf151"
+        "7d527af2cc"
       ],
       "latva": "2026-11-18",
       "ellenorizve": "2026-11-18"
     },
     "https://tudastar.ingatlan.com/tippek/foldhivatali-dijak-valtozasa-2024/": {
-      "lenyomat": "15341f7f4c2acbba",
       "hossz": 5897,
+      "tenyek": [
+        "dfdcf26d10",
+        "2850d4b075",
+        "06bd53b675",
+        "f1c3ebd05c",
+        "5788e98c20",
+        "45dd46083f",
+        "ee95770b42",
+        "e761943fa9",
+        "da32092ef7",
+        "dce8775799",
+        "8a3b1942cb",
+        "d4893d96a8",
+        "8006908a64",
+        "82c2427ddd",
+        "04378dd712",
+        "04a386fe00",
+        "2cf7c7a1b7",
+        "f79d33e41d",
+        "47ca9cd467"
+      ],
       "latva": "2026-11-18",
-      "ellenorizve": "2026-11-18",
-      "gond": "az oldal szövege túl rövid",
-      "gondOta": "2026-11-18"
+      "ellenorizve": "2026-11-18"
     },
     "https://privatbankar.hu/cikkek/ingatlan/lakas-koltsegek-324176.html": {
-      "hossz": 16101,
+      "hossz": 16128,
       "tenyek": [
         "c04fad3013",
         "a172b882bf",
@@ -921,12 +950,31 @@
       "ellenorizve": "2026-11-18"
     },
     "https://tudastar.money.hu/ismerteto/mennyi-ido-alatt-kuldi-a-nav-a-vagyonszerzesi-illeteket-es-hogyan-kell-megfizetni/": {
-      "lenyomat": "ae0347063e08e5d9",
-      "hossz": 15535,
+      "hossz": 15259,
+      "tenyek": [
+        "afa7f0f364",
+        "9d7f168c79",
+        "6d30bf5865",
+        "53b91123c1",
+        "4a89abf3c3",
+        "de8495c0d1",
+        "e1f45d2f25",
+        "9b3227c85d",
+        "07c97cb58e",
+        "1c4ab1649c",
+        "31bae13348",
+        "4b69a660bc",
+        "070a9b57d0",
+        "84d1430df6",
+        "ee14ce20ac",
+        "db35ee57c1",
+        "f3cfc56e3d",
+        "5d035339f9",
+        "a563302fa6",
+        "4a0c553d1c"
+      ],
       "latva": "2026-11-18",
-      "ellenorizve": "2026-11-18",
-      "gond": "az oldal szövege túl rövid",
-      "gondOta": "2026-11-18"
+      "ellenorizve": "2026-11-18"
     },
     "https://www.allamkincstar.gov.hu/lakossagi-ugyfelek/allampapir_forgalmazas/Forgalmazott-allampapirok/dematerializalt-allampapirok/PMAP": {
       "hossz": 3271,
@@ -961,7 +1009,7 @@
       "ellenorizve": "2026-11-18"
     },
     "https://infostart.hu/gazdasag/2026/01/13/megjott-a-friss-inflacios-adat": {
-      "hossz": 11196,
+      "hossz": 11197,
       "tenyek": [
         "fbbc5b9544",
         "ef6e9f5dff",
@@ -1035,7 +1083,7 @@
       "ellenorizve": "2026-11-18"
     },
     "https://nav.gov.hu/sajtoszoba/hirek/kozeleg-a-hatarido-de-segit-a-nav": {
-      "hossz": 2521,
+      "hossz": 2497,
       "tenyek": [
         "fec6fd03fc",
         "4a91bda42b",
@@ -1047,13 +1095,14 @@
       "ellenorizve": "2026-11-18"
     },
     "https://www.penzcentrum.hu/otthon/20260519/vegleges-tiltas-lep-eletbe-a-fovaros-sziveben-rengeteg-ingatlantulajdonos-bukja-el-emiatt-a-biztos-bevetelt-1198922/amp": {
-      "hossz": 3940,
+      "hossz": 4024,
       "tenyek": [
         "2d9ffbf48e",
         "603b0bfc49",
         "415ecfb672",
         "1f365e5a3c",
         "57e6a6a08f",
+        "ad820157f8",
         "abf1f60388"
       ],
       "latva": "2026-11-18",
