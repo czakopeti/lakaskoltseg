@@ -36,7 +36,7 @@ export function tenyek(szoveg) {
 }
 const rovid = (x) => lenyomat(x).slice(0, 10);
 /** A mondatválogatás változata: ha a szabályai változnak, minden forrás csendben új alapot kap, téves riasztás nélkül. */
-export const VALTOZAT = 2;
+export const VALTOZAT = 3;
 
 /** A figyelendő források: a szabályok forrásai (melyik szabály függ tőlük), és a külön felvett oldalak. */
 export function forrasLista(szabalyok, kulon = []) {
@@ -58,10 +58,15 @@ export function forrasLista(szabalyok, kulon = []) {
  * Régi formátumú állapotnál (csak lenyomat) csendben új alapot veszünk fel.
  */
 export function ertekel(forras, elozo, html) {
-  const sz = szakasz(szovegge(html, forras.kihagy), forras.tol, forras.ig);
-  if (sz == null || sz.length < 200) return { allapot: 'gyanus', ok: sz == null ? 'a figyelt szakasz jelzője nincs az oldalon' : 'az oldal szövege túl rövid' };
-  const t = tenyek(sz);
-  const most = { tenyek: t.map(rovid), hossz: sz.length };
+  // Több letöltésnél (ugyanaz az oldal kétszer) csak a mindkettőben szereplő mondat számít: a kérésenként változó reklám, ajánló és belépési sáv kiesik.
+  const lapok = (Array.isArray(html) ? html : [html]).map((h) => szakasz(szovegge(h, forras.kihagy), forras.tol, forras.ig)).filter((x) => x != null && x.length >= 200);
+  if (!lapok.length) {
+    const sz = szakasz(szovegge(Array.isArray(html) ? html[0] : html, forras.kihagy), forras.tol, forras.ig);
+    return { allapot: 'gyanus', ok: sz == null ? 'a figyelt szakasz jelzője nincs az oldalon' : 'az oldal szövege túl rövid' };
+  }
+  const halmazok = lapok.map((x) => tenyek(x));
+  const t = halmazok[0].filter((m) => halmazok.every((h) => h.includes(m)));
+  const most = { tenyek: t.map(rovid), hossz: Math.max(...lapok.map((x) => x.length)) };
   if (!elozo?.tenyek || elozo.v !== VALTOZAT) return { allapot: 'uj', ...most };
   const regi = new Set(elozo.tenyek), uj = new Set(most.tenyek);
   const ujMondatok = t.filter((x) => !regi.has(rovid(x)));
@@ -88,6 +93,13 @@ async function letolt(url) {
   return r.text();
 }
 
+/** Kétszer tölti le az oldalt, kis szünettel. Ha a második nem sikerül, az első is elég. */
+async function ketszer(url, leto) {
+  const a = await leto(url);
+  await new Promise((r) => setTimeout(r, leto === letolt ? 1500 : 0));
+  try { return [a, await leto(url)]; } catch { return [a]; }
+}
+
 /** Futtatás: frissíti a data/figyelo.json-t, és jelentést ír a szabványos kimenetre (JSON). */
 export async function futtat({ leto = letolt } = {}) {
   const szabalyok = olvas('data/szabalyok.json');
@@ -103,7 +115,7 @@ export async function futtat({ leto = letolt } = {}) {
       else jelentes.tartos++;
     };
     try {
-      const e = ertekel(forras, elozo, await leto(forras.url));
+      const e = ertekel(forras, elozo, await ketszer(forras.url, leto));
       if (e.allapot === 'gyanus') { gond('gyanus', e.ok); continue; }
       // Amit az önálló frissítő (frissito/automata.mjs) kezel, arról nem kell jegy: ott a szám magától átáll, a gond külön jelentésbe megy
       if (e.allapot === 'valtozatlan' || (e.allapot === 'valtozott' && forras.automata)) jelentes.valtozatlan++;

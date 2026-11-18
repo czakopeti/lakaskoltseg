@@ -40,6 +40,12 @@ test('csak a számot és mértéket tartalmazó mondatok számítanak: a változ
   assert.match(jegySzoveg({ ma: '2026-11-25', valtozott: [{ url: f.url, nev: 'Példa', ...v }], gyanus: [], hiba: [] }), /> A határidő 15 nap\.[\s\S]*Eltűnt mondat: 1/);
   assert.equal(ertekel(f, { lenyomat: 'regi', hossz: 900 }, cikk('')).allapot, 'uj', 'régi formátumú állapotból csendben új alap');
   assert.equal(ertekel(f, { ...elso, v: VALTOZAT - 1 }, cikk('').replace('30 nap', '15 nap')).allapot, 'uj', 'új mondatválogatásnál is');
+  // Két letöltés: a kérésenként változó promó nem kerül az alapba, a rövid hibaoldal mellett a jó letöltés elég
+  const ket = (x) => [cikk(`Ajánlat: 3,${x}% THM-mel most`), cikk('Ajánlat: 2,9% kamattal ma.')];
+  const alap = { v: VALTOZAT, ...ertekel(f, undefined, ket(1)) };
+  assert.equal(ertekel(f, alap, ket(7)).allapot, 'valtozatlan');
+  assert.equal(ertekel(f, alap, [lap('Ellenőrzés folyamatban.'), cikk('')]).allapot, 'valtozatlan');
+  assert.equal(ertekel(f, alap, [lap('Ellenőrzés.'), lap('Ellenőrzés.')]).allapot, 'gyanus');
   assert.deepEqual(tenyek('Szép napot! Az illeték 4%. Kattints ide.'), ['Az illeték 4%.']);
   assert.deepEqual(tenyek('Bárkinek járhat ingyen 8-11 millió forint, ha nyugdíjba megy: egyszerű igényelni! Mennyi az illeték 2026-ban? Az illeték 4%.'), ['Az illeték 4%.'], 'kattintásvadász cím és kérdés nem számít');
   assert.equal(szovegge('<p>A<!-- promó 3,09% THM -->B</p>'), 'A B', 'a HTML-megjegyzés kimarad');
