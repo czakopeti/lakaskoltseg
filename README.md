@@ -4,7 +4,7 @@ Magyar kalkulátoroldal a lakásvásárlás, a lakáseladás és a lakáskiadás
 
 Statikus oldal. Nincs adatbázis, nincs szerver, nincs süti. Az űrlapok mindig üresen nyílnak.
 
-**Állapot:** váz. A motor átjött, a szabályok adatfájlja forrásokkal megvan, kalkulátor még nincs. Az oldal munkaverzió (`eles: false`), minden lapja noindex.
+**Állapot:** saját arculat (DIZAJN.md), egy kalkulátor (ingatlaneladás szja-ja), heti forrásfigyelő. Az oldal munkaverzió (`eles: false`), minden lapja noindex. A teljes terv: `TELJES_KEP.md`, a sorrend: `TARTALOMTERV.md`.
 
 ## Felépítés
 
@@ -16,6 +16,7 @@ Statikus oldal. Nincs adatbázis, nincs szerver, nincs süti. Az űrlapok mindig
 | `forras/js/megjelenites.mjs` | Az eredménypanelek építőkockái. |
 | `forras/js/app.mjs` | Böngészős réteg: menü, élő számolás, megosztható link, visszajelzés. A kalkulátorok a `KALK` táblába kerülnek. |
 | `forras/oldalak.mjs`, `forras/sablon.mjs` | Az oldalak szövege és kerete. |
+| `frissito/figyelo.mjs`, `data/figyelo.json` | Forrásfigyelő: a szabályok forrásoldalainak lenyomata. Változásnál a heti futás jegyet nyit. |
 | `functions/api/` | Cloudflare Pages Functions: névtelen mérés és visszajelzés. |
 | `tesztek/` | Szerkezet, szabályfájl, számítás, végpontok. |
 | `web/` | A kész oldal. A Cloudflare Pages ezt szolgálja ki. Kézzel ne szerkeszd, az `epit.mjs` írja. |
@@ -27,6 +28,7 @@ Statikus oldal. Nincs adatbázis, nincs szerver, nincs süti. Az űrlapok mindig
 node epit.mjs                 # web/ felépítése
 node epit.mjs --elonezet      # elonezet/ – relatív linkekkel, fájlként is megnyitható
 node --test tesztek/*.test.mjs
+node frissito/figyelo.mjs      # forrásfigyelő (internet kell)
 ```
 
 ## Cloudflare Pages (ingyenes csomag)

@@ -1,0 +1,44 @@
+name: Heti frissítés
+# Hétfőnként (és január első napjaiban naponta) összeveti a forrásokat a legutóbb látott szövegükkel,
+# lefuttatja a teszteket, újraépíti az oldalt (a dátumfüggő részek így maguktól átállnak), és ha kell, jegyet nyit.
+# Nyilvános tárolóban a GitHub Actions ingyenes.
+on:
+  schedule:
+    - cron: '23 4 * * 1'
+    - cron: '23 4 1-7 1 *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  issues: write
+concurrency:
+  group: frissites
+  cancel-in-progress: false
+jobs:
+  frissit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Forrásfigyelő
+        run: node frissito/figyelo.mjs > /tmp/jegy.md
+      - name: Tesztek
+        run: node --test tesztek/*.test.mjs
+      - name: Építés
+        run: node epit.mjs
+      - name: Mentés, ha változott valami
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || { git commit -m "Heti frissítés: forrásellenőrzés és újraépítés"; git push; }
+      - name: Jegy, ha egy forrás megváltozott
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [ -s /tmp/jegy.md ] || { echo "Nincs teendő."; exit 0; }
+          gh label create forrasvaltozas --color B60205 --description "Megváltozott egy forrás, a szabályt felül kell vizsgálni" 2>/dev/null || true
+          n=$(gh issue list --label forrasvaltozas --state open --json number --jq '.[0].number')
+          if [ -n "$n" ]; then gh issue comment "$n" --body-file /tmp/jegy.md; else gh issue create --title "Megváltozott egy forrás: felülvizsgálat kell" --label forrasvaltozas --body-file /tmp/jegy.md; fi

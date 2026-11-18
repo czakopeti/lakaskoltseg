@@ -1,0 +1,8 @@
+{
+  "leiras": "A forrásfigyelő állapota. A szabályok forrásai maguktól bekerülnek; a kulon listában azok az oldalak vannak, amelyekhez még nem tartozik szabály, de változásuk érinthet minket. Mezők: url, nev, tol és ig (a figyelt szakasz kezdő és záró szövege, nem kötelező), kihagy (reguláris kifejezések a változó részekre).",
+  "kulon": [
+    { "url": "https://njt.jog.gov.hu/jogszabaly/2026-298-20-22", "nev": "298/2026. Korm. rendelet (Wekerle Plusz), hatályos szöveg" },
+    { "url": "https://nav.gov.hu/Elethelyzetek-adozasa/vagyonugyek/Ingatlan-adasvetel", "nev": "NAV: Az ingatlan-adásvétel adózási szabályai" }
+  ],
+  "allapot": {}
+}

@@ -1,38 +1,49 @@
-/* autózom – okmány-arculat.
-   Alap: halvány zsályazöld okmánypapír, mélyzöld tinta. Pecsétvörös csak a pecséten és a hibaüzenetben.
-   Betű: Overpass – az amerikai autópálya-táblák betűjéből (Highway Gothic) született, egy család mindenre. Saját tárhelyről. */
+/* Lakásos arculat: tervrajz és okirat.
+   Világosban fehér rajzlap halvány négyzethálón, sötétben kéknyomat (blueprint).
+   A nyomtatott szöveg sötétkék-fekete, amit a látogató ír be, az tollkék, a bélyegző ibolya.
+   Betűk: Jost (az építészrajzok geometrikus betűinek rokona) a címekhez, űrlapokhoz és számokhoz,
+   Literata a folyó szöveghez. Mindkettő saját tárhelyről, SIL OFL. */
 
-@font-face { font-family: "Overpass"; font-style: normal; font-weight: 100 900; font-display: swap; src: url(fonts/overpass-latin-ext-wght-normal.woff2) format("woff2-variations"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F, U+20A0-20AB, U+20AD-20C0, U+2C60-2C7F, U+A720-A7FF; }
-@font-face { font-family: "Overpass"; font-style: normal; font-weight: 100 900; font-display: swap; src: url(fonts/overpass-latin-wght-normal.woff2) format("woff2-variations"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215; }
+@font-face { font-family: "Jost"; font-style: normal; font-weight: 100 900; font-display: swap; src: url(fonts/jost-latin-ext-wght-normal.woff2) format("woff2-variations"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: "Jost"; font-style: normal; font-weight: 100 900; font-display: swap; src: url(fonts/jost-latin-wght-normal.woff2) format("woff2-variations"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: "Literata"; font-style: normal; font-weight: 200 900; font-display: swap; src: url(fonts/literata-latin-ext-wght-normal.woff2) format("woff2-variations"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: "Literata"; font-style: normal; font-weight: 200 900; font-display: swap; src: url(fonts/literata-latin-wght-normal.woff2) format("woff2-variations"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
 
 :root {
-  --papir: #E9EEE5;
-  --lap: #F8FAF5;
-  --tinta: #13312A;
-  --tinta2: #4A655D;
-  --gilos: #A9C3B6;
-  --vonal: rgba(19, 49, 42, .14);
-  --vonal2: rgba(19, 49, 42, .28);
-  --kiemel: #DAE7DD;
-  --pecset: #B3261E;
-  --arnyek-lap: 0 1px 0 rgba(19, 49, 42, .08), 0 22px 40px -28px rgba(19, 49, 42, .55);
-  --cim: "Overpass", system-ui, sans-serif;
-  --szoveg: "Overpass", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --papir: #EDF1F7;
+  --lap: #FCFDFF;
+  --tinta: #121A2F;
+  --tinta2: #4B5873;
+  --toll: #1D3FBB;
+  --gilos: #B9C7DF;
+  --racs: rgba(29, 63, 187, .055);
+  --vonal: rgba(18, 26, 47, .13);
+  --vonal2: rgba(18, 26, 47, .3);
+  --kiemel: #E2E9F8;
+  --pecset: #6A2C91;
+  --hiba: #B3261E;
+  --arnyek-lap: 0 1px 0 rgba(18, 26, 47, .08), 0 22px 40px -28px rgba(18, 26, 47, .5);
+  --cim: "Jost", "Century Gothic", system-ui, sans-serif;
+  --szoveg: "Jost", "Century Gothic", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --folyo: "Literata", Georgia, "Times New Roman", serif;
   --sor-a: #B0600C;
   --sor-b: #0E7C9E;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --papir: #0F1C18;
-    --lap: #15261F;
-    --tinta: #E3ECE6;
-    --tinta2: #9BB2A8;
-    --gilos: #2A4A3E;
-    --vonal: rgba(227, 236, 230, .12);
-    --vonal2: rgba(227, 236, 230, .26);
-    --kiemel: #1E3529;
-    --pecset: #F2705F;
+    --papir: #0D1F47;
+    --lap: #122A5C;
+    --tinta: #EAF0FC;
+    --tinta2: #A8B8DC;
+    --toll: #A9C8FF;
+    --gilos: #2C4A8C;
+    --racs: rgba(169, 200, 255, .06);
+    --vonal: rgba(234, 240, 252, .13);
+    --vonal2: rgba(234, 240, 252, .3);
+    --kiemel: #1B3875;
+    --pecset: #E0B4FA;
+    --hiba: #FF8A7A;
     --sor-a: #CF8027;
     --sor-b: #289ABB;
     --arnyek-lap: 0 1px 0 rgba(0, 0, 0, .3), 0 24px 44px -26px rgba(0, 0, 0, .8);
@@ -733,3 +744,81 @@ table.kompakt tr.kiemelt-sor th { color: var(--tinta); }
 .szabalyok dd p { margin: 0 0 6px; }
 .szabalyok dd p:last-child { margin-bottom: 0; }
 @media (max-width: 700px) { .szabalyok > div { grid-template-columns: 1fr; } }
+
+/* ================= Lakásos arculat: az átvett motor elemeinek átöltöztetése ================= */
+body { font-size: 17.5px; line-height: 1.55; background-image: linear-gradient(var(--racs) 1px, transparent 1px), linear-gradient(90deg, var(--racs) 1px, transparent 1px); background-size: 28px 28px; }
+h1, h2, h3 { font-weight: 600; }
+h1 { font-size: clamp(36px, 5.2vw, 62px); line-height: 1.06; letter-spacing: -.02em; }
+h2 { font-size: clamp(25px, 2.8vw, 33px); letter-spacing: -.012em; }
+h3 { font-weight: 600; }
+.bevezeto, .valasz, .cikk p, .cikk li, .gyik .valasz p, .lista p, .csoport-bevezeto, .szabalyok dd p { font-family: var(--folyo); }
+.cikk p, .cikk li, .gyik .valasz p { font-size: 17px; line-height: 1.68; max-width: 38em; }
+.valasz { font-size: clamp(18px, 1.5vw, 20px); line-height: 1.55; max-width: 36em; }
+.logo-szoveg { font-weight: 600; letter-spacing: -.02em; }
+.hiba { color: var(--hiba); }
+
+/* Az űrlap: rajzlap, a sarkában alaprajz */
+.forgalmi { border-radius: 3px; border: 1px solid var(--vonal2); padding: 30px 32px 32px; box-shadow: 5px 5px 0 var(--kiemel); }
+.forgalmi .gilos { right: -40px; top: -46px; width: 300px; height: 300px; background: var(--gilos); -webkit-mask-image: url(alaprajz.svg); mask-image: url(alaprajz.svg); opacity: .6; }
+@media (max-width: 600px) { .forgalmi .gilos { width: 190px; height: 190px; right: -30px; top: -34px; } }
+.forgalmi-fej { display: grid; justify-content: start; gap: 2px; }
+.forgalmi-fej h2 { font-size: 21px; font-weight: 600; }
+.forgalmi legend { font-weight: 600; font-size: 17px; }
+.forgalmi legend .resz { color: var(--toll); margin-right: 8px; font-variant-numeric: lining-nums; }
+.kod { border: 0; border-radius: 0; color: var(--toll); font-size: 14px; font-weight: 600; letter-spacing: 0; text-align: left; padding: 0; margin-top: 4px; }
+.sor { grid-template-columns: minmax(0, 1fr); }
+.kod.ures { display: none; }
+@media (min-width: 981px) { .sor:has(.kod:not(.ures)) { grid-template-columns: 30px minmax(0, 1fr); margin-left: -44px; } }
+@media (max-width: 980px) { .kod { padding: 0; } }
+/* Amit te írsz be, az tollkék: kitöltött nyomtatvány */
+.beir { border-bottom: 1.5px solid var(--tinta); }
+.beir:focus-within { border-bottom-color: var(--toll); box-shadow: 0 1.5px 0 var(--toll); }
+.beir input, .beir select, .mezo select, .mezo input[type="date"] { color: var(--toll); font-weight: 500; }
+.beir input { font-size: 27px; }
+.negyzet input:checked + .n { background: var(--toll); border-color: var(--toll); }
+.negyzet:hover input:checked + .n { background: var(--toll); }
+:focus-visible { outline-color: var(--toll); }
+
+/* Az elszámolás: sima lap, az összeg alatt méretvonal, ahogy a rajzokon */
+.elszamolas { border-radius: 3px; border: 1px solid var(--vonal2); box-shadow: 5px 5px 0 var(--kiemel); margin-top: 0; }
+.elszamolas::before { content: none; }
+.elsz-fej h2 { font-weight: 600; }
+.vegosszeg .mennyi { justify-self: start; position: relative; padding-bottom: 20px; font-weight: 500; font-size: clamp(46px, 5.2vw, 66px); letter-spacing: -.025em; }
+.vegosszeg .mennyi::after { content: ""; position: absolute; left: 0; right: 0; bottom: 5px; height: 11px; background: linear-gradient(var(--toll), var(--toll)) center / 100% 1.5px no-repeat, linear-gradient(var(--toll), var(--toll)) left center / 1.5px 11px no-repeat, linear-gradient(var(--toll), var(--toll)) right center / 1.5px 11px no-repeat; }
+.tetelek li.vegso .ossz-ertek { border-bottom: 0; font-weight: 600; box-shadow: 0 2px 0 var(--lap), 0 3.5px 0 var(--tinta); }
+.ures-cim { font-weight: 600; }
+.minta-jelzes { border: 0; border-left: 3px solid var(--toll); border-radius: 0; background: var(--kiemel); }
+.jel { border-radius: 2px; font-weight: 600; }
+
+/* Az érkeztető bélyegző: téglalap, ibolya, egyszer csapódik rá */
+.pecset { right: -18px; bottom: -30px; width: 168px; height: auto; transform: rotate(-5deg); }
+.pecset.ut { animation: belyegzo .5s cubic-bezier(.2, 1.4, .4, 1) .5s both; }
+@keyframes belyegzo { from { transform: rotate(-12deg) scale(1.7); opacity: 0; } 60% { opacity: .95; } to { transform: rotate(-5deg) scale(1); opacity: .9; } }
+.pecset[role="link"]:focus-visible { border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) { .pecset.ut { animation: none; } }
+
+/* Főoldal: az alaprajz */
+.nyito { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 520px); gap: 48px; align-items: center; padding-block: 56px 20px; }
+.nyito .oldalfej { padding: 0; }
+.alaprajz { width: 100%; height: auto; display: block; color: var(--tinta); }
+.alaprajz .fal { fill: none; stroke: currentColor; stroke-width: 5; stroke-linejoin: miter; }
+.alaprajz .vekony { fill: none; stroke: currentColor; stroke-width: 1.3; }
+.alaprajz .meret { fill: none; stroke: var(--toll); stroke-width: 1.2; }
+.alaprajz text { font-family: var(--cim); font-size: 15px; fill: currentColor; font-weight: 500; }
+.alaprajz text.nm { font-size: 12.5px; fill: var(--tinta2); font-weight: 400; }
+.alaprajz text.m { font-size: 12.5px; fill: var(--toll); font-weight: 500; }
+.alaprajz .fal { stroke-dasharray: 1; stroke-dashoffset: 1; animation: rajzol 1.5s ease-out .15s forwards; }
+.alaprajz .ker { opacity: 0; animation: elotunik .5s ease-out 1.3s forwards; }
+@keyframes rajzol { to { stroke-dashoffset: 0; } }
+@keyframes elotunik { to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .alaprajz .fal { animation: none; stroke-dashoffset: 0; } .alaprajz .ker { animation: none; opacity: 1; } }
+@media (max-width: 900px) { .nyito { grid-template-columns: 1fr; gap: 28px; padding-block: 36px 0; } .alaprajz { max-width: 460px; } }
+.lista h3 { font-size: 24px; font-weight: 600; }
+.lista .ugrik { color: var(--toll); }
+.lablec { background: var(--papir); }
+.naptar-gomb { margin-top: 14px; }
+@media (max-width: 960px) { .menu a { display: none; } }
+.forgalmi { padding-left: 52px; }
+@media (max-width: 980px) { .forgalmi { padding-left: 32px; } }
+@media (max-width: 600px) { .forgalmi { padding-left: 20px; } }
+@media (max-width: 980px) { .sor .kod { display: none; } }

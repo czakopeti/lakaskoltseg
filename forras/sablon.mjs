@@ -1,10 +1,11 @@
 // Oldalkeret és űrlap-építőkockák: fejléc, lábléc, űrlapkártya mezői, elszámolás, pecsét, guilloche.
 // A motor az autózom (czakopeti/autokoltseg) sablonjából jön; a saját vizuális identitás a DIZAJN.md szerint épül rá.
-import { datumHu, datumRomai, fmt, honapHu } from './js/megjelenites.mjs';
+import { datumHu, fmt, honapHu } from './js/megjelenites.mjs';
 
 export const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 export const MENU = [
+  { ut: 'ingatlaneladas-szja-kalkulator/', nev: 'Eladás adója' },
   { ut: 'forrasok/', nev: 'Források' },
   { ut: 'rolunk/', nev: 'Rólunk' },
 ];
@@ -14,6 +15,9 @@ export const MENU = [
  * Az elemek: [cím, név, rövid mondat a menübe, és ha kell, a hosszabb név a főoldalra és az llms.txt-be].
  */
 export const CSOPORTOK = [
+  { id: 'eladas', cim: 'Eladod a lakásod', bevezeto: 'Mennyi marad az eladási árból, és mit kér belőle az adóhivatal.', elemek: [
+    ['ingatlaneladas-szja-kalkulator/', 'Eladás adója', 'Mennyi szja-t fizetsz, és mikortól semennyit', 'Ingatlaneladás szja-ja'],
+  ] },
   { id: 'adatok', cim: 'Adatok és források', bevezeto: 'A szabályok, amelyekkel számolunk, forrással és dátummal.', elemek: [
     ['forrasok/', 'Honnan vannak a számok?', 'Minden szabály forrása és dátuma'],
   ] },
@@ -31,7 +35,7 @@ export const csoportja = (ut) => CSOPORTOK.find((cs) => cs.elemek.some(([u]) => 
 const HAMBURGER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 
 /** A kalkulátorok címe a kalkulátor kulcsa szerint: a „Következő lépés” linkjeihez (app.mjs). */
-export const KALK_UTAK = {};
+export const KALK_UTAK = { eladas: 'ingatlaneladas-szja-kalkulator/' };
 
 /** Linkkészítő: élesben /ut/, előnézetben relatív útvonal index.html-lel. */
 export function linkelo(oldalUt, elonezet) {
@@ -45,34 +49,46 @@ export function linkelo(oldalUt, elonezet) {
 
 /* ---------- Grafikai elemek ---------- */
 
-/** Biztonsági nyomatra emlékeztető rozetta (guilloche), determinisztikusan generálva. */
-export function gilos() {
-  const c = 210, utak = [];
-  for (let k = 0; k < 22; k++) {
-    const R = 70 + k * 6.2, a = 9 + (k % 4) * 2.2, n = 18 + (k % 3) * 6, f = k * 0.37;
-    let d = '';
-    for (let i = 0; i <= 360; i++) {
-      const t = (i / 360) * Math.PI * 2;
-      const r = R + a * Math.sin(n * t + f) + (a / 2.4) * Math.sin((n / 2) * t - f);
-      d += `${i ? 'L' : 'M'}${(c + r * Math.cos(t)).toFixed(1)} ${(c + r * Math.sin(t)).toFixed(1)}`;
-    }
-    utak.push(`<path d="${d}Z"/>`);
-  }
-  return `<svg class="gilos" viewBox="0 0 420 420" aria-hidden="true" fill="none" stroke="currentColor" stroke-width=".6">${utak.join('')}</svg>`;
+/** Kis alaprajz az űrlap sarkába (maszkként, egyszínű vonalrajz). Saját rajz, nem valódi lakás. */
+export function alaprajzJel() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" fill="none" stroke="#000" stroke-width="3.2" stroke-linejoin="miter">
+<path d="M40 60H260V250H40Z"/><path d="M48 68H252V242H48Z" stroke-width="1"/>
+<path d="M160 60V150M160 186V250M160 150H205M235 150H260M40 170H92M124 170H160"/>
+<path d="M205 150A30 30 0 0 1 235 180M92 170A32 32 0 0 0 124 202M160 186A36 36 0 0 1 124 150" stroke-width="1"/>
+<path d="M80 56H130M80 64H130M190 56H235M190 64H235M36 95V140M44 95V140" stroke-width="1"/>
+<path d="M40 276H260M40 270V282M260 270V282M160 270V282M282 60V250M276 60H288M276 250H288" stroke-width="1"/>
+</svg>`;
+}
+/** A főoldal alaprajza: egy 54 négyzetméteres, kétszobás lakás, méretvonalakkal. A falak egyszer kirajzolódnak. */
+export function alaprajzNagy() {
+  const fal = (d) => `<path class="fal" pathLength="1" d="${d}"/>`;
+  return `<svg class="alaprajz" viewBox="0 0 584 420" role="img" aria-label="Egy 54 négyzetméteres, kétszobás lakás alaprajza méretvonalakkal">
+${fal('M40 50H520V340H40Z')}${fal('M300 50V180')}${fal('M300 226V340')}${fal('M300 180H380')}${fal('M424 180H520')}${fal('M40 232H120')}${fal('M164 232H300')}${fal('M190 232V340')}
+<g class="ker">
+<path class="vekony" d="M380 180A44 44 0 0 1 424 224M120 232A44 44 0 0 0 164 276M300 226A46 46 0 0 1 254 180M236 340A40 40 0 0 1 276 300"/>
+<path class="vekony" d="M90 45H210M90 55H210M350 45H470M350 55H470M515 230V300M525 230V300M35 262V312M45 262V312"/>
+<text x="170" y="138" text-anchor="middle">nappali</text><text class="nm" x="170" y="158" text-anchor="middle">21,4 m²</text>
+<text x="410" y="112" text-anchor="middle">hálószoba</text><text class="nm" x="410" y="132" text-anchor="middle">12,8 m²</text>
+<text x="410" y="266" text-anchor="middle">konyha</text><text class="nm" x="410" y="286" text-anchor="middle">9,6 m²</text>
+<text x="115" y="294" text-anchor="middle">fürdő</text><text class="nm" x="115" y="314" text-anchor="middle">4,7 m²</text>
+<text x="245" y="278" text-anchor="middle">előtér</text><text class="nm" x="245" y="296" text-anchor="middle">5,5 m²</text>
+<path class="meret" d="M40 378H520M40 370V386M520 370V386M300 370V386M36 382L44 374M296 382L304 374M516 382L524 374M546 50V340M538 50H554M538 340H554M542 54L550 46M542 344L550 336"/>
+<text class="m" x="170" y="402" text-anchor="middle">4,85</text><text class="m" x="410" y="402" text-anchor="middle">4,10</text><text class="m" x="566" y="195" text-anchor="middle" transform="rotate(90 566 195)">5,40</text>
+</g></svg>`;
 }
 
-/** Körpecsét a dátummal: a forrásolt szabályokkal számolt eredmény jele. */
+/** Érkeztető bélyegző a dátummal: a forrásolt szabályokkal számolt eredmény jele. */
+const HO_ROV = ['JAN', 'FEBR', 'MÁRC', 'ÁPR', 'MÁJ', 'JÚN', 'JÚL', 'AUG', 'SZEPT', 'OKT', 'NOV', 'DEC'];
 export function pecset(ma, ut = true, marka = '', link = false) {
-  const [ev] = ma.split('-');
-  // A gyűrűben a saját nevünk áll: a pecsét a miénk, nem hatóságé. Kattintásra a forrásokhoz visz.
-  return `<svg class="pecset${ut ? ' ut' : ''}" viewBox="0 0 130 130" aria-hidden="true">${link ? '<title>Honnan jönnek a számok? Kattints a forrásokért.</title>' : ''}
-<defs><path id="pecset-ivek" d="M65 65 m-47 0 a47 47 0 1 1 94 0 a47 47 0 1 1 -94 0"/></defs>
-<circle cx="65" cy="65" r="61" fill="none" stroke="currentColor" stroke-width="3"/>
-<circle cx="65" cy="65" r="55" fill="none" stroke="currentColor" stroke-width="1.2"/>
-<circle cx="65" cy="65" r="35" fill="none" stroke="currentColor" stroke-width="1.2"/>
-<text aria-hidden="true" fill="currentColor" font-family="Overpass, sans-serif" font-weight="700" font-size="10.5"><textPath href="#pecset-ivek" textLength="288" lengthAdjust="spacing">${esc(marka.toLocaleUpperCase('hu'))} ✶ FORRÁSSAL SZÁMOLVA ✶</textPath></text>
-<text aria-hidden="true" x="65" y="64" text-anchor="middle" fill="currentColor" font-family="Overpass, sans-serif" font-weight="800" font-size="21">${ev}</text>
-<text aria-hidden="true" x="65" y="80" text-anchor="middle" fill="currentColor" font-family="Overpass, sans-serif" font-weight="700" font-size="11">${datumRomai(ma)}</text>
+  const [ev, ho, nap] = ma.split('-').map(Number);
+  // A bélyegzőn a saját nevünk áll: a miénk, nem hatóságé. Kattintásra a forrásokhoz visz.
+  return `<svg class="pecset${ut ? ' ut' : ''}" viewBox="0 0 168 92" aria-hidden="true">${link ? '<title>Honnan jönnek a számok? Kattints a forrásokért.</title>' : ''}
+<rect x="3" y="3" width="162" height="86" rx="5" fill="none" stroke="currentColor" stroke-width="3"/>
+<rect x="8.5" y="8.5" width="151" height="75" rx="2.5" fill="none" stroke="currentColor" stroke-width="1"/>
+<path d="M9 30H159M9 62H159" stroke="currentColor" stroke-width="1"/>
+<text aria-hidden="true" x="84" y="24" text-anchor="middle" fill="currentColor" font-family="Jost, sans-serif" font-weight="600" font-size="11" letter-spacing="1.2">${esc(marka.toLocaleUpperCase('hu'))}</text>
+<text aria-hidden="true" x="84" y="54" text-anchor="middle" fill="currentColor" font-family="Jost, sans-serif" font-weight="600" font-size="21" letter-spacing=".5">${ev} ${HO_ROV[ho - 1]} ${String(nap).padStart(2, '0')}</text>
+<text aria-hidden="true" x="84" y="77" text-anchor="middle" fill="currentColor" font-family="Jost, sans-serif" font-weight="600" font-size="9.5" letter-spacing="1.1">FORRÁSSAL SZÁMOLVA</text>
 </svg>`;
 }
 
@@ -134,10 +150,10 @@ ${cfg.eles && !elonezet && !/\.pages\.dev$/.test(new URL(cfg.domain).host) ? `<s
 <meta property="og:description" content="${esc(leiras)}">
 <meta property="og:url" content="${kanonikus}">
 <meta name="twitter:card" content="summary">
-<meta name="theme-color" content="#E9EEE5" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0F1C18" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#EDF1F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D1F47" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="${L.gyoker('favicon.svg')}" type="image/svg+xml">
-${elonezet ? '' : `<link rel="preload" href="${L.a('fonts/overpass-latin-wght-normal.woff2')}" as="font" type="font/woff2" crossorigin>`}
+${elonezet ? '' : `<link rel="preload" href="${L.a('fonts/jost-latin-wght-normal.woff2')}" as="font" type="font/woff2" crossorigin>`}
 <link rel="stylesheet" href="${L.a(`style.css?v=${verzio}`)}">
 ${ld}
 </head>
@@ -195,6 +211,9 @@ export function oldalfej(L, { morzsa, cim, valasz = '', bevezeto, fo = false, fr
 }
 
 /* ---------- Űrlap-építőkockák ---------- */
+
+/** Szakaszcím az űrlapon. A római szám a tulajdoni lap része (I. az ingatlan, II. a tulajdonjog, III. a terhek), csak ha az adat tényleg ott van. */
+export const reszCim = (resz, cim) => `<legend>${resz ? `<span class="resz">${resz}</span>` : ''}${cim}</legend>`;
 
 /** A mező előtti kód: az okirat valódi rovata (például a tulajdoni lap I., II., III. része), csak ha az adat tényleg onnan jön. */
 export const kod = (k, mi = '') => `<span class="kod${k ? '' : ' ures'}"${k && mi ? ` title="${esc(mi)}"` : ''} aria-hidden="true">${k || ''}</span>`;

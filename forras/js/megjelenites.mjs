@@ -103,3 +103,32 @@ export function kovetkezoBlokk(lepesek, utak) {
   if (!l.length) return '';
   return `<div class="kovetkezo"><p class="kovetkezo-cim">Következő lépés</p><ul>${l.map((x) => `<li><a href="${esc(utak[x.cel] + S.kovetkezoQuery(x.q))}" data-kovetkezo>${esc(x.cim)}</a><span>${esc(x.szoveg)}</span></li>`).join('')}</ul></div>`;
 }
+
+/* ---------- Ingatlaneladás szja-ja ---------- */
+export function eladasPanel(adat, r) {
+  if (r.hiba) return hianyPanel(r.hiba);
+  const f = (kulcs) => S.szabaly(adat, `szja_eladas.${kulcs}`).forras.url;
+  const megj = r.hanyad === 0
+    ? `${rag(r.szerzesEv, 'ban', 'ben')} szerezted, ${rag(r.eladasEv, 'ban', 'ben')} adod el. A szerzést követő ötödik évtől az eladásból nem keletkezik adóköteles jövedelem.`
+    : r.veszteseg ? 'A költségeid elérik az eladási árat, ezért nincs jövedelem, és adó sincs.'
+      : `A számított összeg ${r.hanyad}%-a a jövedelem, ennek ${r.kulcs}%-a az adó.`;
+  let h = vegosszeg('Fizetendő személyi jövedelemadó', r.ado, megj);
+  h += '<ul class="tetelek">';
+  h += tetel('Eladási ár', ftx(r.ar), { forras: 'sajat' });
+  h += tetel('Szerzési érték', `−${ftx(r.tetelek.szerzesiErtek)}`, { cls: 'levonas', forras: 'sajat' });
+  if (r.tetelek.szerzesKoltseg) h += tetel('A szerzés költségei', `−${ftx(r.tetelek.szerzesKoltseg)}`, { cls: 'levonas', forras: 'sajat', al: 'illeték, ügyvédi díj' });
+  if (r.tetelek.beruhazas) h += tetel('Értéknövelő beruházás', `−${ftx(r.tetelek.beruhazas)}`, { cls: 'levonas', forras: 'sajat' });
+  if (r.tetelek.eladasKoltseg) h += tetel('Az eladás költségei', `−${ftx(r.tetelek.eladasKoltseg)}`, { cls: 'levonas', forras: 'sajat', al: 'közvetítő, hirdetés' });
+  h += tetel('Számított összeg', ftx(r.szamitott), { al: r.levagva ? 'A költség legfeljebb az eladási árig számolható el.' : '' });
+  h += tetel(`Ebből jövedelem: ${r.hanyad}%`, ftx(r.jovedelem), { forras: 'hivatalos', forrasUrl: f('jovedelem_hanyad'), al: r.evek === 0 ? 'a szerzés évében adod el' : `a szerzést követő ${r.evek}. évben adod el` });
+  h += tetel(`Személyi jövedelemadó: ${r.kulcs}%`, ftx(r.ado), { cls: 'vegso', forras: 'hivatalos', forrasUrl: f('ado_mertek') });
+  h += '</ul>';
+  h += `<p class="panel-cim">Hogyan csökken az adóköteles rész?</p><ul class="tetelek skala">${r.skala.map((x) => `<li${x.most ? ' class="kiemelt-sor"' : ''}><span>${x.ev}${x.szazalek === 0 ? ' és később' : ''}${x.most ? ' <span class="al">ebben az évben adod el</span>' : ''}</span><span class="ossz-ertek">${x.szazalek}%</span></li>`).join('')}</ul>`;
+  h = jelekkel(h);
+  if (r.ado > 0) {
+    h += megjegyzes(`Az adót az eladást követő évben, ${datumIg(r.bevallas)} kell bevallani és befizetni.${r.reszletben ? ` Ekkora összeget kérelemre ${r.reszletben} havi részletben is megfizethetsz, pótlék nélkül.` : ''}`);
+    if (r.jovoreAdo < r.ado) h += megjegyzes(r.jovoreAdo === 0 ? `Ha ${rag(r.eladasEv + 1, 'ban', 'ben')} adnád el, már nem kellene adót fizetned.` : `Ha ${rag(r.eladasEv + 1, 'ban', 'ben')} adnád el, az adó ${ftx(r.jovoreAdo)} lenne, vagyis ${fmt(r.ado - r.jovoreAdo)} forinttal kevesebb. ${r.mentesEv}. január 1-jétől adómentes.`);
+    h += `<button class="szoveg-gomb naptar-gomb" type="button" data-naptar="${r.bevallas}" data-naptar-cim="Ingatlaneladás szja-ja: bevallás és befizetés" data-naptar-leiras="A ${r.eladasEv}. évi eladás adója: ${fmt(r.ado)} Ft. Az éves szja-bevallásban kell szerepeltetni.">A határidőt a naptáramba teszem</button>`;
+  }
+  return h;
+}

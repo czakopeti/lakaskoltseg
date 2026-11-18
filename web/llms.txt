@@ -2,6 +2,12 @@
 
 > A lakásköltség független, ingyenes magyar oldal a lakásvásárlás, a lakáseladás és a lakáskiadás költségeiről: vagyonszerzési illeték, ingatlaneladás személyi jövedelemadója, lakáskiadás adója, kamattámogatott hitel. Minden szabálynál ott a jogszabályhely, a forrás és az ellenőrzés napja. Nem hatóság és nem hitelközvetítő. Legutóbbi ellenőrzés: 2026. november 18.
 
+## Eladod a lakásod
+
+Mennyi marad az eladási árból, és mit kér belőle az adóhivatal.
+
+- [Ingatlaneladás szja-ja](https://lakaskoltseg.pages.dev/ingatlaneladas-szja-kalkulator/): az eladott lakás, ház vagy telek személyi jövedelemadója a szerzés és az eladás évéből, az elszámolható költségekkel; mikortól adómentes, és meddig kell bevallani
+
 ## Adatok és források
 
 A szabályok, amelyekkel számolunk, forrással és dátummal.

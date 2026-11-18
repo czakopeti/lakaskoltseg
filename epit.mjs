@@ -4,7 +4,7 @@ import { mkdirSync, writeFileSync, readFileSync, cpSync, rmSync, readdirSync, ex
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { betoltAdat, olvas, maBudapest, GYOKER } from './forras/adat.mjs';
-import { gilos, lastmodDontes, CSOPORTOK } from './forras/sablon.mjs';
+import { alaprajzJel, lastmodDontes, CSOPORTOK } from './forras/sablon.mjs';
 import * as O from './forras/oldalak.mjs';
 import * as M from './forras/js/megjelenites.mjs';
 
@@ -53,13 +53,14 @@ const jsOssz = JS.map((f) => jsNyers[f]).join('');
 const jsVerzio = createHash('sha1').update(jsOssz).digest('hex').slice(0, 8);
 for (const f of JS) writeFileSync(join(KI, `assets/js/${f}.js`), jsNyers[f].replace(/from '\.\/(\w+)\.mjs'/g, `from './$1.js?v=${jsVerzio}'`));
 // Az űrlapkártya rozettája külön fájlban: egyszer töltődik le, és minden oldal a gyorsítótárból veszi.
-writeFileSync(join(KI, 'assets/gilos.svg'), gilos().replace('<svg class="gilos"', '<svg xmlns="http://www.w3.org/2000/svg"').replace('aria-hidden="true" ', '').replace('stroke="currentColor"', 'stroke="#000"'));
+writeFileSync(join(KI, 'assets/alaprajz.svg'), alaprajzJel());
 const verzio = createHash('sha1').update(css + jsOssz).digest('hex').slice(0, 8);
 if (existsSync(join(GYOKER, 'forras/kepek'))) for (const f of readdirSync(join(GYOKER, 'forras/kepek'))) cpSync(join(GYOKER, 'forras/kepek', f), join(KI, f === 'og.png' ? 'assets/og.png' : f));
 
 const k = { cfg, adat, ma, ev, elonezet, verzio };
 const oldalak = [
   ['', O.fooldal(k)],
+  [O.ELADAS_UT, O.eladasOldal(k)],
   ['forrasok/', O.forrasokOldal(k)],
   ['rolunk/', O.rolunkOldal(k)],
   ['impresszum/', O.impresszumOldal(k)],
@@ -126,6 +127,7 @@ https://:version.:project.pages.dev/*
 `}`);
   // A szöveges térkép az AI-asszisztenseknek: ugyanazok a csoportok és ugyanaz a sorrend, mint a főoldalon.
   const LLMS = {
+    'ingatlaneladas-szja-kalkulator/': `az eladott lakás, ház vagy telek személyi jövedelemadója a szerzés és az eladás évéből, az elszámolható költségekkel; mikortól adómentes, és meddig kell bevallani`,
     'forrasok/': `minden szabály jogszabályhelye, forrása és az ellenőrzés napja`,
     'rolunk/': `független, ingyenes, forrással; mi hivatalos, mi saját adat, mi becslés`,
   };

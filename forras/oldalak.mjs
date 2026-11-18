@@ -1,7 +1,8 @@
 // Az oldalak. Minden szám az adatfájlokból jön, a szöveg a SZOVEG_STILUS.md szerint.
 // Most a váz van itt: főoldal (munkaverzió), források, rólunk, jogi oldalak. A kalkulátorok a tartalomterv szerint jönnek.
 import * as M from './js/megjelenites.mjs';
-import { CSOPORTOK, oldal, oldalfej, ellenorzesKesik, morzsaLd, tovabb, esc, datumHu } from './sablon.mjs';
+import * as S from './js/szamitas.mjs';
+import { CSOPORTOK, oldal, oldalfej, ellenorzesKesik, morzsaLd, tovabb, esc, datumHu, forgalmi, elszamolas, sor, kod, szamMezo, reszCim, gyik, gyikLd, alkalmazasLd, forrasLista, alaprajzNagy } from './sablon.mjs';
 
 /* ======================= FŐOLDAL ======================= */
 /**
@@ -9,12 +10,13 @@ import { CSOPORTOK, oldal, oldalfej, ellenorzesKesik, morzsaLd, tovabb, esc, dat
  * A teszt ellenőrzi, hogy minden csoportelemnek van itt szövege.
  */
 export const FOOLDAL_KARTYAK = {
+  'ingatlaneladas-szja-kalkulator/': [() => 'Mennyi adót fizetsz, ha eladod a lakásod, a házad vagy a telked, mit vonhatsz le, és melyik évtől nem fizetsz semmit.', 'Kiszámolom'],
   'forrasok/': [() => 'Minden szabály, amivel számolunk: jogszabályhely, forrás, és mikor ellenőriztük utoljára.', 'Megnézem'],
 };
 
 export function fooldal(k) {
   const tartalom = (L) => `
-${oldalfej(L, { fo: true, cim: 'Mennyibe kerül venni, eladni vagy kiadni egy lakást?', valasz: 'Illeték, adó és hitel egy helyen, forrással és dátummal. Az oldal most épül, a kalkulátorok hamarosan jönnek.' })}
+<div class="keret nyito"><div>${oldalfej(L, { fo: true, cim: 'Mennyibe kerül venni, eladni vagy kiadni egy lakást?', valasz: 'Illeték, adó és hitel, forinttal kiszámolva. Minden szabály mellett ott a jogszabály és a nap, amikor utoljára ellenőriztük.' }).replace('<div class="keret oldalfej', '<div class="oldalfej')}</div>${alaprajzNagy()}</div>
 ${CSOPORTOK.map((cs) => `<section class="szakasz" id="${cs.id}"><div class="keret">
 <h2>${cs.cim}</h2>
 <p class="csoport-bevezeto">${cs.bevezeto}</p>
@@ -138,4 +140,66 @@ export function nemTalalhatoOldal(k) {
   const tartalom = (L) => `
 ${oldalfej(L, { cim: 'Ez az oldal nincs meg', bevezeto: `Lehet, hogy elírás van a címben, vagy az oldal máshová került. <a href="${L.l('')}">Vissza a főoldalra</a>` })}`;
   return oldal({ ...k, cfg: { ...k.cfg, eles: false } }, { cim: 'Az oldal nem található', leiras: 'Az oldal nem található.', ut: '', tartalom });
+}
+
+/* ======================= INGATLANELADÁS SZJA-JA ======================= */
+export const ELADAS_UT = 'ingatlaneladas-szja-kalkulator/';
+/** A kalkulátorhoz szükséges szabályok (a böngészőbe csak ez megy). */
+const temaAdat = (adat, ...idk) => ({ szabalyok: { temak: adat.szabalyok.temak.filter((t) => idk.includes(t.id)) } });
+export function eladasOldal(k) {
+  const { adat } = k;
+  const ut = ELADAS_UT;
+  const sz = (kulcs) => S.szabaly(adat, `szja_eladas.${kulcs}`);
+  const tabla = sz('jovedelem_hanyad').ertek.szazalek_evenkent;
+  const kulcs = sz('ado_mertek').ertek.szazalek;
+  const mentesEvek = tabla.length - 1;
+  const pelda = S.eladasSzja(adat, { eladasEv: k.ev, szerzesEv: k.ev - 2, eladasiAr: 60000000, szerzesiErtek: 50000000, szerzesKoltseg: 2000000 });
+  const kerdesek = [
+    { k: 'Mikor nem kell adót fizetni az eladott ingatlan után?', v: [`Ha a szerzést követő ${mentesEvek}. évben vagy később adod el. Aki ${M.rag(k.ev - mentesEvek, 'ban', 'ben')} vagy korábban szerezte az ingatlanát, annak a ${k.ev}. évi eladásból nincs adóköteles jövedelme.`, 'Akkor sincs adó, ha a költségeid elérik az eladási árat, vagyis nem volt nyereséged.'] },
+    { k: 'Számít, hogy lakást, nyaralót vagy telket adok el?', v: ['Nem. 2017. január 1-je óta minden ingatlanra ugyanaz az ötéves skála érvényes, a lakás és a többi ingatlan között nincs különbség.'] },
+    { k: 'Melyik nap számít a szerzés időpontjának?', v: [esc(sz('szerzes_idopontja').szoveg), 'A tulajdoni lap II. részében a tulajdonjogod bejegyzése mellett találod az érkezés napját.'] },
+    { k: 'Milyen költségeket vonhatok le?', v: [esc(sz('koltsegek').szoveg), 'A költségek együtt legfeljebb az eladási árig számolhatók el, veszteséget nem lehet kimutatni.'] },
+    { k: 'Mikor és hogyan kell befizetni?', v: [esc(sz('bevallas').szoveg), esc(sz('reszletfizetes').szoveg)] },
+  ];
+  const leiras = `Ingatlaneladás adója ${k.ev}-ben: a szerzés évéből, az eladási árból és a költségekből kiszámolja a ${kulcs}%-os szja-t, és megmutatja, melyik évtől adómentes.`;
+  const tartalom = (L) => `
+${oldalfej(L, { morzsa: ['Eladás adója'], cim: 'Mennyi adót fizetsz, ha eladod az ingatlanod?', valasz: `A nyereség egy része után ${kulcs}% személyi jövedelemadót, a szerzést követő ${mentesEvek}. évtől pedig semennyit. Egy ${k.ev - 2}-ben 50 millió forintért vett és ${M.rag(k.ev, 'ban', 'ben')} 60 millió forintért eladott lakásnál, 2 millió forint költséggel ez ${M.fmt(pelda.ado)} Ft.`, friss: M.datumNapon(adat.allapot.utolso_ellenorzes || k.ma) })}
+<div class="keret asztal">
+${forgalmi({ kalk: 'eladas', cim: 'Az eladott ingatlan', al: 'Lakás, ház, nyaraló, telek', tartalom: `
+<fieldset>${reszCim('', 'Az eladás')}
+${sor('', szamMezo({ id: 'eladasiAr', cim: 'Eladási ár', me: 'Ft', placeholder: 'pl. 60 000 000', min: 0, szeles: true, sugo: 'Az adásvételi szerződésben szereplő vételár. Ha csak a tulajdoni hányadodat adod el, a rád eső rész.' }))}
+${sor('', szamMezo({ id: 'eladasEv', cim: 'Az eladás éve', placeholder: `pl. ${k.ev}`, min: 2017, max: k.ev + 5, sugo: `Amikor a szerződést benyújtják a földhivatalhoz. Ha üresen hagyod, az idei évvel (${k.ev}) számolunk.` }))}
+</fieldset>
+<fieldset>${reszCim('II.', 'A szerzés')}
+<p class="fieldset-megj">A tulajdoni lap II. részében, a tulajdonjogod bejegyzésénél találod.</p>
+${sor(kod('II.', 'A tulajdoni lap II. része: tulajdonosok és a szerzés'), szamMezo({ id: 'szerzesEv', cim: 'A szerzés éve', placeholder: `pl. ${k.ev - 2}`, min: 1950, max: k.ev + 5, sugo: 'Vételnél a szerződés földhivatali érkezésének éve, öröklésnél az örökhagyó halálának éve.' }))}
+${sor('', szamMezo({ id: 'szerzesiErtek', cim: 'Szerzési érték', me: 'Ft', placeholder: 'pl. 50 000 000', min: 0, szeles: true, sugo: 'Vételnél az akkori vételár. Öröklésnél a hagyatéki eljárásban megállapított érték.' }))}
+</fieldset>
+<fieldset>${reszCim('', 'Levonható költségek')}
+<p class="fieldset-megj">Csak azt írd be, amiről számlád vagy okiratod van.</p>
+${sor('', szamMezo({ id: 'szerzesKoltseg', cim: 'A szerzés költségei', me: 'Ft', placeholder: 'pl. 2 000 000', min: 0, szeles: true, sugo: 'A megfizetett illeték, az ügyvédi díj.' }))}
+${sor('', szamMezo({ id: 'beruhazas', cim: 'Értéknövelő beruházás', me: 'Ft', placeholder: 'pl. 3 000 000', min: 0, szeles: true, sugo: 'Felújítás, bővítés, korszerűsítés, számlával.' }))}
+${sor('', szamMezo({ id: 'eladasKoltseg', cim: 'Az eladás költségei', me: 'Ft', placeholder: 'pl. 1 500 000', min: 0, szeles: true, sugo: 'Ingatlanközvetítő, hirdetés, energetikai tanúsítvány.' }))}
+</fieldset>`, extra: ' data-kalk-nev="eladas-szja"' })}
+${elszamolas(k, M.mintaJelzes(`egy ${k.ev - 2}-ben 50 millió forintért vett és ${M.rag(k.ev, 'ban', 'ben')} 60 millió forintért eladott lakás, 2 millió forint illetékkel és ügyvédi díjjal`, 'Írd be a saját adataidat, és a minta helyett azokkal számolunk.') + M.eladasPanel(adat, pelda), { kesz: true })}
+</div>
+<div class="keret"><article class="cikk">
+<h2>Hogyan számol az adóhivatal?</h2>
+<p>Az eladási árból levonod, amennyiért szerezted, és a számlával igazolt költségeket. Ami marad, az a számított összeg. Ebből annál kevesebb számít jövedelemnek, minél régebben a tiéd az ingatlan.</p>
+<div class="tabla-tarto"><table class="tabla"><thead><tr><th>Mikor adod el</th><th>A számított összegből jövedelem</th></tr></thead><tbody>
+${tabla.map((p, i) => `<tr><th scope="row">${i === 0 ? 'A szerzés évében' : i === tabla.length - 1 ? `A szerzést követő ${i}. évben és később` : `A szerzést követő ${i}. évben`}</th><td>${p}%</td></tr>`).join('')}
+</tbody></table></div>
+<p>A jövedelem után ${kulcs}% az adó. Az évek naptári évek: aki ${k.ev - 1} decemberében szerzett, annak ${k.ev} már a szerzést követő első év.</p>
+<h2>Gyakori kérdések</h2>
+${gyik(kerdesek)}
+<h2>Források</h2>
+${forrasLista([...new Map(['ado_mertek', 'jovedelem_hanyad', 'koltsegek', 'bevallas'].map((x) => [sz(x).forras.url, { nev: sz(x).forras.nev, url: sz(x).forras.url, d: `${sz(x).forras.kelt ? `${datumHu(sz(x).forras.kelt)} ` : ''}Ellenőrizve: ${datumHu(sz(x).ellenorizve)}` }])).values(), { nev: 'A személyi jövedelemadóról szóló 1995. évi CXVII. törvény 59–64. §', d: '' }])}
+${tovabb(L, ut)}
+</article></div>`;
+  return oldal(k, {
+    cim: `Ingatlaneladás szja-kalkulátor ${k.ev}: mennyi az adó?`,
+    leiras, ut, tartalom,
+    adatJson: { ...temaAdat(adat, 'szja_eladas'), ev: k.ev, ma: k.ma },
+    jsonld: [alkalmazasLd(k.cfg, 'Ingatlaneladás szja-kalkulátor', ut, leiras), gyikLd(kerdesek), morzsaLd(k.cfg, [{ nev: 'Eladás adója', ut }])],
+  });
 }
