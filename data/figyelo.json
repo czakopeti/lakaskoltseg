@@ -75,7 +75,7 @@
     },
     "https://biztosdontes.hu/cikkek/illetekmentesseg": {
       "v": 2,
-      "hossz": 13694,
+      "hossz": 13672,
       "tenyek": [
         "90f5292209",
         "f3c1011aec",
@@ -115,7 +115,11 @@
         "77718455c0"
       ],
       "latva": "2026-11-18",
-      "ellenorizve": "2026-11-18"
+      "ellenorizve": "2026-11-18",
+      "gond": "az oldal szövege túl rövid",
+      "gondOta": "2026-11-18",
+      "utolsoGond": "az oldal szövege túl rövid",
+      "utolsoGondNap": "2026-11-18"
     },
     "https://www.kh.hu/cikkek/allami-tamogatasok": {
       "v": 2,
@@ -729,7 +733,7 @@
     },
     "https://biztosdontes.hu/cikkek/mnb-hitelek-koltsegeinek-csokkentese": {
       "v": 2,
-      "hossz": 11207,
+      "hossz": 11222,
       "tenyek": [
         "82d942f1e0",
         "37b0525bb6",
@@ -791,7 +795,11 @@
         "47ca9cd467"
       ],
       "latva": "2026-11-18",
-      "ellenorizve": "2026-11-18"
+      "ellenorizve": "2026-11-18",
+      "gond": "az oldal szövege túl rövid",
+      "gondOta": "2026-11-18",
+      "utolsoGond": "az oldal szövege túl rövid",
+      "utolsoGondNap": "2026-11-18"
     },
     "https://privatbankar.hu/cikkek/ingatlan/lakas-koltsegek-324176.html": {
       "v": 2,
@@ -892,7 +900,11 @@
         "a563302fa6"
       ],
       "latva": "2026-11-18",
-      "ellenorizve": "2026-11-18"
+      "ellenorizve": "2026-11-18",
+      "gond": "az oldal szövege túl rövid",
+      "gondOta": "2026-11-18",
+      "utolsoGond": "az oldal szövege túl rövid",
+      "utolsoGondNap": "2026-11-18"
     },
     "https://www.allamkincstar.gov.hu/lakossagi-ugyfelek/allampapir_forgalmazas/Forgalmazott-allampapirok/dematerializalt-allampapirok/PMAP": {
       "v": 2,
@@ -979,9 +991,9 @@
     },
     "https://nav.gov.hu/ado/vendegejszakak-szama": {
       "v": 2,
-      "hossz": 906,
+      "hossz": 930,
       "tenyek": [
-        "473ec8bce4",
+        "0478f8c673",
         "39b6c91471",
         "01f0030ab4"
       ],
@@ -1004,7 +1016,7 @@
     },
     "https://nav.gov.hu/sajtoszoba/hirek/kozeleg-a-hatarido-de-segit-a-nav": {
       "v": 2,
-      "hossz": 2441,
+      "hossz": 2465,
       "tenyek": [
         "fec6fd03fc",
         "4a91bda42b",
@@ -1017,13 +1029,12 @@
     },
     "https://www.penzcentrum.hu/otthon/20260519/vegleges-tiltas-lep-eletbe-a-fovaros-sziveben-rengeteg-ingatlantulajdonos-bukja-el-emiatt-a-biztos-bevetelt-1198922/amp": {
       "v": 2,
-      "hossz": 3923,
+      "hossz": 4024,
       "tenyek": [
         "2d9ffbf48e",
         "603b0bfc49",
         "415ecfb672",
         "1f365e5a3c",
-        "40b1513618",
         "57e6a6a08f",
         "abf1f60388"
       ],
@@ -1070,7 +1081,11 @@
         "d8eb4fe7ed"
       ],
       "latva": "2026-11-18",
-      "ellenorizve": "2026-11-18"
+      "ellenorizve": "2026-11-18",
+      "gond": "az oldal szövege túl rövid",
+      "gondOta": "2026-11-18",
+      "utolsoGond": "az oldal szövege túl rövid",
+      "utolsoGondNap": "2026-11-18"
     },
     "https://adozona.hu/afa/Maganszallashelyszolgaltatas_teteles_atalan_RE2ZGI": {
       "gond": "HTTP 403",
