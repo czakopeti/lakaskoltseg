@@ -218,9 +218,14 @@ ${sor('', szamMezo({ id: 'eladasiAr', cim: 'Eladási ár', me: 'Ft', placeholder
 ${sor('', szamMezo({ id: 'eladasEv', cim: 'Az eladás éve', placeholder: `pl. ${k.ev}`, min: 2017, max: k.ev + 5, sugo: `Amikor a szerződést benyújtják a földhivatalhoz. Ha üresen hagyod, az idei évvel (${k.ev}) számolunk.` }))}
 </fieldset>
 <fieldset>${reszCim('II.', 'A szerzés')}
-<p class="fieldset-megj">A tulajdoni lap II. részében, a tulajdonjogod bejegyzésénél találod.</p>
-${sor('II.', szamMezo({ id: 'szerzesEv', cim: 'A szerzés éve', placeholder: `pl. ${k.ev - 2}`, min: 1950, max: k.ev + 5, sugo: 'Vételnél a szerződés földhivatali érkezésének éve, öröklésnél az örökhagyó halálának éve.' }))}
-${sor('', szamMezo({ id: 'szerzesiErtek', cim: 'Szerzési érték', me: 'Ft', placeholder: 'pl. 50 000 000', min: 0, szeles: true, sugo: 'Vételnél az akkori vételár. Öröklésnél a hagyatéki eljárásban megállapított érték.' }))}
+<p class="fieldset-megj">A tulajdoni lap II. részében, a tulajdonjogod bejegyzésénél találod a jogcímet és a dátumot.</p>
+${sor('', negyzetek('jogcim', 'Hogyan lett a tiéd?', [['vetel', 'Vettem'], ['orokles', 'Örököltem'], ['ajandek', 'Ajándékba kaptam'], ['epites', 'Építettem']], ''))}
+<p class="fieldset-megj jogcim-megj" data-mutat="jogcim=vetel|jogcim=">A szerzés éve: amikor a szerződést benyújtották a földhivatalhoz. A szerzési érték: az akkori vételár.</p>
+<p class="fieldset-megj jogcim-megj" data-mutat="jogcim=orokles">A szerzés éve: az örökhagyó halálának éve. A szerzési érték: a hagyatéki leltárban szereplő érték. Az ötéves skála ugyanúgy jár, mint vételnél.</p>
+<p class="fieldset-megj jogcim-megj" data-mutat="jogcim=ajandek">A szerzési érték: az az érték, amely után az ajándékozási illetéket kiszabták. Ha a szerzés illetékmentes volt, a NAV 9. információs füzete szerint számolj, vagy kérdezd a könyvelődet.</p>
+<p class="fieldset-megj jogcim-megj" data-mutat="jogcim=epites">A szerzési érték: a saját vagy a házastársad nevére szóló számlák szerinti érték, de legalább a beépített anyagérték.</p>
+${sor('II.', szamMezo({ id: 'szerzesEv', cim: 'A szerzés éve', placeholder: `pl. ${k.ev - 2}`, min: 1950, max: k.ev + 5 }))}
+${sor('', szamMezo({ id: 'szerzesiErtek', cim: 'Szerzési érték', me: 'Ft', placeholder: 'pl. 50 000 000', min: 0, szeles: true }))}
 </fieldset>
 <fieldset>${reszCim('', 'Levonható költségek')}
 <p class="fieldset-megj">Csak azt írd be, amiről számlád vagy okiratod van.</p>
@@ -253,7 +258,7 @@ export function illetekOldal(k) {
   const m = sz('altalanos_mertek').ertek.szazalek, cs = sz('cserepotlo').ertek, f = sz('elso_lakas_35').ertek, uj = sz('uj_lakas').ertek;
   const p1 = S.illetek(adat, { ertek: 60e6 }), p2 = S.illetek(adat, { ertek: 60e6, eladottErtek: 45e6, eladasMikor: 'elotte' });
   return kalkOldal(k, {
-    ut: ILLETEK_UT, tipus: 'illetek', nev: 'Illeték', temak: ['illetek'],
+    ut: ILLETEK_UT, tipus: 'illetek', nev: 'Illeték', temak: ['illetek', 'haszonelvezet'],
     oldalCim: `Vagyonszerzési illeték kalkulátor ${k.ev}: minden kedvezménnyel`,
     leiras: `Lakásvásárlás illetéke ${k.ev}-ben: ${m}% és a kedvezmények (cserét pótló vétel, új lakás, 35 év alatti első lakás, CSOK Plusz, rokontól vétel), a legkedvezőbb kiválasztásával.`,
     cim: 'Mennyi illetéket fizetsz, ha lakást veszel?',
@@ -274,6 +279,11 @@ ${sor('', negyzetek('eladasMikor', 'Mikor adtad vagy adod el?', [['elotte', `A v
 ${sor('', jelolo('elso', 'Ez az első lakásod', 'Nincs és nem is volt lakásod, és lakásban 50%-os vagy nagyobb tulajdoni hányadod.'))}
 ${sor('', jelolo('fiatal35', 'Még nem töltötted be a 35. évedet', `Az első lakásnál ${f.ertekhatar_ft / 1e6} millió forintos értékig fele az illeték.`))}
 ${sor('', jelolo('csok', 'CSOK Plusz hitellel vagy falusi CSOK-kal veszed', 'Ilyenkor nincs illeték.'))}
+${sor('', jelolo('telek', 'Telket veszel, és 4 éven belül lakóházat építesz rá', 'Ilyenkor nincs illeték. Ha nem épül meg a ház, késedelmi pótlékkal kell megfizetni.'))}
+</fieldset>
+<fieldset>${reszCim('III.', 'Haszonélvezet')}
+<p class="fieldset-megj">Ha a lakáson haszonélvezet marad (a tulajdoni lap III. részében látod), kevesebb illetéket fizetsz.</p>
+${sor('', szamMezo({ id: 'haszonelvezoKor', cim: 'A haszonélvező életkora', me: 'év', placeholder: 'pl. 72', min: 0, max: 120 }))}
 </fieldset>`,
     cikk: `<h2>Mikor mennyi az illeték?</h2>
 <div class="tabla-tarto"><table class="tabla"><thead><tr><th>Eset</th><th>Illeték</th></tr></thead><tbody>
@@ -306,7 +316,7 @@ export function wekerleOldal(k) {
   const kam = w('kamat'), ossz = w('osszeg'), kor = w('eletkor'), eh = w('ertekhatar');
   const p = S.wekerle(adat, { vetelar: 40e6, onero: 10e6, allapot: 'hasznalt' }), q = S.wekerle(adat, { vetelar: 40e6, onero: 10e6, allapot: 'uj' });
   return kalkOldal(k, {
-    ut: WEKERLE_UT, tipus: 'wekerle', nev: 'Wekerle Plusz', temak: ['wekerle_plusz', 'illetek'],
+    ut: WEKERLE_UT, tipus: 'wekerle', nev: 'Wekerle Plusz', temak: ['wekerle_plusz', 'illetek', 'haszonelvezet'],
     oldalCim: 'Wekerle Plusz kalkulátor: jogosultság és törlesztő',
     leiras: `Wekerle Plusz hitel: feltételenként a 298/2026. Korm. rendelet szerint, havi törlesztő ${kam.uj_szazalek}% vagy ${kam.hasznalt_szazalek}% fix kamattal, és mennyit ér a támogatás.`,
     cim: 'Megkapod a Wekerle Plusz hitelt, és mennyi lesz a törlesztő?',
@@ -402,7 +412,7 @@ export function lakasvaltasOldal(k) {
   const cs = S.szabaly(adat, 'illetek.cserepotlo').ertek;
   const p = S.lakasvaltas(adat, { eladasiAr: 60e6, szerzesEv: k.ev - 7, szerzesiErtek: 35e6, vetelar: 85e6, eladasEv: k.ev });
   return kalkOldal(k, {
-    ut: VALTAS_UT, tipus: 'lakasvaltas', nev: 'Lakásváltás', temak: ['illetek', 'szja_eladas'],
+    ut: VALTAS_UT, tipus: 'lakasvaltas', nev: 'Lakásváltás', temak: ['illetek', 'szja_eladas', 'haszonelvezet'],
     oldalCim: 'Lakásváltás kalkulátor: eladás és vétel egy lapon',
     leiras: 'Eladod a lakásod, és másikat veszel: az eladás adója, az illeték a cserét pótló kedvezménnyel, a régi hitel, és mennyi pénz vagy hitel kell az új lakáshoz.',
     cim: 'Mennyibe kerül, ha eladod a lakásod, és másikat veszel?',
@@ -637,7 +647,7 @@ export function hozamOldal(k) {
   const { adat } = k;
   const p = S.hozam(adat, { vetelar: 48e6, havi: 230000, honap: 11, koltseg: 450000, ev: k.ev });
   return kalkOldal(k, {
-    ut: HOZAM_UT, tipus: 'hozam', nev: 'Megéri kiadásra venni?', temak: ['illetek', 'berbeadas'],
+    ut: HOZAM_UT, tipus: 'hozam', nev: 'Megéri kiadásra venni?', temak: ['illetek', 'berbeadas', 'haszonelvezet'],
     oldalCim: 'Lakás bérbeadás hozam kalkulátor: megéri kiadásra venni?',
     leiras: 'Kiadásra vett lakás bruttó és nettó hozama: vételár, illeték, felújítás, bérleti díj, üres hónapok, költségek és az szja, a jobbik adózási módszerrel.',
     cim: 'Megéri lakást venni kiadásra?',

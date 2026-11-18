@@ -982,3 +982,21 @@ h3 { font-weight: 600; }
 .osztas-jel span::before { content: ""; display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; background: var(--kiemel); border: 1px solid var(--vonal2); }
 .osztas-jel .j-he::before { background: var(--toll); border-color: var(--toll); }
 .osztas-jel b { color: var(--tinta); font-weight: 600; }
+
+/* Levezetés: a számítás lépései, a látogató számaival */
+.levezetes { margin: 18px 0 4px; border-top: 1px solid var(--vonal2); padding-top: 12px; }
+.levezetes summary { cursor: pointer; font-weight: 600; font-size: 15px; color: var(--toll); list-style: none; display: inline-flex; align-items: center; gap: 8px; }
+.levezetes summary::-webkit-details-marker { display: none; }
+.levezetes summary::before { content: ""; width: 7px; height: 7px; border: solid currentColor; border-width: 0 1.8px 1.8px 0; transform: rotate(-45deg); transition: transform .2s; }
+.levezetes[open] summary::before { transform: rotate(45deg) translate(-2px, -1px); }
+.levezetes ol { list-style: none; counter-reset: lv; margin: 12px 0 0; padding: 0; display: grid; gap: 10px; }
+.levezetes li { counter-increment: lv; display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 0 8px; font-size: 14.5px; }
+.levezetes li::before { content: counter(lv); grid-row: span 3; width: 20px; height: 20px; border: 1.5px solid var(--toll); color: var(--toll); border-radius: 50%; font-size: 11.5px; font-weight: 600; display: grid; place-items: center; margin-top: 1px; }
+.lv-mi { font-weight: 600; }
+.lv-kepl { font-variant-numeric: tabular-nums lining-nums; color: var(--tinta); overflow-wrap: anywhere; }
+.lv-kepl sup { font-size: .7em; }
+.lv-par { font-size: 12.5px; color: var(--tinta2); }
+.levezetes[open] li { animation: megjelen .3s ease backwards; }
+.levezetes[open] li:nth-child(2) { animation-delay: .05s; } .levezetes[open] li:nth-child(3) { animation-delay: .1s; } .levezetes[open] li:nth-child(4) { animation-delay: .15s; } .levezetes[open] li:nth-child(5) { animation-delay: .2s; } .levezetes[open] li:nth-child(6) { animation-delay: .25s; }
+@media (prefers-reduced-motion: reduce) { .levezetes[open] li { animation: none; } }
+@media print { .levezetes { display: block; } .levezetes ol { display: grid; } }

@@ -115,11 +115,15 @@ export function illetek(adat, b) {
   if (!(ertek > 0)) return { hiba: 'Add meg a lakás vételárát.' };
   const hanyad = b.hanyad === '' || b.hanyad == null ? 100 : Number(b.hanyad);
   if (!(hanyad > 0 && hanyad <= 100)) return { hiba: 'A tulajdoni hányad 1 és 100% között lehet.' };
-  const alap = ertek * hanyad / 100;
-  const alt = altalanosIlletek(adat, alap);
   const sz = (k) => szabaly(adat, `illetek.${k}`);
+  const resz = ertek * hanyad / 100;
+  // Haszonélvezettel terhelt lakásnál a vevő a haszonélvezet értékével csökkentett érték után fizet (Itv. 19. §)
+  const he = b.haszonelvezoKor !== '' && b.haszonelvezoKor != null && Number(b.haszonelvezoKor) >= 0 && !Number.isNaN(Number(b.haszonelvezoKor)) ? haszonelvezet(adat, { ertek: resz, tipus: 'holtig', kor: Number(b.haszonelvezoKor) }) : null;
+  const alap = resz - (he && !he.hiba ? he.jog : 0);
+  const alt = altalanosIlletek(adat, alap);
   const l = [{ kulcs: 'altalanos', nev: 'Általános mérték', ado: alt, jar: true, miert: `a ${hanyad < 100 ? `rád eső ${fmtSzam(alap)} Ft ` : ''}forgalmi érték ${sz('altalanos_mertek').ertek.szazalek}%-a` }];
   if (b.rokon) l.push({ kulcs: 'egyenesagi', nev: 'Egyenes ági rokontól vagy házastárstól', ado: 0, jar: true, miert: 'illetékmentes' });
+  if (b.telek) l.push({ kulcs: 'telek', nev: 'Telek, 4 éven belüli építéssel', ado: 0, jar: true, miert: `illetékmentes, ha ${sz('telek').ertek.beepites_ev} éven belül lakóházat építesz rá` });
   if (b.csok) l.push({ kulcs: 'csok_plusz', nev: 'CSOK Plusz vagy falusi CSOK', ado: 0, jar: true, miert: 'illetékmentes' });
   const eladott = nem0(b.eladottErtek) * (b.eladottHanyad === '' || b.eladottHanyad == null ? 100 : Number(b.eladottHanyad)) / 100;
   const cs = sz('cserepotlo').ertek;
@@ -142,7 +146,7 @@ export function illetek(adat, b) {
   }
   const jaro = l.filter((x) => x.jar);
   const legjobb = jaro.reduce((m, x) => (x.ado < m.ado ? x : m), jaro[0]);
-  return { ertek, hanyad, alap, altalanos: alt, lehetosegek: l, legjobb, ado: legjobb.ado, megtakaritas: alt - legjobb.ado,
+  return { ertek, hanyad, resz, haszonelvezet: he && !he.hiba ? he : null, alap, altalanos: alt, lehetosegek: l, legjobb, ado: legjobb.ado, megtakaritas: alt - legjobb.ado,
     reszletben: b.elso ? f.reszlet_honap : 0, hatarido_nap: sz('fizetesi_hatarido').ertek.nap };
 }
 const fmtSzam = (n) => new Intl.NumberFormat('hu-HU', { useGrouping: 'always' }).format(Math.round(n));

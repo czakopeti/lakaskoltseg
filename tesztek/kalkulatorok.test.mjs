@@ -70,3 +70,18 @@ test('minden kalkulátor üresen címkézett mintát mutat, kitöltve a saját a
   const k = M.kalkHtml('illetek', adat, { ertek: '50000000' });
   assert.ok(!k.minta && k.html.includes('data-osszeg="2000000"'));
 });
+
+test('illeték: telek 4 éven belüli építéssel, haszonélvezettel terhelt vétel', () => {
+  assert.equal(S.illetek(adat, { ertek: 20e6, telek: true }).ado, 0);
+  const r = S.illetek(adat, { ertek: 50e6, haszonelvezoKor: 70 });
+  assert.equal(r.alap, 40e6); assert.equal(r.ado, 1600000);
+});
+
+test('minden kalkulátor eredménye levezetést ad, a látogató számaival', () => {
+  for (const t of Object.keys(M.KALKULATOROK)) {
+    const h = M.kalkHtml(t, adat, {}).html;
+    assert.match(h, /class="levezetes"/, t);
+    assert.ok((h.match(/<li><span class="lv-mi">/g) || []).length >= 1, t);
+  }
+  assert.match(M.kalkHtml('eladas', adat, { eladasiAr: '60000000', szerzesiErtek: '50000000', szerzesKoltseg: '2000000', szerzesEv: '2024', eladasEv: '2026' }).html, /8\u00a0000\u00a0000&nbsp;Ft × 90% = 7\u00a0200\u00a0000&nbsp;Ft/);
+});

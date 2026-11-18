@@ -285,6 +285,21 @@
           },
           "szint": "elsodleges",
           "ellenorizve": "2026-11-18"
+        },
+        {
+          "kulcs": "szerzesi_ertek",
+          "nev": "Szerzési érték jogcím szerint",
+          "ertek": {},
+          "szoveg": "Vételnél az akkori vételár. Öröklésnél a hagyatéki leltárban szereplő érték. Ajándéknál az érték, amely után az ajándékozási illetéket kiszabták. Saját építésnél a saját vagy a házastárs nevére szóló számlák szerinti érték, de legalább a beépített anyagérték.",
+          "jogszabaly": "Szja tv. 62. § (1)",
+          "forras": {
+            "nev": "Bank360: Ingatlan eladás adózás",
+            "url": "https://bank360.hu/ingatlan-eladas-adozas",
+            "kelt": ""
+          },
+          "szint": "masodlagos",
+          "ellenorizve": "2026-11-18",
+          "megjegyzes": "Az ajándékra vonatkozó rész a money.hu ingatlanadó-kalkulátorának leírásából."
         }
       ]
     },
@@ -368,7 +383,8 @@
             "kelt": "2026-10-14"
           },
           "szint": "elsodleges",
-          "ellenorizve": "2026-11-18"
+          "ellenorizve": "2026-11-18",
+          "megjegyzes": "A NAV 10. információs füzete (2026. február) szerint a bérlő által megtérített társasházi közös költség akkor is bevétel, ha rezsielemeket tartalmaz, és tételes elszámolásnál költségként levonható."
         },
         {
           "kulcs": "berelt_lakas",

@@ -77,3 +77,16 @@ Ami még hiányzik a teljes fedéshez:
 - A benyújtott törvényjavaslatok figyelése a parlament.hu-n.
 - A szaksajtós források cseréje elsődlegesre. A hírportálok oldala gyakran változik, ezek téves riasztást adhatnak.
 - Idősorok gépi átvétele ott, ahol szám a forrás: KSH lakbér- és árindex, MNB lakáshitel-kamatok, jegybanki alapkamat.
+
+# Versenytársak (2026. november 18.)
+
+| Oldal | Amiben erős | Amit átvettünk vagy jobban csinálunk |
+|---|---|---|
+| okosan-elek.hu | Levezetés a beírt számokkal, „Adatok ellenőrizve”, módszertan | Minden kalkulátorban levezetés, és minden lépés mellett a jogszabályhely. Az ingatlanos aloldalukat innen nem tudtuk megnyitni. |
+| holahaz.hu | Vétel, ajándék, öröklés és eladás egy űrlapon; telek, haszonélvezet | Telek 4 éven belüli építéssel és haszonélvezettel terhelt vétel az illetékkalkulátorban |
+| banknavigator.hu | Tulajdoni hányad, részletfizetés | Mindkettő megvan |
+| ingatlanosmom.hu | Közös költség és rezsi pontos kezelése bérbeadásnál | A NAV 10. füzete szerint a mezők magyarázatában |
+| money.hu, ingatlan.com | Ajándékba kapott ingatlan szerzési értéke | Jogcím szerinti magyarázat az eladás adójánál |
+| ingatlan5.hu | Életjáradék, értékbecslés | Nem építjük: az értékbecsléshez nincs ingyenes, megbízható adat |
+
+Ami csak nálunk van: lakásváltás eladással és vétellel egy lapon, a Wekerle Plusz feltételenként a rendelet paragrafusával, a hitelképesség összevetve a Wekerle Plusszal, a lakáskiadás döntési pontja, határidők naptárfájlban, minden szabály forrással és az ellenőrzés napjával, és heti forrásfigyelő.
