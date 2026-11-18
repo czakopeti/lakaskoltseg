@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" fill="none" stroke="#000" stroke-width="3.2" stroke-linejoin="miter">
-<path d="M40 60H260V250H40Z"/><path d="M48 68H252V242H48Z" stroke-width="1"/>
-<path d="M160 60V150M160 186V250M160 150H205M235 150H260M40 170H92M124 170H160"/>
-<path d="M205 150A30 30 0 0 1 235 180M92 170A32 32 0 0 0 124 202M160 186A36 36 0 0 1 124 150" stroke-width="1"/>
-<path d="M80 56H130M80 64H130M190 56H235M190 64H235M36 95V140M44 95V140" stroke-width="1"/>
-<path d="M40 276H260M40 270V282M260 270V282M160 270V282M282 60V250M276 60H288M276 250H288" stroke-width="1"/>
-</svg>

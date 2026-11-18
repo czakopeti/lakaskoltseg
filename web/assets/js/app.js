@@ -1,7 +1,7 @@
 // Böngészős réteg: menü, űrlapok, élő elszámolás, megosztható link.
 // Szerverre csak az megy, amit a látogató a visszajelzés-dobozban maga elküld.
-import * as S from './szamitas.js?v=f54a26d1';
-import * as M from './megjelenites.js?v=f54a26d1';
+import * as S from './szamitas.js?v=2b0bd18e';
+import * as M from './megjelenites.js?v=2b0bd18e';
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -33,23 +33,6 @@ if (fg && fiok?.showModal) {
   $('.fiok-zar', fiok)?.addEventListener('click', zar);
   fiok.addEventListener('click', (ev) => { if (ev.target === fiok) zar(); });
   fiok.addEventListener('cancel', (ev) => { ev.preventDefault(); zar(); });
-}
-
-/* ---------- A főoldal makettje: a szélességhez igazodik, és az egérrel finoman forgatható ---------- */
-const szin = $('[data-makett]');
-if (szin) {
-  const meretez = () => szin.style.setProperty('--k', Math.min(1, szin.clientWidth / 620).toFixed(3));
-  meretez();
-  if ('ResizeObserver' in window) new ResizeObserver(meretez).observe(szin);
-  if (!csendes && matchMedia('(hover: hover)').matches) {
-    szin.addEventListener('pointermove', (ev) => {
-      const r = szin.getBoundingClientRect();
-      const x = (ev.clientX - r.left) / r.width - 0.5, y = (ev.clientY - r.top) / r.height - 0.5;
-      szin.style.setProperty('--rz', `${(-34 + x * 22).toFixed(1)}deg`);
-      szin.style.setProperty('--rx', `${(58 - y * 10).toFixed(1)}deg`);
-    });
-    szin.addEventListener('pointerleave', () => { szin.style.removeProperty('--rz'); szin.style.removeProperty('--rx'); });
-  }
 }
 
 /* ---------- Űrlap-segédek ---------- */
@@ -123,10 +106,6 @@ function frissit(panel, html, valtozott) {
   if (panel._utolso !== undefined) panel.classList.add('nyugodt');
   panel._utolso = html;
   panel.innerHTML = html;
-  const kesz = !panel.querySelector('.ures');
-  const pecset = $('.pecset');
-  // SVG-n nincs .hidden tulajdonság, ezért az attribútumot kezeljük
-  if (pecset && kesz && pecset.hasAttribute('hidden')) { pecset.removeAttribute('hidden'); if (!csendes) pecset.classList.add('ut'); }
   $$('.g-vonal', panel).forEach((v) => !csendes && v.classList.add('rajzol'));
   const m = $('[data-osszeg]', panel);
   const mini = $('.mini');
@@ -168,15 +147,6 @@ document.addEventListener('click', (ev) => {
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 });
 
-/* ---------- A pecsét a források oldalára visz ---------- */
-function pecsetLink() {
-  const p = $('.pecset'), cel = $('.lablec a[href*="forrasok"]')?.href;
-  if (!p || !cel) return;
-  const menj = () => { location.href = cel; };
-  p.addEventListener('click', menj);
-  p.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); menj(); } });
-}
-pecsetLink();
 // A jelölések linkjei a források oldalára mutatnak, a lábléc linkjéből vesszük a pontos címet.
 M.forrasokHelye($('.lablec a[href*="forrasok"]')?.getAttribute('href'));
 

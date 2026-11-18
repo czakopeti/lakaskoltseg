@@ -70,65 +70,8 @@ export function linkelo(oldalUt, elonezet) {
 
 /* ---------- Grafikai elemek ---------- */
 
-/** Kis alaprajz az űrlap sarkába (maszkként, egyszínű vonalrajz). Saját rajz, nem valódi lakás. */
-export function alaprajzJel() {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" fill="none" stroke="#000" stroke-width="3.2" stroke-linejoin="miter">
-<path d="M40 60H260V250H40Z"/><path d="M48 68H252V242H48Z" stroke-width="1"/>
-<path d="M160 60V150M160 186V250M160 150H205M235 150H260M40 170H92M124 170H160"/>
-<path d="M205 150A30 30 0 0 1 235 180M92 170A32 32 0 0 0 124 202M160 186A36 36 0 0 1 124 150" stroke-width="1"/>
-<path d="M80 56H130M80 64H130M190 56H235M190 64H235M36 95V140M44 95V140" stroke-width="1"/>
-<path d="M40 276H260M40 270V282M260 270V282M160 270V282M282 60V250M276 60H288M276 250H288" stroke-width="1"/>
-</svg>`;
-}
-/**
- * A főoldal makettje: a lakás alaprajza először síkban kirajzolódik, aztán megdől, a falak felállnak belőle,
- * végül zászlók szúródnak a szobákba a legfontosabb mértékekkel. Tisztán CSS 3D, kép és könyvtár nélkül.
- * zaszlok: [{ x, y, cim, ertek, href }] (a hely az alaprajz 480×290-es rácsán). Saját rajz, nem valódi lakás.
- */
-export function lakasMakett(zaszlok = []) {
-  // [x1, y1, x2, y2, fajta]: v = vízszintes (x mentén), f = függőleges (y mentén); ablak, alacsony = a néző felőli, levágott fal
-  const FALAK = [
-    [0, 0, 50, 0], [50, 0, 170, 0, 'ablak'], [170, 0, 310, 0], [310, 0, 430, 0, 'ablak'], [430, 0, 480, 0],
-    [480, 0, 480, 180], [480, 180, 480, 250, 'ablak'], [480, 250, 480, 290],
-    [260, 0, 260, 130], [260, 176, 260, 290], [260, 130, 340, 130], [384, 130, 480, 130],
-    [0, 182, 80, 182], [124, 182, 260, 182], [150, 182, 150, 290],
-    [0, 0, 0, 290, 'alacsony'], [0, 290, 196, 290, 'alacsony'], [236, 290, 480, 290, 'alacsony'],
-  ];
-  const fal = ([x1, y1, x2, y2, fajta = ''], i) => {
-    const fugg = x1 === x2;
-    return `<i class="fal ${fugg ? 'f' : 'v'}${fajta ? ` ${fajta}` : ''}" style="left:${x1}px;top:${y1}px;width:${fugg ? y2 - y1 : x2 - x1}px;--i:${i}"></i>`;
-  };
-  const vonal = (d) => `<path pathLength="1" d="${d}"/>`;
-  return `<div class="szin" data-makett>
-<div class="haz">
-<div class="padlo"><svg viewBox="0 0 480 290" aria-hidden="true">
-<g class="rajz">${vonal('M0 0H480V290H0Z')}${vonal('M260 0V130')}${vonal('M260 176V290')}${vonal('M260 130H340')}${vonal('M384 130H480')}${vonal('M0 182H80')}${vonal('M124 182H260')}${vonal('M150 182V290')}</g>
-<g class="ivek"><path d="M340 130A44 44 0 0 1 384 174M80 182A44 44 0 0 0 124 226M260 176A46 46 0 0 1 214 130M196 290A40 40 0 0 1 236 250"/></g>
-<g class="nevek"><text x="130" y="96">nappali</text><text x="370" y="72">hálószoba</text><text x="370" y="222">konyha</text><text x="75" y="246">fürdő</text><text x="205" y="240">előtér</text></g>
-</svg></div>
-${FALAK.map(fal).join('')}
-${zaszlok.map((z, i) => `<div class="zaszlo" style="left:${z.x}px;top:${z.y}px;--i:${i}"><a href="${z.href}"><b>${esc(z.ertek)}</b><span>${esc(z.cim)}</span></a></div>`).join('\n')}
-</div>
-</div>`;
-}
-
-/** Érkeztető bélyegző a dátummal: a forrásolt szabályokkal számolt eredmény jele. */
-const HO_ROV = ['JAN', 'FEBR', 'MÁRC', 'ÁPR', 'MÁJ', 'JÚN', 'JÚL', 'AUG', 'SZEPT', 'OKT', 'NOV', 'DEC'];
-export function pecset(ma, ut = true, marka = '', link = false) {
-  const [ev, ho, nap] = ma.split('-').map(Number);
-  // A bélyegzőn a saját nevünk áll: a miénk, nem hatóságé. Kattintásra a forrásokhoz visz.
-  return `<svg class="pecset${ut ? ' ut' : ''}" viewBox="0 0 168 92" aria-hidden="true">${link ? '<title>Honnan jönnek a számok? Kattints a forrásokért.</title>' : ''}
-<rect x="3" y="3" width="162" height="86" rx="5" fill="none" stroke="currentColor" stroke-width="3"/>
-<rect x="8.5" y="8.5" width="151" height="75" rx="2.5" fill="none" stroke="currentColor" stroke-width="1"/>
-<path d="M9 30H159M9 62H159" stroke="currentColor" stroke-width="1"/>
-<text aria-hidden="true" x="84" y="24" text-anchor="middle" fill="currentColor" font-family="Jost, sans-serif" font-weight="600" font-size="11" letter-spacing="1.2">${esc(marka.toLocaleUpperCase('hu'))}</text>
-<text aria-hidden="true" x="84" y="54" text-anchor="middle" fill="currentColor" font-family="Jost, sans-serif" font-weight="600" font-size="21" letter-spacing=".5">${ev} ${HO_ROV[ho - 1]} ${String(nap).padStart(2, '0')}</text>
-<text aria-hidden="true" x="84" y="77" text-anchor="middle" fill="currentColor" font-family="Jost, sans-serif" font-weight="600" font-size="9.5" letter-spacing="1.1">FORRÁSSAL SZÁMOLVA</text>
-</svg>`;
-}
-
 /** Ideiglenes szókép a munkanévvel. A végleges logó a név és a domain kiválasztása után készül (marka/). */
-const logo = (cfg) => `<span class="logo logo-szoveg">${esc(cfg.marka)}</span>`;
+const logo = (cfg) => `<span class="logo"><i class="logo-jel" aria-hidden="true"></i><span class="logo-szoveg">${esc(cfg.marka)}</span></span>`;
 
 /**
  * Az adatok dátuma: a szabályok legutóbbi kézi vagy gépi ellenőrzésének napja (data/allapot.json),
@@ -185,19 +128,20 @@ ${cfg.eles && !elonezet && !/\.pages\.dev$/.test(new URL(cfg.domain).host) ? `<s
 <meta property="og:description" content="${esc(leiras)}">
 <meta property="og:url" content="${kanonikus}">
 <meta name="twitter:card" content="summary">
-<meta name="theme-color" content="#EDF1F7" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0D1F47" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16181D" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="${L.gyoker('favicon.svg')}" type="image/svg+xml">
-${elonezet ? '' : `<link rel="preload" href="${L.a('fonts/jost-latin-wght-normal.woff2')}" as="font" type="font/woff2" crossorigin>`}
+${elonezet ? '' : `<link rel="preload" href="${L.a('fonts/bricolage-grotesque-latin-opsz-normal.woff2')}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="${L.a('fonts/onest-latin-wght-normal.woff2')}" as="font" type="font/woff2" crossorigin>`}
 <link rel="stylesheet" href="${L.a(`style.css?v=${verzio}`)}">
 ${ld}
 </head>
 <body>
 <a class="ugras" href="#tartalom">Ugrás a tartalomra</a>
 <header class="fejlec"><div class="keret">
-<button class="fiok-gomb" type="button" aria-label="Menü" aria-haspopup="dialog" aria-controls="fiok" aria-expanded="false">${HAMBURGER}<span>Menü</span></button>
 <div class="marka-blokk"><a class="jegy" href="${L.l('')}" aria-label="${esc(cfg.marka)}, főoldal">${logo(cfg)}</a>${cfg.szlogen ? `<p class="szlogen">${esc(cfg.szlogen)}</p>` : ''}</div>
 <nav class="menu" id="fomenu" aria-label="Fő menü">${MENU.map((m) => `<a href="${L.l(m.ut)}"${m.ut === ut ? ' aria-current="page"' : ''}>${m.nev}</a>`).join('')}</nav>
+<button class="fiok-gomb" type="button" aria-label="Minden kalkulátor" aria-haspopup="dialog" aria-controls="fiok" aria-expanded="false">${HAMBURGER}<span>Minden kalkulátor</span></button>
 </div></header>
 <dialog class="fiok" id="fiok" aria-label="Minden oldal">
 <div class="fiok-fej"><a class="jegy" href="${L.l('')}" aria-label="${esc(cfg.marka)}, főoldal">${logo(cfg)}</a><button class="fiok-zar" type="button" aria-label="Menü bezárása">✕</button></div>
@@ -248,11 +192,11 @@ export function oldalfej(L, { morzsa, cim, valasz = '', bevezeto, fo = false, fr
 /* ---------- Űrlap-építőkockák ---------- */
 
 /** Szakaszcím az űrlapon. A római szám a tulajdoni lap része (I. az ingatlan, II. a tulajdonjog, III. a terhek), csak ha az adat tényleg ott van. */
-export const reszCim = (resz, cim) => `<legend>${resz ? `<span class="resz">${resz}</span>` : ''}${cim}</legend>`;
+export const reszCim = (resz, cim) => `<legend>${cim}</legend>`;
 
 /** A mező előtti kód: az okirat valódi rovata (például a tulajdoni lap I., II., III. része), csak ha az adat tényleg onnan jön. */
 export const kod = (k, mi = '') => `<span class="kod${k ? '' : ' ures'}"${k && mi ? ` title="${esc(mi)}"` : ''} aria-hidden="true">${k || ''}</span>`;
-export const sor = (k, belso, attr = '') => `<div class="sor"${attr}>${kod(k)}<div class="mezo">${belso}</div></div>`;
+export const sor = (k, belso, attr = '') => `<div class="sor"${attr}><div class="mezo">${belso}</div></div>`;
 
 /** Számmező. Forintnál (me: 'Ft') szöveges mező ezres tagolással: a böngésző számmezője nem tud szóközt mutatni. */
 export function szamMezo({ id, cim, me = '', ertek = '', sugo = '', min = '', max = '', placeholder = '', szeles = false, extra = '', nev = '', tized = false, ezres = me === 'Ft' }) {
@@ -275,16 +219,15 @@ export function valaszto(id, cim, opciok, ertek, sugo = '') {
 
 /** Az űrlapkártya kerete. (Az osztálynév a motorból öröklődik; az új identitással együtt kap saját nevet.) */
 export function forgalmi({ cim, al = '', tartalom, kalk, extra = '', osztaly = '' }) {
-  return `<form class="forgalmi${osztaly ? ` ${osztaly}` : ''}"${kalk ? ` data-kalk="${kalk}"` : ''} novalidate${extra}><span class="gilos" aria-hidden="true"></span><div class="forgalmi-fej"><h2>${cim}</h2>${al ? `<p>${al}</p>` : ''}</div>${tartalom}</form>`;
+  return `<form class="forgalmi${osztaly ? ` ${osztaly}` : ''}"${kalk ? ` data-kalk="${kalk}"` : ''} novalidate${extra}><div class="forgalmi-fej"><h2>${cim}</h2>${al ? `<p>${al}</p>` : ''}</div>${tartalom}</form>`;
 }
 
 /** Az elszámolás kerete a pecséttel. */
 export function elszamolas(k, belso, { cim = 'Elszámolás', gombok = true, labjegy = '', szeles = false, kesz = false } = {}) {
   return `<section class="elszamolas${szeles ? ' szeles' : ''}" id="eredmeny" aria-labelledby="elsz-cim">
-<div class="elsz-fej"><h2 id="elsz-cim">${cim}</h2>${(() => { const d = adatDatum(k.adat); return `<time datetime="${d.iso}" title="${d.cimke === 'Ellenőrizve' ? 'Ekkor vetettük össze a szabályokat a forrásokkal' : 'A legfrissebb adat napja'}">${d.cimke}: ${datumHu(d.iso)}</time>`; })()}</div>
+<div class="elsz-fej"><h2 id="elsz-cim">${cim === 'Elszámolás' ? 'Eredmény' : cim}</h2>${(() => { const d = adatDatum(k.adat); return `<time datetime="${d.iso}" title="${d.cimke === 'Ellenőrizve' ? 'Ekkor vetettük össze a szabályokat a forrásokkal' : 'A legfrissebb adat napja'}">${d.cimke}: ${datumHu(d.iso)}</time>`; })()}</div>
 <div class="elsz-tartalom" aria-live="polite">${belso}</div>
 ${gombok ? `<div class="elsz-lab"><button class="szoveg-gomb" type="button" data-masol>Számítás megosztása</button><button class="szoveg-gomb" type="button" data-nyomtat>Nyomtatás</button></div>${VJ_HELY}` : labjegy ? `<div class="elsz-lab"><p class="kicsi">${labjegy}</p></div>` : ''}
-${pecset(k.ma, true, k.cfg.marka, true).replace('<svg class="pecset ut"', `<svg class="pecset${kesz ? ' ut' : ''}"${kesz ? '' : ' hidden'}`)}
 </section>
 <a class="mini" href="#eredmeny" hidden><span class="mi"></span><span class="mennyi"></span></a>`;
 }

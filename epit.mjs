@@ -4,7 +4,7 @@ import { mkdirSync, writeFileSync, readFileSync, cpSync, rmSync, readdirSync, ex
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { betoltAdat, olvas, maBudapest, GYOKER } from './forras/adat.mjs';
-import { alaprajzJel, lastmodDontes, CSOPORTOK } from './forras/sablon.mjs';
+import { lastmodDontes, CSOPORTOK } from './forras/sablon.mjs';
 import * as O from './forras/oldalak.mjs';
 import * as M from './forras/js/megjelenites.mjs';
 
@@ -52,8 +52,6 @@ const jsNyers = Object.fromEntries(JS.map((f) => [f, readFileSync(join(GYOKER, `
 const jsOssz = JS.map((f) => jsNyers[f]).join('');
 const jsVerzio = createHash('sha1').update(jsOssz).digest('hex').slice(0, 8);
 for (const f of JS) writeFileSync(join(KI, `assets/js/${f}.js`), jsNyers[f].replace(/from '\.\/(\w+)\.mjs'/g, `from './$1.js?v=${jsVerzio}'`));
-// Az űrlapkártya rozettája külön fájlban: egyszer töltődik le, és minden oldal a gyorsítótárból veszi.
-writeFileSync(join(KI, 'assets/alaprajz.svg'), alaprajzJel());
 const verzio = createHash('sha1').update(css + jsOssz).digest('hex').slice(0, 8);
 if (existsSync(join(GYOKER, 'forras/kepek'))) for (const f of readdirSync(join(GYOKER, 'forras/kepek'))) cpSync(join(GYOKER, 'forras/kepek', f), join(KI, f === 'og.png' ? 'assets/og.png' : f));
 

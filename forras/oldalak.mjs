@@ -2,7 +2,7 @@
 // Most a váz van itt: főoldal (munkaverzió), források, rólunk, jogi oldalak. A kalkulátorok a tartalomterv szerint jönnek.
 import * as M from './js/megjelenites.mjs';
 import * as S from './js/szamitas.mjs';
-import { CSOPORTOK, oldal, oldalfej, ellenorzesKesik, morzsaLd, tovabb, esc, datumHu, forgalmi, elszamolas, sor, szamMezo, reszCim, negyzetek, jelolo, gyik, gyikLd, alkalmazasLd, forrasLista, lakasMakett } from './sablon.mjs';
+import { CSOPORTOK, oldal, oldalfej, ellenorzesKesik, morzsaLd, tovabb, esc, datumHu, forgalmi, elszamolas, sor, szamMezo, reszCim, negyzetek, jelolo, gyik, gyikLd, alkalmazasLd, forrasLista } from './sablon.mjs';
 
 /* ======================= FŐOLDAL ======================= */
 /**
@@ -27,27 +27,37 @@ export const FOOLDAL_KARTYAK = {
   'forrasok/': [() => 'Minden szabály, amivel számolunk: jogszabályhely, forrás, és mikor ellenőriztük utoljára.', 'Megnézem'],
 };
 
-/** A makett zászlói: a négy leggyakoribb mérték, mind az adatfájlból. A link a kalkulátorra vagy a forrásra visz. */
-function zaszlok(k, L) {
-  const sz = (kulcs) => S.szabaly(k.adat, kulcs).ertek;
-  const wp = sz('wekerle_plusz.kamat');
-  return [
-    { x: 70, y: 48, ertek: `${sz('illetek.altalanos_mertek').szazalek}%`, cim: 'illeték, ha veszel', href: L.l(ILLETEK_UT) },
-    { x: 380, y: 60, ertek: `${sz('szja_eladas.ado_mertek').szazalek}%`, cim: 'adó, ha nyereséggel adod el', href: L.l(ELADAS_UT) },
-    { x: 390, y: 215, ertek: `${sz('berbeadas.ado_mertek').szazalek}%`, cim: 'adó, ha kiadod', href: L.l(KIADAS_UT) },
-    { x: 75, y: 240, ertek: `${wp.uj_szazalek}% és ${wp.hasznalt_szazalek}%`, cim: 'Wekerle Plusz kamat', href: L.l(WEKERLE_UT) },
-  ];
-}
 export function fooldal(k) {
+  const sz = (kulcs) => S.szabaly(k.adat, kulcs).ertek;
+  // A főoldal mintája: ugyanaz a számítás, mint a kalkulátorban, címkézve
+  const p = S.indulo(k.adat, { vetelar: 50e6, hitel: 40e6 });
+  const ill = p.illetek.ado, dij = p.vetelarFelett - ill;
+  const ar = (x) => (x / p.osszes * 100).toFixed(1);
+  const GYORS = [[INDULO_UT, 'Mennyi pénz kell a vételhez?'], [ILLETEK_UT, 'Illeték'], [ELADAS_UT, 'Eladás adója'], [ROVID_UT, 'Airbnb vagy hosszú táv'], [WEKERLE_UT, 'Wekerle Plusz'], [KIADAS_UT, 'Kiadás adója']];
   const tartalom = (L) => `
-<div class="keret nyito"><div>${oldalfej(L, { fo: true, cim: 'Mennyibe kerül venni, eladni vagy kiadni egy lakást?', valasz: 'Illeték, adó és hitel, forinttal kiszámolva. Minden szabály mellett ott a jogszabály és a nap, amikor utoljára ellenőriztük.' }).replace('<div class="keret oldalfej', '<div class="oldalfej')}</div>${lakasMakett(zaszlok(k, L))}</div>
+<section class="hero keret">
+<div class="hero-szoveg">
+<h1>Mennyibe kerül igazán egy lakás?</h1>
+<p class="valasz">Illeték, adó, hitel és minden mellékköltség forintra kiszámolva, ha veszel, eladsz vagy kiadsz. Minden szám mellett ott a jogszabály és a nap, amikor utoljára ellenőriztük.</p>
+<nav class="gyors" aria-label="A leggyakoribb kalkulátorok">${GYORS.map(([u, n]) => `<a href="${L.l(u)}">${n}</a>`).join('')}</nav>
+<p class="hero-tenyek"><span><b>${sz('illetek.altalanos_mertek').szazalek}%</b> illeték</span><span><b>${sz('szja_eladas.ado_mertek').szazalek}%</b> szja eladáskor</span><span><b>${sz('wekerle_plusz.kamat').uj_szazalek}% és ${sz('wekerle_plusz.kamat').hasznalt_szazalek}%</b> Wekerle Plusz</span></p>
+</div>
+<a class="hero-kartya" href="${L.l(INDULO_UT)}">
+<span class="hk-minta">Minta: 50 millió forintos lakás, 40 millió forint hitellel</span>
+<span class="hk-mi">Ennyi saját pénz kell</span>
+<span class="hk-szam">${M.fmt(p.osszes)}<small> Ft</small></span>
+<span class="hk-sav" aria-hidden="true"><i class="s1" style="--w:${ar(p.onero)}%"></i><i class="s2" style="--w:${ar(ill)}%"></i><i class="s3" style="--w:${ar(dij)}%"></i></span>
+<span class="hk-jel"><span class="j1">önerő ${M.tized(p.onero / 1e6, 1)} M</span><span class="j2">illeték ${M.tized(ill / 1e6, 1)} M</span><span class="j3">díjak ${M.tized(dij / 1e6, 1)} M</span></span>
+<span class="hk-ido">${p.lepesek.slice(0, 4).map((l) => `<span><span>${l.nev}</span><b>${M.fmt(l.ft)} Ft</b></span>`).join('')}</span>
+<span class="hk-tovabb">Számold ki a sajátodat</span>
+</a>
+</section>
 ${CSOPORTOK.map((cs) => `<section class="szakasz" id="${cs.id}"><div class="keret">
-<h2>${cs.cim}</h2>
-<p class="csoport-bevezeto">${cs.bevezeto}</p>
+<div class="szakasz-fej"><h2>${cs.cim}</h2><p class="csoport-bevezeto">${cs.bevezeto}</p></div>
 <ul class="lista">
 ${cs.elemek.map(([u, n, , teljes]) => { const [szoveg, ugrik] = FOOLDAL_KARTYAK[u]; return `<li><a href="${L.l(u)}"><h3>${teljes || n}</h3><p>${szoveg(k)}</p><span class="ugrik">${ugrik}</span></a></li>`; }).join('\n')}
 </ul></div></section>`).join('\n')}`;
-  return oldal(k, { cim: `${k.cfg.marka}: lakásvásárlás, -eladás és -kiadás költségei`, leiras: 'Vagyonszerzési illeték, ingatlaneladás adója, lakáskiadás adója és kamattámogatott hitel, forrással és dátummal.', ut: '', tartalom });
+  return oldal(k, { cim: `${k.cfg.marka}: lakásvásárlás, -eladás és -kiadás költségei`, leiras: 'Vagyonszerzési illeték, ingatlaneladás adója, lakáskiadás adója, Airbnb és kamattámogatott hitel, forrással és dátummal.', ut: '', tartalom });
 }
 
 /* ======================= FORRÁSOK ======================= */
