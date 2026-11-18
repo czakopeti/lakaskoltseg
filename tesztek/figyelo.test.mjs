@@ -83,8 +83,9 @@ test('tartós letöltési gond: csak az első alkalommal jelentjük, a régi len
   assert.equal(masodik.jelent, false);
   assert.equal(masodik.allapot.gondOta, '2026-11-18');
   assert.equal(gondAllapot(masodik.allapot, 'HTTP 404', '2026-12-02').jelent, true, 'más gond újra szól');
+  assert.equal(gondAllapot(masodik.allapot, 'fetch failed', '2026-12-02').jelent, false, 'tiltás, időtúllépés, hálózati hiba egy fajta');
   // Az oldal közben helyreállt, aztán megint letilt: 60 napon belül nem szólunk újra, utána igen
-  const helyre = { tenyek: ['x'], utolsoGond: 'HTTP 403', utolsoGondNap: '2026-11-25' };
+  const helyre = { tenyek: ['x'], utolsoGond: 'letoltes', utolsoGondNap: '2026-11-25' };
   assert.equal(gondAllapot(helyre, 'HTTP 403', '2026-12-09').jelent, false);
   assert.equal(gondAllapot(helyre, 'HTTP 403', '2027-02-10').jelent, true);
 });

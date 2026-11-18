@@ -689,9 +689,9 @@
       ],
       "latva": "2026-11-18",
       "ellenorizve": "2026-11-18",
-      "utolsoGond": "The operation was aborted due to timeout",
+      "utolsoGond": "letoltes",
       "utolsoGondNap": "2026-11-18",
-      "gond": "The operation was aborted due to timeout",
+      "gond": "letoltes",
       "gondOta": "2026-11-18"
     },
     "https://ingatlan5.hu/haszonelvezeti-jog-erteke-es-annak-pontos-kiszamitasa": {
@@ -1035,31 +1035,31 @@
       "ellenorizve": "2026-11-18"
     },
     "https://adozona.hu/illetek/Otthon_Start_ingatlan_illetek_kedvezmeny_WU0M65": {
-      "gond": "HTTP 403",
+      "gond": "letoltes",
       "gondOta": "2026-11-18",
       "ellenorizve": "2026-11-18",
-      "utolsoGond": "HTTP 403",
+      "utolsoGond": "letoltes",
       "utolsoGondNap": "2026-11-18"
     },
     "https://adozona.hu/illetek/Uj_epitesu_lakas_vasarlasa_az_illetekmentes_9VA9X1": {
-      "gond": "HTTP 403",
+      "gond": "letoltes",
       "gondOta": "2026-11-18",
       "ellenorizve": "2026-11-18",
-      "utolsoGond": "HTTP 403",
+      "utolsoGond": "letoltes",
       "utolsoGondNap": "2026-11-18"
     },
     "https://adozona.hu/szja_ekho_kulonado/Ingatlan_eladasabol_szarmazo_jovedelem_es_a_637TLR": {
-      "gond": "HTTP 403",
+      "gond": "letoltes",
       "gondOta": "2026-11-18",
       "ellenorizve": "2026-11-18",
-      "utolsoGond": "HTTP 403",
+      "utolsoGond": "letoltes",
       "utolsoGondNap": "2026-11-18"
     },
     "https://tudastar.money.hu/fogalom/hitelezhetosegi-limit/": {
-      "gond": "HTTP 403",
+      "gond": "letoltes",
       "gondOta": "2026-11-18",
       "ellenorizve": "2026-11-18",
-      "utolsoGond": "HTTP 403",
+      "utolsoGond": "letoltes",
       "utolsoGondNap": "2026-11-18"
     },
     "https://tudastar.money.hu/hir/20260522/mit-hozhat-a-kozjegyzoi-rendszer-atalakitasa-a-hitelfelvevoknek/": {
@@ -1075,30 +1075,30 @@
       ],
       "latva": "2026-11-18",
       "ellenorizve": "2026-11-18",
-      "gond": "HTTP 403",
+      "gond": "letoltes",
       "gondOta": "2026-11-18",
-      "utolsoGond": "HTTP 403",
+      "utolsoGond": "letoltes",
       "utolsoGondNap": "2026-11-18"
     },
     "https://adozona.hu/afa/Maganszallashelyszolgaltatas_teteles_atalan_RE2ZGI": {
-      "gond": "HTTP 403",
+      "gond": "letoltes",
       "gondOta": "2026-11-18",
       "ellenorizve": "2026-11-18",
-      "utolsoGond": "HTTP 403",
+      "utolsoGond": "letoltes",
       "utolsoGondNap": "2026-11-18"
     },
     "https://adozona.hu/szja_ekho_kulonado/szallashelyszolgaltatas_AFA_idegenforgalmi__44U47U": {
-      "gond": "HTTP 403",
+      "gond": "letoltes",
       "gondOta": "2026-11-18",
       "ellenorizve": "2026-11-18",
-      "utolsoGond": "HTTP 403",
+      "utolsoGond": "letoltes",
       "utolsoGondNap": "2026-11-18"
     },
     "https://tudatosadozo.hu/airbnb-adozas-2026-igy-adozz-maganszemelykent-okosan/": {
-      "gond": "fetch failed",
+      "gond": "letoltes",
       "gondOta": "2026-11-18",
       "ellenorizve": "2026-11-18",
-      "utolsoGond": "fetch failed",
+      "utolsoGond": "letoltes",
       "utolsoGondNap": "2026-11-18"
     },
     "https://www.airbnb.com/help/article/1857": {

@@ -85,7 +85,10 @@ export function ertekel(forras, elozo, html) {
  * Tartós gond (letiltott vagy csak böngészőben megjelenő oldal): csak az első alkalommal jelentjük, utána hetente nem.
  * Visszaad: { jelent, allapot } – az allapot a figyelő állapotába kerül, a régi lenyomat megmarad.
  */
-export function gondAllapot(elozo, ok, ma) {
+// A gond fajtája: a megszűnt oldal (404) külön, a többi letöltési hiba (tiltás, időtúllépés, hálózat) egy fajta, a gyanús válasz okonként.
+export const gondFajta = (ok) => /HTTP 40[4]|HTTP 410/.test(ok) ? 'nincs' : /HTTP \d|fetch|timeout|abort|ECONN|ENOTFOUND|socket/i.test(ok) ? 'letoltes' : ok;
+export function gondAllapot(elozo, okSzoveg, ma) {
+  const ok = gondFajta(okSzoveg);
   // Ha ugyanez a gond az elmúlt 60 napban már volt (az oldal csak néha tilt le), nem szólunk újra.
   const nemregVolt = elozo?.utolsoGond === ok && elozo.utolsoGondNap && (Date.parse(ma) - Date.parse(elozo.utolsoGondNap)) / 864e5 <= 60;
   const jelent = elozo?.gond ? elozo.gond !== ok : !nemregVolt;
