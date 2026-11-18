@@ -1,5 +1,6 @@
 name: Heti frissítés
 # Hétfőnként (és január 1–20. között naponta, amíg a KSH közli az éves inflációt), illetve ha a frissítők kódja változik, összeveti a forrásokat a legutóbb látott szövegükkel,
+# először az önálló frissítők futnak (frissito/automata.mjs), aztán a figyelő csak a számot tartalmazó mondatokat veti össze;
 # lefuttatja a teszteket, újraépíti az oldalt (a dátumfüggő részek így maguktól átállnak), és ha kell, jegyet nyit.
 # Nyilvános tárolóban a GitHub Actions ingyenes.
 on:
