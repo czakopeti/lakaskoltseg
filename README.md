@@ -4,13 +4,14 @@ Magyar kalkulátoroldal a lakásvásárlás, a lakáseladás és a lakáskiadás
 
 Statikus oldal. Nincs adatbázis, nincs szerver, nincs süti. Az űrlapok mindig üresen nyílnak.
 
-**Állapot:** saját arculat (DIZAJN.md), öt kalkulátor (illeték, Wekerle Plusz, lakásváltás, ingatlaneladás szja-ja, lakáskiadás adója), heti forrásfigyelő. Az oldal munkaverzió (`eles: false`), minden lapja noindex. A teljes terv: `TELJES_KEP.md`, a sorrend: `TARTALOMTERV.md`.
+**Állapot:** saját arculat (DIZAJN.md), 11 kalkulátor öt élethelyzetben (lásd `TELJES_KEP.md`), heti forrásfigyelő. Az oldal munkaverzió (`eles: false`), minden lapja noindex. A teljes terv: `TELJES_KEP.md`, a sorrend: `TARTALOMTERV.md`.
 
 ## Felépítés
 
 | Mappa / fájl | Mi van benne |
 |---|---|
 | `data/szabalyok.json` | Minden szabály: gépi érték, szöveg, jogszabályhely, forrás, az ellenőrzés napja és szintje. A `nyitott` lista a még ellenőrizendő kérdéseket tartja. |
+| `data/inflacio.json` | A KSH éves átlagos inflációja évenként, forrással. A bérleti díj emelésének oldala ebből számol. |
 | `data/allapot.json` | A legutóbbi teljes ellenőrzés napja. |
 | `forras/js/szamitas.mjs` | A számítási mag. A böngésző, az építő és a tesztek is ezt használják. |
 | `forras/js/megjelenites.mjs` | Az eredménypanelek, és a `KALKULATOROK` leírás: melyik mező kell, mi a minta, melyik panel. Ezt használja az építő (a minta a HTML-ben van) és a böngésző is. |

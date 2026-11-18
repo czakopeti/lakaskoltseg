@@ -228,6 +228,123 @@ export function lakasvaltasPanel(adat, r) {
   return h;
 }
 
+/* ---------- Mennyi hitelt kaphatsz ---------- */
+const PER = { rovid: '5 évnél rövidebb', kozep: '5–10 éves', hosszu: 'legalább 10 éves vagy végig fix' };
+export function hitelkepessegPanel(adat, r) {
+  if (r.hiba) return hianyPanel(r.hiba);
+  const src = (k) => S.szabaly(adat, `hitel.${k}`).forras.url;
+  let h = vegosszeg('Ennyi lakáshitelt kaphatsz legfeljebb', r.max, `${r.ev} évre, ${tized(r.kamat, 1)}% kamattal, havi ${ftx(r.havi)} törlesztővel. ${r.kot === 'hfm' ? 'Most az ingatlan értéke a szűkebb korlát.' : 'Most a jövedelmed a szűkebb korlát.'}`);
+  h += '<ul class="tetelek">';
+  h += tetel('Havi nettó jövedelem', ftx(r.jov), { forras: 'sajat' });
+  h += tetel(`A törlesztő legfeljebb ${r.jtm}%`, ftx(Math.round(r.jov * r.jtm / 100)), { forras: 'hivatalos', forrasUrl: src('jtm'), al: `${r.felette ? `${fmt(r.kuszob)} Ft felett` : `${fmt(r.kuszob)} Ft alatt`}, ${PER[r.per]} kamatperiódussal` });
+  if (r.meglevo) h += tetel('Meglévő törlesztők', `−${ftx(r.meglevo)}`, { cls: 'levonas', forras: 'sajat' });
+  h += tetel('Ennyi lehet az új hitel törlesztője', ftx(r.maxTorleszto));
+  h += '</ul>';
+  h += `<p class="panel-cim">A két korlát</p><ul class="tetelek lehetosegek"><li class="${r.kot === 'jtm' ? 'kiemelt-sor' : ''}"><span>A jövedelmed szerint (JTM) ${jel('hivatalos', src('jtm'))}<span class="al">${ftx(r.maxTorleszto)} törlesztő ${r.ev} évre, ${tized(r.kamat, 1)}% kamattal${r.kamatSajat ? '' : ` ${jel('becsles')}`}</span></span><span class="ossz-ertek">${ftx(r.jtmHitel)}</span></li>`;
+  h += `<li class="${r.kot === 'hfm' ? 'kiemelt-sor' : ''}${r.hfmHitel === null ? ' nem-jar' : ''}"><span>Az ingatlan értéke szerint (HFM) ${jel('hivatalos', src('hfm'))}<span class="al">${r.hfmHitel === null ? 'Add meg az ingatlan értékét.' : `a ${ftx(r.ertek)} érték ${r.hfm}%-a`}</span></span><span class="ossz-ertek">${r.hfmHitel === null ? '?' : ftx(r.hfmHitel)}</span></li></ul>`;
+  h += `<p class="panel-cim">Ugyanebből a jövedelemből Wekerle Plusszal</p><ul class="tetelek">${r.wekerle.map((w) => tetel(`${tized(w.kamat, 0)}% kamattal ${w.kamat < 4 ? '(új lakás)' : '(használt lakás)'}`, ftx(w.hitel), { forras: 'hivatalos', forrasUrl: S.szabaly(adat, 'wekerle_plusz.kamat').forras.url, al: 'a kamat végig fix, ezért a leghosszabb kamatperiódus korlátja érvényes; legfeljebb 50 millió forint' })).join('')}</ul>`;
+  h = jelekkel(h);
+  if (r.onero !== null) h += megjegyzes(`A ${ftx(r.ertek)} lakáshoz ${ftx(r.onero)} önerő kell, és erre jön még az illeték, amit a hitelbe nem lehet beleszámítani.`);
+  h += megjegyzes('Ez a jogszabály szerinti felső határ. A bank ennél szigorúbban is dönthet, és a jövedelmet az igazolások szerint számolja.');
+  return h;
+}
+
+/* ---------- Öröklés és ajándékozás ---------- */
+const ROKON = { egyenesagi: 'egyenes ági rokon', hazastars: 'házastárs', testver: 'testvér', egyeb: '' };
+export function ingyenesPanel(adat, r) {
+  if (r.hiba) return hianyPanel(r.hiba);
+  const src = (k) => S.szabaly(adat, `ingyenes.${k}`).forras.url;
+  const mi = r.jogcim === 'ajandek' ? 'ajándékozási' : 'öröklési';
+  let h = vegosszeg(`Fizetendő ${mi} illeték`, r.ado, r.mentes ? `Illetékmentes, mert ${ROKON[r.rokonsag]} ${r.jogcim === 'ajandek' ? 'ajándékoz' : 'után örökölsz'}. Mentesség nélkül ${ftx(r.adoMentesNelkul)} lenne.` : `A tiszta érték ${r.kulcs}%-a.`);
+  h += '<ul class="tetelek">';
+  h += tetel('Forgalmi érték', ftx(r.ertek), { forras: 'sajat', al: 'Az illetéket a NAV által megállapított érték után szabják ki.' });
+  if (r.hanyad < 100) h += tetel(`A rád eső rész: ${tized(r.hanyad, 2)}%`, ftx(r.resz), { forras: 'sajat' });
+  if (r.terhek) h += tetel('Terhek, például ráterhelt hitel', `−${ftx(r.terhek)}`, { cls: 'levonas', forras: 'sajat' });
+  if (r.haszonelvezet) h += tetel(`Haszonélvezet, ${r.haszonelvezet.kor} éves haszonélvezővel`, `−${ftx(r.haszonelvezet.jog)}`, { cls: 'levonas', forras: 'hivatalos', forrasUrl: S.szabaly(adat, 'haszonelvezet.szorzo').forras.url, al: `az egyévi érték ${r.haszonelvezet.szorzo}-szorosa` });
+  h += tetel('Tiszta érték', ftx(r.tiszta), { forras: 'hivatalos', forrasUrl: src('tiszta_ertek') });
+  h += tetel(r.mentes ? 'Illetékmentes' : `Illeték: ${r.kulcs}%`, ftx(r.ado), { cls: 'vegso', forras: 'hivatalos', forrasUrl: r.mentes ? src('mentes') : src('mertek') });
+  h += '</ul>';
+  h = jelekkel(h);
+  if (r.rokonsag === 'egyeb') h += megjegyzes('Az élettárs, a sógor, az unokatestvér, a nagynéni és a nagybácsi nem mentes.');
+  h += megjegyzes(r.jogcim === 'ajandek' ? 'Az ajándékozási szerződést ügyvéd vagy közjegyző ellenjegyzi, és a földhivatalba benyújtva jut el a NAV-hoz. Az illetéket a NAV határozata alapján fizeted.' : 'Az öröklési illetéket a hagyatéki eljárás után, a NAV határozata alapján fizeted. Ha egyszer eladod a lakást, a szerzés napja az örökhagyó halálának napja.');
+  return h;
+}
+
+/* ---------- Haszonélvezet ---------- */
+export function haszonelvezetPanel(adat, r) {
+  if (r.hiba) return hianyPanel(r.hiba);
+  const src = (k) => S.szabaly(adat, `haszonelvezet.${k}`).forras.url;
+  let h = vegosszeg('A haszonélvezet értéke', r.jog, `A lakás értékének ${tized(r.szazalek, 0)}%-a. A tulajdonra, haszonélvezet nélkül, ${ftx(r.csupasz)} jut.`);
+  // A lakás értéke két részre: haszonélvezet és csupasz tulajdon
+  h += `<div class="osztas" style="--p:${Math.min(100, r.szazalek).toFixed(1)}%" role="img" aria-label="A lakás értékéből ${tized(r.szazalek, 0)}% a haszonélvezet"><span class="o-he"><b>haszonélvezet</b>${tized(r.szazalek, 0)}%</span><span class="o-cs"><b>tulajdon</b>${tized(100 - r.szazalek, 0)}%</span></div><p class="osztas-jel" aria-hidden="true"><span class="j-he">haszonélvezet <b>${tized(r.szazalek, 0)}%</b></span><span>tulajdon <b>${tized(100 - r.szazalek, 0)}%</b></span></p>`;
+  h += '<ul class="tetelek">';
+  h += tetel('Forgalmi érték', ftx(r.ertek), { forras: 'sajat' });
+  h += tetel('Egyévi érték: a huszada', ftx(r.egy), { forras: 'hivatalos', forrasUrl: src('egyevi') });
+  h += tetel(`Szorzó: ${r.szorzo}`, `× ${r.szorzo}`, { forras: 'hivatalos', forrasUrl: src(r.tipus === 'holtig' ? 'szorzo' : 'hatarozott'), al: r.tipus === 'holtig' ? `holtig tartó, ${r.kor} éves haszonélvező` : r.tipus === 'hatarozott' ? 'határozott időre, a kikötött évekkel' : 'határozatlan időre' });
+  h += tetel('A haszonélvezet értéke', ftx(r.jog), { cls: 'vegso' });
+  h += '</ul>';
+  if (r.tipus === 'holtig') h += `<p class="panel-cim">Az életkor szerinti szorzók</p><ol class="lepcso szorzok">${r.savok.map(([a, c, x], i) => `<li class="${x === r.szorzo ? 'most' : ''}" style="--p:${x * 10};--i:${i}"><span class="lp-szazalek">${x}×</span><span class="lp-oszlop"></span><span class="lp-ev">${a === 0 ? '25 alatt' : c > 150 ? '65 felett' : `${a}–${c}`}</span></li>`).join('')}</ol>`;
+  h += `<p class="panel-cim">Mennyi illeték jár, ha…</p><ul class="tetelek lehetosegek">${r.esetek.map((e) => `<li><span>${e.nev}<span class="al">${e.al}</span></span><span class="ossz-ertek">${ftx(e.ado)}</span></li>`).join('')}</ul>`;
+  h = jelekkel(h);
+  h += megjegyzes('A kalkulátor az illetékhez használt törvényi értéket számolja. Egy haszonélvezettel terhelt lakás piaci ára ennél lényegesen alacsonyabb is lehet.');
+  return h;
+}
+
+/* ---------- Előtörlesztés ---------- */
+export function elotorlesztesPanel(adat, r) {
+  if (r.hiba) return hianyPanel(r.hiba);
+  const nyero = r.jobb === 'futamido' ? r.futamido : r.torleszto;
+  let h = vegosszeg('Ennyi kamatot spórolsz, a díj után', nyero.netto, r.jobb === 'futamido' ? `Ha a törlesztő marad, és a futamidő rövidül ${r.futamido.rovidul} hónappal.` : 'Ha a futamidő marad, és a törlesztő csökken.');
+  h += '<ul class="tetelek">';
+  h += tetel('Fennálló tartozás', ftx(r.toke), { forras: 'sajat' });
+  h += tetel(`Mostani törlesztő, ${r.n} hónapig`, ftx(r.havi), { al: `${tized(r.kamat, 2)}% kamattal, a hátralévő kamat ${ftx(r.alapKamat)}` });
+  h += tetel('Előtörlesztés', `−${ftx(r.osszeg)}`, { cls: 'levonas', forras: 'sajat' });
+  h += tetel(`Előtörlesztési díj: ${tized(r.dijSz, 2)}%`, ftx(r.dij), { forras: r.dijSajat ? 'sajat' : 'hivatalos', forrasUrl: S.szabaly(adat, 'elotorlesztes.mfl_dij').forras.url, al: r.dijSajat ? '' : 'a Minősített Fogyasztóbarát Lakáshitelek felső határa, a sajátodat átírhatod' });
+  h += '</ul>';
+  const ev = (m) => `${Math.floor(m / 12)} év${m % 12 ? ` ${m % 12} hónap` : ''}`;
+  h += `<div class="ket-modszer"><div class="modszer${r.jobb === 'futamido' ? ' nyero' : ''}"><p class="m-cim">Rövidebb futamidő</p><p class="m-al">A törlesztő marad ${ftx(r.havi)}, ${ev(r.futamido.honap)} alatt fizeted vissza.</p><p class="m-sor"><span>Kamatmegtakarítás</span><span>${ftx(r.futamido.megtakaritas)}</span></p><p class="m-sor m-ado"><span>A díj után</span><span>${ftx(r.futamido.netto)}</span></p></div><div class="modszer${r.jobb === 'torleszto' ? ' nyero' : ''}"><p class="m-cim">Kisebb törlesztő</p><p class="m-al">${ftx(r.torleszto.havi)} havonta, ${ftx(r.torleszto.csokken)}-tal kevesebb.</p><p class="m-sor"><span>Kamatmegtakarítás</span><span>${ftx(r.torleszto.megtakaritas)}</span></p><p class="m-sor m-ado"><span>A díj után</span><span>${ftx(r.torleszto.netto)}</span></p></div></div>`;
+  h = jelekkel(h);
+  h += megjegyzes('A rövidebb futamidő mindig több kamatot spórol. A kisebb törlesztő akkor jó választás, ha a havi terhet akarod csökkenteni. Kamatperiódus fordulóján az előtörlesztés gyakran díjmentes.');
+  return h;
+}
+
+/* ---------- Bérleti díj emelése ---------- */
+export function emelesPanel(adat, r) {
+  if (r.hiba) return hianyPanel(r.hiba);
+  let h = vegosszeg('Az új havi bérleti díj', r.uj, r.sajat ? `${tized(r.p, 1)}%-os emeléssel.` : `A ${r.ev}. évi átlagos inflációval, ${tized(r.p, 1)}%-kal emelve.`);
+  h += '<ul class="tetelek">';
+  h += tetel('Mostani díj', ftx(r.dij), { forras: 'sajat' });
+  h += tetel(r.sajat ? `Emelés: ${tized(r.p, 1)}%` : `KSH, ${r.ev}. évi átlag: ${tized(r.p, 1)}%`, `+${ftx(r.havi)}`, { forras: r.sajat ? 'sajat' : 'hivatalos', forrasUrl: r.forras?.url });
+  h += tetel('Új díj', ftx(r.uj), { cls: 'vegso', al: `évente ${ftx(r.evi)}-tal több` });
+  h += '</ul>';
+  h += `<p class="panel-cim">Az éves átlagos infláció (KSH)</p><ol class="lepcso inflacio" style="grid-template-columns:repeat(${r.evek.length}, minmax(0, 1fr))">${r.evek.map((x, i) => `<li class="${!r.sajat && x.ev === r.ev ? 'most' : ''}" style="--p:${Math.min(100, x.szazalek / 18 * 100).toFixed(0)};--i:${i}"><span class="lp-szazalek">${tized(x.szazalek, 1)}%</span><span class="lp-oszlop"></span><span class="lp-ev">${x.ev}</span></li>`).join('')}</ol>`;
+  h = jelekkel(h);
+  h += megjegyzes('A bérleti díjat csak akkor emelheted, ha a szerződés megengedi, és úgy, ahogy ott áll. A leggyakoribb kikötés az előző évi átlagos infláció, ezt a KSH minden januárban közli.');
+  return h;
+}
+
+/* ---------- Megéri kiadásra venni? ---------- */
+export function hozamPanel(adat, r) {
+  if (r.hiba) return hianyPanel(r.hiba);
+  let h = vegosszeg('Nettó éves hozam, adó után', r.netto, `A teljes befektetés ${tized(r.nettoHozam, 2)}%-a évente${r.megterules ? `, nagyjából ${tized(r.megterules, 0)} év alatt térül meg` : ''}. Az értéknövekedés nincs benne.`);
+  h += `<div class="ket-modszer"><div class="modszer"><p class="m-cim">Bruttó hozam</p><p class="m-nagy">${tized(r.brutto, 2)}%</p><p class="m-al">a bérleti díj a befektetéshez képest</p></div><div class="modszer nyero nincs-cimke"><p class="m-cim">Nettó hozam</p><p class="m-nagy">${tized(r.nettoHozam, 2)}%</p><p class="m-al">költségek és adó után</p></div></div>`;
+  h += '<ul class="tetelek">';
+  h += tetel('Vételár', ftx(r.ar), { forras: 'sajat' });
+  h += tetel('Illeték', `+${ftx(r.illetek)}`, { forras: 'hivatalos', forrasUrl: S.szabaly(adat, 'illetek.altalanos_mertek').forras.url, al: 'kedvezmény nélkül' });
+  if (r.egyeb) h += tetel('Egyéb vételi költség', `+${ftx(r.egyeb)}`, { forras: 'sajat' });
+  if (r.felujitas) h += tetel('Felújítás, berendezés', `+${ftx(r.felujitas)}`, { forras: 'sajat' });
+  h += tetel('A teljes befektetés', ftx(r.beruhazas), { cls: 'vegso' });
+  h += '</ul><ul class="tetelek masodik">';
+  h += tetel(`Bérleti díj: ${r.honap} hónap`, ftx(r.bevetel), { forras: 'sajat' });
+  if (r.koltseg) h += tetel('Költségek', `−${ftx(r.koltseg)}`, { cls: 'levonas', forras: 'sajat' });
+  h += tetel(`Adó, ${r.adoModszer === 'teteles' ? 'tételes elszámolással' : '10% költséghányaddal'}`, `−${ftx(r.ado)}`, { cls: 'levonas', forras: 'hivatalos', forrasUrl: S.szabaly(adat, 'berbeadas.ado_mertek').forras.url });
+  h += tetel('Nettó évente', ftx(r.netto), { cls: 'vegso' });
+  h += '</ul>';
+  h = jelekkel(h);
+  h += megjegyzes('Az üres hónapok, a bérlőcsere és a nagyobb javítások gyakran többe kerülnek, mint elsőre gondolnád. Számolj legalább egy üres hónappal évente.');
+  return h;
+}
+
 /* ---------- A kalkulátorok közös leírása: ugyanez fut az építéskor (minta) és a böngészőben ---------- */
 const sz = (v) => (v === '' || v == null ? NaN : Number(String(v).replace(/[\s  ]/g, '').replace(',', '.')));
 const ures = (e, mezok) => mezok.every((k) => e[k] === '' || e[k] == null || e[k] === false);
@@ -251,6 +368,36 @@ export const KALKULATOROK = {
     kulcs: ['havi'],
     minta: (ev) => ({ adat: { havi: '260000', honap: '12', koltseg: '420000', ev: String(ev) }, leiras: 'havi 260 000 forintért egész évben kiadott lakás, évi 420 000 forint számlával igazolt költséggel' }),
     panel: (adat, e) => kiadasPanel(adat, S.berbeadas(adat, { havi: sz(e.havi), honap: e.honap, egyeb: sz(e.egyeb), koltseg: sz(e.koltseg), ertekcsokkenes: sz(e.ertekcsokkenes), berelt: sz(e.berelt), ev: adat.ev })),
+  },
+  hitelkepesseg: {
+    kulcs: ['jovedelem'],
+    minta: () => ({ adat: { jovedelem: '650000', meglevo: '0', periodus: 'hosszu', kamat: '6,5', futamido: '25', ertek: '55000000' }, leiras: 'havi 650 000 forint nettó háztartási jövedelem, más hitel nélkül, végig fix kamatú hitel 25 évre, egy 55 millió forintos lakáshoz' }),
+    panel: (adat, e) => hitelkepessegPanel(adat, S.hitelkepesseg(adat, { jovedelem: sz(e.jovedelem), meglevo: sz(e.meglevo), periodus: e.periodus, zold: e.zold === true, kamat: e.kamat === '' || e.kamat == null ? '' : sz(e.kamat), futamido: e.futamido, ertek: sz(e.ertek), elsoLakas: e.elsoLakas === true })),
+  },
+  ingyenes: {
+    kulcs: ['ertek'],
+    minta: () => ({ adat: { jogcim: 'orokles', vagyon: 'lakas', ertek: '40000000', rokonsag: 'egyeb' }, leiras: 'egy 40 millió forintos lakás, amelyet a nagynénédtől örökölsz' }),
+    panel: (adat, e) => ingyenesPanel(adat, S.ingyenesIlletek(adat, { jogcim: e.jogcim || 'orokles', vagyon: e.vagyon || 'lakas', ertek: sz(e.ertek), hanyad: e.hanyad === '' || e.hanyad == null ? 100 : sz(e.hanyad), terhek: sz(e.terhek), haszonelvezoKor: e.haszonelvezoKor, rokonsag: e.rokonsag || 'egyeb' })),
+  },
+  haszonelvezet: {
+    kulcs: ['ertek'],
+    minta: () => ({ adat: { ertek: '50000000', tipus: 'holtig', kor: '68' }, leiras: 'egy 50 millió forintos lakás, holtig tartó haszonélvezettel, 68 éves haszonélvezővel' }),
+    panel: (adat, e) => haszonelvezetPanel(adat, S.haszonelvezet(adat, { ertek: sz(e.ertek), tipus: e.tipus || 'holtig', kor: e.kor, evek: e.evek, rokon: e.rokon === true })),
+  },
+  elotorlesztes: {
+    kulcs: ['toke', 'osszeg'],
+    minta: () => ({ adat: { toke: '20000000', kamat: '6', ev: '20', osszeg: '3000000' }, leiras: '20 millió forint tartozás 6% kamattal, még 20 év, és 3 millió forint előtörlesztés' }),
+    panel: (adat, e) => elotorlesztesPanel(adat, S.elotorlesztes(adat, { toke: sz(e.toke), kamat: e.kamat === '' || e.kamat == null ? '' : sz(e.kamat), honap: sz(e.ev) * 12, osszeg: sz(e.osszeg), dij: e.dij === '' || e.dij == null ? '' : sz(e.dij) })),
+  },
+  emeles: {
+    kulcs: ['dij'],
+    minta: () => ({ adat: { dij: '240000' }, leiras: 'havi 240 000 forintos bérleti díj' }),
+    panel: (adat, e) => emelesPanel(adat, S.berletiEmeles(adat, { dij: sz(e.dij), ev: e.ev, sajat: e.sajat === '' || e.sajat == null ? '' : sz(e.sajat) })),
+  },
+  hozam: {
+    kulcs: ['vetelar', 'havi'],
+    minta: () => ({ adat: { vetelar: '48000000', egyeb: '600000', felujitas: '2500000', havi: '230000', honap: '11', koltseg: '450000' }, leiras: 'egy 48 millió forintos lakás 2,5 millió forintos felújítással, havi 230 000 forintért kiadva, évi 11 hónapra' }),
+    panel: (adat, e) => hozamPanel(adat, S.hozam(adat, { vetelar: sz(e.vetelar), egyeb: sz(e.egyeb), felujitas: sz(e.felujitas), havi: sz(e.havi), honap: e.honap, koltseg: sz(e.koltseg), ev: adat.ev })),
   },
   lakasvaltas: {
     kulcs: ['eladasiAr', 'vetelar'],

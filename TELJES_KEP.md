@@ -1,6 +1,6 @@
 # A teljes kép (2026. november 18.)
 
-Kész: 5 kalkulátor. A következő jelöltek a pontszám szerint: mennyi hitelt kaphatsz (MNB adósságfék), öröklési és ajándékozási illeték, haszonélvezet értéke, építményadó településenként, bérleti díj emelése a KSH inflációjával.
+Kész: 11 kalkulátor. A nem épített jelöltek mellett ott az ok.
 
 Minden, amit egy lakással kapcsolatban ki lehet számolni vagy el kell dönteni, élethelyzet szerint. Pontozás 1–5: kereslet, rés, megépíthető (van-e ellenőrizhető, géppel figyelhető forrása). **Kész** = fent van. **Terv** = megépül, sorrendben. **Jelölt** = a szabályokat még forrásból ellenőrizni kell, addig a pontszám becslés. **Nem** = nem építjük.
 
@@ -9,20 +9,20 @@ Minden, amit egy lakással kapcsolatban ki lehet számolni vagy el kell dönteni
 | Oldal | K | R | M | Állapot |
 |---|---|---|---|---|
 | Vagyonszerzési illeték, minden kedvezménnyel | 5 | 3 | 4 | **Kész** |
-| A vétel teljes költsége: illeték, ügyvéd, földhivatal, értékbecslés, közjegyző | 4 | 4 | 3 | Jelölt |
-| Mennyi hitelt kaphatsz: jövedelem, önerő, az MNB adósságfék-szabályai | 5 | 3 | 4 | Jelölt |
+| A vétel teljes költsége: illeték, ügyvéd, földhivatal, értékbecslés, közjegyző | 4 | 4 | 3 | Később: az ügyvédi és a banki díjaknak nincs hivatalos forrása, csak becsülni lehetne. Az illeték és az egyéb költség a lakásváltásban benne van. |
+| Mennyi hitelt kaphatsz: jövedelem, önerő, az MNB adósságfék-szabályai | 5 | 3 | 4 | **Kész** |
 | Wekerle Plusz jogosultság és törlesztő | 5 | 2 | 5 | **Kész** |
-| Melyik támogatás jár: Wekerle Plusz, CSOK Plusz, babaváró, falusi CSOK | 5 | 3 | 3 | Jelölt |
-| Új lakás: áfa, illetékkedvezmény, fizetési ütemezés | 3 | 4 | 3 | Jelölt |
-| Venni vagy bérelni | 4 | 4 | 3 | Jelölt |
-| Előtörlesztés: megéri-e, mennyit spórol | 4 | 3 | 4 | Jelölt |
+| Melyik támogatás jár: Wekerle Plusz, CSOK Plusz, babaváró, falusi CSOK | 5 | 3 | 3 | Később: a CSOK Plusz és a falusi CSOK rendeletét még nem ellenőriztük, a hitelközvetítők ezt jól lefedik. |
+| Új lakás: áfa, illetékkedvezmény, fizetési ütemezés | 3 | 4 | 3 | Később (10 pont): az illetékkedvezmény az illetékkalkulátorban kész. |
+| Venni vagy bérelni | 4 | 4 | 2 | Nem most: az eredmény a lakásár és a bérleti díj jövőbeli emelkedésén múlik, erre nincs forrásolt adatunk, csak feltevés. |
+| Előtörlesztés: megéri-e, mennyit spórol | 4 | 3 | 4 | **Kész** |
 
 ## Eladsz
 
 | Oldal | K | R | M | Állapot |
 |---|---|---|---|---|
 | Eladás szja-ja | 4 | 4 | 5 | **Kész** |
-| Mennyi marad az eladási árból: közvetítő, szja, hitel végtörlesztése | 4 | 4 | 4 | Jelölt |
+| Mennyi marad az eladási árból: közvetítő, szja, hitel végtörlesztése | 4 | 4 | 4 | **Kész** a lakásváltásban („Ennyit kapsz kézhez”) |
 | Lakásváltás: eladás és vétel együtt | 4 | 5 | 4 | **Kész** |
 
 ## Kiadod
@@ -30,26 +30,26 @@ Minden, amit egy lakással kapcsolatban ki lehet számolni vagy el kell dönteni
 | Oldal | K | R | M | Állapot |
 |---|---|---|---|---|
 | Lakáskiadás adója: 10% vagy tételes | 4 | 4 | 5 | **Kész** |
-| Hozam: megéri-e kiadásra venni | 4 | 4 | 3 | Jelölt |
-| Rövid távú kiadás (szálláshely): tételes átalány, helyi szabályok | 3 | 4 | 2 | Jelölt |
-| Bérleti díj emelése az inflációval (KSH) | 3 | 4 | 5 | Jelölt |
-| Lakásbérleti szerződés, kitölthető | 5 | 2 | 3 | Jelölt |
+| Hozam: megéri-e kiadásra venni | 4 | 4 | 4 | **Kész** |
+| Rövid távú kiadás (szálláshely): tételes átalány, helyi szabályok | 3 | 4 | 2 | Nem most (9 pont): a budapesti kerületi tilalmak és a tételes átalány szabályai sűrűn változnak. |
+| Bérleti díj emelése az inflációval (KSH) | 3 | 4 | 5 | **Kész** |
+| Lakásbérleti szerződés, kitölthető | 5 | 2 | 3 | Nem most (10 pont): jogi minta, ügyvédi ellenőrzés nélkül nem adnánk ki. |
 
 ## Örökölsz vagy ajándékba kapsz
 
 | Oldal | K | R | M | Állapot |
 |---|---|---|---|---|
-| Öröklési és ajándékozási illeték | 4 | 3 | 4 | Jelölt |
-| Haszonélvezet értéke | 3 | 5 | 4 | Jelölt |
-| Örökölt vagy ajándékba kapott ingatlan eladása | 3 | 5 | 3 | Jelölt (a kész szja-oldal bővítése) |
+| Öröklési és ajándékozási illeték | 4 | 3 | 4 | **Kész** |
+| Haszonélvezet értéke | 3 | 5 | 4 | **Kész** |
+| Örökölt vagy ajándékba kapott ingatlan eladása | 3 | 5 | 3 | Részben kész: az szja-oldal mezői és kérdései kitérnek rá. |
 
 ## Laksz benne
 
 | Oldal | K | R | M | Állapot |
 |---|---|---|---|---|
-| Építményadó és kommunális adó településenként | 4 | 4 | 4 | Jelölt |
-| Felújítási és energetikai támogatások | 4 | 3 | 2 | Jelölt |
-| Mit fizetsz a lakásért havonta | 3 | 3 | 3 | Jelölt |
+| Építményadó és kommunális adó településenként | 4 | 4 | 2 | Később: 3 155 település rendeletéből kellene gépi adatbázis, ennek a forrását (Magyar Államkincstár, helyi adó adatbázis) még meg kell találni. |
+| Felújítási és energetikai támogatások | 4 | 3 | 2 | Később: a Wekerle Plusz energetikai pillére 2027-ben indul, a feltételei még nem jelentek meg. |
+| Mit fizetsz a lakásért havonta | 3 | 3 | 3 | Nem most (9 pont). |
 
 ## Mindegyikhez
 
@@ -68,6 +68,8 @@ Három réteg van, és mindegyik ingyenes (nyilvános tároló, GitHub Actions).
 1. **Dátumfüggő részek.** Az évszámok, a példák és a skálák az építéskor számolódnak. A heti futás újraépíti az oldalt, január első hetében naponta.
 2. **Forrásfigyelő** (`frissito/figyelo.mjs`, `.github/workflows/frissites.yml`). Hétfőnként letölt minden oldalt, amelyre a `data/szabalyok.json` hivatkozik, és összeveti a szövegét a legutóbb látottal. Új szabály forrása magától bekerül a figyeltek közé. Ha egy forrás megváltozott, `forrasvaltozas` címkéjű jegyet nyit az érintett szabályok kulcsával, és a GitHub e-mailt küld. Ha semmi nem változott, a „Legutóbbi ellenőrzés” dátuma lép.
 3. **Felülvizsgálat.** A jegy alapján a szabályt ember vagy egy ütemezett Claude-futás írja át. Jogszabályszöveget gép magától nem vesz át: egy rosszul értelmezett bekezdés rossz adót számolna.
+
+Ami már gépi: a KSH éves átlagos inflációjának elavulás-őre (január 15-től jegyet nyit, ha az előző év hiányzik).
 
 Ami még hiányzik a teljes fedéshez:
 

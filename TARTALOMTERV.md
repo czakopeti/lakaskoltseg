@@ -33,7 +33,7 @@ Pontozás 1–5: **kereslet** (hányan keresik), **rés** (mennyire gyenge, ami 
 
 ## Állapot (2026. november 18., este)
 
-Mind az öt kalkulátor kész: eladás szja-ja, illeték, lakásváltás, lakáskiadás, Wekerle Plusz. A tovább építendőket a `TELJES_KEP.md` tartja.
+Kész 11 kalkulátor: illeték, mennyi hitelt kaphatsz, Wekerle Plusz, előtörlesztés, lakásváltás, eladás szja-ja, lakáskiadás adója, kiadási hozam, bérleti díj emelése, öröklés és ajándékozás illetéke, haszonélvezet. A tovább építendőket a `TELJES_KEP.md` tartja.
 
 ## Az eredeti sorrend
 

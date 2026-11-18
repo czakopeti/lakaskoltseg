@@ -930,13 +930,13 @@ h3 { font-weight: 600; }
 .lehetosegek li.kiemelt-sor .ossz-ertek { color: var(--toll); }
 .tetelek li.kiemelt-sor .ossz-ertek { color: var(--toll); }
 /* Lakáskiadás: a két módszer egymás mellett */
-.ket-modszer { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0 6px; }
+.ket-modszer { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 20px 0 6px; }
 .modszer { border: 1px solid var(--vonal2); border-radius: 3px; padding: 14px 16px 12px; position: relative; transition: border-color .3s, box-shadow .3s; }
 .modszer.nyero { border-color: var(--toll); box-shadow: 4px 4px 0 var(--kiemel); }
 .modszer.nyero::before { content: "olcsóbb"; position: absolute; top: -10px; right: 12px; background: var(--toll); color: var(--lap); font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 2px; }
 .m-cim { font-weight: 600; font-size: 15.5px; margin: 0; }
 .m-al { font-size: 13.5px; color: var(--tinta2); margin: 2px 0 10px; }
-.m-sor { display: flex; justify-content: space-between; gap: 10px; font-size: 15px; padding: 5px 0; border-top: 1px solid var(--vonal); font-variant-numeric: tabular-nums lining-nums; }
+.m-sor { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 10px; font-size: 14.5px; padding: 5px 0; border-top: 1px solid var(--vonal); font-variant-numeric: tabular-nums lining-nums; }
 .m-ado { font-weight: 600; }
 .modszer.nyero .m-ado span:last-child { color: var(--toll); }
 @media (max-width: 520px) { .ket-modszer { grid-template-columns: 1fr; } }
@@ -958,3 +958,27 @@ h3 { font-weight: 600; }
 .v-oldal .tetelek { margin-top: 4px; }
 /* A főoldal négy csoportja: két hasábban, a lista ugyanaz */
 @media (prefers-reduced-motion: reduce) { .feltetelek li, .f-ok .f-jel::after { animation: none; } .d-te { transition: none; } }
+
+/* Haszonélvezet: a lakás értéke két részre osztva */
+.osztas { display: flex; margin: 20px 0 6px; height: 54px; border: 1.5px solid var(--tinta); border-radius: 3px; overflow: hidden; font-size: 13.5px; }
+.osztas span { display: grid; align-content: center; padding: 0 12px; line-height: 1.2; white-space: nowrap; }
+.osztas b { font-weight: 600; display: block; }
+.o-he { width: var(--p); background: var(--toll); color: var(--lap); transform-origin: left; animation: no-x .7s cubic-bezier(.3, 1.1, .4, 1) .2s backwards; }
+.o-cs { flex: 1; background: var(--kiemel); }
+@keyframes no-x { from { width: 0; } }
+.nyugodt .o-he { animation: none; transition: width .5s cubic-bezier(.3, 1.2, .4, 1); }
+.szorzok, .inflacio { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.m-nagy { font-size: 30px; font-weight: 500; letter-spacing: -.02em; margin: 2px 0 0; font-variant-numeric: tabular-nums lining-nums; }
+.modszer.nincs-cimke::before { content: none; }
+.modszer.nyero .m-nagy { color: var(--toll); }
+.lablec-csoportok { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+@media (prefers-reduced-motion: reduce) { .o-he { animation: none; } }
+.m-sor span:last-child { white-space: nowrap; margin-left: auto; }
+.modszer { min-width: 0; }
+/* A sáv feliratai a sáv alatt, hogy keskeny résznél se vágódjanak le */
+.osztas span { padding: 0; }
+.osztas b, .osztas span { font-size: 0; }
+.osztas-jel { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13.5px; color: var(--tinta2); margin: 6px 0 4px; }
+.osztas-jel span::before { content: ""; display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; background: var(--kiemel); border: 1px solid var(--vonal2); }
+.osztas-jel .j-he::before { background: var(--toll); border-color: var(--toll); }
+.osztas-jel b { color: var(--tinta); font-weight: 600; }

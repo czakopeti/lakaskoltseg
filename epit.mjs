@@ -61,10 +61,16 @@ const k = { cfg, adat, ma, ev, elonezet, verzio };
 const oldalak = [
   ['', O.fooldal(k)],
   [O.ILLETEK_UT, O.illetekOldal(k)],
+  [O.HITEL_UT, O.hitelkepessegOldal(k)],
   [O.WEKERLE_UT, O.wekerleOldal(k)],
+  [O.ELOT_UT, O.elotorlesztesOldal(k)],
   [O.VALTAS_UT, O.lakasvaltasOldal(k)],
   [O.ELADAS_UT, O.eladasOldal(k)],
   [O.KIADAS_UT, O.kiadasOldal(k)],
+  [O.HOZAM_UT, O.hozamOldal(k)],
+  [O.EMELES_UT, O.emelesOldal(k)],
+  [O.INGYENES_UT, O.ingyenesOldal(k)],
+  [O.HASZON_UT, O.haszonelvezetOldal(k)],
   ['forrasok/', O.forrasokOldal(k)],
   ['rolunk/', O.rolunkOldal(k)],
   ['impresszum/', O.impresszumOldal(k)],
@@ -131,6 +137,12 @@ https://:version.:project.pages.dev/*
 `}`);
   // A szöveges térkép az AI-asszisztenseknek: ugyanazok a csoportok és ugyanaz a sorrend, mint a főoldalon.
   const LLMS = {
+    'mennyi-lakashitelt-kaphatok/': `felvehető lakáshitel az MNB 2026-os szabályai szerint: JTM 25–60% a jövedelemtől (800 000 Ft-os küszöb) és a kamatperiódustól függően, HFM 80% (első lakásnál 90%), összevetve a Wekerle Plusszal`,
+    'elotorlesztes-kalkulator/': `lakáshitel előtörlesztése: kamatmegtakarítás rövidebb futamidővel vagy kisebb törlesztővel, az előtörlesztési díj után`,
+    'lakas-befektetes-hozam-kalkulator/': `kiadásra vett lakás bruttó és nettó hozama illetékkel, felújítással, üres hónapokkal, költségekkel és szja-val`,
+    'berleti-dij-emeles-inflacio/': `bérleti díj emelése a KSH előző évi átlagos inflációjával (${Object.entries(adat.inflacio.evek).map(([e, x]) => `${e}: ${String(x.szazalek).replace('.', ',')}%`).join(', ')})`,
+    'oroklesi-ajandekozasi-illetek-kalkulator/': `öröklési és ajándékozási illeték: lakásnál 9%, más vagyonnál 18%, egyenes ági rokon, házastárs és testvér között mentes; tiszta érték terhekkel és haszonélvezettel`,
+    'haszonelvezeti-jog-erteke/': `a haszonélvezet értéke az Itv. 72. § szerint: a forgalmi érték huszada az életkor szerinti szorzóval (10, 8, 6, 4), a csupasz tulajdon, és az illeték vételnél és lemondáskor`,
     'vagyonszerzesi-illetek-kalkulator/': `lakásvásárlás illetéke (4%) és minden kedvezmény: cserét pótló vétel 5 éven belüli eladással, új lakás vállalkozótól, 35 év alatti első lakásszerző, CSOK Plusz, egyenes ági rokon; a legkedvezőbb kiválasztásával`,
     'wekerle-plusz-kalkulator/': `a Wekerle Plusz hitel feltételei a 298/2026. Korm. rendelet paragrafusaival (18–45 év, 50 millió forint, 3% új és 5% használt lakásra, ár- és négyzetméterár-korlát), havi törlesztő és a támogatás értéke`,
     'lakasvaltas-kalkulator/': `eladás és vétel egy lapon: az eladás szja-ja, a régi hitel, az illeték a cserét pótló kedvezménnyel, és mennyi hitel kell az új lakáshoz`,

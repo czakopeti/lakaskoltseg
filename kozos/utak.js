@@ -1,2 +1,2 @@
 // Az oldalak listája a mérő végpontnak. Az epit.mjs írja, kézzel ne szerkeszd.
-export const UTAK = ["","vagyonszerzesi-illetek-kalkulator/","wekerle-plusz-kalkulator/","lakasvaltas-kalkulator/","ingatlaneladas-szja-kalkulator/","lakaskiadas-ado-kalkulator/","forrasok/","rolunk/","impresszum/","adatvedelem/"];
+export const UTAK = ["","vagyonszerzesi-illetek-kalkulator/","mennyi-lakashitelt-kaphatok/","wekerle-plusz-kalkulator/","elotorlesztes-kalkulator/","lakasvaltas-kalkulator/","ingatlaneladas-szja-kalkulator/","lakaskiadas-ado-kalkulator/","lakas-befektetes-hozam-kalkulator/","berleti-dij-emeles-inflacio/","oroklesi-ajandekozasi-illetek-kalkulator/","haszonelvezeti-jog-erteke/","forrasok/","rolunk/","impresszum/","adatvedelem/"];

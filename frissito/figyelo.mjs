@@ -77,6 +77,10 @@ export async function futtat({ leto = letolt } = {}) {
   const elo = new Set(forrasLista(szabalyok, f.kulon).map((x) => x.url));
   for (const u of Object.keys(f.allapot)) if (!elo.has(u)) delete f.allapot[u];
   ir('data/figyelo.json', f);
+  // Elavulás-őr: január 15-től kell lennie az előző évi átlagos inflációnak (a bérleti díj emelésének oldala ebből számol)
+  const inf = olvas('data/inflacio.json');
+  const elozoEv = String(Number(ma.slice(0, 4)) - 1);
+  if (ma.slice(5) >= '01-15' && !inf.evek[elozoEv]) jelentes.hiba.push({ url: 'https://www.ksh.hu/', nev: `KSH: a ${elozoEv}. évi átlagos infláció még nincs a data/inflacio.json-ban`, ok: 'A KSH január közepén közli. Vedd fel forrással, és a bérleti díj oldala magától átáll.' });
   // A „legutóbbi ellenőrzés” csak akkor lép, ha minden forrást elértünk, és egyik sem változott
   if (!jelentes.valtozott.length && !jelentes.gyanus.length && !jelentes.hiba.length) {
     const a = olvas('data/allapot.json');

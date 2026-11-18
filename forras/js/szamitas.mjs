@@ -240,6 +240,155 @@ export function lakasvaltas(adat, b) {
     sorrend: b.sorrend === 'elobb_vesz' ? 'elobb_vesz' : 'elobb_elad', utanaEv: szabaly(adat, 'illetek.cserepotlo').ertek.utana_ev, elotteEv: szabaly(adat, 'illetek.cserepotlo').ertek.elotte_ev, szjaHianyzik: szja.nincs === true };
 }
 
+/* ---------------- Mennyi hitelt kaphatsz ---------------- */
+/** A havi törlesztőből felvehető hitel (annuitás jelenértéke), éves névleges kamatból. */
+export function hitelTorlesztobol(havi, honapok, kamatSzazalek) {
+  const r = kamatSzazalek / 100 / 12;
+  return r > 0 ? havi * (1 - Math.pow(1 + r, -honapok)) / r : havi * honapok;
+}
+/**
+ * b: { jovedelem (havi nettó, a háztartásé), meglevo (meglévő havi törlesztők), periodus: 'rovid' | 'kozep' | 'hosszu', zold, kamat (%), futamido (év), ertek, elsoLakas }
+ * A JTM a törlesztőt, a HFM a hitelt korlátozza az ingatlan értékéhez képest; a kisebbik a felvehető.
+ */
+export function hitelkepesseg(adat, b) {
+  const jov = Number(b.jovedelem);
+  if (!(jov > 0)) return { hiba: 'Add meg a havi nettó jövedelmet.' };
+  const j = szabaly(adat, 'hitel.jtm').ertek, h = szabaly(adat, 'hitel.hfm').ertek;
+  const per = ['rovid', 'kozep', 'hosszu'].includes(b.periodus) ? b.periodus : 'hosszu';
+  const felette = jov >= j.kuszob_ft;
+  let jtm = (felette ? j.felette : j.alatta)[per];
+  if (b.zold && per === 'hosszu' && !felette) jtm = j.zold_alatta_hosszu;
+  const meglevo = nem0(b.meglevo);
+  const maxTorleszto = Math.max(0, jov * jtm / 100 - meglevo);
+  const ev = Number(b.futamido) > 0 ? Number(b.futamido) : 25;
+  const kamat = Number(b.kamat) > 0 ? Number(b.kamat) : szabaly(adat, 'wekerle_plusz.piaci_kamat').ertek.szazalek;
+  const kamatSajat = Number(b.kamat) > 0;
+  const jtmHitel = Math.floor(hitelTorlesztobol(maxTorleszto, ev * 12, kamat) / 1000) * 1000;
+  const ertek = nem0(b.ertek);
+  const hfm = b.elsoLakas || b.zold ? h.elso_lakas : h.altalanos;
+  const hfmHitel = ertek ? Math.floor(ertek * hfm / 100) : null;
+  const max = hfmHitel === null ? jtmHitel : Math.min(jtmHitel, hfmHitel);
+  const kot = hfmHitel === null ? 'jtm' : jtmHitel <= hfmHitel ? 'jtm' : 'hfm';
+  // Ugyanebből a jövedelemből a Wekerle Plusszal: a kamat a teljes futamidőre fix, ezért a leghosszabb kamatperiódus korlátja érvényes
+  const wp = szabaly(adat, 'wekerle_plusz.kamat').ertek, wo = szabaly(adat, 'wekerle_plusz.osszeg').ertek;
+  const jtmHosszu = (felette ? j.felette : j.alatta).hosszu;
+  const wpTorl = Math.max(0, jov * jtmHosszu / 100 - meglevo);
+  const wekerle = ['uj_szazalek', 'hasznalt_szazalek'].map((k) => ({ kamat: wp[k], hitel: Math.min(wo.max_ft, Math.floor(hitelTorlesztobol(wpTorl, Math.min(ev, wo.max_ev) * 12, wp[k]) / 1000) * 1000) }));
+  return { jov, jtm, felette, kuszob: j.kuszob_ft, per, meglevo, maxTorleszto: Math.round(maxTorleszto), ev, kamat, kamatSajat, jtmHitel, ertek, hfm, hfmHitel, max, kot,
+    onero: ertek ? Math.max(0, ertek - max) : null, havi: Math.round(torlesztoKamatbol(max, ev * 12, kamat)), wekerle };
+}
+
+/* ---------------- Öröklés és ajándékozás illetéke ---------------- */
+/** b: { jogcim: 'orokles' | 'ajandek', vagyon: 'lakas' | 'egyeb', ertek, hanyad (%), terhek, haszonelvezoKor (ha az ajándékozó haszonélvezetet tart meg), rokonsag } */
+export function ingyenesIlletek(adat, b) {
+  const ertek = Number(b.ertek);
+  if (!(ertek > 0)) return { hiba: 'Add meg az ingatlan forgalmi értékét.' };
+  const m = szabaly(adat, 'ingyenes.mertek').ertek;
+  const hanyad = b.hanyad === '' || b.hanyad == null ? 100 : Number(b.hanyad);
+  if (!(hanyad > 0 && hanyad <= 100)) return { hiba: 'A tulajdoni hányad 1 és 100% között lehet.' };
+  const resz = ertek * hanyad / 100;
+  const he = b.haszonelvezoKor !== '' && b.haszonelvezoKor != null && Number(b.haszonelvezoKor) > 0 ? haszonelvezet(adat, { ertek: resz, tipus: 'holtig', kor: Number(b.haszonelvezoKor) }) : null;
+  const terhek = nem0(b.terhek);
+  const tiszta = Math.max(0, resz - terhek - (he ? he.jog : 0));
+  const mentesKor = szabaly(adat, 'ingyenes.mentes').ertek.kor;
+  const mentes = mentesKor.includes(b.rokonsag);
+  const kulcs = b.vagyon === 'egyeb' ? m.altalanos : m.lakas;
+  return { jogcim: b.jogcim === 'ajandek' ? 'ajandek' : 'orokles', ertek, hanyad, resz, terhek, haszonelvezet: he, tiszta, kulcs, mentes, rokonsag: b.rokonsag || '', ado: mentes ? 0 : Math.round(tiszta * kulcs / 100), adoMentesNelkul: Math.round(tiszta * kulcs / 100) };
+}
+
+/* ---------------- Haszonélvezet értéke ---------------- */
+/** b: { ertek, tipus: 'holtig' | 'hatarozott' | 'hatarozatlan', kor, evek, rokon } */
+export function haszonelvezet(adat, b) {
+  const ertek = Number(b.ertek);
+  if (!(ertek > 0)) return { hiba: 'Add meg a lakás forgalmi értékét.' };
+  const egy = ertek / szabaly(adat, 'haszonelvezet.egyevi').ertek.osztoja;
+  const savok = szabaly(adat, 'haszonelvezet.szorzo').ertek.savok;
+  const hz = szabaly(adat, 'haszonelvezet.hatarozott').ertek;
+  const korSzorzo = (k) => (savok.find(([a, c]) => k >= a && k <= c) || savok[savok.length - 1])[2];
+  const tipus = ['holtig', 'hatarozott', 'hatarozatlan'].includes(b.tipus) ? b.tipus : 'holtig';
+  const kor = Number(b.kor);
+  let szorzo;
+  if (tipus === 'holtig') {
+    if (!(kor >= 0 && b.kor !== '' && b.kor != null)) return { hiba: 'Add meg a haszonélvező életkorát.' };
+    szorzo = korSzorzo(kor);
+  } else if (tipus === 'hatarozott') {
+    const evek = Number(b.evek);
+    if (!(evek > 0)) return { hiba: 'Add meg, hány évre szól a haszonélvezet.' };
+    szorzo = Math.min(evek, hz.max_szorzo, kor > 0 ? korSzorzo(kor) : hz.max_szorzo);
+  } else szorzo = hz.hatarozatlan;
+  const jog = Math.round(egy * szorzo);
+  const csupasz = ertek - jog;
+  const l = szabaly(adat, 'haszonelvezet.lemondas').ertek;
+  const rokon = !!b.rokon;
+  return { ertek, egy: Math.round(egy), tipus, kor, szorzo, jog, csupasz, szazalek: jog / ertek * 100, rokon, savok,
+    esetek: [
+      { kulcs: 'vetel', nev: 'Megveszed a haszonélvezettel terhelt lakást', alap: csupasz, ado: altalanosIlletek(adat, csupasz), al: 'a vevő a haszonélvezettel csökkentett érték után fizet' },
+      { kulcs: 'lemondas_ingyen', nev: 'A haszonélvező ingyen lemond, és a tulajdonosé lesz', alap: jog, ado: rokon ? 0 : Math.round(jog * l.ingyenes / 100), al: rokon ? 'egyenes ági rokonok és házastársak között mentes' : `a haszonélvezet értékének ${l.ingyenes}%-a ajándékozási illeték` },
+      { kulcs: 'lemondas_penzert', nev: 'A haszonélvező pénzért mond le', alap: jog, ado: rokon ? 0 : altalanosIlletek(adat, jog), al: rokon ? 'egyenes ági rokonok és házastársak között mentes' : `a haszonélvezet értékének ${l.ellenertek}%-a visszterhes illeték` },
+    ] };
+}
+
+/* ---------------- Előtörlesztés ---------------- */
+function futtat(toke, r, havi, maxHonap) {
+  let t = toke, kamat = 0, n = 0;
+  while (t > 0.5 && n < maxHonap + 1200) { const k = t * r; kamat += k; t = t + k - havi; n++; if (t < 0) t = 0; }
+  return { kamat, honap: n };
+}
+/** b: { toke (fennálló tartozás), kamat (%), honap (hátralévő hónapok), osszeg (előtörlesztés), dij (%) } */
+export function elotorlesztes(adat, b) {
+  const toke = Number(b.toke), kamat = Number(b.kamat), n = Math.round(Number(b.honap)), o = Number(b.osszeg);
+  if (!(toke > 0)) return { hiba: 'Add meg a fennálló tartozást.' };
+  if (!(kamat >= 0) || b.kamat === '' || b.kamat == null) return { hiba: 'Add meg a hitel kamatát.' };
+  if (!(n > 0)) return { hiba: 'Add meg, hány hónap van még hátra.' };
+  if (!(o > 0)) return { hiba: 'Add meg, mennyit törlesztenél elő.' };
+  if (o >= toke) return { hiba: 'Ez a teljes tartozás: ilyenkor végtörlesztésről van szó, a megtakarítás a hátralévő kamat egésze.' };
+  const r = kamat / 100 / 12;
+  const havi = torlesztoKamatbol(toke, n, kamat);
+  const alapKamat = havi * n - toke;
+  const uj = toke - o;
+  const A = futtat(uj, r, havi, n);
+  const haviB = torlesztoKamatbol(uj, n, kamat);
+  const B = { kamat: haviB * n - uj, honap: n };
+  const dijSz = b.dij === '' || b.dij == null ? szabaly(adat, 'elotorlesztes.mfl_dij').ertek.max_szazalek : Number(b.dij);
+  const dij = Math.round(o * dijSz / 100);
+  const mA = alapKamat - A.kamat, mB = alapKamat - B.kamat;
+  return { toke, kamat, n, havi: Math.round(havi), osszeg: o, dijSz, dijSajat: !(b.dij === '' || b.dij == null), dij, alapKamat: Math.round(alapKamat),
+    futamido: { honap: A.honap, rovidul: n - A.honap, megtakaritas: Math.round(mA), netto: Math.round(mA - dij) },
+    torleszto: { havi: Math.round(haviB), csokken: Math.round(havi - haviB), megtakaritas: Math.round(mB), netto: Math.round(mB - dij) },
+    jobb: mA >= mB ? 'futamido' : 'torleszto' };
+}
+
+/* ---------------- Bérleti díj emelése az inflációval ---------------- */
+/** b: { dij, ev (melyik év átlagos inflációjával), sajat (%) } */
+export function berletiEmeles(adat, b) {
+  const dij = Number(b.dij);
+  if (!(dij > 0)) return { hiba: 'Add meg a mostani havi bérleti díjat.' };
+  const evek = Object.keys(adat.inflacio.evek).sort();
+  const sajat = b.sajat !== '' && b.sajat != null && !Number.isNaN(Number(b.sajat));
+  const ev = evek.includes(String(b.ev)) ? String(b.ev) : evek[evek.length - 1];
+  const p = sajat ? Number(b.sajat) : adat.inflacio.evek[ev].szazalek;
+  const uj = Math.round(dij * (1 + p / 100));
+  return { dij, ev, p, sajat, uj, havi: uj - dij, evi: (uj - dij) * 12, forras: sajat ? null : adat.inflacio.evek[ev].forras, evek: evek.map((e) => ({ ev: e, szazalek: adat.inflacio.evek[e].szazalek })) };
+}
+
+/* ---------------- Megéri kiadásra venni? ---------------- */
+/** b: { vetelar, egyeb (ügyvéd, egyéb vételi költség), felujitas, havi (bérleti díj), honap (kiadott hónap egy évben), koltseg (évi), ev } */
+export function hozam(adat, b) {
+  const ar = Number(b.vetelar), havi = Number(b.havi);
+  if (!(ar > 0)) return { hiba: 'Add meg a vételárat.' };
+  if (!(havi > 0)) return { hiba: 'Add meg a várható havi bérleti díjat.' };
+  const honap = b.honap === '' || b.honap == null ? 11 : Math.round(Number(b.honap));
+  if (!(honap >= 1 && honap <= 12)) return { hiba: 'Hány hónapig lesz kiadva egy évben? 1 és 12 között.' };
+  const ill = altalanosIlletek(adat, ar);
+  const beruhazas = ar + ill + nem0(b.egyeb) + nem0(b.felujitas);
+  const bevetel = havi * honap;
+  const koltseg = nem0(b.koltseg);
+  const ad = berbeadas(adat, { havi, honap, koltseg, ev: b.ev });
+  const netto = bevetel - koltseg - ad.ado;
+  return { ar, illetek: ill, egyeb: nem0(b.egyeb), felujitas: nem0(b.felujitas), beruhazas, havi, honap, bevetel, koltseg, ado: ad.ado, adoModszer: ad.jobb, netto,
+    brutto: bevetel / beruhazas * 100, nettoHozam: netto / beruhazas * 100, megterules: netto > 0 ? beruhazas / netto : null };
+}
+
 /* ---------------- Következő lépés ---------------- */
 /** Kalkulátoronként legfeljebb két ajánlás: { cel, cim, szoveg, q }. Csak a látogató által beírt adat megy át a következő űrlapra. */
 export function kovetkezoLepesek(kalk, e) {
@@ -248,6 +397,11 @@ export function kovetkezoLepesek(kalk, e) {
     case 'illetek': return [{ cel: 'wekerle', cim: 'Megkapod a Wekerle Plusz hitelt?', szoveg: 'Feltételenként a rendelet szerint, és a havi törlesztő 3% vagy 5% kamattal.', q: { vetelar: e.ertek } }];
     case 'wekerle': return [{ cel: 'illetek', cim: 'Mennyi lesz az illeték, és jár-e kedvezmény?', szoveg: 'A Wekerle Plusz nem ad mentességet, de más kedvezmény járhat.', q: { ertek: e.vetelar } }];
     case 'lakasvaltas': return [{ cel: 'illetek', cim: 'Az illeték részletesen, minden kedvezménnyel', szoveg: 'Tulajdoni hányad, új lakás, 35 év alatti első lakás, rokontól vétel.', q: { ertek: e.vetelar, eladottErtek: e.eladasiAr, eladasMikor: e.sorrend === 'elobb_vesz' ? 'utana' : 'elotte' } }];
+    case 'hitelkepesseg': return [{ cel: 'wekerle', cim: 'Megkapod a Wekerle Plusz hitelt?', szoveg: 'Feltételenként a rendelet szerint, 3% vagy 5% fix kamattal.', q: { vetelar: e.ertek } }];
+    case 'hozam': return [{ cel: 'kiadas', cim: 'Az adó részletesen: 10% vagy tételes?', szoveg: 'A döntési pont és a negyedéves adóelőleg határidői.', q: { havi: e.havi, honap: e.honap, koltseg: e.koltseg } }];
+    case 'emeles': return [{ cel: 'kiadas', cim: 'Mennyi adót fizetsz az új díj után?', szoveg: '10% költséghányaddal vagy tételesen.', q: { havi: e.dij } }];
+    case 'ingyenes': return [{ cel: 'haszonelvezet', cim: 'Mennyit ér a haszonélvezet?', szoveg: 'Az életkor szerinti szorzóval, és mi a teendő, ha lemond róla.', q: { ertek: e.ertek } }];
+    case 'haszonelvezet': return [{ cel: 'eladas', cim: 'Ha egyszer eladod: mennyi lesz az adó?', szoveg: 'A szerzés évéből és az árakból.', q: {} }];
     case 'kiadas': return [{ cel: 'eladas', cim: 'Ha egyszer eladnád: mennyi lenne az adó?', szoveg: 'A szerzés évéből és az árakból, évről évre csökkenő skálával.', q: {} }];
     default: return [];
   }

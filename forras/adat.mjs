@@ -15,6 +15,7 @@ export function ir(rel, obj) {
 export function betoltAdat() {
   return {
     szabalyok: olvas('data/szabalyok.json'),
+    inflacio: olvas('data/inflacio.json'),
     allapot: olvas('data/allapot.json'),
   };
 }
