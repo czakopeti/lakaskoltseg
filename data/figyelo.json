@@ -75,7 +75,7 @@
     },
     "https://biztosdontes.hu/cikkek/illetekmentesseg": {
       "v": 3,
-      "hossz": 13694,
+      "hossz": 13709,
       "tenyek": [
         "90f5292209",
         "f3c1011aec",
@@ -308,7 +308,7 @@
     },
     "https://infostart.hu/gazdasag/2022/08/21/fontos-kerdeseket-tisztaz-az-adohatosag": {
       "v": 3,
-      "hossz": 10383,
+      "hossz": 10412,
       "tenyek": [
         "933e08aa54",
         "c09f923c50"
@@ -690,7 +690,9 @@
       "latva": "2026-11-18",
       "ellenorizve": "2026-11-18",
       "utolsoGond": "The operation was aborted due to timeout",
-      "utolsoGondNap": "2026-11-18"
+      "utolsoGondNap": "2026-11-18",
+      "gond": "The operation was aborted due to timeout",
+      "gondOta": "2026-11-18"
     },
     "https://ingatlan5.hu/haszonelvezeti-jog-erteke-es-annak-pontos-kiszamitasa": {
       "v": 3,
@@ -986,7 +988,6 @@
       "v": 3,
       "hossz": 930,
       "tenyek": [
-        "0478f8c673",
         "39b6c91471",
         "01f0030ab4"
       ],
@@ -1009,7 +1010,7 @@
     },
     "https://nav.gov.hu/sajtoszoba/hirek/kozeleg-a-hatarido-de-segit-a-nav": {
       "v": 3,
-      "hossz": 2441,
+      "hossz": 2465,
       "tenyek": [
         "fec6fd03fc",
         "4a91bda42b",
@@ -1022,7 +1023,7 @@
     },
     "https://www.penzcentrum.hu/otthon/20260519/vegleges-tiltas-lep-eletbe-a-fovaros-sziveben-rengeteg-ingatlantulajdonos-bukja-el-emiatt-a-biztos-bevetelt-1198922/amp": {
       "v": 3,
-      "hossz": 3992,
+      "hossz": 3940,
       "tenyek": [
         "2d9ffbf48e",
         "603b0bfc49",
