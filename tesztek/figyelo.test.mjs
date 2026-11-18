@@ -1,7 +1,7 @@
 // Forrásfigyelő: szövegkivonat, szakasz, változásfelismerés, a források listája a szabályokból.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { szovegge, szakasz, lenyomat, ertekel, forrasLista, jegySzoveg } from '../frissito/figyelo.mjs';
+import { szovegge, szakasz, lenyomat, ertekel, forrasLista, jegySzoveg, tenyek } from '../frissito/figyelo.mjs';
 import { olvas } from '../forras/adat.mjs';
 
 const lap = (torzs) => `<html><head><style>x{}</style><script>var a=1</script></head><body><nav>Menü ${Math.random()}</nav><main><h1>Illeték</h1><p>${torzs}</p></main><footer>Lábléc</footer></body></html>`;
@@ -26,6 +26,20 @@ test('első látás, változatlan, változott, gyanús', () => {
   assert.equal(ertekel(f, elso, lap('Hiba történt.')).allapot, 'gyanus');
   assert.equal(ertekel({ ...f, tol: 'Nincs ilyen cím' }, elso, lap(hosszu)).allapot, 'gyanus');
   assert.equal(lenyomat('a').length, 16);
+});
+
+test('csak a számot és mértéket tartalmazó mondatok számítanak: a változó ajánló, számláló és oldalsáv nem riaszt', () => {
+  const f = { url: 'https://pelda.hu' };
+  const cikk = (extra) => `<main><h1>Illeték</h1><p>${hosszu} A határidő 30 nap. Az illetékmentesség értékhatára 50 millió forint. ${extra}</p></main><aside>Népszerű: a nyugdíj 3,6%-kal nő ${Math.random()}</aside>`;
+  const elso = ertekel(f, undefined, cikk('Olvasták: 1234-szer. Ajánló: Így rendezd be a nappalit.'));
+  assert.equal(ertekel(f, elso, cikk('Olvasták: 5678-szor. Ajánló: Tíz tipp a kertedhez.')).allapot, 'valtozatlan');
+  const v = ertekel(f, elso, cikk('').replace('30 nap', '15 nap'));
+  assert.equal(v.allapot, 'valtozott');
+  assert.deepEqual(v.ujMondatok, ['A határidő 15 nap.']);
+  assert.equal(v.eltunt, 1);
+  assert.match(jegySzoveg({ ma: '2026-11-25', valtozott: [{ url: f.url, nev: 'Példa', ...v }], gyanus: [], hiba: [] }), /> A határidő 15 nap\.[\s\S]*Eltűnt mondat: 1/);
+  assert.equal(ertekel(f, { lenyomat: 'regi', hossz: 900 }, cikk('')).allapot, 'uj', 'régi formátumú állapotból csendben új alap');
+  assert.deepEqual(tenyek('Szép napot! Az illeték 4%. Kattints ide.'), ['Az illeték 4%.']);
 });
 
 test('minden szabály forrása figyelt, a szabálykulcsokkal együtt', () => {

@@ -1,5 +1,6 @@
 // Forrásfigyelő: minden forrásoldalt letölt, amelyre a data/szabalyok.json hivatkozik (és a data/figyelo.json külön listáját),
-// a szövegéből lenyomatot készít, és összeveti a legutóbb látottal. Adatot NEM ír át: ha egy forrás megváltozott,
+// a szövegéből kiválogatja a számot tartalmazó mondatokat (mérték, összeg, határidő, jogszabályhely), és ezeket veti össze a legutóbb látottakkal.
+// A hirdetések, ajánlott cikkek és számlálók így nem adnak téves riasztást. Adatot NEM ír át: ha egy forrás megváltozott,
 // jelentést ad (a workflow ebből GitHub-jegyet nyit), a szabályt ember vagy az ütemezett Claude-futás vizsgálja felül.
 import { createHash } from 'node:crypto';
 import { olvas, ir, maBudapest } from '../forras/adat.mjs';
@@ -7,7 +8,7 @@ import { olvas, ir, maBudapest } from '../forras/adat.mjs';
 /** A HTML látható szövege, szóközökre egyszerűsítve. A kihagy lista mintái (például változó dátumok) kimaradnak. */
 export function szovegge(html, kihagy = []) {
   let t = String(html)
-    .replace(/<(script|style|noscript|svg|nav|header|footer)[\s\S]*?<\/\1>/gi, ' ')
+    .replace(/<(script|style|noscript|svg|nav|header|footer|aside|form|iframe|template)[\s\S]*?<\/\1>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&[a-z]+;|&#\d+;/gi, ' ');
   for (const k of kihagy) t = t.replace(new RegExp(k, 'g'), ' ');
@@ -21,6 +22,15 @@ export function szakasz(szoveg, tol = '', ig = '') {
   return szoveg.slice(a, b > a ? b : undefined);
 }
 export const lenyomat = (s) => createHash('sha256').update(s).digest('hex').slice(0, 16);
+
+// A szabályok szempontjából érdekes mondat: van benne szám, és mérték, összeg, idő vagy jogszabályhely.
+const TENY = /(%|százalék|forint|\bFt\b|§|millió|ezer|\bév|\bnap|hónap|határid|mérték|kamat)/i;
+/** A szöveg „ténymondatai”: számot és mértéket tartalmazó mondatok, sorba rendezve, ismétlés nélkül. */
+export function tenyek(szoveg) {
+  const m = szoveg.split(/(?<=[.!?;])\s+(?=[A-ZÁÉÍÓÖŐÚÜŰ0-9(„"])/u).map((x) => x.trim()).filter((x) => x.length >= 12 && x.length <= 600 && /\d/.test(x) && TENY.test(x));
+  return [...new Set(m)].sort();
+}
+const rovid = (x) => lenyomat(x).slice(0, 10);
 
 /** A figyelendő források: a szabályok forrásai (melyik szabály függ tőlük), és a külön felvett oldalak. */
 export function forrasLista(szabalyok, kulon = []) {
@@ -36,18 +46,23 @@ export function forrasLista(szabalyok, kulon = []) {
 }
 
 /**
- * Egy forrás kiértékelése. elozo: a legutóbbi állapot ({ lenyomat, hossz }), html: a most letöltött oldal.
- * Eredmény: { allapot: 'uj' | 'valtozatlan' | 'valtozott' | 'gyanus', lenyomat, hossz }
- * „gyanus”: a jelző eltűnt, vagy az oldal a korábbi hossz felénél rövidebb (hibaoldal, átszervezés): ilyenkor nem írjuk felül a lenyomatot.
+ * Egy forrás kiértékelése. elozo: a legutóbbi állapot ({ tenyek: [mondatlenyomatok], hossz }), html: a most letöltött oldal.
+ * Eredmény: { allapot: 'uj' | 'valtozatlan' | 'valtozott' | 'gyanus', tenyek, hossz, ujMondatok, eltunt }
+ * „gyanus”: a jelző eltűnt, vagy az oldal szövege túl rövid, vagy a ténymondatok fele eltűnt (hibaoldal, átszervezés).
+ * Régi formátumú állapotnál (csak lenyomat) csendben új alapot veszünk fel.
  */
 export function ertekel(forras, elozo, html) {
   const sz = szakasz(szovegge(html, forras.kihagy), forras.tol, forras.ig);
   if (sz == null || sz.length < 200) return { allapot: 'gyanus', ok: sz == null ? 'a figyelt szakasz jelzője nincs az oldalon' : 'az oldal szövege túl rövid' };
-  const most = { lenyomat: lenyomat(sz), hossz: sz.length };
-  if (!elozo?.lenyomat) return { allapot: 'uj', ...most };
-  if (elozo.lenyomat === most.lenyomat) return { allapot: 'valtozatlan', ...most };
-  if (most.hossz < elozo.hossz / 2) return { allapot: 'gyanus', ok: 'az oldal szövege a korábbi felénél rövidebb' };
-  return { allapot: 'valtozott', ...most };
+  const t = tenyek(sz);
+  const most = { tenyek: t.map(rovid), hossz: sz.length };
+  if (!elozo?.tenyek) return { allapot: 'uj', ...most };
+  const regi = new Set(elozo.tenyek), uj = new Set(most.tenyek);
+  const ujMondatok = t.filter((x) => !regi.has(rovid(x)));
+  const eltunt = elozo.tenyek.filter((h) => !uj.has(h)).length;
+  if (!ujMondatok.length && !eltunt) return { allapot: 'valtozatlan', ...most };
+  if (elozo.tenyek.length >= 4 && eltunt > elozo.tenyek.length / 2) return { allapot: 'gyanus', ok: `a korábbi ${elozo.tenyek.length} ténymondatból ${eltunt} eltűnt (átszervezett vagy hibás oldal)` };
+  return { allapot: 'valtozott', ...most, ujMondatok, eltunt };
 }
 
 /**
@@ -84,9 +99,9 @@ export async function futtat({ leto = letolt } = {}) {
       if (e.allapot === 'gyanus') { gond('gyanus', e.ok); continue; }
       // Amit az önálló frissítő (frissito/automata.mjs) kezel, arról nem kell jegy: ott a szám magától átáll, a gond külön jelentésbe megy
       if (e.allapot === 'valtozatlan' || (e.allapot === 'valtozott' && forras.automata)) jelentes.valtozatlan++;
-      else jelentes[e.allapot].push({ url: forras.url, nev: forras.nev, szabalyok: forras.szabalyok, ok: e.ok, elozoLatva: elozo?.latva });
+      else jelentes[e.allapot].push({ url: forras.url, nev: forras.nev, szabalyok: forras.szabalyok, ok: e.ok, elozoLatva: elozo?.latva, ujMondatok: e.ujMondatok, eltunt: e.eltunt });
       // Változásnál az új lenyomatot rögzítjük, hogy ugyanarról egyszer szóljunk; a jegy őrzi, hogy felül kell vizsgálni.
-      if (e.lenyomat) f.allapot[forras.url] = { lenyomat: e.lenyomat, hossz: e.hossz, latva: e.allapot === 'valtozatlan' ? elozo.latva : ma, ellenorizve: ma };
+      if (e.tenyek) f.allapot[forras.url] = { hossz: e.hossz, tenyek: e.tenyek, latva: e.allapot === 'valtozatlan' ? elozo.latva : ma, ellenorizve: ma };
     } catch (err) {
       gond('hiba', String(err.message || err));
     }
@@ -110,7 +125,8 @@ export async function futtat({ leto = letolt } = {}) {
 
 /** A jegy szövege a jelentésből (üres, ha nincs teendő). */
 export function jegySzoveg(j) {
-  const sor = (x) => `- [${x.nev || x.url}](${x.url})${x.szabalyok?.length ? `\n  Érintett szabályok: ${x.szabalyok.map((s) => `\`${s}\``).join(', ')}` : ''}${x.ok ? `\n  Ok: ${x.ok}` : ''}`;
+  const mondatok = (x) => (x.ujMondatok?.length ? `\n  Új vagy átírt mondat:${x.ujMondatok.slice(0, 8).map((m) => `\n  > ${m.slice(0, 300)}`).join('')}${x.ujMondatok.length > 8 ? `\n  (és még ${x.ujMondatok.length - 8})` : ''}` : '') + (x.eltunt ? `\n  Eltűnt mondat: ${x.eltunt}` : '');
+  const sor = (x) => `- [${x.nev || x.url}](${x.url})${x.szabalyok?.length ? `\n  Érintett szabályok: ${x.szabalyok.map((s) => `\`${s}\``).join(', ')}` : ''}${x.ok ? `\n  Ok: ${x.ok}` : ''}${mondatok(x)}`;
   const r = [];
   if (j.valtozott.length) r.push(`## Megváltozott a forrás szövege\n\nNézd meg, változott-e a szabály. Ha igen, írd át a \`data/szabalyok.json\` tételét, ha nem, frissítsd az \`ellenorizve\` dátumát.\n\n${j.valtozott.map(sor).join('\n')}`);
   const tartos = 'Ugyanezt a gondot csak egyszer jelezzük. Ha marad, keress helyette letölthető forrást (lehetőleg a jogszabályt, a NAV-ot vagy a kibocsátót), vagy vedd fel a mögötte álló jogszabályt a `data/figyelo.json` kulon listájára.';
