@@ -1,0 +1,34 @@
+name: Előnézet (GitHub Pages)
+# A munkaverziót kiteszi a czakopeti.github.io/lakaskoltseg címre, relatív linkekkel. Minden oldala noindex.
+# A visszajelzés és a mérés végpontjai itt nem élnek, azok a Cloudflare Pages-en futnak.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: elonezet
+  cancel-in-progress: true
+jobs:
+  kitesz:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.kitesz.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tesztek/*.test.mjs
+      - run: node epit.mjs --elonezet
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: elonezet
+      - id: kitesz
+        uses: actions/deploy-pages@v4
