@@ -138,6 +138,7 @@ export function jegySzoveg(j) {
 if (import.meta.url === `file://${process.argv[1]}`) {
   const j = await futtat();
   const szoveg = jegySzoveg(j);
-  console.error(`Változatlan: ${j.valtozatlan}, új: ${j.uj.length}, változott: ${j.valtozott.length}, gyanús: ${j.gyanus.length}, hiba: ${j.hiba.length}, tartós (már jelzett) gond: ${j.tartos}`);
+  const f = olvas('data/figyelo.json');
+  console.error(`Figyelt ténymondat: ${Object.values(f.allapot).reduce((a, x) => a + (x.tenyek?.length || 0), 0)}. Változatlan: ${j.valtozatlan}, új: ${j.uj.length}, változott: ${j.valtozott.length}, gyanús: ${j.gyanus.length}, hiba: ${j.hiba.length}, tartós (már jelzett) gond: ${j.tartos}`);
   process.stdout.write(szoveg);
 }
