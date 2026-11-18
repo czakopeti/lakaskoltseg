@@ -60,6 +60,7 @@ if (existsSync(join(GYOKER, 'forras/kepek'))) for (const f of readdirSync(join(G
 const k = { cfg, adat, ma, ev, elonezet, verzio };
 const oldalak = [
   ['', O.fooldal(k)],
+  [O.INDULO_UT, O.induloOldal(k)],
   [O.ILLETEK_UT, O.illetekOldal(k)],
   [O.HITEL_UT, O.hitelkepessegOldal(k)],
   [O.WEKERLE_UT, O.wekerleOldal(k)],
@@ -71,6 +72,7 @@ const oldalak = [
   [O.EMELES_UT, O.emelesOldal(k)],
   [O.INGYENES_UT, O.ingyenesOldal(k)],
   [O.HASZON_UT, O.haszonelvezetOldal(k)],
+  [O.BERLES_UT, O.berlesVetelOldal(k)],
   ['forrasok/', O.forrasokOldal(k)],
   ['rolunk/', O.rolunkOldal(k)],
   ['impresszum/', O.impresszumOldal(k)],
@@ -138,6 +140,8 @@ https://:version.:project.pages.dev/*
   // A szöveges térkép az AI-asszisztenseknek: ugyanazok a csoportok és ugyanaz a sorrend, mint a főoldalon.
   const LLMS = {
     'mennyi-lakashitelt-kaphatok/': `felvehető lakáshitel az MNB 2026-os szabályai szerint: JTM 25–60% a jövedelemtől (800 000 Ft-os küszöb) és a kamatperiódustól függően, HFM 80% (első lakásnál 90%), összevetve a Wekerle Plusszal`,
+    'lakasvasarlas-koltsegei-kalkulator/': `mennyi saját pénz kell egy lakás megvételéhez: önerő (HFM 80%, első lakásnál 90%), illeték a kedvezményekkel, ügyvédi díj, földhivatal (10 600 Ft, jelzálog 20 000 Ft), értékbecslés, közjegyzői díj a díjszabás sávjai szerint, folyósítási díj; időrendben, a megtakarításból hiányzó összeggel`,
+    'alberlet-vagy-lakasvasarlas-kalkulator/': `albérlet vagy hitelből vétel: a vagyon N év múlva havi modellel, illetékkel és mellékköltségekkel, karbantartással, a bérlő pénze Prémium Magyar Állampapírban; három forgatókönyv a lakásárakra (infláció ±3 százalékpont), és melyik évben kerül előre a vétel`,
     'elotorlesztes-kalkulator/': `lakáshitel előtörlesztése: kamatmegtakarítás rövidebb futamidővel vagy kisebb törlesztővel, az előtörlesztési díj után`,
     'lakas-befektetes-hozam-kalkulator/': `kiadásra vett lakás bruttó és nettó hozama illetékkel, felújítással, üres hónapokkal, költségekkel és szja-val`,
     'berleti-dij-emeles-inflacio/': `bérleti díj emelése a KSH előző évi átlagos inflációjával (${Object.entries(adat.inflacio.evek).map(([e, x]) => `${e}: ${String(x.szazalek).replace('.', ',')}%`).join(', ')})`,

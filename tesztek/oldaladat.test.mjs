@@ -11,7 +11,9 @@ const TELE = { eladasiAr: '60000000', szerzesiErtek: '40000000', szerzesEv: '202
   vetelar: '60000000', onero: '10000000', eletkor: '30', alapterulet: '55', tulajdon: 'nincs', allapot: 'hasznalt', ingatlan: 'lakas', futamido: '25', piaciKamat: '6,5',
   havi: '200000', honap: '12', egyeb: '100000', koltseg: '300000', ertekcsokkenes: '100000', berelt: '0', kozvetito: '1000000', hitelTartozas: '5000000', vetelKoltseg: '500000', megtakaritas: '2000000', sorrend: 'elobb_vesz',
   jovedelem: '700000', meglevo: '20000', periodus: 'kozep', kamat: '6', zold: true, elsoLakas: true, jogcim: 'ajandek', vagyon: 'lakas', terhek: '1000000', rokonsag: 'egyeb',
-  tipus: 'hatarozott', kor: '60', evek: '10', rokon: false, toke: '20000000', ev: '2024', osszeg: '2000000', dij: '1', dij2: '', sajat: '' };
+  tipus: 'hatarozott', kor: '60', evek: '10', rokon: false, toke: '20000000', ev: '2024', osszeg: '2000000', dij: '1', dij2: '', sajat: '',
+  allagmegovas: '3500000', ismeretlen: false, hitel: '40000000', allampapir: '4,5', berlet: '220000', kozos: '25000', arNo: '4', berNo: '4', hozam: '4,5', karbantartas: '1,5',
+  tamogatott: true, ugyvedi: '400000', ertekbecsles: '0', kozjegyzo: '60000', folyositas: '0', foglalo: '10' };
 
 test('minden kalkulátor lefut a saját oldalának adataival, minden mező kitöltve', () => {
   const web = new URL('../web/', import.meta.url).pathname;
@@ -29,5 +31,5 @@ test('minden kalkulátor lefut a saját oldalának adataival, minden mező kitö
     assert.match(M.kalkHtml(tipus, adat, e).html, /data-osszeg|class="ures"/, d.name);
     db++;
   }
-  assert.ok(db >= 11, `kalkulátoroldalak: ${db}`);
+  assert.ok(db >= 13, `kalkulátoroldalak: ${db}`);
 });

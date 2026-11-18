@@ -16,6 +16,8 @@ export const FOOLDAL_KARTYAK = {
   'elotorlesztes-kalkulator/': [() => 'Mennyi kamatot spórolsz, ha a futamidőt rövidíted, vagy ha a törlesztőt csökkented.', 'Kiszámolom'],
   'berleti-dij-emeles-inflacio/': [() => 'Az új bérleti díj a KSH előző évi átlagos inflációjával, minden évben frissítve.', 'Kiszámolom'],
   'lakas-befektetes-hozam-kalkulator/': [() => 'Bruttó és nettó hozam a vételárral, az illetékkel, a költségekkel és az adóval.', 'Kiszámolom'],
+  'lakasvasarlas-koltsegei-kalkulator/': [() => 'Önerő, illeték, ügyvéd, földhivatal, közjegyző és banki díjak, időrendben: mennyi saját pénz kell, és mennyi hiányzik.', 'Kiszámolom'],
+  'alberlet-vagy-lakasvasarlas-kalkulator/': [() => 'A vagyonod 10 vagy 20 év múlva, ha megveszed, és ha bérelsz, három forgatókönyvben a lakásárakra.', 'Kiszámolom'],
   'vagyonszerzesi-illetek-kalkulator/': [() => 'Mennyi illetéket fizetsz a megvett lakás után, és melyik kedvezmény jár: cserét pótló vétel, új lakás, első lakás 35 év alatt, CSOK Plusz.', 'Kiszámolom'],
   'wekerle-plusz-kalkulator/': [() => 'Feltételenként megnézi, megkapod-e a hitelt, és mennyi lesz a havi törlesztő 3% vagy 5% kamattal.', 'Megnézem'],
   'lakasvaltas-kalkulator/': [() => 'Eladás és vétel egy lapon: mennyit kapsz kézhez, mennyibe kerül az új lakás, és mennyi hitel kell még.', 'Kiszámolom'],
@@ -64,7 +66,8 @@ ${t.tetelek.map((x) => `<div><dt>${esc(x.nev)}</dt><dd><p>${esc(x.szoveg)}</p>${
 ${sz.nyitott.length ? `<h2 id="nyitott">Amit még ellenőrzünk</h2>
 <ul>${sz.nyitott.map((n) => `<li>${esc(n.mi)} ${esc(n.teendo)}</li>`).join('')}</ul>` : ''}
 <h2 id="becslesek">Amit becsülünk, és mi alapján</h2>
-<p>A „becslés” jelölésű tételek a mi feltevéseink. Ide kerül majd mindegyik, a forrásával együtt. A saját számaid ezeknél mindig pontosabbak, ezért a kalkulátorokban mindegyiket átírhatod.</p>
+<p>A „becslés” jelölésű tételek a mi feltevéseink, mindegyik egy közzétett forrásra támaszkodik. A saját számaid ezeknél mindig pontosabbak, ezért a kalkulátorokban mindegyiket átírhatod.</p>
+<ul>${sz.temak.flatMap((t) => t.tetelek.filter((x) => x.becsles).map((x) => `<li><a href="#${t.id}">${esc(x.nev)}</a>: ${esc(x.szoveg)} <span class="halk">Forrás: <a href="${esc(x.forras.url)}" rel="noopener" target="_blank">${esc(x.forras.nev)}</a>.</span></li>`)).join('')}</ul>
 <h2>Hogyan frissül?</h2>
 <p>A szabályokat egy adatfájlban tartjuk, tételenként az ellenőrzés napjával. Ha jogszabály változik, a tételt átírjuk, és a dátum is frissül.${ellenorzesKesik(adat.allapot.utolso_ellenorzes, k.ma) ? ' A legutóbbi teljes ellenőrzés több mint 45 napja volt, a felülvizsgálat esedékes.' : ''}</p>
 <p class="halk">Legutóbbi ellenőrzés: ${datumHu(adat.allapot.utolso_ellenorzes || k.ma)}.</p>
@@ -226,11 +229,14 @@ ${sor('', negyzetek('jogcim', 'Hogyan lett a tiéd?', [['vetel', 'Vettem'], ['or
 <p class="fieldset-megj jogcim-megj" data-mutat="jogcim=epites">A szerzési érték: a saját vagy a házastársad nevére szóló számlák szerinti érték, de legalább a beépített anyagérték.</p>
 ${sor('II.', szamMezo({ id: 'szerzesEv', cim: 'A szerzés éve', placeholder: `pl. ${k.ev - 2}`, min: 1950, max: k.ev + 5 }))}
 ${sor('', szamMezo({ id: 'szerzesiErtek', cim: 'Szerzési érték', me: 'Ft', placeholder: 'pl. 50 000 000', min: 0, szeles: true }))}
+${sor('', jelolo('ismeretlen', 'Nem állapítható meg, mennyiért szereztem', `Nincs szerződés, hagyatéki leltár vagy illetékkiszabás. Ilyenkor az eladási ár ${sz('ismeretlen_szerzes').ertek.szazalek}%-a számít, és más költség nem vonható le.`))}
 </fieldset>
 <fieldset>${reszCim('', 'Levonható költségek')}
 <p class="fieldset-megj">Csak azt írd be, amiről számlád vagy okiratod van.</p>
+<p class="fieldset-megj" data-mutat="ismeretlen">Ha a szerzési érték nem állapítható meg, ezeket nem vonjuk le.</p>
 ${sor('', szamMezo({ id: 'szerzesKoltseg', cim: 'A szerzés költségei', me: 'Ft', placeholder: 'pl. 2 000 000', min: 0, szeles: true, sugo: 'A megfizetett illeték, az ügyvédi díj.' }))}
-${sor('', szamMezo({ id: 'beruhazas', cim: 'Értéknövelő beruházás', me: 'Ft', placeholder: 'pl. 3 000 000', min: 0, szeles: true, sugo: 'Felújítás, bővítés, korszerűsítés, számlával.' }))}
+${sor('', szamMezo({ id: 'beruhazas', cim: 'Értéknövelő beruházás', me: 'Ft', placeholder: 'pl. 3 000 000', min: 0, szeles: true, sugo: 'Ami az ingatlan értékét növelte: nyílászárócsere, szigetelés, fűtéskorszerűsítés, bővítés. Bármikor készült, levonható. A saját munkád értéke nem.' }))}
+${sor('', szamMezo({ id: 'allagmegovas', cim: `Állagmegóvás az eladás előtti ${sz('allagmegovas').ertek.honap} hónapban`, me: 'Ft', placeholder: 'pl. 1 800 000', min: 0, szeles: true, sugo: `Festés, javítás, burkolatcsere. Csak akkor vonható le, ha együtt meghaladja az eladási ár ${sz('allagmegovas').ertek.szazalek_bevetel}%-át.` }))}
 ${sor('', szamMezo({ id: 'eladasKoltseg', cim: 'Az eladás költségei', me: 'Ft', placeholder: 'pl. 1 500 000', min: 0, szeles: true, sugo: 'Ingatlanközvetítő, hirdetés, energetikai tanúsítvány.' }))}
 </fieldset>`,
     cikk: `<h2>Hogyan számol az adóhivatal?</h2>
@@ -244,9 +250,11 @@ ${tabla.map((p, i) => `<tr><th scope="row">${i === 0 ? 'A szerzés évében' : i
       { k: 'Számít, hogy lakást, nyaralót vagy telket adok el?', v: ['Nem. 2017. január 1-je óta minden ingatlanra ugyanaz az ötéves skála érvényes, a lakás és a többi ingatlan között nincs különbség.'] },
       { k: 'Melyik nap számít a szerzés időpontjának?', v: [esc(sz('szerzes_idopontja').szoveg), 'A tulajdoni lap II. részében a tulajdonjogod bejegyzése mellett találod az érkezés napját.'] },
       { k: 'Milyen költségeket vonhatok le?', v: [esc(sz('koltsegek').szoveg), 'A költségek együtt legfeljebb az eladási árig számolhatók el, veszteséget nem lehet kimutatni.'] },
+      { k: 'Levonható a festés, ha eladás előtt kifestettem?', v: [esc(sz('allagmegovas').szoveg)] },
+      { k: 'Mi van, ha nem tudom, mennyiért szereztem?', v: [esc(sz('ismeretlen_szerzes').szoveg)] },
       { k: 'Mikor és hogyan kell befizetni?', v: [esc(sz('bevallas').szoveg), esc(sz('reszletfizetes').szoveg)] },
     ],
-    forrasKulcsok: ['szja_eladas.ado_mertek', 'szja_eladas.jovedelem_hanyad'], forrasExtra: [{ nev: 'A személyi jövedelemadóról szóló 1995. évi CXVII. törvény 59–64. §', d: '' }],
+    forrasKulcsok: ['szja_eladas.ado_mertek', 'szja_eladas.jovedelem_hanyad', 'szja_eladas.allagmegovas', 'szja_eladas.ismeretlen_szerzes'], forrasExtra: [{ nev: 'A személyi jövedelemadóról szóló 1995. évi CXVII. törvény 59–64. §', d: '' }],
   });
 }
 
@@ -647,7 +655,7 @@ export function hozamOldal(k) {
   const { adat } = k;
   const p = S.hozam(adat, { vetelar: 48e6, havi: 230000, honap: 11, koltseg: 450000, ev: k.ev });
   return kalkOldal(k, {
-    ut: HOZAM_UT, tipus: 'hozam', nev: 'Megéri kiadásra venni?', temak: ['illetek', 'berbeadas', 'haszonelvezet'],
+    ut: HOZAM_UT, tipus: 'hozam', nev: 'Megéri kiadásra venni?', temak: ['illetek', 'berbeadas', 'haszonelvezet', 'wekerle_plusz', 'hitel', 'berles_vetel'],
     oldalCim: 'Lakás bérbeadás hozam kalkulátor: megéri kiadásra venni?',
     leiras: 'Kiadásra vett lakás bruttó és nettó hozama: vételár, illeték, felújítás, bérleti díj, üres hónapok, költségek és az szja, a jobbik adózási módszerrel.',
     cim: 'Megéri lakást venni kiadásra?',
@@ -663,6 +671,15 @@ ${sor('', szamMezo({ id: 'felujitas', cim: 'Felújítás, berendezés', me: 'Ft'
 ${sor('', szamMezo({ id: 'havi', cim: 'Havi bérleti díj', me: 'Ft', placeholder: 'pl. 230 000', min: 0, szeles: true }))}
 ${sor('', szamMezo({ id: 'honap', cim: 'Hány hónapig van kiadva egy évben?', me: 'hónap', placeholder: '11', min: 1, max: 12 }))}
 ${sor('', szamMezo({ id: 'koltseg', cim: 'Éves költségek', me: 'Ft', placeholder: 'pl. 450 000', min: 0, szeles: true, sugo: 'Közös költség, biztosítás, építményadó, karbantartás, ha te fizeted.' }))}
+</fieldset>
+<fieldset>${reszCim('III.', 'Hitel')}
+<p class="fieldset-megj">Ha hitelből veszed. A bank a lakásra jelzálogot jegyez be, a tulajdoni lap III. részébe.</p>
+${sor('', szamMezo({ id: 'hitel', cim: 'Hitelösszeg', me: 'Ft', placeholder: 'pl. 30 000 000', min: 0, szeles: true }))}
+${sor('', szamMezo({ id: 'kamat', cim: 'Kamat', me: '%', placeholder: M.tized(S.szabaly(adat, 'wekerle_plusz.piaci_kamat').ertek.szazalek, 1), tized: true, sugo: 'Ha üresen hagyod, összehasonlító piaci kamattal számolunk. Kamattámogatott hitellel kiadásra nem vehetsz lakást.' }))}
+${sor('', szamMezo({ id: 'futamido', cim: 'Futamidő', me: 'év', placeholder: '20', min: 1, max: 35 }))}
+</fieldset>
+<fieldset>${reszCim('', 'Összevetés')}
+${sor('', szamMezo({ id: 'allampapir', cim: 'Kockázatmentes hozam', me: '%', placeholder: M.tized(S.szabaly(adat, 'berles_vetel.allampapir').ertek.szazalek, 2), tized: true, sugo: 'A Prémium Magyar Állampapír kamata. Ha más befektetéssel vetnéd össze, írd át.' }))}
 </fieldset>`,
     cikk: `<h2>Bruttó és nettó hozam</h2>
 <p>A bruttó hozam az éves bérleti díj a teljes befektetéshez, vagyis a vételárhoz, az illetékhez és a felújításhoz képest. A hirdetések gyakran ezt mutatják. A nettó hozam ebből levonja a költségeket és az adót, ez az, ami tényleg a tiéd.</p>
@@ -671,6 +688,114 @@ ${sor('', szamMezo({ id: 'koltseg', cim: 'Éves költségek', me: 'Ft', placehol
       { k: 'Mennyi a jó bérleti hozam?', v: ['Akkor éri meg, ha a nettó hozam meghaladja azt, amit a pénzed kockázat nélkül hozna, például állampapírban. A lakás mellett szól, hogy az értéke az inflációval együtt nőhet, ellene, hogy nehezen és drágán lehet eladni.'] },
       { k: 'Hitelből is megéri?', v: ['Ha a hitel kamata magasabb, mint a nettó hozam, a különbséget a saját pénzedből fizeted. Kamattámogatott hitellel kiadásra nem vehetsz lakást: a Wekerle Plusznál öt évig ott kell laknod.'] },
     ],
-    forrasKulcsok: ['illetek.altalanos_mertek', 'berbeadas.ado_mertek', 'berbeadas.koltseghanyad'],
+    forrasKulcsok: ['illetek.altalanos_mertek', 'berbeadas.ado_mertek', 'berbeadas.koltseghanyad', 'hitel.hfm', 'berles_vetel.allampapir'],
+  });
+}
+
+/* ======================= LAKÁSVÁSÁRLÁS INDULÓ KÖLTSÉGE ======================= */
+export const INDULO_UT = 'lakasvasarlas-koltsegei-kalkulator/';
+export function induloOldal(k) {
+  const { adat } = k;
+  const v = (kk) => S.szabaly(adat, `vetel_koltsegek.${kk}`).ertek;
+  const p = S.indulo(adat, { vetelar: 50e6, hitel: 40e6 });
+  const fh = v('foldhivatal'), uv = v('ugyvedi');
+  return kalkOldal(k, {
+    ut: INDULO_UT, tipus: 'indulo', nev: 'Mennyi pénz kell a vételhez?', temak: ['illetek', 'haszonelvezet', 'hitel', 'vetel_koltsegek'],
+    oldalCim: `Lakásvásárlás költségei kalkulátor ${k.ev}: mennyi pénz kell a vételáron felül?`,
+    leiras: 'Önerő, illeték a kedvezményekkel, ügyvéd, földhivatal, értékbecslés, közjegyző és folyósítási díj, időrendben: mennyi saját pénz kell, és mennyi hiányzik a megtakarításodból.',
+    cim: 'Mennyi saját pénz kell egy lakás megvételéhez?',
+    valasz: `Az önerő, plusz az illeték és a mellékköltségek. Egy 50 millió forintos lakásnál 40 millió forint hitellel ez ${M.fmt(p.osszes)} Ft, ebből ${M.fmt(p.vetelarFelett)} Ft a vételáron felül. A legnagyobb tétel az illeték, és az érkezik utoljára.`,
+    urlapCim: 'A lakás és a hitel', urlapAl: 'Ingatlan-adásvétel',
+    urlap: `
+<fieldset>${reszCim('I.', 'A lakás')}
+${sor('', szamMezo({ id: 'vetelar', cim: 'Vételár', me: 'Ft', placeholder: 'pl. 50 000 000', min: 0, szeles: true }))}
+${sor('', negyzetek('kitol', 'Kitől veszed?', [['magan', 'Magánszemélytől'], ['vallalkozo', 'Új lakás, építő vállalkozótól'], ['rokon', 'Szülőtől, gyermektől, házastárstól']], ''))}
+</fieldset>
+<fieldset>${reszCim('III.', 'A hitel')}
+${sor('', szamMezo({ id: 'hitel', cim: 'Hitelösszeg', me: 'Ft', placeholder: 'pl. 40 000 000', min: 0, szeles: true, sugo: 'Ha nem veszel fel hitelt, hagyd üresen.' }))}
+${sor('', jelolo('tamogatott', 'Wekerle Plusz vagy más államilag támogatott hitel', 'A közjegyző munkadíjának 15%-át fizeted, és a banki díjak együtt legfeljebb 30 000 forintot tehetnek ki.'))}
+</fieldset>
+<fieldset>${reszCim('', 'Rád vonatkozik?')}
+${sor('', jelolo('elso', 'Ez az első lakásod', 'A bank első lakásnál a forgalmi érték 90%-áig adhat hitelt, egyébként 80%-áig.'))}
+${sor('', jelolo('fiatal35', 'Még nem töltötted be a 35. évedet', 'Első lakásnál kisebb lehet az illeték.'))}
+${sor('', jelolo('csok', 'CSOK Plusz hitellel vagy falusi CSOK-kal veszed', 'Ilyenkor nincs illeték.'))}
+</fieldset>
+<fieldset>${reszCim('', 'Amit már tudsz')}
+<p class="fieldset-megj">Ha üresen hagyod, becsléssel számolunk. Ha már van ajánlatod, írd be a pontos összeget.</p>
+${sor('', szamMezo({ id: 'megtakaritas', cim: 'Megtakarításod', me: 'Ft', placeholder: 'pl. 12 000 000', min: 0, szeles: true, sugo: 'Ebből látod, mennyi hiányzik.' }))}
+${sor('', szamMezo({ id: 'ugyvedi', cim: 'Ügyvédi díj', me: 'Ft', placeholder: `a vételár ${M.tized(uv.szazalek, 1)}%-a`, min: 0, szeles: true }))}
+${sor('', szamMezo({ id: 'ertekbecsles', cim: 'Értékbecslés', me: 'Ft', placeholder: M.fmt(v('ertekbecsles').ft), min: 0, szeles: true }))}
+${sor('', szamMezo({ id: 'kozjegyzo', cim: 'Közjegyző', me: 'Ft', placeholder: 'a díjszabás szerint', min: 0, szeles: true }))}
+${sor('', szamMezo({ id: 'folyositas', cim: 'Folyósítási díj', me: 'Ft', placeholder: 'a felső határ', min: 0, szeles: true, sugo: 'Ha a bankod elengedi, írd be, hogy 0.' }))}
+${sor('', szamMezo({ id: 'foglalo', cim: 'Foglaló', me: '%', placeholder: M.tized(v('foglalo').szazalek, 0), tized: true, sugo: 'A vételár hány százalékát fizeted a szerződéskor.' }))}
+${sor('', szamMezo({ id: 'egyeb', cim: 'Költözés, felújítás, berendezés', me: 'Ft', placeholder: 'pl. 1 500 000', min: 0, szeles: true }))}
+</fieldset>`,
+    cikk: `<h2>Mi minden kell a vételáron felül?</h2>
+<div class="tabla-tarto"><table class="tabla"><thead><tr><th>Tétel</th><th>Mennyi</th><th>Mikor</th></tr></thead><tbody>
+<tr><th scope="row">Foglaló</th><td>a gyakorlatban a vételár ${M.tized(v('foglalo').szazalek, 0)}%-a, a vételár része</td><td>a szerződéskor</td></tr>
+<tr><th scope="row">Ügyvédi díj</th><td>a vételár ${M.tized(uv.uj_szazalek, 1)}–${M.tized(uv.szazalek, 0)}%-a, megállapodás szerint</td><td>a szerződéskor</td></tr>
+<tr><th scope="row">Földhivatal</th><td>tulajdonjog ${M.fmt(fh.tulajdon_ft)} Ft, jelzálog ${M.fmt(fh.jelzalog_ft)} Ft</td><td>a beadáskor</td></tr>
+<tr><th scope="row">Értékbecslés</th><td>0–90 000 Ft, bankonként</td><td>a hitelkérelemkor</td></tr>
+<tr><th scope="row">Közjegyző</th><td>a hitelösszeg szerint sávosan, 20 millió forintnál ${M.fmt(S.kozjegyzoDij(adat, 20e6))} Ft munkadíj</td><td>a szerződéskötéskor</td></tr>
+<tr><th scope="row">Folyósítási díj</th><td>legfeljebb a hitel ${M.tized(v('folyositas').szazalek, 2)}%-a, legfeljebb ${M.fmt(v('folyositas').max_ft)} Ft</td><td>a folyósításkor</td></tr>
+<tr><th scope="row">Illeték</th><td>a forgalmi érték ${S.szabaly(adat, 'illetek.altalanos_mertek').ertek.szazalek}%-a, kedvezménnyel kevesebb</td><td>a NAV meghagyásától ${v('illetek_fizetes').nap} napon belül</td></tr>
+</tbody></table></div>
+<p>A bank a vételárnak csak egy részét adja: legfeljebb a forgalmi érték ${S.szabaly(adat, 'hitel.hfm').ertek.altalanos}%-át, első lakásnál ${S.szabaly(adat, 'hitel.hfm').ertek.elso_lakas}%-át. A különbözet az önerő. A foglalót és az ügyvédi díjat a hitel folyósítása előtt kell kifizetni, az illetéket pedig hetekkel vagy hónapokkal a beköltözés után. Ezért érdemes ezt az összeget a vételtől külön félretenni.</p>`,
+    kerdesek: [
+      { k: 'Mennyi pénz kell egy lakás megvételéhez a vételáron felül?', v: [`Az illeték (általában a vételár ${S.szabaly(adat, 'illetek.altalanos_mertek').ertek.szazalek}%-a), az ügyvédi díj és a földhivatal, hitelnél ehhez jön az értékbecslés, a közjegyző és a folyósítási díj. Egy 50 millió forintos lakásnál 40 millió forint hitellel ez együtt ${M.fmt(p.vetelarFelett)} Ft.`] },
+      { k: 'Mikor kell kifizetni az illetéket?', v: [esc(S.szabaly(adat, 'vetel_koltsegek.illetek_fizetes').szoveg)] },
+      { k: 'Mennyi a földhivatali díj?', v: [esc(S.szabaly(adat, 'vetel_koltsegek.foldhivatal').szoveg)] },
+      { k: 'Mennyibe kerül a közjegyző a lakáshitelhez?', v: [esc(S.szabaly(adat, 'vetel_koltsegek.kozjegyzo').szoveg)] },
+      { k: 'Mennyi önerő kell?', v: [esc(S.szabaly(adat, 'hitel.hfm').szoveg), 'A bank a saját értékbecslése szerinti forgalmi értékből számol. Ha ez a vételárnál kisebb, több önerő kell.'] },
+    ],
+    forrasKulcsok: ['illetek.altalanos_mertek', 'hitel.hfm', 'vetel_koltsegek.foldhivatal', 'vetel_koltsegek.ugyvedi', 'vetel_koltsegek.ertekbecsles', 'vetel_koltsegek.kozjegyzo', 'vetel_koltsegek.folyositas', 'vetel_koltsegek.foglalo', 'vetel_koltsegek.illetek_fizetes'],
+  });
+}
+
+/* ======================= BÉRLÉS VAGY VÉTEL ======================= */
+export const BERLES_UT = 'alberlet-vagy-lakasvasarlas-kalkulator/';
+export function berlesVetelOldal(k) {
+  const { adat } = k;
+  const bv = (kk) => S.szabaly(adat, `berles_vetel.${kk}`).ertek;
+  const p = S.berlesVetel({ ...adat, inflacio: adat.inflacio }, { vetelar: 50e6, onero: 10e6, berlet: 220000, kozos: 25000, evek: 10 });
+  const infEv = Object.keys(adat.inflacio.evek).sort().pop();
+  return kalkOldal(k, {
+    ut: BERLES_UT, tipus: 'berlesvetel', nev: 'Bérlés vagy vétel', temak: ['illetek', 'haszonelvezet', 'hitel', 'vetel_koltsegek', 'wekerle_plusz', 'berles_vetel'],
+    adatExtra: { inflacio: adat.inflacio },
+    oldalCim: 'Albérlet vagy lakásvásárlás kalkulátor: melyikkel jársz jobban?',
+    leiras: 'Bérlés vagy hitelből vétel: a vagyonod N év múlva három forgatókönyvben, az illetékkel, a mellékköltségekkel, a karbantartással, és ha bérelsz, a pénzed állampapírban.',
+    cim: 'Albérlet vagy saját lakás: melyikkel jársz jobban?',
+    valasz: `A bérlési díj, a lakásárak és az időtáv dönti el. Egy 50 millió forintos lakás 10 millió forint önerővel, szemben egy havi 220 000 forintos albérlettel: alapesetben 10 év múlva ${M.fmt(Math.abs(p.alap.kulonbseg) / 1e6)} millió forinttal több vagyonod lesz, ha ${p.nyero === 'vetel' ? 'megveszed' : 'bérelsz'}${p.alap.fordul ? `, és a vétel a ${p.alap.fordul}. évben kerül előre` : ''}.`,
+    urlapCim: 'A két út', urlapAl: 'Vétel hitelből, vagy bérlés',
+    urlap: `
+<fieldset>${reszCim('I.', 'Ha megveszed')}
+${sor('', szamMezo({ id: 'vetelar', cim: 'Vételár', me: 'Ft', placeholder: 'pl. 50 000 000', min: 0, szeles: true }))}
+${sor('', szamMezo({ id: 'onero', cim: 'Önerő', me: 'Ft', placeholder: 'pl. 10 000 000', min: 0, szeles: true, sugo: 'A vételárból ennyit fizetsz saját pénzből. A többi hitel. Az illetéket és a mellékköltségeket mi adjuk hozzá.' }))}
+${sor('III.', szamMezo({ id: 'kamat', cim: 'Hitelkamat', me: '%', placeholder: M.tized(S.szabaly(adat, 'wekerle_plusz.piaci_kamat').ertek.szazalek, 1), tized: true, sugo: 'Wekerle Plusszal 3% vagy 5%.' }))}
+${sor('', szamMezo({ id: 'futamido', cim: 'Futamidő', me: 'év', placeholder: '20', min: 1, max: 35 }))}
+${sor('', szamMezo({ id: 'kozos', cim: 'Közös költség és biztosítás', me: 'Ft', placeholder: 'pl. 25 000', min: 0, szeles: true, sugo: 'Havonta, amit tulajdonosként fizetnél. Ha bérlőként is te fizetnéd, hagyd üresen.' }))}
+</fieldset>
+<fieldset>${reszCim('', 'Ha bérelsz')}
+${sor('', szamMezo({ id: 'berlet', cim: 'Havi bérleti díj', me: 'Ft', placeholder: 'pl. 220 000', min: 0, szeles: true, sugo: 'Egy hasonló lakásé, ugyanazon a környéken.' }))}
+</fieldset>
+<fieldset>${reszCim('', 'Feltevések')}
+<p class="fieldset-megj">Ha üresen hagyod, ezekkel számolunk. Mindegyiket átírhatod.</p>
+${sor('', szamMezo({ id: 'evek', cim: 'Időtáv', me: 'év', placeholder: '10', min: 1, max: 40 }))}
+${sor('', szamMezo({ id: 'arNo', cim: 'A lakásár változása évente', me: '%', placeholder: M.tized(p.infSz, 1), tized: true, sugo: `Alapesetben a KSH ${infEv}. évi átlagos inflációja. A borúlátó és a derűlátó változat ${bv('forgatokonyv').elteres_szazalekpont} százalékponttal tér el.` }))}
+${sor('', szamMezo({ id: 'berNo', cim: 'A bérleti díj változása évente', me: '%', placeholder: M.tized(p.infSz, 1), tized: true }))}
+${sor('', szamMezo({ id: 'hozam', cim: 'A befektetés hozama', me: '%', placeholder: M.tized(bv('allampapir').szazalek, 1), tized: true, sugo: 'Amit a bérlő a megmaradó pénzén keres. Alapesetben a Prémium Magyar Állampapír kamata.' }))}
+${sor('', szamMezo({ id: 'karbantartas', cim: 'Karbantartás évente', me: '%', placeholder: M.tized(bv('karbantartas').szazalek, 1), tized: true, sugo: 'A lakás értékének ennyi százaléka megy el évente javításra, festésre, gépcserére.' }))}
+</fieldset>`,
+    cikk: `<h2>Hogyan számolunk?</h2>
+<p>Mindkét úton ugyanannyi pénz megy ki. A vevő az önerőt, az illetéket és a mellékköltségeket kifizeti, a bérlő ugyanezt az összeget befekteti. Havonta a vevő törlesztőt, közös költséget és karbantartást fizet, a bérlő bérleti díjat. Ami az egyiknél kevesebb, azt befekteti.</p>
+<p>A végén a vevő vagyona a lakás értéke, mínusz a még meglévő tartozás, plusz amit befektetett. A bérlőé a befektetése. A lakásárakat senki sem tudja előre, ezért három változatot mutatunk: alapesetben az árak az inflációval nőnek, a borúlátóban ${bv('forgatokonyv').elteres_szazalekpont} százalékponttal lassabban, a derűlátóban ennyivel gyorsabban.</p>
+<h2>Amit a számok nem mutatnak</h2>
+<p>A bérlés rugalmas: el tudsz költözni, ha munkát vagy várost váltasz. A saját lakás biztonság: nem mondhatják fel, és átalakíthatod. A vételnek eladáskor is van költsége, a közvetítő és ha öt éven belül adod el, az adó.</p>`,
+    kerdesek: [
+      { k: 'Mikor éri meg albérletben maradni?', v: ['Ha rövid időre tervezel: a vétel illetéke és mellékköltségei több év alatt térülnek meg. Akkor is, ha a bérleti díj a hasonló lakás törlesztőjénél sokkal kisebb, és a különbséget tényleg félreteszed.'] },
+      { k: 'Mikor éri meg lakást venni?', v: ['Ha hosszú távra tervezel, a bérleti díj közel van a törlesztőhöz, és a lakásárak legalább az inflációval nőnek. Kamattámogatott hitellel, például a Wekerle Plusszal, a vétel hamarabb előre kerül.'] },
+      { k: 'Mennyit hoz a pénz, ha nem veszek lakást?', v: [esc(S.szabaly(adat, 'berles_vetel.allampapir').szoveg)] },
+    ],
+    forrasKulcsok: ['berles_vetel.allampapir', 'berles_vetel.karbantartas', 'berles_vetel.forgatokonyv', 'wekerle_plusz.piaci_kamat', 'illetek.altalanos_mertek', 'vetel_koltsegek.ugyvedi'],
   });
 }

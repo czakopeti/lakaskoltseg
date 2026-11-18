@@ -9,12 +9,12 @@ Minden, amit egy lakással kapcsolatban ki lehet számolni vagy el kell dönteni
 | Oldal | K | R | M | Állapot |
 |---|---|---|---|---|
 | Vagyonszerzési illeték, minden kedvezménnyel | 5 | 3 | 4 | **Kész** |
-| A vétel teljes költsége: illeték, ügyvéd, földhivatal, értékbecslés, közjegyző | 4 | 4 | 3 | Később: az ügyvédi és a banki díjaknak nincs hivatalos forrása, csak becsülni lehetne. Az illeték és az egyéb költség a lakásváltásban benne van. |
+| A vétel teljes költsége: illeték, ügyvéd, földhivatal, értékbecslés, közjegyző | 5 | 4 | 4 | **Kész** (újrapontozva 13 pontra, mert az okosan-elek is megépítette): a földhivatal és a közjegyző díjszabás szerint, az ügyvéd, az értékbecslés és a folyósítás becslésként, forrással. Amiben több: időrend (aláíráskor, folyósításig, birtokba adáskor, illeték később), HFM-korlát, támogatott hitel díjai. |
 | Mennyi hitelt kaphatsz: jövedelem, önerő, az MNB adósságfék-szabályai | 5 | 3 | 4 | **Kész** |
 | Wekerle Plusz jogosultság és törlesztő | 5 | 2 | 5 | **Kész** |
 | Melyik támogatás jár: Wekerle Plusz, CSOK Plusz, babaváró, falusi CSOK | 5 | 3 | 3 | Később: a CSOK Plusz és a falusi CSOK rendeletét még nem ellenőriztük, a hitelközvetítők ezt jól lefedik. |
 | Új lakás: áfa, illetékkedvezmény, fizetési ütemezés | 3 | 4 | 3 | Később (10 pont): az illetékkedvezmény az illetékkalkulátorban kész. |
-| Venni vagy bérelni | 4 | 4 | 2 | Nem most: az eredmény a lakásár és a bérleti díj jövőbeli emelkedésén múlik, erre nincs forrásolt adatunk, csak feltevés. |
+| Venni vagy bérelni | 4 | 4 | 4 | **Kész** (újrapontozva 12 pontra): a feltevések forrásoltak (KSH infláció, PMÁP-kamat, Bankmonitor karbantartás), mindegyik átírható, és három forgatókönyv mutatja a bizonytalanságot. Amiben több: valós illeték és mellékköltség, havi modell, fordulópont évre. |
 | Előtörlesztés: megéri-e, mennyit spórol | 4 | 3 | 4 | **Kész** |
 
 ## Eladsz
@@ -82,7 +82,7 @@ Ami még hiányzik a teljes fedéshez:
 
 | Oldal | Amiben erős | Amit átvettünk vagy jobban csinálunk |
 |---|---|---|
-| okosan-elek.hu | Levezetés a beírt számokkal, „Adatok ellenőrizve”, módszertan | Minden kalkulátorban levezetés, és minden lépés mellett a jogszabályhely. Az ingatlanos aloldalukat innen nem tudtuk megnyitni. |
+| okosan-elek.hu | Levezetés a beírt számokkal, „Adatok ellenőrizve”, módszertan. Hat ingatlanos kalkulátor: illeték, eladás adója, bérlés vagy vétel, kiadás adója, induló költség, hozam | Mind a hat megvan nálunk is, és mellé még hét. Az eladás adójánál átvettük az állagmegóvás 24 hónap / 5% szabályát és a 25%-os szabályt, ha a szerzési érték nem állapítható meg; a példájukat (50 M, 1 485 000 Ft) teszt ellenőrzi. Amiben többek vagyunk: jogszabályhely minden lépésnél, a következő évi adó, naptárfájl, időrend az induló költségnél, hitel és állampapír a hozamnál, és a lakásváltás, a Wekerle Plusz, a haszonélvezet, amely náluk nincs. |
 | holahaz.hu | Vétel, ajándék, öröklés és eladás egy űrlapon; telek, haszonélvezet | Telek 4 éven belüli építéssel és haszonélvezettel terhelt vétel az illetékkalkulátorban |
 | banknavigator.hu | Tulajdoni hányad, részletfizetés | Mindkettő megvan |
 | ingatlanosmom.hu | Közös költség és rezsi pontos kezelése bérbeadásnál | A NAV 10. füzete szerint a mezők magyarázatában |
