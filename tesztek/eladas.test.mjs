@@ -58,3 +58,9 @@ test('naptárfájl: egész napos esemény, egy héttel előtte emlékeztető', (
   assert.match(f, /SUMMARY:Szja\\; bevallás/);
   assert.match(f, /TRIGGER:-P7D/);
 });
+
+test('a forintmezők szöveges mezők ezres tagolással, az évmezők számmezők', async () => {
+  const { szamMezo } = await import('../forras/sablon.mjs');
+  assert.match(szamMezo({ id: 'ar', cim: 'Ár', me: 'Ft' }), /type="text" inputmode="numeric" data-ezres/);
+  assert.match(szamMezo({ id: 'ev', cim: 'Év' }), /type="number"/);
+});

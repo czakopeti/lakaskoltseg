@@ -53,13 +53,29 @@ if (szin) {
 }
 
 /* ---------- Űrlap-segédek ---------- */
+/** 180000000 → „180 000 000” (nem törő szóközzel, ahogy az eredményben is). */
+const ezresen = (v) => String(v ?? '').replace(/\D/g, '').replace(/^0+(?=\d)/, '').replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0');
+/** Gépelés közben tagol, és a kurzor ugyanannyi számjegy után marad, ahol volt. */
+function ezresMezo(el) {
+  el.addEventListener('input', () => {
+    const elotte = el.value.slice(0, el.selectionStart ?? el.value.length).replace(/\D/g, '').length;
+    const uj = ezresen(el.value);
+    if (uj === el.value) return;
+    el.value = uj;
+    let poz = 0, db = 0;
+    while (poz < uj.length && db < elotte) { if (/\d/.test(uj[poz])) db++; poz++; }
+    try { el.setSelectionRange(poz, poz); } catch { /* */ }
+  });
+  if (el.value) el.value = ezresen(el.value);
+}
+
 function ertekek(form) {
   const o = {};
   for (const el of form.elements) {
     if (!el.name) continue;
     if (el.type === 'radio') { if (el.checked) o[el.name] = el.value; else o[el.name] ??= ''; }
     else if (el.type === 'checkbox') o[el.name] = el.checked;
-    else o[el.name] = el.value.trim();
+    else o[el.name] = el.dataset.ezres !== undefined ? el.value.replace(/\D/g, '') : el.value.trim();
   }
   return o;
 }
@@ -70,7 +86,7 @@ function beallit(form, e) {
     for (const el of els instanceof RadioNodeList ? [...els] : [els]) {
       if (el.type === 'radio') el.checked = el.value === String(v);
       else if (el.type === 'checkbox') el.checked = v === true || v === '1';
-      else el.value = v;
+      else el.value = el.dataset.ezres !== undefined ? ezresen(v) : v;
     }
   }
 }
@@ -95,7 +111,7 @@ function urlbol() {
   for (const [k, v] of p) o[k] = v === '1' ? true : v;
   return o;
 }
-const szam = (v) => (v === '' || v == null ? NaN : Number(String(v).replace(',', '.')));
+const szam = (v) => (v === '' || v == null ? NaN : Number(String(v).replace(/[\s\u00a0\u202f]/g, '').replace(',', '.')));
 
 /* ---------- Élő elszámolás ---------- */
 let elozoOsszeg = null;
@@ -273,6 +289,7 @@ function indit() {
   if (!KALK[tipus]) return;
   const adat = JSON.parse($('#adat').textContent);
   const panel = $('.elsz-tartalom');
+  $$('input[data-ezres]', form).forEach(ezresMezo);
   const u = urlbol();
   if (u) {
     beallit(form, u);

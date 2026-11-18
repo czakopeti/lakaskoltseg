@@ -233,8 +233,10 @@ export const reszCim = (resz, cim) => `<legend>${resz ? `<span class="resz">${re
 export const kod = (k, mi = '') => `<span class="kod${k ? '' : ' ures'}"${k && mi ? ` title="${esc(mi)}"` : ''} aria-hidden="true">${k || ''}</span>`;
 export const sor = (k, belso, attr = '') => `<div class="sor"${attr}>${kod(k)}<div class="mezo">${belso}</div></div>`;
 
-export function szamMezo({ id, cim, me = '', ertek = '', sugo = '', min = '', max = '', placeholder = '', szeles = false, extra = '', nev = '', tized = false }) {
-  return `<label for="${id}">${cim}</label><div class="beir${szeles ? ' szeles' : ''}"><input id="${id}" name="${nev || id}" type="${tized ? 'text' : 'number'}" inputmode="${tized ? 'decimal' : 'numeric'}"${tized ? ' pattern="[0-9]+([,.][0-9]+)?" autocomplete="off"' : ''}${min !== '' ? ` min="${min}"` : ''}${max !== '' ? ` max="${max}"` : ''} value="${ertek}"${placeholder ? ` placeholder="${esc(placeholder)}"` : ''}>${me ? `<span class="me">${me}</span>` : ''}</div>${extra}${sugo ? `<span class="sugo">${sugo}</span>` : ''}`;
+/** Számmező. Forintnál (me: 'Ft') szöveges mező ezres tagolással: a böngésző számmezője nem tud szóközt mutatni. */
+export function szamMezo({ id, cim, me = '', ertek = '', sugo = '', min = '', max = '', placeholder = '', szeles = false, extra = '', nev = '', tized = false, ezres = me === 'Ft' }) {
+  const szoveges = tized || ezres;
+  return `<label for="${id}">${cim}</label><div class="beir${szeles ? ' szeles' : ''}"><input id="${id}" name="${nev || id}" type="${szoveges ? 'text' : 'number'}" inputmode="${tized ? 'decimal' : 'numeric'}"${tized ? ' pattern="[0-9]+([,.][0-9]+)?" autocomplete="off"' : ''}${ezres ? ' data-ezres autocomplete="off"' : ''}${min !== '' ? ` min="${min}"` : ''}${max !== '' ? ` max="${max}"` : ''} value="${ertek}"${placeholder ? ` placeholder="${esc(placeholder)}"` : ''}>${me ? `<span class="me">${me}</span>` : ''}</div>${extra}${sugo ? `<span class="sugo">${sugo}</span>` : ''}`;
 }
 
 export function negyzetek(name, cim, opciok, ertek, idElotag = '') {
