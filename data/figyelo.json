@@ -1,8 +1,213 @@
 {
   "leiras": "A forrásfigyelő állapota. A szabályok forrásai maguktól bekerülnek; a kulon listában azok az oldalak vannak, amelyekhez még nem tartozik szabály, de változásuk érinthet minket. Mezők: url, nev, tol és ig (a figyelt szakasz kezdő és záró szövege, nem kötelező), kihagy (reguláris kifejezések a változó részekre).",
   "kulon": [
-    { "url": "https://njt.jog.gov.hu/jogszabaly/2026-298-20-22", "nev": "298/2026. Korm. rendelet (Wekerle Plusz), hatályos szöveg" },
-    { "url": "https://nav.gov.hu/Elethelyzetek-adozasa/vagyonugyek/Ingatlan-adasvetel", "nev": "NAV: Az ingatlan-adásvétel adózási szabályai" }
+    {
+      "url": "https://njt.jog.gov.hu/jogszabaly/2026-298-20-22",
+      "nev": "298/2026. Korm. rendelet (Wekerle Plusz), hatályos szöveg"
+    },
+    {
+      "url": "https://nav.gov.hu/Elethelyzetek-adozasa/vagyonugyek/Ingatlan-adasvetel",
+      "nev": "NAV: Az ingatlan-adásvétel adózási szabályai"
+    }
   ],
-  "allapot": {}
+  "allapot": {
+    "https://nav.gov.hu/Elethelyzetek-adozasa/vagyonugyek/Ingatlan-adasvetel": {
+      "lenyomat": "b6de207b1d5c5667",
+      "hossz": 10901,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://biztosdontes.hu/cikkek/illetekmentesseg": {
+      "lenyomat": "88f7ed20146d6f89",
+      "hossz": 13814,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://tudastar.ingatlan.com/hirek/valtozott-2026-ban-a-lakasvasarlas-illeteke-trukkos-hataridok-a-cseret-potlo-vetelnel/": {
+      "lenyomat": "47b229a8a43834b9",
+      "hossz": 5637,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://www.kh.hu/cikkek/allami-tamogatasok": {
+      "lenyomat": "daefa7416f932128",
+      "hossz": 17526,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://bank360.hu/ingatlan-eladas-adozas": {
+      "lenyomat": "97e11e2ff31e3914",
+      "hossz": 15594,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://mkogy.jogtar.hu/jogszabaly?docid=99500117.TV": {
+      "lenyomat": "cb07fdf9e9d607dc",
+      "hossz": 115445,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://nav.gov.hu/Elethelyzetek-adozasa/vagyonugyek/Lakaskiadas": {
+      "lenyomat": "4fc00a52703e0fd0",
+      "hossz": 4962,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://infostart.hu/gazdasag/2022/08/21/fontos-kerdeseket-tisztaz-az-adohatosag": {
+      "lenyomat": "2699827ba307961b",
+      "hossz": 10398,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://njt.jog.gov.hu/jogszabaly/2026-298-20-22": {
+      "lenyomat": "db0b4f3504721c9f",
+      "hossz": 85086,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://www.kh.hu/hitel/lakashitel/wekerle-plusz": {
+      "lenyomat": "8a00b207b6111c97",
+      "hossz": 27196,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://bankmonitor.hu/wekerle-plusz-hitel/": {
+      "lenyomat": "b00f9367b6f80ff2",
+      "hossz": 10554,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://fundamenta.hu/documents/tajekoztato-a-tulzott-eladosodottsag-kockazatairol/": {
+      "lenyomat": "9e8a90781de0fbf3",
+      "hossz": 28829,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://www.bdo.hu/hu-hu/aktualitasok-blog/blog/ingatlan-es-vagyonszerzes-adozasa-2026-illetekmentesseg-es-az-ingatlaneladas-szja-ja": {
+      "lenyomat": "d377c5413596d25d",
+      "hossz": 14013,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://hovege.hu/ugyes-bajos/2026/09/06/ennyi-az-ajandekozasi-illetek-merteke-2026-ban-mutatjuk-min-mulik-mennyit-kell-fizetned/": {
+      "lenyomat": "3bb86e264da8136e",
+      "hossz": 8945,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://berkalkulator.com/blog/2026/orokosodesi-illetek-2026-teljes-utmutato": {
+      "lenyomat": "03ec2e83a00cd754",
+      "hossz": 11660,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://jogaszvilag.hu/szakma/vagyoni-erteku-jogok-haszonelvezeti-jog-es-illetek/": {
+      "lenyomat": "d2b400271e6c4c8d",
+      "hossz": 22844,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://ugyved.ingatlan.hu/2025/10/17/haszonelvezeti-jog-alapitasanak-illetekvonzata/": {
+      "lenyomat": "9b8f9b780531d4f8",
+      "hossz": 3304,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://ingatlan5.hu/haszonelvezeti-jog-erteke-es-annak-pontos-kiszamitasa": {
+      "lenyomat": "dd4619db2b98e385",
+      "hossz": 11174,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://e-ingatlanugyvedek.hu/blog/haszonelvezeti-jog-torlese-illetek-ado": {
+      "lenyomat": "eed968d7b6e9cf6f",
+      "hossz": 12925,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://biztosdontes.hu/cikkek/mnb-hitelek-koltsegeinek-csokkentese": {
+      "lenyomat": "1adcdbb4425081ce",
+      "hossz": 11312,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://tudastar.ingatlan.com/tippek/foldhivatali-dijak-valtozasa-2024/": {
+      "lenyomat": "15341f7f4c2acbba",
+      "hossz": 5897,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://privatbankar.hu/cikkek/ingatlan/lakas-koltsegek-324176.html": {
+      "lenyomat": "60083f8707c6c50e",
+      "hossz": 16342,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://www.economx.hu/gazdasag/lakashitel-kamatok-jelzalog-bankok.810266.html": {
+      "lenyomat": "1ef6876150b48e5f",
+      "hossz": 4995,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://e-ingatlanugyvedek.hu/az-adasveteli-szerzodeshez-kapcsolodo-koltsegek": {
+      "lenyomat": "ba9af3a109bfdf85",
+      "hossz": 18756,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://tudastar.money.hu/ismerteto/mennyi-ido-alatt-kuldi-a-nav-a-vagyonszerzesi-illeteket-es-hogyan-kell-megfizetni/": {
+      "lenyomat": "ae0347063e08e5d9",
+      "hossz": 15535,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://www.allamkincstar.gov.hu/lakossagi-ugyfelek/allampapir_forgalmazas/Forgalmazott-allampapirok/dematerializalt-allampapirok/PMAP": {
+      "lenyomat": "5cd1ec3315cd4dc6",
+      "hossz": 3271,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://bankmonitor.hu/cikk/az-orszag-fele-osregi-lakasokban-el-hogyan-ujitsd-fel-a-lakasod": {
+      "lenyomat": "35fdb3d837bd2b72",
+      "hossz": 5215,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://infostart.hu/gazdasag/2026/01/13/megjott-a-friss-inflacios-adat": {
+      "lenyomat": "71cdb7e3bcb5adde",
+      "hossz": 11734,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://www.economx.hu/ingatlan/2026/07/20/ingatlankozvetites-jutalekok-korkep/": {
+      "lenyomat": "d42051ab5f7381d2",
+      "hossz": 11268,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://nav.gov.hu/ado/vendegejszakak-szama": {
+      "lenyomat": "37d9585be6a33245",
+      "hossz": 986,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://nav.gov.hu/print/ado/afa/Emelkedik_az_alanyi_adomentesseg_ertekhatara": {
+      "lenyomat": "e6043697cbd4d79f",
+      "hossz": 2248,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://nav.gov.hu/sajtoszoba/hirek/kozeleg-a-hatarido-de-segit-a-nav": {
+      "lenyomat": "9cb96beacbb6af4e",
+      "hossz": 2497,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    },
+    "https://www.penzcentrum.hu/otthon/20260519/vegleges-tiltas-lep-eletbe-a-fovaros-sziveben-rengeteg-ingatlantulajdonos-bukja-el-emiatt-a-biztos-bevetelt-1198922/amp": {
+      "lenyomat": "31091e4342897ccc",
+      "hossz": 3940,
+      "latva": "2026-11-18",
+      "ellenorizve": "2026-11-18"
+    }
+  }
 }
