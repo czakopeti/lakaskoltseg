@@ -1,6 +1,6 @@
 // Az elszámolás (eredmény) HTML-je. Ugyanezt használja az építő (a HTML-ben már benne van a szám)
 // és a böngésző (élő számolás), így a kettő nem térhet el.
-import * as S from './szamitas.js?v=961a3832';
+import * as S from './szamitas.js?v=f54a26d1';
 
 const nf = new Intl.NumberFormat('hu-HU', { useGrouping: 'always' });
 export const fmt = (n) => nf.format(Math.round(n));
@@ -530,6 +530,47 @@ export function berlesVetelPanel(adat, r) {
   return h;
 }
 
+/* ---------- Rövid vagy hosszú távú kiadás ---------- */
+export function rovidtavPanel(adat, r) {
+  if (r.hiba) return hianyPanel(r.hiba);
+  const fu = (k) => S.szabaly(adat, `rovid_tav.${k}`).forras.url;
+  const R = r.rovid, H = r.hosszu, rov = r.nyero === 'rovid';
+  let h = vegosszeg(rov ? 'Rövid távú kiadással ennyivel több marad évente' : 'Hosszú távú kiadással ennyivel több marad évente', Math.abs(r.kulonbseg),
+    `Havi ${tized(r.ejszaka, 1)} foglalt éjszakával (${tized(r.kihasznaltsag, 0)}% kihasználtság). ${r.fordul === null ? 'Teljes kihasználtsággal sem éri utol a hosszú távú kiadást.' : `A rövid táv havi ${tized(r.fordul, 1)} foglalt éjszakától hoz többet.`}`);
+  if (r.budapest) h += megjegyzes(`Budapesten ${datumIg(r.moratoriumIg)} új rövid távú szálláshelyet nem lehet nyilvántartásba venni, a VI. kerületben pedig tilos. Ha most kezdenéd, előbb kérdezd meg a kerületi önkormányzatot.`, 'figyelem');
+  h += `<div class="ket-modszer"><div class="modszer hoz${rov ? ' nyero' : ''}"><p class="m-cim">Rövid távon</p><p class="m-nagy">${fmt(R.netto)}<small> Ft</small></p><p class="m-al">évente, adó után; havonta ${ftx(R.netto / 12)}</p></div><div class="modszer hoz${rov ? '' : ' nyero'}"><p class="m-cim">Hosszú távon</p><p class="m-nagy">${fmt(H.netto)}<small> Ft</small></p><p class="m-al">évente, adó után; havonta ${ftx(H.netto / 12)}</p></div></div>`;
+  h += '<p class="panel-cim">Rövid távon</p><ul class="tetelek">';
+  h += tetel(`Szállásdíj: ${fmt(r.ejAr)} Ft × ${tized(r.ejszaka, 1)} éj × 12`, ftx(R.brutto), { forras: 'sajat' });
+  if (R.afaKoteles) h += tetel('Áfa, 5%', `−${ftx(R.afa)}`, { cls: 'levonas', forras: 'hivatalos', forrasUrl: fu('afa_mentesseg'), al: 'az éves bevétel meghaladja a 20 millió forintos alanyi mentességet' });
+  h += tetel(`Platform jutaléka, ${tized(r.platform, 1)}%`, `−${ftx(R.platform)}`, { cls: 'levonas', forras: r.platformSajat ? 'sajat' : 'becsles', forrasUrl: fu('platform') });
+  if (R.takaritas) h += tetel(`Takarítás, ${fmt(R.foglalas)} foglalás`, `−${ftx(R.takaritas)}`, { cls: 'levonas', forras: 'sajat', al: `átlagosan ${tized(r.tartozkodas, 1)} éjszakás foglalásokkal` });
+  h += tetel('Turizmusfejlesztési hozzájárulás, 4%', `−${ftx(R.tfh)}`, { cls: 'levonas', forras: 'hivatalos', forrasUrl: fu('tfh') });
+  if (R.rezsi) h += tetel('Rezsi és internet', `−${ftx(R.rezsi)}`, { cls: 'levonas', forras: 'sajat', al: 'hosszú távon ezt a bérlő fizeti' });
+  if (r.kozosEv) h += tetel('Közös költség, biztosítás, adó', `−${ftx(r.kozosEv)}`, { cls: 'levonas', forras: 'sajat' });
+  if (r.egyebEv) h += tetel('Egyéb: kopás, javítás, felszerelés', `−${ftx(r.egyebEv)}`, { cls: 'levonas', forras: 'sajat' });
+  h += tetel(R.legjobb.nev, `−${ftx(R.ado)}`, { cls: 'levonas', forras: 'hivatalos', forrasUrl: fu(R.legjobb.kulcs === 'atalany' ? 'atalany' : 'onallo') });
+  h += tetel('Marad évente', ftx(R.netto), { cls: 'vegso' });
+  h += '</ul>';
+  h += `<p class="panel-cim">Melyik adózás a legjobb?</p><ul class="tetelek lehetosegek">${R.modok.map((m) => `<li class="${m === R.legjobb ? 'kiemelt-sor' : ''}${m.jar ? '' : ' nem-jar'}"><span>${m.nev}<span class="al">${m.miert}</span></span><span class="ossz-ertek">${m.jar ? ftx(m.ado) : 'nem jár'}</span></li>`).join('')}</ul>`;
+  h += '<p class="panel-cim">Hosszú távon</p><ul class="tetelek">';
+  h += tetel(`Bérleti díj: ${fmt(H.havi)} Ft × ${H.honap} hónap`, ftx(H.bevetel), { forras: 'sajat' });
+  if (H.koltseg) h += tetel('Közös költség és egyéb', `−${ftx(H.koltseg)}`, { cls: 'levonas', forras: 'sajat' });
+  h += tetel(`Szja, ${H.modszer === 'teteles' ? 'tételes elszámolással' : '10% költséghányaddal'}`, `−${ftx(H.ado)}`, { cls: 'levonas', forras: 'hivatalos', forrasUrl: S.szabaly(adat, 'berbeadas.ado_mertek').forras.url, al: 'ingatlan-bérbeadásnál szocho nincs' });
+  h += tetel('Marad évente', ftx(H.netto), { cls: 'vegso' });
+  h += '</ul>';
+  h += levezetes([
+    ['Szállásdíj', `${F(r.ejAr)} × ${tized(r.ejszaka, 1)} × 12 = ${F(R.brutto)}${R.afaKoteles ? `, ebből áfa ${F(R.afa)}` : ', alanyi áfamentesen'}`, R.afaKoteles ? 'Áfa tv. 3. sz. melléklet' : 'Áfa tv. 188. §'],
+    ['Költségek', `${F(R.platform)} jutalék + ${F(R.takaritas)} takarítás + ${F(R.tfh)} TFH + ${F(R.rezsi)} rezsi + ${F(r.kozosEv + r.egyebEv)} egyéb = ${F(R.koltseg)}`, ''],
+    ...R.modok.filter((m) => m.jar).map((m) => [m.nev, m.kulcs === 'atalany' ? `${r.szobak} × ${F(m.ado / r.szobak)} = ${F(m.ado)}` : `${F(m.jovedelem)} × 28% = ${F(m.ado)}`, m.kulcs === 'atalany' ? 'Szja tv. 57/A. §' : 'Szja tv. 17. §; Szocho tv.']),
+    ['Rövid távon marad', `${F(R.bevetel)} − ${F(R.koltseg)} − ${F(R.ado)} = ${F(R.netto)}`, ''],
+    ['Hosszú távon marad', `${F(H.bevetel)} − ${F(H.koltseg)} − ${F(H.ado)} = ${F(H.netto)}`, 'Szja tv. 16–17. §'],
+    r.fordul !== null && ['Fordulópont', `havi ${tized(r.fordul, 1)} foglalt éjszakánál egyezik a két összeg`, ''],
+  ]);
+  h = jelekkel(h);
+  h += megjegyzes('Az idegenforgalmi adót a vendégtől szeded be, ezért nincs benne. Nem számoltuk: a platform jutaléka utáni áfát, a berendezés beszerzését és a szocho éves felső határát. Rövid távon a bevétel szezonális: nyáron több, télen kevesebb a foglalás, ezért az éves átlaggal számolj.', 'halk');
+  return h;
+}
+
 /* ---------- A kalkulátorok közös leírása: ugyanez fut az építéskor (minta) és a böngészőben ---------- */
 const sz = (v) => (v === '' || v == null ? NaN : Number(String(v).replace(/[\s  ]/g, '').replace(',', '.')));
 const ures = (e, mezok) => mezok.every((k) => e[k] === '' || e[k] == null || e[k] === false);
@@ -583,6 +624,11 @@ export const KALKULATOROK = {
     kulcs: ['vetelar', 'havi'],
     minta: () => ({ adat: { vetelar: '48000000', egyeb: '600000', felujitas: '2500000', havi: '230000', honap: '11', koltseg: '450000' }, leiras: 'egy 48 millió forintos lakás 2,5 millió forintos felújítással, havi 230 000 forintért kiadva, évi 11 hónapra' }),
     panel: (adat, e) => hozamPanel(adat, S.hozam(adat, { vetelar: sz(e.vetelar), egyeb: sz(e.egyeb), felujitas: sz(e.felujitas), havi: sz(e.havi), honap: e.honap, koltseg: sz(e.koltseg), ev: adat.ev, hitel: sz(e.hitel), kamat: e.kamat === '' || e.kamat == null ? '' : sz(e.kamat), futamido: e.futamido, allampapir: e.allampapir === '' || e.allampapir == null ? '' : sz(e.allampapir) })),
+  },
+  rovidtav: {
+    kulcs: ['ejAr', 'ejszaka', 'hosszuHavi'],
+    minta: () => ({ adat: { ejAr: '32000', ejszaka: '20', tartozkodas: '3', takaritas: '8000', rezsi: '35000', kozosEv: '360000', szobak: '1', telepules: 'budapest', hosszuHavi: '260000' }, leiras: 'egy budapesti egyszobás lakás 32 000 forintért éjszakánként, havi 20 foglalt éjszakával, vagy hosszú távra havi 260 000 forintért' }),
+    panel: (adat, e) => { const o = (k) => (e[k] === '' || e[k] == null ? '' : sz(e[k])); return rovidtavPanel(adat, S.rovidTav(adat, { ejAr: sz(e.ejAr), ejszaka: sz(e.ejszaka), tartozkodas: o('tartozkodas'), platform: o('platform'), takaritas: sz(e.takaritas), rezsi: sz(e.rezsi), kozosEv: sz(e.kozosEv), egyebEv: sz(e.egyebEv), szobak: o('szobak'), telepules: e.telepules || 'budapest', tobbLakas: e.tobbLakas === true, hosszuHavi: sz(e.hosszuHavi), hosszuHonap: o('hosszuHonap') })); },
   },
   indulo: {
     kulcs: ['vetelar'],

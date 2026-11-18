@@ -26,6 +26,7 @@ Mennyi adó jár a bérleti díj után, és mikor kell befizetni.
 
 - [Lakáskiadás adója](https://lakaskoltseg.pages.dev/lakaskiadas-ado-kalkulator/): lakáskiadás szja-ja: 10% költséghányad vagy tételes elszámolás, a döntési pont, negyedéves adóelőleg és bevallás naptárfájlban
 - [Megéri kiadásra venni?](https://lakaskoltseg.pages.dev/lakas-befektetes-hozam-kalkulator/): kiadásra vett lakás bruttó és nettó hozama illetékkel, felújítással, üres hónapokkal, költségekkel és szja-val
+- [Airbnb vagy hosszú távú kiadás](https://lakaskoltseg.pages.dev/airbnb-vagy-hosszu-tavu-kiadas/): rövid távú (Airbnb, Booking) vagy hosszú távú lakáskiadás adó után: tételes átalányadó lakószobánként (Budapesten 150 000, máshol 38 400 Ft/év), 10% költséghányad vagy tételes elszámolás 15% szja és 13% szocho mellett, 5% áfa 20 millió forint felett, 4% turizmusfejlesztési hozzájárulás, platformjutalék, takarítás, rezsi; fordulópont foglalt éjszakában; a budapesti moratórium és a kerületi tilalmak
 - [Bérleti díj emelése az inflációval](https://lakaskoltseg.pages.dev/berleti-dij-emeles-inflacio/): bérleti díj emelése a KSH előző évi átlagos inflációjával (2022: 14,5%, 2023: 17,6%, 2024: 3,7%, 2025: 4,4%)
 
 ## Örökölsz vagy ajándékba kapod

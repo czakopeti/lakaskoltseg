@@ -106,3 +106,31 @@ test('az új panelek mintával és kitöltve is rendereznek', () => {
   assert.match(M.kalkHtml('eladas', adat, { eladasiAr: '24000000', szerzesEv: '2024', szerzesiErtek: '16000000', allagmegovas: '500000' }).html, /nem vonható le/);
   assert.match(M.kalkHtml('eladas', adat, { eladasiAr: '24000000', szerzesEv: '2024', ismeretlen: true }).html, /25%/);
 });
+
+test('rövid vagy hosszú távú kiadás: adózási módok, áfahatár, fordulópont', () => {
+  const alap = { ejAr: 32000, ejszaka: 20, tartozkodas: 3, takaritas: 8000, rezsi: 35000, kozosEv: 360000, szobak: 1, telepules: 'budapest', hosszuHavi: 260000 };
+  const r = S.rovidTav(adat, alap);
+  assert.equal(r.rovid.brutto, 32000 * 20 * 12);
+  assert.equal(r.rovid.afa, 0, '20 millió alatt alanyi mentes');
+  assert.equal(r.rovid.legjobb.kulcs, 'atalany');
+  assert.equal(r.rovid.ado, 150000);
+  assert.equal(r.rovid.platform, Math.round(r.rovid.brutto * 0.155));
+  assert.equal(r.rovid.tfh, Math.round(r.rovid.bevetel * 0.04));
+  // vidéken 38 400 Ft szobánként; két lakásnál nincs átalány
+  assert.equal(S.rovidTav(adat, { ...alap, telepules: 'mas', szobak: 2 }).rovid.ado, 76800);
+  const tobb = S.rovidTav(adat, { ...alap, tobbLakas: true });
+  assert.notEqual(tobb.rovid.legjobb.kulcs, 'atalany');
+  const t = tobb.rovid.modok.find((m) => m.kulcs === 'teteles');
+  assert.equal(t.ado, Math.round((tobb.rovid.bevetel - tobb.rovid.koltseg) * 0.28));
+  // 20 millió felett 5% áfa a díjban
+  const nagy = S.rovidTav(adat, { ...alap, ejAr: 90000, ejszaka: 25 });
+  assert.equal(nagy.rovid.afaKoteles, true);
+  assert.equal(nagy.rovid.afa, Math.round(90000 * 25 * 12 * 5 / 105));
+  // a fordulóponton a két nettó egyezik
+  const f = S.rovidTav(adat, { ...alap, ejszaka: r.fordul });
+  assert.ok(f.kulonbseg >= 0, `fordulópont: ${r.fordul}, különbség ${f.kulonbseg}`);
+  assert.ok(S.rovidTav(adat, { ...alap, ejszaka: Math.round((r.fordul - 0.1) * 10) / 10 }).kulonbseg < 0, 'egy tizeddel alatta még a hosszú táv nyer');
+  // hosszú táv: ugyanaz, mint a kiadás adója kalkulátorban
+  assert.equal(r.hosszu.ado, S.berbeadas(adat, { havi: 260000, honap: 12, koltseg: 360000, ev: 2026 }).ado);
+  assert.ok(S.rovidTav(adat, { ...alap, ejszaka: 40 }).hiba);
+});

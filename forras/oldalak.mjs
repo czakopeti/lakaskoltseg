@@ -16,6 +16,7 @@ export const FOOLDAL_KARTYAK = {
   'elotorlesztes-kalkulator/': [() => 'Mennyi kamatot spórolsz, ha a futamidőt rövidíted, vagy ha a törlesztőt csökkented.', 'Kiszámolom'],
   'berleti-dij-emeles-inflacio/': [() => 'Az új bérleti díj a KSH előző évi átlagos inflációjával, minden évben frissítve.', 'Kiszámolom'],
   'lakas-befektetes-hozam-kalkulator/': [() => 'Bruttó és nettó hozam a vételárral, az illetékkel, a költségekkel és az adóval.', 'Kiszámolom'],
+  'airbnb-vagy-hosszu-tavu-kiadas/': [() => 'Melyik hoz többet adó után: rövid távon turistáknak, vagy hosszú távon egy bérlőnek, és hány foglalt éjszakától éri meg.', 'Kiszámolom'],
   'lakasvasarlas-koltsegei-kalkulator/': [() => 'Önerő, illeték, ügyvéd, földhivatal, közjegyző és banki díjak, időrendben: mennyi saját pénz kell, és mennyi hiányzik.', 'Kiszámolom'],
   'alberlet-vagy-lakasvasarlas-kalkulator/': [() => 'A vagyonod 10 vagy 20 év múlva, ha megveszed, és ha bérelsz, három forgatókönyvben a lakásárakra.', 'Kiszámolom'],
   'vagyonszerzesi-illetek-kalkulator/': [() => 'Mennyi illetéket fizetsz a megvett lakás után, és melyik kedvezmény jár: cserét pótló vétel, új lakás, első lakás 35 év alatt, CSOK Plusz.', 'Kiszámolom'],
@@ -184,6 +185,7 @@ function kalkOldal(k, o) {
   const kezdo = M.kalkHtml(o.tipus, adatJson, {}).html;
   const tartalom = (L) => `
 ${oldalfej(L, { morzsa: [o.nev], cim: o.cim, valasz: o.valasz, friss: M.datumNapon(k.adat.allapot.utolso_ellenorzes || k.ma) })}
+<p class="csak-nyomtatas nyomtat-fej"><strong>${esc(o.cim)}</strong><br>${esc(k.cfg.marka)}, ${esc(k.cfg.domain.replace(/^https?:\/\//, ''))}/${o.ut}. A szabályokat utoljára ${M.datumNapon(k.adat.allapot.utolso_ellenorzes || k.ma)} ellenőriztük. Tájékoztató számítás, nem adótanácsadás.</p>
 <div class="keret asztal">
 ${forgalmi({ kalk: o.tipus, cim: o.urlapCim, al: o.urlapAl || '', tartalom: o.urlap, extra: ` data-kalk-nev="${o.tipus}"` })}
 ${elszamolas(k, kezdo, { kesz: true })}
@@ -192,7 +194,7 @@ ${elszamolas(k, kezdo, { kesz: true })}
 ${o.cikk}
 <h2>Gyakori kérdések</h2>
 ${gyik(o.kerdesek)}
-<h2>Források</h2>
+<h2 class="forras-cim">Források</h2>
 ${forrasokBol(k.adat, o.forrasKulcsok, (o.forrasExtra || []).filter((x) => x.nev))}
 ${tovabb(L, o.ut)}
 </article></div>`;
@@ -797,5 +799,59 @@ ${sor('', szamMezo({ id: 'karbantartas', cim: 'Karbantartás évente', me: '%', 
       { k: 'Mennyit hoz a pénz, ha nem veszek lakást?', v: [esc(S.szabaly(adat, 'berles_vetel.allampapir').szoveg)] },
     ],
     forrasKulcsok: ['berles_vetel.allampapir', 'berles_vetel.karbantartas', 'berles_vetel.forgatokonyv', 'wekerle_plusz.piaci_kamat', 'illetek.altalanos_mertek', 'vetel_koltsegek.ugyvedi'],
+  });
+}
+
+/* ======================= RÖVID VAGY HOSSZÚ TÁVÚ KIADÁS ======================= */
+export const ROVID_UT = 'airbnb-vagy-hosszu-tavu-kiadas/';
+export function rovidtavOldal(k) {
+  const { adat } = k;
+  const v = (kk) => S.szabaly(adat, `rovid_tav.${kk}`);
+  const at = v('atalany').ertek;
+  const p = S.rovidTav(adat, { ejAr: 32000, ejszaka: 20, tartozkodas: 3, takaritas: 8000, rezsi: 35000, kozosEv: 360000, szobak: 1, telepules: 'budapest', hosszuHavi: 260000 });
+  return kalkOldal(k, {
+    ut: ROVID_UT, tipus: 'rovidtav', nev: 'Airbnb vagy hosszú távú kiadás', temak: ['berbeadas', 'rovid_tav'],
+    oldalCim: `Airbnb vagy hosszú távú kiadás kalkulátor ${k.ev}: melyik hoz többet adó után?`,
+    leiras: `Rövid távú (Airbnb, Booking) és hosszú távú lakáskiadás adó után: tételes átalányadó (${M.fmt(at.budapest_ft)} Ft/szoba Budapesten), 10% költséghányad vagy tételes elszámolás, áfa, turizmusfejlesztési hozzájárulás, jutalék, takarítás, rezsi, és a fordulópont.`,
+    cim: 'Airbnb vagy hosszú távú bérlő: melyik hoz többet?',
+    valasz: `A foglalt éjszakák száma dönti el. Egy budapesti egyszobás lakásnál 32 000 forintos éjszakai árral és havi 20 foglalt éjszakával rövid távon évi ${M.fmt(p.rovid.netto)} Ft marad, hosszú távon havi 260 000 forintért ${M.fmt(p.hosszu.netto)} Ft. A rövid táv itt havi ${M.tized(p.fordul, 1)} foglalt éjszakától hoz többet.`,
+    urlapCim: 'A lakás kétféle kiadása', urlapAl: 'Szálláshely vagy bérlet',
+    urlap: `
+<fieldset>${reszCim('I.', 'A lakás')}
+${sor('', negyzetek('telepules', 'Hol van?', [['budapest', 'Budapesten'], ['mas', 'Máshol']], ''))}
+${sor('', szamMezo({ id: 'szobak', cim: 'Lakószobák', me: 'szoba', placeholder: '1', min: 1, max: 8, sugo: 'A tételes átalányadó lakószobánként jár. Ahol ágy elfér, az lakószoba.' }))}
+${sor('', jelolo('tobbLakas', 'Több lakásban is adsz ki szállást', 'Ilyenkor a tételes átalányadó nem választható.'))}
+${sor('', szamMezo({ id: 'kozosEv', cim: 'Közös költség, biztosítás, építményadó', me: 'Ft/év', placeholder: 'pl. 360 000', min: 0, szeles: true, sugo: 'Ami mindkét esetben a tiéd.' }))}
+</fieldset>
+<fieldset>${reszCim('', 'Rövid távon')}
+${sor('', szamMezo({ id: 'ejAr', cim: 'Ár egy éjszakára', me: 'Ft', placeholder: 'pl. 32 000', min: 0, szeles: true, sugo: 'Amit a vendég fizet, az idegenforgalmi adó nélkül.' }))}
+${sor('', szamMezo({ id: 'ejszaka', cim: 'Foglalt éjszakák havonta', me: 'éj', placeholder: 'pl. 20', min: 0, max: 31, tized: true, sugo: 'Az éves átlag. Nyáron több, télen kevesebb.' }))}
+${sor('', szamMezo({ id: 'tartozkodas', cim: 'Átlagos tartózkodás', me: 'éj', placeholder: '3', min: 1, tized: true }))}
+${sor('', szamMezo({ id: 'takaritas', cim: 'Takarítás és mosatás foglalásonként', me: 'Ft', placeholder: 'pl. 8 000', min: 0, szeles: true }))}
+${sor('', szamMezo({ id: 'rezsi', cim: 'Rezsi és internet havonta', me: 'Ft', placeholder: 'pl. 35 000', min: 0, szeles: true, sugo: 'Rövid távon a tiéd, hosszú távon a bérlőé.' }))}
+${sor('', szamMezo({ id: 'platform', cim: 'A platform jutaléka', me: '%', placeholder: M.tized(v('platform').ertek.szazalek, 1), tized: true, sugo: 'Az Airbnb a legtöbb szállásadótól ennyit von le.' }))}
+${sor('', szamMezo({ id: 'egyebEv', cim: 'Kopás, javítás, felszerelés', me: 'Ft/év', placeholder: 'pl. 300 000', min: 0, szeles: true }))}
+</fieldset>
+<fieldset>${reszCim('', 'Hosszú távon')}
+${sor('', szamMezo({ id: 'hosszuHavi', cim: 'Havi bérleti díj', me: 'Ft', placeholder: 'pl. 260 000', min: 0, szeles: true }))}
+${sor('', szamMezo({ id: 'hosszuHonap', cim: 'Hány hónapig van kiadva egy évben?', me: 'hónap', placeholder: '12', min: 1, max: 12 }))}
+</fieldset>`,
+    cikk: `<h2>Mi a különbség adóban?</h2>
+<p>A hosszú távú bérbeadás ingatlan-bérbeadás: 15% szja, szocho nélkül. A rövid távú kiadás szálláshely-szolgáltatás: adószám, NTAK-regisztráció és bejelentés a jegyzőnél kell hozzá, és három adózási mód közül választhatsz.</p>
+<div class="tabla-tarto"><table class="tabla"><thead><tr><th>Adózási mód</th><th>Mennyi</th><th>Mikor jó</th></tr></thead><tbody>
+<tr><th scope="row">Tételes átalányadó</th><td>lakószobánként ${M.fmt(at.budapest_ft)} Ft Budapesten, ${M.fmt(at.mashol_ft)} Ft máshol, évente</td><td>ha jól megy a kiadás; csak egy lakásra</td></tr>
+<tr><th scope="row">10% költséghányad</th><td>a bevétel 90%-a után 15% szja és 13% szocho</td><td>ritkán éri meg</td></tr>
+<tr><th scope="row">Tételes költségelszámolás</th><td>a bevétel és a számlával igazolt költségek különbsége után 15% szja és 13% szocho</td><td>ha sok a költség, vagy több lakást adsz ki</td></tr>
+</tbody></table></div>
+<p>Ehhez jön a turizmusfejlesztési hozzájárulás (a szállásdíj ${v('tfh').ertek.szazalek}%-a), és ha az éves bevétel eléri a ${M.fmt(v('afa_mentesseg').ertek.ft / 1e6)} millió forintot, ${v('afa_mertek').ertek.szazalek}% áfa. Az idegenforgalmi adót a vendégtől szeded be.</p>
+<h2>Budapest, ${M.datumHu(k.ma)}</h2>
+<p>${esc(v('budapest').szoveg)} A kerületi szabályok gyakran változnak, ezért mielőtt belekezdesz, mindig kérdezd meg az önkormányzatot.</p>`,
+    kerdesek: [
+      { k: 'Mennyi az Airbnb adója Budapesten?', v: [esc(v('atalany').szoveg)] },
+      { k: 'Kell áfát fizetni rövid távú kiadás után?', v: [esc(v('afa_mentesseg').szoveg), esc(v('afa_mertek').szoveg), esc(v('afa_mentesseg').megjegyzes)] },
+      { k: 'Kezdhetek most Airbnb-zni Budapesten?', v: [esc(v('budapest').szoveg)] },
+      { k: 'Ki fizeti az idegenforgalmi adót?', v: [esc(v('ifa').szoveg)] },
+    ],
+    forrasKulcsok: ['rovid_tav.atalany', 'rovid_tav.onallo', 'rovid_tav.afa_mentesseg', 'rovid_tav.afa_mertek', 'rovid_tav.tfh', 'rovid_tav.platform', 'rovid_tav.budapest', 'berbeadas.ado_mertek'],
   });
 }

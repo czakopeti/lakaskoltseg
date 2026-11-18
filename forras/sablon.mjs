@@ -32,6 +32,7 @@ export const CSOPORTOK = [
   { id: 'kiadod', cim: 'Kiadod a lakásod', bevezeto: 'Mennyi adó jár a bérleti díj után, és mikor kell befizetni.', elemek: [
     ['lakaskiadas-ado-kalkulator/', 'Kiadás adója', '10% vagy tételes, határidőkkel', 'Lakáskiadás adója'],
     ['lakas-befektetes-hozam-kalkulator/', 'Megéri kiadásra venni?', 'Bruttó és nettó hozam', 'Megéri kiadásra venni?'],
+    ['airbnb-vagy-hosszu-tavu-kiadas/', 'Airbnb vagy hosszú táv', 'Melyik hoz többet adó után', 'Airbnb vagy hosszú távú kiadás'],
     ['berleti-dij-emeles-inflacio/', 'Bérleti díj emelése', 'A KSH átlagos inflációjával', 'Bérleti díj emelése az inflációval'],
   ] },
   { id: 'orokolsz', cim: 'Örökölsz vagy ajándékba kapod', bevezeto: 'Családon belül többnyire nincs illeték, de a haszonélvezet és a terhek számítanak.', elemek: [
@@ -55,7 +56,7 @@ export const csoportja = (ut) => CSOPORTOK.find((cs) => cs.elemek.some(([u]) => 
 const HAMBURGER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 
 /** A kalkulátorok címe a kalkulátor kulcsa szerint: a „Következő lépés” linkjeihez (app.mjs). */
-export const KALK_UTAK = { indulo: 'lakasvasarlas-koltsegei-kalkulator/', berlesvetel: 'alberlet-vagy-lakasvasarlas-kalkulator/', hitelkepesseg: 'mennyi-lakashitelt-kaphatok/', ingyenes: 'oroklesi-ajandekozasi-illetek-kalkulator/', haszonelvezet: 'haszonelvezeti-jog-erteke/', elotorlesztes: 'elotorlesztes-kalkulator/', emeles: 'berleti-dij-emeles-inflacio/', hozam: 'lakas-befektetes-hozam-kalkulator/', eladas: 'ingatlaneladas-szja-kalkulator/', illetek: 'vagyonszerzesi-illetek-kalkulator/', wekerle: 'wekerle-plusz-kalkulator/', kiadas: 'lakaskiadas-ado-kalkulator/', lakasvaltas: 'lakasvaltas-kalkulator/' };
+export const KALK_UTAK = { rovidtav: 'airbnb-vagy-hosszu-tavu-kiadas/', indulo: 'lakasvasarlas-koltsegei-kalkulator/', berlesvetel: 'alberlet-vagy-lakasvasarlas-kalkulator/', hitelkepesseg: 'mennyi-lakashitelt-kaphatok/', ingyenes: 'oroklesi-ajandekozasi-illetek-kalkulator/', haszonelvezet: 'haszonelvezeti-jog-erteke/', elotorlesztes: 'elotorlesztes-kalkulator/', emeles: 'berleti-dij-emeles-inflacio/', hozam: 'lakas-befektetes-hozam-kalkulator/', eladas: 'ingatlaneladas-szja-kalkulator/', illetek: 'vagyonszerzesi-illetek-kalkulator/', wekerle: 'wekerle-plusz-kalkulator/', kiadas: 'lakaskiadas-ado-kalkulator/', lakasvaltas: 'lakasvaltas-kalkulator/' };
 
 /** Linkkészítő: élesben /ut/, előnézetben relatív útvonal index.html-lel. */
 export function linkelo(oldalUt, elonezet) {

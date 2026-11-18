@@ -412,7 +412,19 @@ table.tabla { width: 100%; border-collapse: collapse; font-size: 15.5px; border-
 }
 
 @media print {
-  .fejlec, .lablec, .elsz-lab, .mini, .pecset, .csak-kepernyo, .oldalfej, .cikk { display: none !important; }
+  .fejlec, .lablec, .elsz-lab, .mini, .pecset, .csak-kepernyo, .oldalfej { display: none !important; }
+  /* A kimutatás végén a források maradnak meg a cikkből: így a nyomtatott vagy PDF-be mentett számításon ott a jogszabály és a dátum. */
+  .cikk > *:not(.forras-cim):not(.forrasok) { display: none !important; }
+  .cikk .forras-cim { font-size: 14pt; margin-top: 10mm; }
+  .nyomtat-fej { display: block !important; font-size: 10.5pt; margin: 0 0 6mm; }
+  /* A kimutatás egy oszlop: a beírt számok az elszámolásban „saját” jelöléssel szerepelnek, az űrlap nem kell */
+  .asztal > form.forgalmi { display: none !important; }
+  .asztal { display: block !important; }
+  .asztal > .elszamolas { position: static; box-shadow: none; border: 0; padding: 0; max-width: none; }
+  .forras-cim { break-after: avoid; }
+  .cikk, .cikk .forras-cim { padding-top: 0; margin-top: 6mm; }
+  .tetelek li, .idorend li, .levezetes li { break-inside: avoid; }
+  .levezetes > summary { list-style: none; }
   .szerzodes-tarto { display: block; }
   .szerzodes-lap { position: static; box-shadow: none; max-height: none; overflow: visible; padding: 0; font-size: 12pt; }
   @page { margin: 18mm; }
@@ -1031,3 +1043,7 @@ h3 { font-weight: 600; }
 .nyugodt .ir-sav, .nyugodt .pr-v, .nyugodt .pr-b { animation: none; }
 @media (prefers-reduced-motion: reduce) { .ir-sav, .pr-v, .pr-b { animation: none !important; } }
 @media (max-width: 520px) { .elszamolas .tabla { font-size: 13px; } .elszamolas .tabla th, .elszamolas .tabla td { padding-left: 4px; padding-right: 4px; } }
+.modszer.nyero.hoz::before { content: "többet hoz"; }
+
+.csak-nyomtatas { display: none; }
+.modszer .m-nagy small { white-space: nowrap; }

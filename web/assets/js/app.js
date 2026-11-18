@@ -1,7 +1,7 @@
 // Böngészős réteg: menü, űrlapok, élő elszámolás, megosztható link.
 // Szerverre csak az megy, amit a látogató a visszajelzés-dobozban maga elküld.
-import * as S from './szamitas.js?v=961a3832';
-import * as M from './megjelenites.js?v=961a3832';
+import * as S from './szamitas.js?v=f54a26d1';
+import * as M from './megjelenites.js?v=f54a26d1';
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -325,6 +325,10 @@ function indit() {
     setTimeout(() => (masol.textContent = masolFelirat), 2600);
   });
   $$('[data-nyomtat]').forEach((g) => g.addEventListener('click', () => { meres('nyomtat'); try { print(); } catch { /* */ } }));
+  // Nyomtatáskor (és PDF-be mentéskor) a levezetés is látsszon, utána álljon vissza, ahogy volt
+  let zartak = [];
+  addEventListener('beforeprint', () => { zartak = $$('details.levezetes:not([open])'); zartak.forEach((d) => { d.open = true; }); });
+  addEventListener('afterprint', () => { zartak.forEach((d) => { d.open = false; }); zartak = []; });
 }
 
 indit();

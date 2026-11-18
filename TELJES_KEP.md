@@ -31,7 +31,7 @@ Minden, amit egy lakással kapcsolatban ki lehet számolni vagy el kell dönteni
 |---|---|---|---|---|
 | Lakáskiadás adója: 10% vagy tételes | 4 | 4 | 5 | **Kész** |
 | Hozam: megéri-e kiadásra venni | 4 | 4 | 4 | **Kész** |
-| Rövid távú kiadás (szálláshely): tételes átalány, helyi szabályok | 3 | 4 | 2 | Nem most (9 pont): a budapesti kerületi tilalmak és a tételes átalány szabályai sűrűn változnak. |
+| Rövid távú kiadás (Airbnb) vagy hosszú távú | 4 | 4 | 4 | **Kész** (újrapontozva 12 pontra, mert a budapesti moratórium 2026 végén lejár): a három adózási mód, áfa, turizmusfejlesztési hozzájárulás, jutalék, fordulópont foglalt éjszakában. A kerületi szabályokból nem építünk adatbázist, csak a mai állapotot írjuk ki dátummal. |
 | Bérleti díj emelése az inflációval (KSH) | 3 | 4 | 5 | **Kész** |
 | Lakásbérleti szerződés, kitölthető | 5 | 2 | 3 | Nem most (10 pont): jogi minta, ügyvédi ellenőrzés nélkül nem adnánk ki. |
 
@@ -90,3 +90,16 @@ Ami még hiányzik a teljes fedéshez:
 | ingatlan5.hu | Életjáradék, értékbecslés | Nem építjük: az értékbecsléshez nincs ingyenes, megbízható adat |
 
 Ami csak nálunk van: lakásváltás eladással és vétellel egy lapon, a Wekerle Plusz feltételenként a rendelet paragrafusával, a hitelképesség összevetve a Wekerle Plusszal, a lakáskiadás döntési pontja, határidők naptárfájlban, minden szabály forrással és az ellenőrzés napjával, és heti forrásfigyelő.
+
+
+# Külső javaslatok (2026. november 18.)
+
+Egy másik értékelés öt fejlesztést javasolt. Pontozás (K: kereslet, R: rés a piacon, M: mennyire tudjuk megbízhatóan, 1–5):
+
+| Javaslat | K | R | M | Döntés |
+|---|---|---|---|---|
+| Teljes lakásvásárlási költség | 5 | 4 | 4 | Kész ugyanezen a napon |
+| Bérlés vagy vásárlás, átlátható módszertannal | 4 | 4 | 4 | Kész, a módszertan az oldalon és a levezetésben |
+| Kalkulátorok összekapcsolása | 4 | 4 | 5 | **Kész** a „Következő lépés” linkjeivel: a vásárlási lánc (induló költség, hitel, Wekerle Plusz, illeték, bérlés vagy vétel) továbbadja az árat. Közös, böngészőben tárolt profilt nem építünk, mert az űrlapnak üresen kell nyílnia, és ami a látogató gépén marad, azt mi nem látjuk. |
+| Letölthető, megosztható eredmény | 3 | 3 | 5 | **Kész**: a nyomtatás (és a PDF-be mentés) egyoszlopos kimutatás fejléccel, a nyitott levezetéssel és a forráslistával; a megosztható link már megvolt. Külön PDF-generátor nem kell, a böngésző tudja. |
+| Ellenőrizhető számítási motor | 5 | 5 | 5 | Megvan: 55 teszt publikált példákkal, a kedvezmények közül a legkedvezőbbet választjuk, heti forrásfigyelő. |

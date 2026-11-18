@@ -13,6 +13,7 @@ const TELE = { eladasiAr: '60000000', szerzesiErtek: '40000000', szerzesEv: '202
   jovedelem: '700000', meglevo: '20000', periodus: 'kozep', kamat: '6', zold: true, elsoLakas: true, jogcim: 'ajandek', vagyon: 'lakas', terhek: '1000000', rokonsag: 'egyeb',
   tipus: 'hatarozott', kor: '60', evek: '10', rokon: false, toke: '20000000', ev: '2024', osszeg: '2000000', dij: '1', dij2: '', sajat: '',
   allagmegovas: '3500000', ismeretlen: false, hitel: '40000000', allampapir: '4,5', berlet: '220000', kozos: '25000', arNo: '4', berNo: '4', hozam: '4,5', karbantartas: '1,5',
+  ejAr: '30000', ejszaka: '18', tartozkodas: '2,5', platform: '15', takaritas: '7000', rezsi: '30000', kozosEv: '300000', egyebEv: '200000', szobak: '2', telepules: 'budapest', tobbLakas: false, hosszuHavi: '250000', hosszuHonap: '11',
   tamogatott: true, ugyvedi: '400000', ertekbecsles: '0', kozjegyzo: '60000', folyositas: '0', foglalo: '10' };
 
 test('minden kalkulátor lefut a saját oldalának adataival, minden mező kitöltve', () => {
@@ -31,5 +32,5 @@ test('minden kalkulátor lefut a saját oldalának adataival, minden mező kitö
     assert.match(M.kalkHtml(tipus, adat, e).html, /data-osszeg|class="ures"/, d.name);
     db++;
   }
-  assert.ok(db >= 13, `kalkulátoroldalak: ${db}`);
+  assert.ok(db >= 14, `kalkulátoroldalak: ${db}`);
 });

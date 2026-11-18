@@ -69,6 +69,7 @@ const oldalak = [
   [O.ELADAS_UT, O.eladasOldal(k)],
   [O.KIADAS_UT, O.kiadasOldal(k)],
   [O.HOZAM_UT, O.hozamOldal(k)],
+  [O.ROVID_UT, O.rovidtavOldal(k)],
   [O.EMELES_UT, O.emelesOldal(k)],
   [O.INGYENES_UT, O.ingyenesOldal(k)],
   [O.HASZON_UT, O.haszonelvezetOldal(k)],
@@ -140,6 +141,7 @@ https://:version.:project.pages.dev/*
   // A szöveges térkép az AI-asszisztenseknek: ugyanazok a csoportok és ugyanaz a sorrend, mint a főoldalon.
   const LLMS = {
     'mennyi-lakashitelt-kaphatok/': `felvehető lakáshitel az MNB 2026-os szabályai szerint: JTM 25–60% a jövedelemtől (800 000 Ft-os küszöb) és a kamatperiódustól függően, HFM 80% (első lakásnál 90%), összevetve a Wekerle Plusszal`,
+    'airbnb-vagy-hosszu-tavu-kiadas/': `rövid távú (Airbnb, Booking) vagy hosszú távú lakáskiadás adó után: tételes átalányadó lakószobánként (Budapesten 150 000, máshol 38 400 Ft/év), 10% költséghányad vagy tételes elszámolás 15% szja és 13% szocho mellett, 5% áfa 20 millió forint felett, 4% turizmusfejlesztési hozzájárulás, platformjutalék, takarítás, rezsi; fordulópont foglalt éjszakában; a budapesti moratórium és a kerületi tilalmak`,
     'lakasvasarlas-koltsegei-kalkulator/': `mennyi saját pénz kell egy lakás megvételéhez: önerő (HFM 80%, első lakásnál 90%), illeték a kedvezményekkel, ügyvédi díj, földhivatal (10 600 Ft, jelzálog 20 000 Ft), értékbecslés, közjegyzői díj a díjszabás sávjai szerint, folyósítási díj; időrendben, a megtakarításból hiányzó összeggel`,
     'alberlet-vagy-lakasvasarlas-kalkulator/': `albérlet vagy hitelből vétel: a vagyon N év múlva havi modellel, illetékkel és mellékköltségekkel, karbantartással, a bérlő pénze Prémium Magyar Állampapírban; három forgatókönyv a lakásárakra (infláció ±3 százalékpont), és melyik évben kerül előre a vétel`,
     'elotorlesztes-kalkulator/': `lakáshitel előtörlesztése: kamatmegtakarítás rövidebb futamidővel vagy kisebb törlesztővel, az előtörlesztési díj után`,

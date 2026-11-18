@@ -325,6 +325,10 @@ function indit() {
     setTimeout(() => (masol.textContent = masolFelirat), 2600);
   });
   $$('[data-nyomtat]').forEach((g) => g.addEventListener('click', () => { meres('nyomtat'); try { print(); } catch { /* */ } }));
+  // Nyomtatáskor (és PDF-be mentéskor) a levezetés is látsszon, utána álljon vissza, ahogy volt
+  let zartak = [];
+  addEventListener('beforeprint', () => { zartak = $$('details.levezetes:not([open])'); zartak.forEach((d) => { d.open = true; }); });
+  addEventListener('afterprint', () => { zartak.forEach((d) => { d.open = false; }); zartak = []; });
 }
 
 indit();

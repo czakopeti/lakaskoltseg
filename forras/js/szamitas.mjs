@@ -550,21 +550,84 @@ export function berlesVetel(adat, b) {
     hfmFelett: ind.hfmFelett, hfmSz: ind.hfmSz };
 }
 
+/* ---------------- Rövid vagy hosszú távú kiadás ---------------- */
+/** Egy év rövid távú kiadás egy adott kihasználtsággal: bevétel, költség, a három adózási mód, és ami marad. */
+function rovidEv(adat, b, ejszaka) {
+  const v = (k) => szabaly(adat, `rovid_tav.${k}`).ertek;
+  const brutto = b.ejAr * ejszaka * 12;
+  const afaKoteles = brutto > v('afa_mentesseg').ft;
+  const afa = afaKoteles ? brutto * v('afa_mertek').szazalek / (100 + v('afa_mertek').szazalek) : 0;
+  const bevetel = brutto - afa;
+  const platform = brutto * b.platform / 100;
+  const foglalas = b.tartozkodas > 0 ? ejszaka * 12 / b.tartozkodas : 0;
+  const takaritas = foglalas * b.takaritas;
+  const tfh = bevetel * v('tfh').szazalek / 100;
+  const rezsi = b.rezsi * 12;
+  const koltseg = platform + takaritas + tfh + rezsi + b.kozosEv + b.egyebEv;
+  const o = v('onallo'), at = v('atalany');
+  const kulcs = o.szja_szazalek + o.szocho_szazalek;
+  const modok = [
+    { kulcs: 'atalany', nev: 'Tételes átalányadó', jar: !b.tobbLakas, ado: b.szobak * (b.budapest ? at.budapest_ft : at.mashol_ft), miert: b.tobbLakas ? 'csak akkor választható, ha egyetlen lakásban adsz ki szállást' : `${b.szobak} lakószoba × ${fmtSzam(b.budapest ? at.budapest_ft : at.mashol_ft)} Ft, a bevételtől függetlenül` },
+    { kulcs: 'koltseghanyad', nev: '10% költséghányaddal', jar: true, jovedelem: bevetel * (100 - o.koltseghanyad_szazalek) / 100, miert: `a bevétel ${100 - o.koltseghanyad_szazalek}%-a után ${o.szja_szazalek}% szja és ${o.szocho_szazalek}% szocho` },
+    { kulcs: 'teteles', nev: 'Tételes költségelszámolással', jar: true, jovedelem: Math.max(0, bevetel - koltseg), miert: `a bevétel és a költségek különbsége után ${o.szja_szazalek}% szja és ${o.szocho_szazalek}% szocho` },
+  ];
+  for (const m of modok) if (m.ado === undefined) m.ado = Math.round(m.jovedelem * kulcs / 100);
+  const legjobb = modok.filter((m) => m.jar).reduce((a, m) => (m.ado < a.ado ? m : a));
+  return { ejszaka, brutto, afaKoteles, afa: Math.round(afa), bevetel: Math.round(bevetel), platform: Math.round(platform), foglalas, takaritas: Math.round(takaritas), tfh: Math.round(tfh), rezsi, koltseg: Math.round(koltseg), modok, legjobb, ado: legjobb.ado,
+    netto: Math.round(bevetel - koltseg - legjobb.ado) };
+}
+/**
+ * b: { ejAr (Ft/éj, amit a vendég fizet, idegenforgalmi adó nélkül), ejszaka (foglalt éj havonta), tartozkodas (éj/foglalás), platform (%), takaritas (Ft/foglalás), rezsi (Ft/hó),
+ *      kozosEv, egyebEv (Ft/év), szobak, telepules: 'budapest'|'mas', tobbLakas, hosszuHavi, hosszuHonap }
+ */
+export function rovidTav(adat, b) {
+  const megadott = (x) => !(x === '' || x == null || Number.isNaN(Number(x)));
+  const ejAr = Number(b.ejAr), ejszaka = Number(b.ejszaka), hosszuHavi = Number(b.hosszuHavi);
+  if (!(ejAr > 0)) return { hiba: 'Add meg, mennyit fizet a vendég egy éjszakára.' };
+  if (!(ejszaka > 0)) return { hiba: 'Add meg, havonta hány éjszakára foglalnak.' };
+  if (ejszaka > 31) return { hiba: 'Egy hónapban legfeljebb 31 foglalt éjszaka lehet.' };
+  if (!(hosszuHavi > 0)) return { hiba: 'Add meg, mennyiért adnád ki hosszú távra havonta.' };
+  const v = (k) => szabaly(adat, `rovid_tav.${k}`).ertek;
+  const p = {
+    ejAr, tartozkodas: megadott(b.tartozkodas) && Number(b.tartozkodas) > 0 ? Number(b.tartozkodas) : 3,
+    platform: megadott(b.platform) ? Number(b.platform) : v('platform').szazalek, platformSajat: megadott(b.platform),
+    takaritas: nem0(b.takaritas), rezsi: nem0(b.rezsi), kozosEv: nem0(b.kozosEv), egyebEv: nem0(b.egyebEv),
+    szobak: megadott(b.szobak) && Number(b.szobak) >= 1 ? Math.round(Number(b.szobak)) : 1,
+    budapest: b.telepules !== 'mas', tobbLakas: b.tobbLakas === true,
+  };
+  const r = rovidEv(adat, p, ejszaka);
+  // Hosszú távon a rezsit a bérlő fizeti; a közös költség és az egyéb költség a tulajdonosé
+  const honap = megadott(b.hosszuHonap) ? Math.round(Number(b.hosszuHonap)) : 12;
+  const h = berbeadas(adat, { havi: hosszuHavi, honap, koltseg: p.kozosEv + p.egyebEv, ev: adat.ev });
+  if (h.hiba) return h;
+  const hosszuNetto = Math.round(h.bevetel - p.kozosEv - p.egyebEv - h.ado);
+  // Fordulópont: hány foglalt éjszaka kell havonta, hogy a rövid táv utolérje a hosszút
+  let fordul = null;
+  if (rovidEv(adat, p, 30.4).netto >= hosszuNetto) {
+    let lo = 0, hi = 30.4;
+    for (let i = 0; i < 40; i++) { const m = (lo + hi) / 2; if (rovidEv(adat, p, m).netto >= hosszuNetto) hi = m; else lo = m; }
+    fordul = Math.ceil(hi * 10) / 10;
+  }
+  return { ...p, ejszaka, kihasznaltsag: ejszaka / 30.4 * 100, rovid: r, hosszu: { havi: hosszuHavi, honap, bevetel: h.bevetel, ado: h.ado, modszer: h.jobb, koltseg: p.kozosEv + p.egyebEv, netto: hosszuNetto },
+    kulonbseg: r.netto - hosszuNetto, nyero: r.netto >= hosszuNetto ? 'rovid' : 'hosszu', fordul, moratoriumIg: v('budapest').moratorium_ig };
+}
+
 /* ---------------- Következő lépés ---------------- */
-/** Kalkulátoronként legfeljebb két ajánlás: { cel, cim, szoveg, q }. Csak a látogató által beírt adat megy át a következő űrlapra. */
+/** Kalkulátoronként legfeljebb három ajánlás: { cel, cim, szoveg, q }. Csak a látogató által beírt adat megy át a következő űrlapra. */
 export function kovetkezoLepesek(kalk, e) {
   switch (kalk) {
     case 'eladas': return [{ cel: 'lakasvaltas', cim: 'Az árából másik lakást veszel?', szoveg: 'Eladás és vétel egy lapon: az adó, az illeték a cserét pótló kedvezménnyel, és mennyi hitel kell.', q: { eladasiAr: e.eladasiAr, szerzesEv: e.szerzesEv, szerzesiErtek: e.szerzesiErtek } }];
     case 'illetek': return [{ cel: 'indulo', cim: 'Mennyi pénz kell összesen?', szoveg: 'Az illeték mellett az önerő, az ügyvéd, a közjegyző és a földhivatal, időrendben.', q: { vetelar: e.ertek } }, { cel: 'wekerle', cim: 'Megkapod a Wekerle Plusz hitelt?', szoveg: 'Feltételenként a rendelet szerint, és a havi törlesztő 3% vagy 5% kamattal.', q: { vetelar: e.ertek } }];
-    case 'wekerle': return [{ cel: 'illetek', cim: 'Mennyi lesz az illeték, és jár-e kedvezmény?', szoveg: 'A Wekerle Plusz nem ad mentességet, de más kedvezmény járhat.', q: { ertek: e.vetelar } }];
+    case 'wekerle': return [{ cel: 'indulo', cim: 'Mennyi saját pénz kell összesen?', szoveg: 'Önerő, illeték és mellékköltségek, támogatott hitel díjaival.', q: { vetelar: e.vetelar, tamogatott: true } }, { cel: 'illetek', cim: 'Mennyi lesz az illeték, és jár-e kedvezmény?', szoveg: 'A Wekerle Plusz nem ad mentességet, de más kedvezmény járhat.', q: { ertek: e.vetelar } }];
     case 'lakasvaltas': return [{ cel: 'illetek', cim: 'Az illeték részletesen, minden kedvezménnyel', szoveg: 'Tulajdoni hányad, új lakás, 35 év alatti első lakás, rokontól vétel.', q: { ertek: e.vetelar, eladottErtek: e.eladasiAr, eladasMikor: e.sorrend === 'elobb_vesz' ? 'utana' : 'elotte' } }];
-    case 'hitelkepesseg': return [{ cel: 'wekerle', cim: 'Megkapod a Wekerle Plusz hitelt?', szoveg: 'Feltételenként a rendelet szerint, 3% vagy 5% fix kamattal.', q: { vetelar: e.ertek } }];
+    case 'hitelkepesseg': return [{ cel: 'indulo', cim: 'Mennyi saját pénz kell a vételhez?', szoveg: 'Önerő, illeték és minden mellékköltség, időrendben.', q: { vetelar: e.ertek, elso: e.elsoLakas } }, { cel: 'wekerle', cim: 'Megkapod a Wekerle Plusz hitelt?', szoveg: 'Feltételenként a rendelet szerint, 3% vagy 5% fix kamattal.', q: { vetelar: e.ertek } }];
     case 'hozam': return [{ cel: 'kiadas', cim: 'Az adó részletesen: 10% vagy tételes?', szoveg: 'A döntési pont és a negyedéves adóelőleg határidői.', q: { havi: e.havi, honap: e.honap, koltseg: e.koltseg } }];
     case 'emeles': return [{ cel: 'kiadas', cim: 'Mennyi adót fizetsz az új díj után?', szoveg: '10% költséghányaddal vagy tételesen.', q: { havi: e.dij } }];
     case 'ingyenes': return [{ cel: 'haszonelvezet', cim: 'Mennyit ér a haszonélvezet?', szoveg: 'Az életkor szerinti szorzóval, és mi a teendő, ha lemond róla.', q: { ertek: e.ertek } }];
     case 'haszonelvezet': return [{ cel: 'eladas', cim: 'Ha egyszer eladod: mennyi lesz az adó?', szoveg: 'A szerzés évéből és az árakból.', q: {} }];
-    case 'indulo': return [{ cel: 'hitelkepesseg', cim: 'Megkapod ezt a hitelt?', szoveg: 'A jövedelmedből, az MNB adósságfék-szabályai szerint.', q: { ertek: e.vetelar } }, { cel: 'illetek', cim: 'Az illeték részletesen', szoveg: 'Cserét pótló vétel, tulajdoni hányad, haszonélvezet.', q: { ertek: e.vetelar } }];
+    case 'indulo': return [{ cel: 'hitelkepesseg', cim: 'Megkapod ezt a hitelt?', szoveg: 'A jövedelmedből, az MNB adósságfék-szabályai szerint.', q: { ertek: e.vetelar } }, { cel: 'wekerle', cim: 'Jár neked a Wekerle Plusz?', szoveg: '3% vagy 5% fix kamat, feltételenként a rendelet szerint.', q: { vetelar: e.vetelar } }, { cel: 'berlesvetel', cim: 'Megéri megvenni, vagy jobb bérelni?', szoveg: 'A vagyonod 10 vagy 20 év múlva, három forgatókönyvben.', q: { vetelar: e.vetelar, onero: e.vetelar && e.hitel ? String(Number(String(e.vetelar).replace(/\D/g, '')) - Number(String(e.hitel).replace(/\D/g, ''))) : '' } }];
     case 'berlesvetel': return [{ cel: 'indulo', cim: 'Mennyi pénz kell a vételhez?', szoveg: 'Önerő, illeték és minden mellékköltség, időrendben.', q: { vetelar: e.vetelar, hitel: e.vetelar && e.onero ? String(Number(String(e.vetelar).replace(/\D/g, '')) - Number(String(e.onero).replace(/\D/g, ''))) : '' } }, { cel: 'hitelkepesseg', cim: 'Mennyi hitelt kaphatsz?', szoveg: 'A jövedelmedből és a lakás értékéből.', q: { ertek: e.vetelar } }];
+    case 'rovidtav': return [{ cel: 'kiadas', cim: 'A hosszú távú kiadás adója részletesen', szoveg: '10% vagy tételes, a negyedéves adóelőleg határidőivel.', q: { havi: e.hosszuHavi, honap: e.hosszuHonap } }, { cel: 'hozam', cim: 'Megéri kiadásra venni?', szoveg: 'Bruttó és nettó hozam, hitellel és állampapírral összevetve.', q: { havi: e.hosszuHavi } }];
     case 'kiadas': return [{ cel: 'eladas', cim: 'Ha egyszer eladnád: mennyi lenne az adó?', szoveg: 'A szerzés évéből és az árakból, évről évre csökkenő skálával.', q: {} }];
     default: return [];
   }
@@ -572,7 +635,7 @@ export function kovetkezoLepesek(kalk, e) {
 /** A link paraméterei: csak a kitöltött értékek. */
 export function kovetkezoQuery(q) {
   const p = new URLSearchParams();
-  for (const [k, v] of Object.entries(q || {})) if (v !== undefined && v !== null && v !== '' && v !== false) p.set(k, String(v));
+  for (const [k, v] of Object.entries(q || {})) if (v !== undefined && v !== null && v !== '' && v !== false) p.set(k, v === true ? '1' : String(v));
   const s = p.toString();
   return s ? `?${s}` : '';
 }
