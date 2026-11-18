@@ -1,5 +1,5 @@
 {
-  "leiras": "A forrásfigyelő állapota. A szabályok forrásai maguktól bekerülnek; a kulon listában azok az oldalak vannak, amelyekhez még nem tartozik szabály, de változásuk érinthet minket. Mezők: url, nev, tol és ig (a figyelt szakasz kezdő és záró szövege, nem kötelező), kihagy (reguláris kifejezések a változó részekre).",
+  "leiras": "A forrásfigyelő állapota. A szabályok forrásai maguktól bekerülnek; a kulon listában azok az oldalak vannak, amelyekhez még nem tartozik szabály, de változásuk érinthet minket. Mezők: url, nev, tol és ig (a figyelt szakasz kezdő és záró szövege, nem kötelező), kihagy (reguláris kifejezések a változó részekre), szabalyok (mely szabályok függnek tőle; akkor kell, ha a szabály saját forrását a gép nem tudja letölteni). Az állapotban a gond mező a tartós letöltési gondot jelzi: ezt csak egyszer jelentjük.",
   "kulon": [
     {
       "url": "https://njt.jog.gov.hu/jogszabaly/2026-298-20-22",
@@ -8,6 +8,43 @@
     {
       "url": "https://nav.gov.hu/Elethelyzetek-adozasa/vagyonugyek/Ingatlan-adasvetel",
       "nev": "NAV: Az ingatlan-adásvétel adózási szabályai"
+    },
+    {
+      "url": "https://njt.jog.gov.hu/jogszabaly/1990-93-00-00",
+      "nev": "1990. évi XCIII. törvény az illetékekről (Itv.), hatályos szöveg",
+      "szabalyok": [
+        "illetek.elso_lakas_35",
+        "illetek.uj_lakas",
+        "vetel_koltsegek.illetek_fizetes"
+      ]
+    },
+    {
+      "url": "https://njt.jog.gov.hu/jogszabaly/2014-32-20-2C",
+      "nev": "32/2014. (IX. 10.) MNB rendelet (JTM), hatályos szöveg",
+      "szabalyok": [
+        "hitel.jtm"
+      ]
+    },
+    {
+      "url": "https://njt.jog.gov.hu/jogszabaly/2007-127-00-00",
+      "nev": "2007. évi CXXVII. törvény az általános forgalmi adóról, hatályos szöveg",
+      "szabalyok": [
+        "rovid_tav.afa_mertek"
+      ]
+    },
+    {
+      "url": "https://njt.jog.gov.hu/jogszabaly/1990-100-00-00",
+      "nev": "1990. évi C. törvény a helyi adókról, hatályos szöveg",
+      "szabalyok": [
+        "rovid_tav.ifa"
+      ]
+    },
+    {
+      "url": "https://njt.jog.gov.hu/jogszabaly/2018-52-00-00",
+      "nev": "2018. évi LII. törvény a szociális hozzájárulási adóról, hatályos szöveg",
+      "szabalyok": [
+        "rovid_tav.onallo"
+      ]
     }
   ],
   "allapot": {

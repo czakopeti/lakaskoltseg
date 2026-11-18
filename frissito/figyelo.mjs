@@ -50,6 +50,15 @@ export function ertekel(forras, elozo, html) {
   return { allapot: 'valtozott', ...most };
 }
 
+/**
+ * Tartós gond (letiltott vagy csak böngészőben megjelenő oldal): csak az első alkalommal jelentjük, utána hetente nem.
+ * Visszaad: { jelent, allapot } – az allapot a figyelő állapotába kerül, a régi lenyomat megmarad.
+ */
+export function gondAllapot(elozo, ok, ma) {
+  const jelent = !elozo?.gond || elozo.gond !== ok;
+  return { jelent, allapot: { ...(elozo || {}), gond: ok, gondOta: jelent ? ma : elozo.gondOta, ellenorizve: ma } };
+}
+
 async function letolt(url) {
   const r = await fetch(url, { headers: { 'user-agent': 'Mozilla/5.0 (forrasfigyelo; +https://github.com/czakopeti/lakaskoltseg)', 'accept-language': 'hu' }, redirect: 'follow', signal: AbortSignal.timeout(30000) });
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -61,18 +70,25 @@ export async function futtat({ leto = letolt } = {}) {
   const szabalyok = olvas('data/szabalyok.json');
   const f = olvas('data/figyelo.json');
   const ma = maBudapest();
-  const jelentes = { ma, valtozott: [], gyanus: [], hiba: [], uj: [], valtozatlan: 0 };
+  const jelentes = { ma, valtozott: [], gyanus: [], hiba: [], uj: [], valtozatlan: 0, tartos: 0 };
   for (const forras of forrasLista(szabalyok, f.kulon)) {
     const elozo = f.allapot[forras.url];
+    const gond = (hova, ok) => {
+      const g = gondAllapot(elozo, ok, ma);
+      f.allapot[forras.url] = g.allapot;
+      if (g.jelent) jelentes[hova].push({ url: forras.url, nev: forras.nev, szabalyok: forras.szabalyok, ok });
+      else jelentes.tartos++;
+    };
     try {
       const e = ertekel(forras, elozo, await leto(forras.url));
+      if (e.allapot === 'gyanus') { gond('gyanus', e.ok); continue; }
       // Amit az önálló frissítő (frissito/automata.mjs) kezel, arról nem kell jegy: ott a szám magától átáll, a gond külön jelentésbe megy
       if (e.allapot === 'valtozatlan' || (e.allapot === 'valtozott' && forras.automata)) jelentes.valtozatlan++;
       else jelentes[e.allapot].push({ url: forras.url, nev: forras.nev, szabalyok: forras.szabalyok, ok: e.ok, elozoLatva: elozo?.latva });
       // Változásnál az új lenyomatot rögzítjük, hogy ugyanarról egyszer szóljunk; a jegy őrzi, hogy felül kell vizsgálni.
       if (e.lenyomat) f.allapot[forras.url] = { lenyomat: e.lenyomat, hossz: e.hossz, latva: e.allapot === 'valtozatlan' ? elozo.latva : ma, ellenorizve: ma };
     } catch (err) {
-      jelentes.hiba.push({ url: forras.url, nev: forras.nev, ok: String(err.message || err) });
+      gond('hiba', String(err.message || err));
     }
   }
   // Már nem hivatkozott források kivezetése
@@ -97,14 +113,15 @@ export function jegySzoveg(j) {
   const sor = (x) => `- [${x.nev || x.url}](${x.url})${x.szabalyok?.length ? `\n  Érintett szabályok: ${x.szabalyok.map((s) => `\`${s}\``).join(', ')}` : ''}${x.ok ? `\n  Ok: ${x.ok}` : ''}`;
   const r = [];
   if (j.valtozott.length) r.push(`## Megváltozott a forrás szövege\n\nNézd meg, változott-e a szabály. Ha igen, írd át a \`data/szabalyok.json\` tételét, ha nem, frissítsd az \`ellenorizve\` dátumát.\n\n${j.valtozott.map(sor).join('\n')}`);
-  if (j.gyanus.length) r.push(`## Gyanús válasz (átszervezett vagy hibás oldal)\n\n${j.gyanus.map(sor).join('\n')}`);
-  if (j.hiba.length) r.push(`## Nem sikerült letölteni\n\n${j.hiba.map(sor).join('\n')}`);
+  const tartos = 'Ugyanezt a gondot csak egyszer jelezzük. Ha marad, keress helyette letölthető forrást (lehetőleg a jogszabályt, a NAV-ot vagy a kibocsátót), vagy vedd fel a mögötte álló jogszabályt a `data/figyelo.json` kulon listájára.';
+  if (j.gyanus.length) r.push(`## Gyanús válasz (átszervezett vagy csak böngészőben megjelenő oldal)\n\n${tartos}\n\n${j.gyanus.map(sor).join('\n')}`);
+  if (j.hiba.length) r.push(`## Nem sikerült letölteni\n\n${tartos}\n\n${j.hiba.map(sor).join('\n')}`);
   return r.length ? `Forrásfigyelő, ${j.ma}.\n\n${r.join('\n\n')}\n` : '';
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const j = await futtat();
   const szoveg = jegySzoveg(j);
-  console.error(`Változatlan: ${j.valtozatlan}, új: ${j.uj.length}, változott: ${j.valtozott.length}, gyanús: ${j.gyanus.length}, hiba: ${j.hiba.length}`);
+  console.error(`Változatlan: ${j.valtozatlan}, új: ${j.uj.length}, változott: ${j.valtozott.length}, gyanús: ${j.gyanus.length}, hiba: ${j.hiba.length}, tartós (már jelzett) gond: ${j.tartos}`);
   process.stdout.write(szoveg);
 }

@@ -42,3 +42,15 @@ test('a jegy szövege: csak akkor van, ha van teendő', () => {
   const s = jegySzoveg({ ma: '2026-11-18', valtozott: [{ url: 'https://nav.gov.hu/x', nev: 'NAV', szabalyok: ['illetek.altalanos_mertek'] }], gyanus: [], hiba: [{ url: 'https://y', ok: 'HTTP 503' }] });
   assert.match(s, /Megváltozott a forrás/); assert.match(s, /`illetek\.altalanos_mertek`/); assert.match(s, /HTTP 503/);
 });
+
+test('tartós letöltési gond: csak az első alkalommal jelentjük, a régi lenyomat megmarad', async () => {
+  const { gondAllapot } = await import('../frissito/figyelo.mjs');
+  const elso = gondAllapot({ lenyomat: 'abc', hossz: 900 }, 'HTTP 403', '2026-11-18');
+  assert.equal(elso.jelent, true);
+  assert.equal(elso.allapot.lenyomat, 'abc');
+  assert.equal(elso.allapot.gondOta, '2026-11-18');
+  const masodik = gondAllapot(elso.allapot, 'HTTP 403', '2026-11-25');
+  assert.equal(masodik.jelent, false);
+  assert.equal(masodik.allapot.gondOta, '2026-11-18');
+  assert.equal(gondAllapot(masodik.allapot, 'HTTP 404', '2026-12-02').jelent, true, 'más gond újra szól');
+});
