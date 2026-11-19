@@ -4,6 +4,14 @@
     {
       "datum": "2026-11-19",
       "mi": "A KSH módosította a lakások négyzetméterárát (2025. évi adat, Budapest, használt, ezer Ft/m²)",
+      "regi": 1207,
+      "uj": 1207,
+      "forras": "https://www.ksh.hu/stadat_files/lak/hu/lak0025.html",
+      "gepi": true
+    },
+    {
+      "datum": "2026-11-19",
+      "mi": "A KSH módosította a lakások négyzetméterárát (2025. évi adat, Budapest, használt, ezer Ft/m²)",
       "regi": 1194,
       "uj": 1207,
       "forras": "https://www.ksh.hu/stadat_files/lak/hu/lak0025.html",
