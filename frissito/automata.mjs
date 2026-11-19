@@ -159,7 +159,15 @@ export async function futtat({ leto = letolt, ma = maBudapest() } = {}) {
       const valtozott = JSON.stringify([uj.evek, uj.hasznalt, uj.uj, uj.hasznaltRegio || la.hasznaltRegio]) !== JSON.stringify([la.evek, la.hasznalt, la.uj, la.hasznaltRegio]);
       if (valtozott) {
         if (ujEv > regiEv) j.atirt.push({ mi: `A lakások ${ujEv}. évi átlagos négyzetméterára, Budapest, használt (KSH, ezer Ft/m²)`, regi: la.hasznalt.fovaros[la.evek.length - 1], uj: uj.hasznalt.fovaros[uj.evek.length - 1], url: la.forras.url });
-        else j.atirt.push({ mi: `A KSH módosította a lakások négyzetméterárát (${regiEv}. évi adat, Budapest, használt, ezer Ft/m²)`, regi: la.hasznalt.fovaros[la.evek.length - 1], uj: uj.hasznalt.fovaros[uj.evek.length - 1], url: la.forras.url });
+        else {
+          // Ugyanaz az év, módosított adat: az első módosított sort írjuk a naplóba (országos, aztán régiós)
+          const sorok = [...Object.entries(uj.hasznalt).map(([t, x]) => [`országos, ${t}`, x, la.hasznalt[t]]), ...Object.entries(uj.hasznaltRegio || {}).flatMap(([r, o]) => Object.entries(o).map(([t, x]) => [`${r}, ${t}`, x, la.hasznaltRegio?.[r]?.[t]]))];
+          const elso = sorok.find(([, x, r]) => JSON.stringify(x) !== JSON.stringify(r));
+          const i = elso && elso[2] ? elso[1].findIndex((v, k) => v !== elso[2][k]) : -1;
+          j.atirt.push(i >= 0
+            ? { mi: `A KSH módosította a lakások négyzetméterárát (${uj.evek[i]}, ${elso[0].replace(/_/g, '-')}, használt, ezer Ft/m²${sorok.filter(([, x, r]) => JSON.stringify(x) !== JSON.stringify(r)).length > 1 ? ', és más sorokat is' : ''})`, regi: elso[2][i], uj: elso[1][i], url: la.forras.url }
+            : { mi: 'A lakások négyzetméterára régiónként (KSH, használt lakások, új adatsor)', regi: null, uj: null, url: la.forras.url });
+        }
         Object.assign(la, { evek: uj.evek, hasznalt: uj.hasznalt, uj: uj.uj }, uj.hasznaltRegio ? { hasznaltRegio: uj.hasznaltRegio } : {});
         la.forras.kelt = ma;
       }

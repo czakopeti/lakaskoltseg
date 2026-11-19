@@ -6,8 +6,24 @@ import { createHash } from 'node:crypto';
 import { olvas, ir, maBudapest } from '../forras/adat.mjs';
 
 /** A HTML látható szövege, szóközökre egyszerűsítve. A kihagy lista mintái (például változó dátumok) kimaradnak. */
+/**
+ * Hírportálnál a cikk maga: a leghosszabb szövegű <article> elem (az egymásba ágyazottakat is helyesen párosítva).
+ * Az ajánlók és a hírszalag így kimaradnak. Ha nincs <article>, vagy a leghosszabb is rövid, az egész oldal marad.
+ */
+export function foCikk(html) {
+  const s = String(html), re = /<(\/?)article\b[^>]*>/gi, verem = [], cikkek = [];
+  let m;
+  while ((m = re.exec(s))) {
+    if (!m[1]) verem.push(m.index + m[0].length);
+    else if (verem.length) cikkek.push(s.slice(verem.pop(), m.index));
+  }
+  const hossz = (x) => x.replace(/<(script|style)[\s\S]*?<\/\1>/gi, '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').length;
+  const legjobb = cikkek.map((x) => [x, hossz(x)]).sort((a, b) => b[1] - a[1])[0];
+  return legjobb && legjobb[1] >= 800 ? legjobb[0] : s;
+}
+
 export function szovegge(html, kihagy = []) {
-  let t = String(html)
+  let t = foCikk(html)
     .replace(/<!--[\s\S]*?-->/g, ' ')
     .replace(/<(script|style|noscript|svg|nav|header|footer|aside|form|iframe|template)[\s\S]*?<\/\1>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
@@ -37,7 +53,7 @@ export function tenyek(szoveg) {
 }
 const rovid = (x) => lenyomat(x).slice(0, 10);
 /** A mondatválogatás változata: ha a szabályai változnak, minden forrás csendben új alapot kap, téves riasztás nélkül. */
-export const VALTOZAT = 5;
+export const VALTOZAT = 6;
 
 /** A figyelendő források: a szabályok forrásai (melyik szabály függ tőlük), és a külön felvett oldalak. */
 export function forrasLista(szabalyok, kulon = []) {

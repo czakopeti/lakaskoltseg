@@ -1,7 +1,7 @@
 // Forrásfigyelő: szövegkivonat, szakasz, változásfelismerés, a források listája a szabályokból.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { szovegge, szakasz, lenyomat, ertekel, forrasLista, jegySzoveg, tenyek, VALTOZAT } from '../frissito/figyelo.mjs';
+import { szovegge, szakasz, lenyomat, ertekel, forrasLista, jegySzoveg, tenyek, VALTOZAT, foCikk } from '../frissito/figyelo.mjs';
 import { olvas } from '../forras/adat.mjs';
 
 const lap = (torzs) => `<html><head><style>x{}</style><script>var a=1</script></head><body><nav>Menü ${Math.random()}</nav><main><h1>Illeték</h1><p>${torzs}</p></main><footer>Lábléc</footer></body></html>`;
@@ -89,4 +89,14 @@ test('tartós letöltési gond: csak az első alkalommal jelentjük, a régi len
   const helyre = { tenyek: ['x'], utolsoGond: 'letoltes', utolsoGondNap: '2026-11-25' };
   assert.equal(gondAllapot(helyre, 'HTTP 403', '2026-12-09').jelent, false);
   assert.equal(gondAllapot(helyre, 'HTTP 403', '2027-02-10').jelent, true);
+});
+
+test('hírportál: csak a fő cikk számít, a hírszalag és a beágyazott ajánló kimarad', () => {
+  const torzs = 'Az illeték a forgalmi érték 4%-a. '.repeat(30);
+  const lap = (szalag) => `<div class="szalag">${szalag}</div><article class="fo"><h1>Illeték</h1><p>${torzs}</p><article class="ajanlo"><p>Rövid ajánló 23 ezer milliárd.</p></article><p>A határidő 30 nap.</p></article><article><p>Másik cikk 5%.</p></article>`;
+  const a = szovegge(lap('A kormány 23 ezer milliárdos szerződésből száll ki.'));
+  assert.match(a, /A határidő 30 nap\./, 'a beágyazott ajánló után is a fő cikkben marad');
+  assert.doesNotMatch(a, /kormány|Másik cikk/);
+  assert.equal(foCikk('<p>Nincs cikk elem.</p>'), '<p>Nincs cikk elem.</p>');
+  assert.equal(foCikk('<article>rövid</article><p>többi</p>'), '<article>rövid</article><p>többi</p>', 'ha a cikk túl rövid, az egész oldal');
 });
