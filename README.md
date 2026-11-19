@@ -1,4 +1,4 @@
-# lakásköltség (munkanév)
+# Ingatlanmérleg (ingatlanmerleg.hu)
 
 Magyar kalkulátoroldal a lakásvásárlás, a lakáseladás és a lakáskiadás költségeiről: vagyonszerzési illeték, ingatlaneladás szja-ja, lakáskiadás adója, Wekerle Plusz hitel. Minden szabály forrással és dátummal. Az [autózom](https://autozom.hu) (czakopeti/autokoltseg) motorjára épül.
 
@@ -42,7 +42,7 @@ node frissito/figyelo.mjs      # forrásfigyelő (internet kell)
 
 ## Élesítés előtt
 
-- Végleges név, domain, logó (`config.json`: `marka`, `domain`, `szlogen`).
+- A domain megvétele és bekötése (a név, a mottó és a logó kész: `config.json`: `marka`, `domain`, `szlogen`).
 - Kapcsolati e-mail, IndexNow-kulcs (`config.json`).
 - A saját domain felvétele a `functions/api/*.js` `ENGEDETT` listájába.
 - A `data/szabalyok.json` `nyitott` listájának lezárása, a `masodlagos` szintű tételek összevetése az elsődleges forrással.

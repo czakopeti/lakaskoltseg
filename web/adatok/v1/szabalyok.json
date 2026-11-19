@@ -1,5 +1,5 @@
 {
-  "forras": "https://lakaskoltseg.pages.dev",
+  "forras": "https://ingatlanmerleg.hu",
   "licenc": "CC BY 4.0",
   "ellenorizve": "2026-11-19T08:19",
   "leiras": "A szabályok, amelyekkel az oldal számol. Minden tételnél: gépi érték, olvasható szöveg, jogszabályhely, forrás a közzététel napjával, és az ellenőrzés szintje (elsodleges: a jogszabály vagy a NAV saját oldala alapján ellenőrizve; masodlagos: szaksajtó alapján, az elsődleges forrással még össze kell vetni).",
@@ -60,7 +60,7 @@
           },
           "szint": "masodlagos",
           "ellenorizve": "2026-11-18",
-          "megjegyzes": "2026. január 1-jétől a különbözet utáni illetéknél 5 év lett a határ, a teljes mentességnél és a több lakásos cserénél 3 év maradt. A PROAB és a Naturahírek ugyanígy írja; a cikk szerzője szerint ez valószínűleg szerkesztési hiba, amelyet később kiigazíthatnak. Amíg nem így lesz, a törvény betűjével számolunk."
+          "megjegyzes": "2026. január 1-jétől a különbözet utáni illetéknél 5 év lett a határ, a teljes mentességnél és a több lakásos cserénél 3 év maradt. A PROAB és a Naturahírek ugyanígy írják; a cikk szerzője szerint ez valószínűleg szerkesztési hiba, amelyet később kiigazíthatnak. Amíg nem így lesz, a törvény betűjével számolunk."
         },
         {
           "kulcs": "elso_lakas_35",
@@ -88,7 +88,7 @@
             "mentes_resz_ft": 15000000,
             "ertekhatar_ft": 30000000
           },
-          "szoveg": "Ha vállalkozótól veszel értékesítésre épített, még nem használt lakást, és nem számítasz be eladott lakást: 15 millió forintos forgalmi értékig nincs illeték, 15 és 30 millió forint között a 15 millió forintra eső illetéket nem kell megfizetni. 30 millió forint felett nincs kedvezmény.",
+          "szoveg": "Ha vállalkozótól veszel értékesítésre épített, még nem használt lakást, és nem számítasz be eladott lakást, 15 millió forintos forgalmi értékig nincs illeték, 15 és 30 millió forint között a 15 millió forintra eső illetéket nem kell megfizetni. 30 millió forint felett nincs kedvezmény.",
           "jogszabaly": "Itv. 26. § (1) f)",
           "forras": {
             "nev": "Adózóna: Új építésű lakás vásárlása: az illetékmentesség",
@@ -122,7 +122,7 @@
             "mentes": false,
             "hitelbe_szamithato": false
           },
-          "szoveg": "Az Otthon Start és a Wekerle Plusz hitel nem ad illetékmentességet. A 4% jár, hacsak más kedvezmény nem vonatkozik rád, és az illetéket a hitelösszegbe sem lehet beleszámítani.",
+          "szoveg": "Az Otthon Start és a Wekerle Plusz hitel nem ad illetékmentességet. A 4%-os illetéket meg kell fizetned, hacsak más kedvezmény nem vonatkozik rád, és az illetéket a hitelösszegbe sem lehet beleszámítani.",
           "jogszabaly": "Itv. 26. §",
           "forras": {
             "nev": "K&H: Wekerle Plusz lakáshitel, gyakori kérdések",
@@ -361,7 +361,7 @@
           "ertek": {
             "szazalek": 25
           },
-          "szoveg": "Ha nem tudod megállapítani, mennyiért szerezted (nincs szerződés, hagyatéki leltár vagy illetékkiszabás), az eladási ár 25%-a a számított összeg. Ilyenkor más költség nem vonható le. Az időmúlás szerinti csökkentés ugyanúgy jár.",
+          "szoveg": "Ha nem tudod megállapítani, mennyiért szerezted (nincs szerződés, hagyatéki leltár vagy illetékkiszabás), az eladási ár 25%-a a számított összeg. Ilyenkor más költség nem vonható le. Az idő múlásával az adó ugyanúgy csökken.",
           "jogszabaly": "Szja tv. 62. § (3)–(4)",
           "forras": {
             "nev": "A személyi jövedelemadóról szóló 1995. évi CXVII. törvény (Jogtár)",
@@ -370,7 +370,7 @@
           },
           "szint": "masodlagos",
           "ellenorizve": "2026-11-18",
-          "megjegyzes": "A 25% a törvény szövegéből. Hogy ilyenkor más költség nem vonható le, az Adó Praxis cikkéből (adopraxis.hu). Hogy az időmúlás szerinti csökkentés is jár, az Adózóna olvasói példájából és a 62. § (4) bekezdés szövegéből, amely az (1)–(3) bekezdés szerint számított összegre utal."
+          "megjegyzes": "A 25% a törvény szövegéből. Hogy ilyenkor más költség nem vonható le, az Adó Praxis cikkéből (adopraxis.hu). Hogy az idő múlásával ugyanúgy csökken, az Adózóna olvasói példájából és a 62. § (4) bekezdés szövegéből, amely az (1)–(3) bekezdés szerint számított összegre utal."
         }
       ]
     },
@@ -432,7 +432,7 @@
           "kulcs": "teteles",
           "nev": "Tételes költségelszámolás",
           "ertek": {},
-          "szoveg": "A bevételből levonhatod a bérbeadással kapcsolatos, számlával igazolt kiadásokat: rezsi, karbantartás, javítás, felújítás és az értékcsökkenés.",
+          "szoveg": "A bevételből levonhatod a bérbeadással kapcsolatos, számlával igazolt kiadásokat, például a rezsit, a karbantartást, a javítást, a felújítást és az értékcsökkenést.",
           "jogszabaly": "Szja tv. 3. és 11. melléklet",
           "forras": {
             "nev": "NAV: Lakáskiadás",
@@ -701,7 +701,7 @@
           "ertek": {
             "mentes": false
           },
-          "szoveg": "A Wekerle Plusz hitel nem ad illetékmentességet, és az illetéket a hitelösszegbe sem lehet beleszámítani. A 4% jár, hacsak más kedvezmény nem vonatkozik rád.",
+          "szoveg": "A Wekerle Plusz hitel nem ad illetékmentességet, és az illetéket a hitelösszegbe sem lehet beleszámítani. A 4%-os illetéket meg kell fizetned, hacsak más kedvezmény nem vonatkozik rád.",
           "jogszabaly": "Itv. 26. §; a rendelet nem rendelkezik róla",
           "forras": {
             "nev": "K&H: Wekerle Plusz lakáshitel",
@@ -718,7 +718,7 @@
           "ertek": {
             "szazalek": 6.5
           },
-          "szoveg": "Ezzel a kamattal vetjük össze, mennyit ér a támogatás. Nem egy bank ajánlata, a saját ajánlatodat beírhatod.",
+          "szoveg": "Ezzel a kamattal vetjük össze, mennyit ér a támogatás. Ez nem egy konkrét bank ajánlata, a sajátodat beírhatod.",
           "jogszabaly": "Feltevés",
           "forras": {
             "nev": "Bankmonitor: Wekerle Plusz hitel 2026",
@@ -830,7 +830,7 @@
           "kulcs": "tiszta_ertek",
           "nev": "Az illeték alapja",
           "ertek": {},
-          "szoveg": "A tiszta érték: a forgalmi érték a terhekkel, például a ráterhelt hitellel és a haszonélvezettel csökkentve.",
+          "szoveg": "A tiszta érték a forgalmi érték, csökkentve a terhekkel, például a ráterhelt hitellel és a haszonélvezettel.",
           "jogszabaly": "Itv. 7. §, 13. §",
           "forras": {
             "nev": "Hővége: Ennyi az ajándékozási illeték mértéke 2026-ban",
@@ -1182,7 +1182,7 @@
           "ertek": {
             "szazalek": 1.5
           },
-          "szoveg": "Saját lakásnál a javítás, festés és a gépek cseréje a tiéd. A Bankmonitor becslése szerint évente a lakás értékének 1,5%-a ráfordítható.",
+          "szoveg": "Saját lakásnál a javítás, festés és a gépek cseréje a tiéd. A Bankmonitor becslése szerint erre évente a lakás értékének kb. 1,5%-a megy el.",
           "jogszabaly": "Feltevés",
           "forras": {
             "nev": "Bankmonitor: Hogyan újítsd fel a lakásod?",
@@ -1199,7 +1199,7 @@
           "ertek": {
             "elteres_szazalekpont": 3
           },
-          "szoveg": "Alapesetben a lakásárak és a bérleti díjak az előző évi átlagos inflációval nőnek, amelyet a KSH közölt. A borúlátó változatban a lakásárak 3 százalékponttal lassabban, a derűlátóban 3 százalékponttal gyorsabban.",
+          "szoveg": "Alapesetben a lakásárak és a bérleti díjak a KSH által közölt előző évi átlagos inflációval nőnek. A borúlátó változatban a lakásárak 3 százalékponttal lassabban, a derűlátóban 3 százalékponttal gyorsabban.",
           "jogszabaly": "Feltevés",
           "forras": {
             "nev": "Infostart: Megjött a friss inflációs adat (KSH, 2025: 4,4%)",
@@ -1242,7 +1242,7 @@
             "mashol_ft": 38400,
             "vendeg_max_nap": 90
           },
-          "szoveg": "Lakószobánként évente 150 000 forint ott, ahol két évvel korábban 2 milliónál több vendégéjszaka volt (ez csak Budapest), máshol 38 400 forint. Akkor választható, ha egyetlen saját vagy haszonélvezetben lévő lakásban vagy üdülőben adsz ki szállást, és ugyanaz a vendég évente legfeljebb 90 napot tölt nálad. Ingatlanonként legalább egy szoba után fizetni kell. Szocho és egészségügyi hozzájárulás nincs.",
+          "szoveg": "Lakószobánként évente 150 000 forint ott, ahol két évvel korábban 2 milliónál több vendégéjszaka volt (ez csak Budapest), máshol 38 400 forint. Akkor választható, ha egyetlen saját vagy haszonélvezetben lévő lakásban vagy üdülőben adsz ki szállást, és ugyanaz a vendég évente legfeljebb 90 napot tölt nálad. Ingatlanonként legalább egy szoba után fizetni kell. Szochót és egészségügyi hozzájárulást nem kell fizetni.",
           "jogszabaly": "Szja tv. 57/A. §",
           "forras": {
             "nev": "NAV: Vendégéjszakák száma, településlista",
@@ -1261,7 +1261,7 @@
             "szocho_szazalek": 13,
             "koltseghanyad_szazalek": 10
           },
-          "szoveg": "Ha nem a tételes átalányadót választod: 10% költséghányaddal a bevétel 90%-a, tételes elszámolással a bevétel és az igazolt költségek különbsége a jövedelem. Ez után 15% szja és 13% szociális hozzájárulási adó jár.",
+          "szoveg": "Ha nem a tételes átalányadót választod: 10% költséghányaddal a bevétel 90%-a, tételes elszámolással a bevétel és az igazolt költségek különbsége a jövedelem. Ezután 15% szja-t és 13% szociális hozzájárulási adót kell fizetni.",
           "jogszabaly": "Szja tv. 16–18. §; Szocho tv.",
           "forras": {
             "nev": "Adózóna: Magánszálláshely-szolgáltatás: tételes átalányadó, költségelszámolás, költséghányad",
@@ -1380,13 +1380,13 @@
     {
       "tema": "illetek",
       "mi": "A T/7712. számú törvényjavaslat az első lakást szerzők illetékét írná át (50 millió forintig mentesség). Nem találtunk nyomát, hogy elfogadták volna, a 2026-os források a 15 millió forintos szabályt írják, ezért azzal számolunk.",
-      "teendo": "A parlament.hu irományadatainál megnézni az állapotát.",
+      "teendo": "A parlament.hu irományadatainál figyeljük, hol tart.",
       "rogzitve": "2026-11-18"
     },
     {
       "tema": "ingyenes",
       "mi": "Mostoha- és nevelt gyermek, illetve bejegyzett élettárs öröklése: a 20 millió forintos mentesség és a bejegyzett élettárs helyzete csak szaksajtóból ismert.",
-      "teendo": "A hatályos Itv. 16. §-ával és a NAV 31. információs füzetével összevetni.",
+      "teendo": "Összevetjük a hatályos Itv. 16. §-ával és a NAV 31. információs füzetével.",
       "rogzitve": "2026-11-18"
     },
     {
@@ -1404,7 +1404,7 @@
     {
       "tema": "wekerle_plusz",
       "mi": "Egy szaksajtócikk szerint a Wekerle Plusz mellé illetékmentesség járhat, a bankok és más források szerint nem. Az Itv. mentességei között nem szerepel, ezért mentesség nélkül számolunk.",
-      "teendo": "A NAV 19. információs füzetének következő kiadásában megnézni.",
+      "teendo": "A NAV 19. információs füzetének következő kiadásában megnézzük.",
       "rogzitve": "2026-11-18"
     }
   ]

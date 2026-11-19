@@ -12,8 +12,8 @@ function kv() {
     async list({ prefix }) { return { keys: [...m.keys()].filter((k) => k.startsWith(prefix)).map((name) => ({ name })), list_complete: true }; },
   };
 }
-const keres = (b, origin = 'https://lakaskoltseg.pages.dev') =>
-  new Request('https://lakaskoltseg.pages.dev/api/visszajelzes', { method: 'POST', headers: { 'content-type': 'application/json', origin }, body: JSON.stringify(b) });
+const keres = (b, origin = 'https://ingatlanmerleg.pages.dev') =>
+  new Request('https://ingatlanmerleg.pages.dev/api/visszajelzes', { method: 'POST', headers: { 'content-type': 'application/json', origin }, body: JSON.stringify(b) });
 
 test('szavazatok számlálása oldalanként', async () => {
   const env = { SZAVAZAT: kv() };

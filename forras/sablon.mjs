@@ -17,7 +17,7 @@ export const MENU = [
  * Az elemek: [cím, név, rövid mondat a menübe, és ha kell, a hosszabb név a főoldalra és az llms.txt-be].
  */
 export const CSOPORTOK = [
-  { id: 'veszel', cim: 'Lakást veszel', bevezeto: 'Amit a vételáron felül fizetsz, és a kamattámogatott hitel, amely jár neked.', elemek: [
+  { id: 'veszel', cim: 'Lakást veszel', bevezeto: 'Amit a vételáron felül fizetsz, és hogy jár-e neked kamattámogatott hitel.', elemek: [
     ['lakasvasarlas-koltsegei-kalkulator/', 'Mennyi pénz kell?', 'Önerő, illeték, mellékköltségek, időrendben', 'Mennyi pénz kell a vételhez?'],
     ['vagyonszerzesi-illetek-kalkulator/', 'Illeték', 'Mennyi, és melyik kedvezmény jár', 'Vagyonszerzési illeték'],
     ['mennyi-lakashitelt-kaphatok/', 'Mennyi hitelt kaphatsz', 'A jövedelmed és a lakás értéke szerint', 'Mennyi lakáshitelt kaphatsz'],
@@ -25,14 +25,14 @@ export const CSOPORTOK = [
     ['elotorlesztes-kalkulator/', 'Előtörlesztés', 'Rövidebb futamidő vagy kisebb törlesztő', 'Előtörlesztés'],
     ['alberlet-vagy-lakasvasarlas-kalkulator/', 'Bérlés vagy vétel', 'Melyikkel jársz jobban hosszú távon', 'Albérlet vagy lakásvásárlás'],
   ] },
-  { id: 'valtasz', cim: 'Eladod, és másikat veszel', bevezeto: 'A két ügylet egy lapon, mert az egyik adója és a másik illetéke összefügg.', elemek: [
+  { id: 'valtasz', cim: 'Eladod, és másikat veszel', bevezeto: 'Az eladás és a vétel együtt, mert az egyik adója és a másik illetéke összefügg.', elemek: [
     ['lakasvaltas-kalkulator/', 'Lakásváltás', 'Eladás és vétel együtt, hitelszükséglet', 'Lakásváltás'],
-    ['ingatlaneladas-szja-kalkulator/', 'Eladás adója', 'Mennyi szja-t fizetsz, és mikortól semennyit', 'Ingatlaneladás szja-ja'],
+    ['ingatlaneladas-szja-kalkulator/', 'Eladás adója', 'Mennyi szja-t fizetsz, és mikortól nem kell', 'Ingatlaneladás szja-ja'],
   ] },
-  { id: 'kiadod', cim: 'Kiadod a lakásod', bevezeto: 'Mennyi adó jár a bérleti díj után, és mikor kell befizetni.', elemek: [
+  { id: 'kiadod', cim: 'Kiadod a lakásod', bevezeto: 'Mennyi adót kell fizetni a bérleti díj után, és mikor.', elemek: [
     ['lakaskiadas-ado-kalkulator/', 'Kiadás adója', '10% vagy tételes, határidőkkel', 'Lakáskiadás adója'],
     ['lakas-befektetes-hozam-kalkulator/', 'Megéri kiadásra venni?', 'Bruttó és nettó hozam', 'Megéri kiadásra venni?'],
-    ['airbnb-vagy-hosszu-tavu-kiadas/', 'Airbnb vagy hosszú táv', 'Melyik hoz többet adó után', 'Airbnb vagy hosszú távú kiadás'],
+    ['airbnb-vagy-hosszu-tavu-kiadas/', 'Airbnb vagy hosszú táv', 'Melyik hoz többet adózás után', 'Airbnb vagy hosszú távú kiadás'],
     ['berleti-dij-emeles-inflacio/', 'Bérleti díj emelése', 'A KSH átlagos inflációjával', 'Bérleti díj emelése az inflációval'],
   ] },
   { id: 'orokolsz', cim: 'Örökölsz vagy ajándékba kapod', bevezeto: 'Családon belül többnyire nincs illeték, de a haszonélvezet és a terhek számítanak.', elemek: [
@@ -71,7 +71,9 @@ export function linkelo(oldalUt, elonezet) {
 /* ---------- Grafikai elemek ---------- */
 
 /** Ideiglenes szókép a munkanévvel. A végleges logó a név és a domain kiválasztása után készül (marka/). */
-const logo = (cfg) => `<span class="logo"><i class="logo-jel" aria-hidden="true"></i><span class="logo-szoveg">${esc(cfg.marka)}</span></span>`;
+// A jel: ház egy kiegyensúlyozott mérleggerendán (a favicon ugyanez, forras/kepek/favicon.svg)
+const JEL = '<svg class="logo-jel" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#FFD21A"/><path d="M16 5 24.5 11.8V20.6H18.6V16.4H13.4V20.6H7.5V11.8Z" fill="#14161B"/><path d="M4.6 23h22.8" stroke="#14161B" stroke-width="2.3" stroke-linecap="round"/><path d="M16 23.4 19.4 27.8H12.6Z" fill="#14161B"/></svg>';
+const logo = (cfg) => `<span class="logo">${JEL}<span class="logo-szoveg">${esc(cfg.marka.toLowerCase())}</span></span>`;
 
 /**
  * Az adatok dátuma: a szabályok legutóbbi kézi vagy gépi ellenőrzésének napja (data/allapot.json),
@@ -130,7 +132,7 @@ ${cfg.eles && !elonezet && !/\.pages\.dev$/.test(new URL(cfg.domain).host) ? `<s
 <meta property="og:image" content="${cfg.domain}/assets/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="${esc(cfg.marka)}: mennyibe kerül valójában a lakás? Ingyenes kalkulátorok forrással és dátummal.">
+<meta property="og:image:alt" content="${esc(cfg.marka)}. ${esc(cfg.szlogen || '')} Ingyenes lakásos kalkulátorok forrással és dátummal.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#16181D" media="(prefers-color-scheme: dark)">

@@ -10,7 +10,7 @@ import { UTAK } from '../../kozos/utak.js';
 
 export const ESEMENYEK = ['indit', 'kesz', 'mentes', 'megosztas', 'nyomtat', 'kovetkezo', 'tovabb', 'naptar'];
 // A saját domain bekötésekor ide kell felvenni (például lakasom\.hu|www\.lakasom\.hu).
-const ENGEDETT = /^([a-z0-9-]+\.pages\.dev|localhost|127\.0\.0\.1)$/;
+const ENGEDETT = /^(ingatlanmerleg\.hu|www\.ingatlanmerleg\.hu|[a-z0-9-]+\.pages\.dev|localhost|127\.0\.0\.1)$/;
 const ISMERT = new Set(UTAK.map((u) => `/${u}`));
 
 const valasz = (adat, status = 200) =>

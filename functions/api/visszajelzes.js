@@ -12,7 +12,7 @@ const NAPI_KORLAT = 30;
 // Külön privát tároló: ez a tároló nyilvános, a látogatók szövege nem lehet az. A GITHUB_REPO változóval felülírható.
 const ALAP_REPO = 'czakopeti/lakaskoltseg-visszajelzes';
 // A saját domain bekötésekor ide kell felvenni (például lakasom\.hu|www\.lakasom\.hu).
-const ENGEDETT = /^([a-z0-9-]+\.pages\.dev|localhost|127\.0\.0\.1)$/;
+const ENGEDETT = /^(ingatlanmerleg\.hu|www\.ingatlanmerleg\.hu|[a-z0-9-]+\.pages\.dev|localhost|127\.0\.0\.1)$/;
 
 const valasz = (adat, status = 200) =>
   new Response(JSON.stringify(adat), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } });
@@ -43,7 +43,7 @@ export function tisztitAdatok(a) {
   return o;
 }
 
-export function jegy({ ut, cim, szoveg, adatok, eredmeny, minta }, domain = 'https://lakaskoltseg.pages.dev') {
+export function jegy({ ut, cim, szoveg, adatok, eredmeny, minta }, domain = 'https://ingatlanmerleg.hu') {
   const oldal = cim ? String(cim).slice(0, 80) : ut;
   const idezet = semleges(kitakar(szoveg)).split('\n').map((s) => `> ${s}`).join('\n');
   let body = `**Oldal:** ${domain}${ut}\n\n**A látogató ezt írta:**\n\n${idezet}\n`;
@@ -87,7 +87,7 @@ export async function onRequestPost({ request, env }) {
     const j = jegy({ ut: b.ut, cim: b.cim, szoveg, adatok: tisztitAdatok(b.adatok), eredmeny: b.eredmeny, minta: b.minta === true });
     const r = await fetch(`https://api.github.com/repos/${env.GITHUB_REPO || ALAP_REPO}/issues`, {
       method: 'POST',
-      headers: { authorization: `Bearer ${env.GITHUB_TOKEN}`, accept: 'application/vnd.github+json', 'user-agent': 'lakaskoltseg-visszajelzes', 'content-type': 'application/json' },
+      headers: { authorization: `Bearer ${env.GITHUB_TOKEN}`, accept: 'application/vnd.github+json', 'user-agent': 'ingatlanmerleg-visszajelzes', 'content-type': 'application/json' },
       body: JSON.stringify(j),
     });
     return r.ok ? valasz({ ok: true }) : valasz({ hiba: 'github', status: r.status }, 502);

@@ -96,7 +96,7 @@ const icsEsc = (s) => String(s).replace(/[\;,]/g, (c) => `\\${c}`).replace(/\n/g
  * Egy esemény ({ nap, cim, leiras }) vagy { esemenyek: [...] }. nap: YYYY-MM-DD
  */
 export function naptarFajl(b) {
-  const host = b.host || 'lakaskoltseg', az = b.azonosito || 'hatarido';
+  const host = b.host || 'ingatlanmerleg', az = b.azonosito || 'hatarido';
   const lista = b.esemenyek || [b];
   const ev = (e, i) => {
     const d = e.nap.replace(/-/g, '');
@@ -180,7 +180,7 @@ export function wekerle(adat, b) {
   const korOk = (x) => (van(x) ? Number(x) >= kor.tol && Number(x) < kor.ig : null);
   const f = [];
   const k1 = korOk(b.eletkor), k2 = van(b.eletkor2) ? korOk(b.eletkor2) : true;
-  f.push({ kulcs: 'eletkor', nev: 'Életkor', ok: k1 === null ? null : k1 && k2, par: '2. § 4. pont', szoveg: `${kor.tol} évesen már, a ${kor.ig}. születésnapodig még igényelheted${van(b.eletkor2) ? ', közös igénylésnél mindkettőtöknek' : ''}.` });
+  f.push({ kulcs: 'eletkor', nev: 'Életkor', ok: k1 === null ? null : k1 && k2, par: '2. § 4. pont', szoveg: `${kor.tol} éves kortól a ${kor.ig}. születésnapodig igényelheted${van(b.eletkor2) ? ', közös igénylésnél mindkettőtöknek' : ''}.` });
   const tok = { nincs: true, kicsi: true, kivetel: true, van: false }[b.tulajdon] ?? null;
   f.push({ kulcs: 'tulajdon', nev: 'Meglévő lakástulajdon', ok: tok, par: '11. §', szoveg: `Nem lehet és nem is lehetett ${ml.max_hanyad_szazalek}% feletti tulajdonod lakásban. Kivétel a legfeljebb ${fmtSzam(ml.kivetel_ertek_ft)} Ft-ot érő, a lebontott és a haszonélvezettel terhelt lakás.` });
   const max = b.ingatlan === 'haz' ? eh.haz_max_ft : eh.lakas_max_ft;
@@ -359,7 +359,7 @@ export function elotorlesztes(adat, b) {
   if (!(kamat >= 0) || b.kamat === '' || b.kamat == null) return { hiba: 'Add meg a hitel kamatát.' };
   if (!(n > 0)) return { hiba: 'Add meg, hány hónap van még hátra.' };
   if (!(o > 0)) return { hiba: 'Add meg, mennyit törlesztenél elő.' };
-  if (o >= toke) return { hiba: 'Ez a teljes tartozás: ilyenkor végtörlesztésről van szó, a megtakarítás a hátralévő kamat egésze.' };
+  if (o >= toke) return { hiba: 'Ez a teljes tartozás, vagyis végtörlesztés. Ilyenkor a teljes hátralévő kamatot megspórolod.' };
   const r = kamat / 100 / 12;
   const havi = torlesztoKamatbol(toke, n, kamat);
   const alapKamat = havi * n - toke;
@@ -691,19 +691,19 @@ export function rovidTav(adat, b) {
 /** Kalkulátoronként legfeljebb három ajánlás: { cel, cim, szoveg, q }. Csak a látogató által beírt adat megy át a következő űrlapra. */
 export function kovetkezoLepesek(kalk, e) {
   switch (kalk) {
-    case 'eladas': return [{ cel: 'lakasvaltas', cim: 'Az árából másik lakást veszel?', szoveg: 'Eladás és vétel egy lapon: az adó, az illeték a cserét pótló kedvezménnyel, és mennyi hitel kell.', q: { eladasiAr: e.eladasiAr, szerzesEv: e.szerzesEv, szerzesiErtek: e.szerzesiErtek } }];
-    case 'illetek': return [{ cel: 'indulo', cim: 'Mennyi pénz kell összesen?', szoveg: 'Az illeték mellett az önerő, az ügyvéd, a közjegyző és a földhivatal, időrendben.', q: { vetelar: e.ertek } }, { cel: 'wekerle', cim: 'Megkapod a Wekerle Plusz hitelt?', szoveg: 'Feltételenként a rendelet szerint, és a havi törlesztő 3% vagy 5% kamattal.', q: { vetelar: e.ertek } }];
+    case 'eladas': return [{ cel: 'lakasvaltas', cim: 'Az árából másik lakást veszel?', szoveg: 'Az eladás adója, az új lakás illetéke a cserekedvezménnyel, és mennyi hitel kell még.', q: { eladasiAr: e.eladasiAr, szerzesEv: e.szerzesEv, szerzesiErtek: e.szerzesiErtek } }];
+    case 'illetek': return [{ cel: 'indulo', cim: 'Mennyi pénz kell összesen?', szoveg: 'Az illeték mellett az önerő, az ügyvéd, a közjegyző és a földhivatal, időrendben.', q: { vetelar: e.ertek } }, { cel: 'wekerle', cim: 'Megkapod a Wekerle Plusz hitelt?', szoveg: 'Pontról pontra a rendelet szerint, és a havi törlesztő 3 vagy 5%-os kamattal.', q: { vetelar: e.ertek } }];
     case 'wekerle': return [{ cel: 'indulo', cim: 'Mennyi saját pénz kell összesen?', szoveg: 'Önerő, illeték és mellékköltségek, támogatott hitel díjaival.', q: { vetelar: e.vetelar, tamogatott: true } }, { cel: 'illetek', cim: 'Mennyi lesz az illeték, és jár-e kedvezmény?', szoveg: 'A Wekerle Plusz nem ad mentességet, de más kedvezmény járhat.', q: { ertek: e.vetelar } }];
     case 'lakasvaltas': return [{ cel: 'illetek', cim: 'Az illeték részletesen, minden kedvezménnyel', szoveg: 'Tulajdoni hányad, új lakás, 35 év alatti első lakás, rokontól vétel.', q: { ertek: e.vetelar, eladottErtek: e.eladasiAr, eladasMikor: e.sorrend === 'elobb_vesz' ? 'utana' : 'elotte' } }];
-    case 'hitelkepesseg': return [{ cel: 'indulo', cim: 'Mennyi saját pénz kell a vételhez?', szoveg: 'Önerő, illeték és minden mellékköltség, időrendben.', q: { vetelar: e.ertek, elso: e.elsoLakas } }, { cel: 'wekerle', cim: 'Megkapod a Wekerle Plusz hitelt?', szoveg: 'Feltételenként a rendelet szerint, 3% vagy 5% fix kamattal.', q: { vetelar: e.ertek } }];
+    case 'hitelkepesseg': return [{ cel: 'indulo', cim: 'Mennyi saját pénz kell a vételhez?', szoveg: 'Önerő, illeték és minden mellékköltség, időrendben.', q: { vetelar: e.ertek, elso: e.elsoLakas } }, { cel: 'wekerle', cim: 'Megkapod a Wekerle Plusz hitelt?', szoveg: 'Pontról pontra a rendelet szerint, 3 vagy 5%-os fix kamattal.', q: { vetelar: e.ertek } }];
     case 'hozam': return [{ cel: 'kiadas', cim: 'Az adó részletesen: 10% vagy tételes?', szoveg: 'A döntési pont és a negyedéves adóelőleg határidői.', q: { havi: e.havi, honap: e.honap, koltseg: e.koltseg } }];
     case 'emeles': return [{ cel: 'kiadas', cim: 'Mennyi adót fizetsz az új díj után?', szoveg: '10% költséghányaddal vagy tételesen.', q: { havi: e.dij } }];
-    case 'ingyenes': return [{ cel: 'haszonelvezet', cim: 'Mennyit ér a haszonélvezet?', szoveg: 'Az életkor szerinti szorzóval, és mi a teendő, ha lemond róla.', q: { ertek: e.ertek } }];
-    case 'haszonelvezet': return [{ cel: 'eladas', cim: 'Ha egyszer eladod: mennyi lesz az adó?', szoveg: 'A szerzés évéből és az árakból.', q: {} }];
-    case 'indulo': return [{ cel: 'hitelkepesseg', cim: 'Megkapod ezt a hitelt?', szoveg: 'A jövedelmedből, az MNB adósságfék-szabályai szerint.', q: { ertek: e.vetelar } }, { cel: 'wekerle', cim: 'Jár neked a Wekerle Plusz?', szoveg: '3% vagy 5% fix kamat, feltételenként a rendelet szerint.', q: { vetelar: e.vetelar } }, { cel: 'berlesvetel', cim: 'Megéri megvenni, vagy jobb bérelni?', szoveg: 'A vagyonod 10 vagy 20 év múlva, három forgatókönyvben.', q: { vetelar: e.vetelar, onero: e.vetelar && e.hitel ? String(Number(String(e.vetelar).replace(/\D/g, '')) - Number(String(e.hitel).replace(/\D/g, ''))) : '' } }];
+    case 'ingyenes': return [{ cel: 'haszonelvezet', cim: 'Mennyit ér a haszonélvezet?', szoveg: 'A haszonélvező életkora szerint, és mi történik, ha lemond róla.', q: { ertek: e.ertek } }];
+    case 'haszonelvezet': return [{ cel: 'eladas', cim: 'Mennyi adót fizetsz, ha később eladod?', szoveg: 'A szerzés éve és az árak alapján.', q: {} }];
+    case 'indulo': return [{ cel: 'hitelkepesseg', cim: 'Megkapod ezt a hitelt?', szoveg: 'A jövedelmedből, az MNB adósságfék-szabályai szerint.', q: { ertek: e.vetelar } }, { cel: 'wekerle', cim: 'Jár neked a Wekerle Plusz?', szoveg: '3 vagy 5%-os fix kamat. Pontról pontra megnézzük a feltételeket.', q: { vetelar: e.vetelar } }, { cel: 'berlesvetel', cim: 'Megéri megvenni, vagy jobb bérelni?', szoveg: 'A vagyonod 10 vagy 20 év múlva, három forgatókönyvben.', q: { vetelar: e.vetelar, onero: e.vetelar && e.hitel ? String(Number(String(e.vetelar).replace(/\D/g, '')) - Number(String(e.hitel).replace(/\D/g, ''))) : '' } }];
     case 'berlesvetel': return [{ cel: 'indulo', cim: 'Mennyi pénz kell a vételhez?', szoveg: 'Önerő, illeték és minden mellékköltség, időrendben.', q: { vetelar: e.vetelar, hitel: e.vetelar && e.onero ? String(Number(String(e.vetelar).replace(/\D/g, '')) - Number(String(e.onero).replace(/\D/g, ''))) : '' } }, { cel: 'hitelkepesseg', cim: 'Mennyi hitelt kaphatsz?', szoveg: 'A jövedelmedből és a lakás értékéből.', q: { ertek: e.vetelar } }];
     case 'rovidtav': return [{ cel: 'kiadas', cim: 'A hosszú távú kiadás adója részletesen', szoveg: '10% vagy tételes, a negyedéves adóelőleg határidőivel.', q: { havi: e.hosszuHavi, honap: e.hosszuHonap } }, { cel: 'hozam', cim: 'Megéri kiadásra venni?', szoveg: 'Bruttó és nettó hozam, hitellel és állampapírral összevetve.', q: { havi: e.hosszuHavi } }];
-    case 'kiadas': return [{ cel: 'eladas', cim: 'Ha egyszer eladnád: mennyi lenne az adó?', szoveg: 'A szerzés évéből és az árakból, évről évre csökkenő skálával.', q: {} }];
+    case 'kiadas': return [{ cel: 'eladas', cim: 'Mennyi adót fizetnél, ha később eladnád?', szoveg: 'A szerzés éve és az árak alapján. Minél régebben a tiéd, annál kevesebb.', q: {} }];
     default: return [];
   }
 }

@@ -1,12 +1,12 @@
 {
-  "forras": "https://lakaskoltseg.pages.dev",
+  "forras": "https://ingatlanmerleg.hu",
   "licenc": "CC BY 4.0",
   "ellenorizve": "2026-11-19T08:19",
   "leiras": "Magyar lakásvásárlási, -eladási és -kiadási szabályok gépi formában.",
   "fajlok": [
     {
       "fajl": "szabalyok.json",
-      "url": "https://lakaskoltseg.pages.dev/adatok/v1/szabalyok.json",
+      "url": "https://ingatlanmerleg.hu/adatok/v1/szabalyok.json",
       "leiras": "A szabályok, amelyekkel az oldal számol. Minden tételnél: gépi érték, olvasható szöveg, jogszabályhely, forrás a közzététel napjával, és az ellenőrzés szintje (elsodleges: a jogszabály vagy a NAV saját oldala alapján ellenőrizve; masodlagos: szaksajtó alapján, az elsődleges forrással még össze kell vetni)."
     }
   ]

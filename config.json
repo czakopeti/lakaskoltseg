@@ -1,6 +1,6 @@
 {
-  "marka": "lakásköltség",
-  "domain": "https://lakaskoltseg.pages.dev",
+  "marka": "Ingatlanmérleg",
+  "domain": "https://ingatlanmerleg.hu",
   "eles": false,
   "kapcsolat_email": "",
   "indexnow_kulcs": "",
@@ -17,7 +17,7 @@
     "cim": "101 Townsend St, San Francisco, CA 94107, USA",
     "web": "https://www.cloudflare.com"
   },
-  "megjegyzes": "Munkanév és ideiglenes cím. Az eles: true csak akkor kapcsolható be, ha megvan a végleges név, a domain, a kapcsolati e-mail és az IndexNow-kulcs. Amíg eles: false, minden oldal noindex.",
-  "szlogen": "",
+  "megjegyzes": "A név Ingatlanmérleg, a domain ingatlanmerleg.hu (meg kell venni, és a Cloudflare Pages-en hozzá kell rendelni). Az eles: true csak akkor kapcsolható be, ha a domain él, és megvan a kapcsolati e-mail és az IndexNow-kulcs. Amíg eles: false, minden oldal noindex.",
+  "szlogen": "Számolj, mielőtt aláírsz.",
   "visszajelzes_repo": "czakopeti/lakaskoltseg-visszajelzes"
 }

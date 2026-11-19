@@ -1,4 +1,4 @@
-/* lakásköltség: az arculat a DIZAJN.md szerint.
+/* Ingatlanmérleg: az arculat a DIZAJN.md szerint.
    A szerkezet a nagy forgalmú külföldi kalkulátoroldalak bevált rendje (kalkulátor a hajtás fölött, bal oldalt a mezők,
    jobb oldalt az élő eredmény, alatta a magyarázat), a saját arculat a budapesti villamos sárgája és a tinta.
    Betűk: Bricolage Grotesque (címek, nagy számok), Onest (szöveg, űrlap). Mindkettő OFL, saját tárhelyről. */
@@ -69,8 +69,7 @@ p { margin: 0; text-wrap: pretty; }
 .fejlec .keret { display: flex; align-items: center; gap: 28px; min-height: 68px; }
 .jegy { text-decoration: none; display: inline-flex; }
 .logo { display: inline-flex; align-items: center; gap: 10px; font: 750 21px/1 var(--cim); letter-spacing: -.035em; }
-.logo-jel { width: 24px; height: 24px; border-radius: 7px; background: var(--sarga); position: relative; flex-shrink: 0; }
-.logo-jel::after { content: ""; position: absolute; inset: 5px 5px 4px; background: #14161B; clip-path: polygon(50% 0, 100% 42%, 100% 100%, 64% 100%, 64% 66%, 36% 66%, 36% 100%, 0 100%, 0 42%); }
+.logo-jel { width: 26px; height: 26px; display: block; flex-shrink: 0; }
 .szlogen { font-size: 13px; color: var(--tinta2); }
 .menu { display: flex; gap: 4px; margin-left: auto; }
 .menu a { text-decoration: none; font-weight: 550; font-size: 15px; color: var(--tinta2); padding: 8px 12px; border-radius: 99px; transition: background .15s, color .15s; }

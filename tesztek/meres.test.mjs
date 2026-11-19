@@ -14,8 +14,8 @@ function kv({ hibas = false } = {}) {
     async list({ prefix }) { return { keys: [...m.entries()].filter(([k]) => k.startsWith(prefix)).map(([name, x]) => ({ name, metadata: x.metadata })), list_complete: true }; },
   };
 }
-const keres = (b, origin = 'https://lakaskoltseg.pages.dev') =>
-  new Request('https://lakaskoltseg.pages.dev/api/meres', { method: 'POST', headers: { 'content-type': 'application/json', origin }, body: typeof b === 'string' ? b : JSON.stringify(b) });
+const keres = (b, origin = 'https://ingatlanmerleg.pages.dev') =>
+  new Request('https://ingatlanmerleg.pages.dev/api/meres', { method: 'POST', headers: { 'content-type': 'application/json', origin }, body: typeof b === 'string' ? b : JSON.stringify(b) });
 const honap = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Budapest' }).format(new Date()).slice(0, 7);
 
 test('mérés: események számlálása oldalanként, havi összesítő és befejezési arány', async () => {
@@ -25,7 +25,7 @@ test('mérés: események számlálása oldalanként, havi összesítő és befe
   for (let i = 0; i < 3; i++) await kuld('/forrasok/', 'kesz');
   await kuld('/rolunk/', 'indit');
   await kuld('/rolunk/', 'mentes');
-  const o = await (await onRequestGet({ request: new Request(`https://lakaskoltseg.pages.dev/api/meres?honap=${honap}`), env })).json();
+  const o = await (await onRequestGet({ request: new Request(`https://ingatlanmerleg.pages.dev/api/meres?honap=${honap}`), env })).json();
   assert.equal(o.honap, honap);
   assert.equal(o.oldalak['/forrasok/'].indit, 4);
   assert.equal(o.oldalak['/forrasok/'].kesz, 3);
@@ -54,7 +54,7 @@ test('mérés: csak ismert oldalra és eseményre, idegen oldalról semmit', asy
 test('mérés: KV-hiba és hiányzó tároló esetén sem dob hibát a látogatónak', async () => {
   assert.equal((await onRequestPost({ request: keres({ ut: '/', esemeny: 'tovabb' }), env: { SZAVAZAT: kv({ hibas: true }) } })).status, 202);
   assert.equal((await onRequestPost({ request: keres({ ut: '/', esemeny: 'tovabb' }), env: {} })).status, 200);
-  assert.equal((await onRequestGet({ request: new Request('https://lakaskoltseg.pages.dev/api/meres?honap=2026-1'), env: { SZAVAZAT: kv() } })).status, 400);
+  assert.equal((await onRequestGet({ request: new Request('https://ingatlanmerleg.pages.dev/api/meres?honap=2026-1'), env: { SZAVAZAT: kv() } })).status, 400);
 });
 
 test('mérés: az összesítő más hónap kulcsait kihagyja', () => {

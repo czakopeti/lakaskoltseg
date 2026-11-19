@@ -1,7 +1,7 @@
 // Böngészős réteg: menü, űrlapok, élő elszámolás, megosztható link.
 // Szerverre csak az megy, amit a látogató a visszajelzés-dobozban maga elküld.
-import * as S from './szamitas.js?v=8f04041b';
-import * as M from './megjelenites.js?v=8f04041b';
+import * as S from './szamitas.js?v=893146c2';
+import * as M from './megjelenites.js?v=893146c2';
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -138,7 +138,7 @@ document.addEventListener('click', (ev) => {
   const g = ev.target.closest?.('[data-naptar], [data-naptar-lista]');
   if (!g) return;
   meres('naptar');
-  const kozos = { azonosito: g.closest('[data-kalk-nev]')?.dataset.kalkNev || 'hatarido', host: location.hostname || 'lakaskoltseg' };
+  const kozos = { azonosito: g.closest('[data-kalk-nev]')?.dataset.kalkNev || 'hatarido', host: location.hostname || 'ingatlanmerleg' };
   const fajl = S.naptarFajl(g.dataset.naptarLista ? { ...kozos, esemenyek: JSON.parse(g.dataset.naptarLista) } : { ...kozos, nap: g.dataset.naptar, cim: g.dataset.naptarCim, leiras: g.dataset.naptarLeiras });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([fajl], { type: 'text/calendar;charset=utf-8' }));

@@ -12,7 +12,7 @@ A legnagyobb forgalmú külföldi kalkulátoroldalak (Bankrate, NerdWallet, Zill
 |---|---|
 | Színek | Fehér alap, `#F3F4F6` felület, tinta `#14161B`, villamossárga `#FFD21A`, halvány sárga `#FFF3C2`. Sötét módban `#16181D` alap, a sárga marad. |
 | Betűk | Bricolage Grotesque a címekhez és a nagy számokhoz (750–780, szoros betűköz), Onest a szöveghez és az űrlaphoz. Mindkettő OFL, saját tárhelyről (`forras/fonts`). |
-| Logó | Sárga lekerekített négyzet tintaszínű házzal, mellette a szókép. A favicon ugyanez. |
+| Logó | Sárga lekerekített négyzet, benne tintaszínű ház egy kiegyensúlyozott mérleggerendán (alatta háromszög alátámasztás), mellette a szókép kisbetűvel: „ingatlanmérleg”. A favicon ugyanez (`forras/kepek/favicon.svg`), a jel a `sablon.mjs` JEL állandója. Mottó: „Számolj, mielőtt aláírsz.” |
 | Űrlap (`.forgalmi`) | Szürke kártya 28 px sarkokkal. A mezők fehérek 16 px sarkokkal, a szám nagy Bricolage betűvel. Fókuszban tinta keret és sárga gyűrű. A választók kerek csipek, a jelölőnégyzetek kapcsolók. |
 | Eredmény (`.elszamolas`) | Fehér kártya, asztali nézetben görgetéskor a helyén marad. A végösszeg sárga blokkon, nagy számmal. |
 | Adatjelölés (`.jel`) | **hivatalos**: tinta csip, a forrásra visz. **saját**: keretes. **becslés**: halvány sárga. |

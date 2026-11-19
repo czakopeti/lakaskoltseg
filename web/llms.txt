@@ -1,51 +1,51 @@
-# lakásköltség
+# Ingatlanmérleg
 
-> A lakásköltség független, ingyenes magyar oldal a lakásvásárlás, a lakáseladás és a lakáskiadás költségeiről: vagyonszerzési illeték, ingatlaneladás személyi jövedelemadója, lakáskiadás adója, kamattámogatott hitel. Minden szabálynál ott a jogszabályhely, a forrás és az ellenőrzés napja. Nem hatóság és nem hitelközvetítő. Legutóbbi ellenőrzés: 2026. november 19.
+> Az Ingatlanmérleg független, ingyenes magyar oldal a lakásvásárlás, a lakáseladás és a lakáskiadás költségeiről: vagyonszerzési illeték, ingatlaneladás személyi jövedelemadója, lakáskiadás adója, kamattámogatott hitel. Minden szabálynál ott a jogszabályhely, a forrás és az ellenőrzés napja. Nem hatóság és nem hitelközvetítő. Legutóbbi ellenőrzés: 2026. november 19.
 
 ## Lakást veszel
 
-Amit a vételáron felül fizetsz, és a kamattámogatott hitel, amely jár neked.
+Amit a vételáron felül fizetsz, és hogy jár-e neked kamattámogatott hitel.
 
-- [Mennyi pénz kell a vételhez?](https://lakaskoltseg.pages.dev/lakasvasarlas-koltsegei-kalkulator/): mennyi saját pénz kell egy lakás megvételéhez: önerő (HFM 80%, első lakásnál 90%), illeték a kedvezményekkel, ügyvédi díj, földhivatal (10 600 Ft, jelzálog 20 000 Ft), értékbecslés, közjegyzői díj a díjszabás sávjai szerint, folyósítási díj; időrendben, a megtakarításból hiányzó összeggel
-- [Vagyonszerzési illeték](https://lakaskoltseg.pages.dev/vagyonszerzesi-illetek-kalkulator/): lakásvásárlás illetéke (4%) és minden kedvezmény: cserét pótló vétel 5 éven belüli eladással, új lakás vállalkozótól, 35 év alatti első lakásszerző, CSOK Plusz, egyenes ági rokon; a legkedvezőbb kiválasztásával
-- [Mennyi lakáshitelt kaphatsz](https://lakaskoltseg.pages.dev/mennyi-lakashitelt-kaphatok/): felvehető lakáshitel az MNB 2026-os szabályai szerint: JTM 25–60% a jövedelemtől (800 000 Ft-os küszöb) és a kamatperiódustól függően, HFM 80% (első lakásnál 90%), összevetve a Wekerle Plusszal
-- [Wekerle Plusz hitel](https://lakaskoltseg.pages.dev/wekerle-plusz-kalkulator/): a Wekerle Plusz hitel feltételei a 298/2026. Korm. rendelet paragrafusaival (18–45 év, 50 millió forint, 3% új és 5% használt lakásra, ár- és négyzetméterár-korlát), havi törlesztő és a támogatás értéke
-- [Előtörlesztés](https://lakaskoltseg.pages.dev/elotorlesztes-kalkulator/): lakáshitel előtörlesztése: kamatmegtakarítás rövidebb futamidővel vagy kisebb törlesztővel, az előtörlesztési díj után
-- [Albérlet vagy lakásvásárlás](https://lakaskoltseg.pages.dev/alberlet-vagy-lakasvasarlas-kalkulator/): albérlet vagy hitelből vétel: a vagyon N év múlva havi modellel, illetékkel és mellékköltségekkel, karbantartással, a bérlő pénze Prémium Magyar Állampapírban; három forgatókönyv a lakásárakra (infláció ±3 százalékpont), és melyik évben kerül előre a vétel
+- [Mennyi pénz kell a vételhez?](https://ingatlanmerleg.hu/lakasvasarlas-koltsegei-kalkulator/): mennyi saját pénz kell egy lakás megvételéhez: önerő (HFM 80%, első lakásnál 90%), illeték a kedvezményekkel, ügyvédi díj, földhivatal (10 600 Ft, jelzálog 20 000 Ft), értékbecslés, közjegyzői díj a díjszabás sávjai szerint, folyósítási díj; időrendben, a megtakarításból hiányzó összeggel
+- [Vagyonszerzési illeték](https://ingatlanmerleg.hu/vagyonszerzesi-illetek-kalkulator/): lakásvásárlás illetéke (4%) és minden kedvezmény: cserét pótló vétel 5 éven belüli eladással, új lakás vállalkozótól, 35 év alatti első lakásszerző, CSOK Plusz, egyenes ági rokon; a legkedvezőbb kiválasztásával
+- [Mennyi lakáshitelt kaphatsz](https://ingatlanmerleg.hu/mennyi-lakashitelt-kaphatok/): felvehető lakáshitel az MNB 2026-os szabályai szerint: JTM 25–60% a jövedelemtől (800 000 Ft-os küszöb) és a kamatperiódustól függően, HFM 80% (első lakásnál 90%), összevetve a Wekerle Plusszal
+- [Wekerle Plusz hitel](https://ingatlanmerleg.hu/wekerle-plusz-kalkulator/): a Wekerle Plusz hitel feltételei a 298/2026. Korm. rendelet paragrafusaival (18–45 év, 50 millió forint, 3% új és 5% használt lakásra, ár- és négyzetméterár-korlát), havi törlesztő és a támogatás értéke
+- [Előtörlesztés](https://ingatlanmerleg.hu/elotorlesztes-kalkulator/): lakáshitel előtörlesztése: kamatmegtakarítás rövidebb futamidővel vagy kisebb törlesztővel, az előtörlesztési díj után
+- [Albérlet vagy lakásvásárlás](https://ingatlanmerleg.hu/alberlet-vagy-lakasvasarlas-kalkulator/): albérlet vagy hitelből vétel: a vagyon N év múlva havi modellel, illetékkel és mellékköltségekkel, karbantartással, a bérlő pénze Prémium Magyar Állampapírban; három forgatókönyv a lakásárakra (infláció ±3 százalékpont), és melyik évben kerül előre a vétel
 
 ## Eladod, és másikat veszel
 
-A két ügylet egy lapon, mert az egyik adója és a másik illetéke összefügg.
+Az eladás és a vétel együtt, mert az egyik adója és a másik illetéke összefügg.
 
-- [Lakásváltás](https://lakaskoltseg.pages.dev/lakasvaltas-kalkulator/): eladás és vétel egy lapon: az eladás szja-ja, a régi hitel, az illeték a cserét pótló kedvezménnyel, és mennyi hitel kell az új lakáshoz
-- [Ingatlaneladás szja-ja](https://lakaskoltseg.pages.dev/ingatlaneladas-szja-kalkulator/): az eladott lakás, ház vagy telek személyi jövedelemadója a szerzés és az eladás évéből, az elszámolható költségekkel; mikortól adómentes, és meddig kell bevallani
+- [Lakásváltás](https://ingatlanmerleg.hu/lakasvaltas-kalkulator/): eladás és vétel egy lapon: az eladás szja-ja, a régi hitel, az illeték a cserét pótló kedvezménnyel, és mennyi hitel kell az új lakáshoz
+- [Ingatlaneladás szja-ja](https://ingatlanmerleg.hu/ingatlaneladas-szja-kalkulator/): az eladott lakás, ház vagy telek személyi jövedelemadója a szerzés és az eladás évéből, az elszámolható költségekkel; mikortól adómentes, és meddig kell bevallani
 
 ## Kiadod a lakásod
 
-Mennyi adó jár a bérleti díj után, és mikor kell befizetni.
+Mennyi adót kell fizetni a bérleti díj után, és mikor.
 
-- [Lakáskiadás adója](https://lakaskoltseg.pages.dev/lakaskiadas-ado-kalkulator/): lakáskiadás szja-ja: 10% költséghányad vagy tételes elszámolás, a döntési pont, negyedéves adóelőleg és bevallás naptárfájlban
-- [Megéri kiadásra venni?](https://lakaskoltseg.pages.dev/lakas-befektetes-hozam-kalkulator/): kiadásra vett lakás bruttó és nettó hozama illetékkel, felújítással, üres hónapokkal, költségekkel és szja-val
-- [Airbnb vagy hosszú távú kiadás](https://lakaskoltseg.pages.dev/airbnb-vagy-hosszu-tavu-kiadas/): rövid távú (Airbnb, Booking) vagy hosszú távú lakáskiadás adó után: tételes átalányadó lakószobánként (Budapesten 150 000, máshol 38 400 Ft/év), 10% költséghányad vagy tételes elszámolás 15% szja és 13% szocho mellett, 5% áfa 20 millió forint felett, 4% turizmusfejlesztési hozzájárulás, platformjutalék, takarítás, rezsi; fordulópont foglalt éjszakában; a budapesti moratórium és a kerületi tilalmak
-- [Bérleti díj emelése az inflációval](https://lakaskoltseg.pages.dev/berleti-dij-emeles-inflacio/): bérleti díj emelése a KSH előző évi átlagos inflációjával (2022: 14,5%, 2023: 17,6%, 2024: 3,7%, 2025: 4,4%)
+- [Lakáskiadás adója](https://ingatlanmerleg.hu/lakaskiadas-ado-kalkulator/): lakáskiadás szja-ja: 10% költséghányad vagy tételes elszámolás, a döntési pont, negyedéves adóelőleg és bevallás naptárfájlban
+- [Megéri kiadásra venni?](https://ingatlanmerleg.hu/lakas-befektetes-hozam-kalkulator/): kiadásra vett lakás bruttó és nettó hozama illetékkel, felújítással, üres hónapokkal, költségekkel és szja-val
+- [Airbnb vagy hosszú távú kiadás](https://ingatlanmerleg.hu/airbnb-vagy-hosszu-tavu-kiadas/): rövid távú (Airbnb, Booking) vagy hosszú távú lakáskiadás adó után: tételes átalányadó lakószobánként (Budapesten 150 000, máshol 38 400 Ft/év), 10% költséghányad vagy tételes elszámolás 15% szja és 13% szocho mellett, 5% áfa 20 millió forint felett, 4% turizmusfejlesztési hozzájárulás, platformjutalék, takarítás, rezsi; fordulópont foglalt éjszakában; a budapesti moratórium és a kerületi tilalmak
+- [Bérleti díj emelése az inflációval](https://ingatlanmerleg.hu/berleti-dij-emeles-inflacio/): bérleti díj emelése a KSH előző évi átlagos inflációjával (2022: 14,5%, 2023: 17,6%, 2024: 3,7%, 2025: 4,4%)
 
 ## Örökölsz vagy ajándékba kapod
 
 Családon belül többnyire nincs illeték, de a haszonélvezet és a terhek számítanak.
 
-- [Öröklési és ajándékozási illeték](https://lakaskoltseg.pages.dev/oroklesi-ajandekozasi-illetek-kalkulator/): öröklési és ajándékozási illeték: lakásnál 9%, más vagyonnál 18%, egyenes ági rokon, házastárs és testvér között mentes; tiszta érték terhekkel és haszonélvezettel
-- [A haszonélvezet értéke](https://lakaskoltseg.pages.dev/haszonelvezeti-jog-erteke/): a haszonélvezet értéke az Itv. 72. § szerint: a forgalmi érték huszada az életkor szerinti szorzóval (10, 8, 6, 4), a csupasz tulajdon, és az illeték vételnél és lemondáskor
+- [Öröklési és ajándékozási illeték](https://ingatlanmerleg.hu/oroklesi-ajandekozasi-illetek-kalkulator/): öröklési és ajándékozási illeték: lakásnál 9%, más vagyonnál 18%, egyenes ági rokon, házastárs és testvér között mentes; tiszta érték terhekkel és haszonélvezettel
+- [A haszonélvezet értéke](https://ingatlanmerleg.hu/haszonelvezeti-jog-erteke/): a haszonélvezet értéke az Itv. 72. § szerint: a forgalmi érték huszada az életkor szerinti szorzóval (10, 8, 6, 4), a csupasz tulajdon, és az illeték vételnél és lemondáskor
 
 ## Adatok és források
 
 A szabályok, amelyekkel számolunk, forrással és dátummal.
 
-- [Honnan vannak a számok?](https://lakaskoltseg.pages.dev/forrasok/): minden szabály jogszabályhelye, forrása és az ellenőrzés napja
+- [Honnan vannak a számok?](https://ingatlanmerleg.hu/forrasok/): minden szabály jogszabályhelye, forrása és az ellenőrzés napja
 
 ## Gépi adatok
 
-- [JSON-adatcsatorna](https://lakaskoltseg.pages.dev/adatok/v1/index.json): a szabályok gépi formában, forrással és dátummal; regisztráció és kulcs nélkül, CC BY 4.0
+- [JSON-adatcsatorna](https://ingatlanmerleg.hu/adatok/v1/index.json): a szabályok gépi formában, forrással és dátummal; regisztráció és kulcs nélkül, CC BY 4.0
 
 ## Az oldalról
 
-- [Rólunk és szerkesztői elvek](https://lakaskoltseg.pages.dev/rolunk/): független, ingyenes, forrással; mi hivatalos, mi saját adat, mi becslés
+- [Rólunk és szerkesztői elvek](https://ingatlanmerleg.hu/rolunk/): független, ingyenes, forrással; mi hivatalos, mi saját adat, mi becslés
