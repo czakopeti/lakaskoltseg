@@ -301,10 +301,10 @@ export function flipPanel(adat, r) {
   if (r.kamat) h += tetel(`Kamat, ${tized(r.kamatSz, 1)}%`, `−${ftx(r.kamat)}`, { cls: 'levonas', forras: r.kamatSajat ? 'sajat' : 'becsles', forrasUrl: r.kamatSajat ? undefined : u('wekerle_plusz.piaci_kamat'), al: `${fmt(r.hitel)} Ft hitel ${r.honap} hónapig` });
   if (r.kozvetito) h += tetel(`Közvetítő, ${tized(r.kozvetitoSz, 1)}%`, `−${ftx(r.kozvetito)}`, { cls: 'levonas', forras: 'sajat' });
   if (r.egyeb) h += tetel('Egyéb költség', `−${ftx(r.egyeb)}`, { cls: 'levonas', forras: 'sajat' });
-  h += tetel('Szja', `−${ftx(r.szja)}`, { cls: 'levonas', forras: 'hivatalos', forrasUrl: u('szja_eladas.ado_mertek'), al: `${r.evek === 0 ? 'a vétel évében' : `${r.evek} év után`} eladva` });
+  h += tetel('Szja', `−${ftx(r.szja)}`, { cls: 'levonas', forras: 'hivatalos', forrasUrl: u('szja_eladas.ado_mertek'), al: r.evek === 0 ? 'legfeljebb egy éven belül eladva' : `${r.evek} év után eladva` });
   h += tetel(nyer ? 'Marad' : 'Veszteség', `${nyer ? '' : '−'}${ftx(Math.abs(r.netto))}`, { cls: 'vegso' });
   h += '</ul>';
-  h += `<p class="panel-cim">Ha később adod el ugyanennyiért</p><div class="tabla-tarto"><table class="tabla kicsi-tabla"><thead><tr><th scope="col">Eladás</th><th scope="col">Adóköteles rész</th><th scope="col">Szja</th></tr></thead><tbody>${r.evenkent.map((x) => `<tr${x.ev === Math.min(r.evek, r.evenkent.length - 1) ? ' class="kiemelt-sor"' : ''}><th scope="row">${x.ev === 0 ? 'a vétel évében' : x.ev === r.evenkent.length - 1 ? `${x.ev}. évtől` : `${x.ev}. évben`}</th><td>${x.szazalek}%</td><td>${fmt(x.ado)} Ft</td></tr>`).join('')}</tbody></table></div>`;
+  h += `<p class="panel-cim">Ha később adod el ugyanennyiért</p><div class="tabla-tarto"><table class="tabla kicsi-tabla"><thead><tr><th scope="col">Eladás</th><th scope="col">Adóköteles rész</th><th scope="col">Szja</th></tr></thead><tbody>${r.evenkent.map((x) => `<tr${x.ev === Math.min(r.evek, r.evenkent.length - 1) ? ' class="kiemelt-sor"' : ''}><th scope="row">${x.ev === 0 ? 'a vétel évében' : x.ev === 1 ? 'a következő évben' : x.ev === r.evenkent.length - 1 ? `az ${x.ev}. évtől` : `a ${x.ev}. évben`}</th><td>${x.szazalek}%</td><td>${fmt(x.ado)} Ft</td></tr>`).join('')}</tbody></table></div>`;
   h += levezetes([
     ['Az szja alapja', `${F(r.elad)} − ${F(r.kozvetito)} − ${F(r.ar)} − ${F(r.szerzesKoltseg)}${r.szamlas && r.felujitas ? ` − ${F(r.felujitas)}` : ''} = ${F(r.szjaAlap)}`, 'Szja tv. 62. § (1)–(2)'],
     ['Szja', `${F(r.szjaAlap)} × ${r.szjaHanyad}% × 15% = ${F(r.szja)}`, 'Szja tv. 62. § (4)'],
