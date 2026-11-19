@@ -234,9 +234,10 @@ export function jelentesSorok(adat) {
   return Object.entries(a.egysegek).map(([kod, u]) => {
     const s = u.s.o || [];
     const mf = S.megfizethetoseg(adat, kod, u);
+    const mfMa = S.megfizethetosegMa(adat, kod, u);
     const be = S.arBecsles(adat, u);
     const i0 = s.findIndex((x) => x != null);
-    return { kod, n: u.n, m: u.m, t: u.t, megye: a.megyek[u.m]?.n || '', ar: s[n], db: u.s.od?.[n] || 0, valt1: valt(s, n, n - 1), valt3: s[n] != null && s[n - 3] != null ? (Math.pow(s[n] / s[n - 3], 1 / 3) - 1) * 100 : null, valtKezd: i0 >= 0 ? valt(s, n, i0) : null, kezdEv: a.evek[i0], evek: mf?.evek ?? null, kereset: mf?.kereset ?? null, becsles: be?.ar ?? null, becslesCimke: be?.cimke ?? null };
+    return { kod, n: u.n, m: u.m, t: u.t, megye: a.megyek[u.m]?.n || '', ar: s[n], db: u.s.od?.[n] || 0, valt1: valt(s, n, n - 1), valt3: s[n] != null && s[n - 3] != null ? (Math.pow(s[n] / s[n - 3], 1 / 3) - 1) * 100 : null, valtKezd: i0 >= 0 ? valt(s, n, i0) : null, kezdEv: a.evek[i0], evek: mf?.evek ?? null, evekMa: mfMa?.evek ?? null, kereset: mf?.kereset ?? null, becsles: be?.ar ?? null, becslesCimke: be?.cimke ?? null };
   }).filter((x) => x.ar != null);
 }
 
@@ -288,7 +289,7 @@ ${(() => {
           if (bx >= bal && bx + w <= W - jobb && !utkozik(doboz) && !(korFigyel && korok.some((c) => c[4] !== p.kod && doboz[0] < c[2] && doboz[2] > c[0] && doboz[1] < c[3] && doboz[3] > c[1]))) { foglalt.push(doboz); felirat = `<text x="${(anchor === 'start' ? bx : bx + w).toFixed(1)}" y="${(cy + dy + 4).toFixed(1)}" text-anchor="${anchor}">${esc(t)}</text>`; break; }
         }
       }
-      ki.push(`<g class="kv-pont"><circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${rr.toFixed(1)}"><title>${esc(p.n)}: ${M.fmt(p.ar * 1000)} Ft/m², egy év alatt ${szaz(p.valt1)}, ${M.fmt(p.db)} adásvétel</title></circle></g>`);
+      ki.push(`<g class="kv-pont"><circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${rr.toFixed(1)}"><title>${esc(p.n)}: ${M.fmt(p.ar * 1000)} Ft/m², egy év alatt ${szaz(p.valt1)}, ${M.fmt(p.db)} adásvétel${p.becsles ? `; becsült mai ár ${M.fmt(p.becsles * 1000)} Ft/m²` : ''}</title></circle></g>`);
       if (felirat) feliratok.push(felirat);
     }
     return ki.join('') + `<g class="kv-feliratok">${feliratok.join('')}</g>`;
@@ -301,7 +302,7 @@ ${(() => {
 function savDiagram(sorok, { cim, ertek, felirat, id, max }) {
   const W = 760, sorH = 26, bal = 210, H = sorok.length * sorH + 10;
   const m = max ?? Math.max(...sorok.map(ertek));
-  return `<figure class="savok" data-abra="${id}"><figcaption><b>${esc(cim)}</b></figcaption><svg class="sv-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(cim)}" xmlns="http://www.w3.org/2000/svg">${sorok.map((s, i) => `<g><text class="sv-nev" x="${bal - 10}" y="${i * sorH + 17}" text-anchor="end">${esc(s.n.replace(/^Budapest /, ''))}</text><rect x="${bal}" y="${i * sorH + 4}" width="${((ertek(s) / m) * (W - bal - 90)).toFixed(1)}" height="${sorH - 8}" rx="4"/><text class="sv-ertek" x="${(bal + (ertek(s) / m) * (W - bal - 90) + 8).toFixed(1)}" y="${i * sorH + 17}">${felirat(s)}</text></g>`).join('')}</svg></figure>`;
+  return `<figure class="savok" data-abra="${id}"><figcaption><b>${esc(cim)}</b></figcaption><svg class="sv-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(cim)}" xmlns="http://www.w3.org/2000/svg">${sorok.map((s, i) => `<g><text class="sv-nev" x="${bal - 10}" y="${i * sorH + 17}" text-anchor="end">${esc(s.n.replace(/^Budapest /, ''))}</text><rect x="${bal}" y="${i * sorH + 4}" width="${((ertek(s) / m) * (W - bal - 170)).toFixed(1)}" height="${sorH - 8}" rx="4"/><text class="sv-ertek" x="${(bal + (ertek(s) / m) * (W - bal - 170) + 8).toFixed(1)}" y="${i * sorH + 17}">${felirat(s)}</text></g>`).join('')}</svg></figure>`;
 }
 
 export function jelentesOldal(k, lista) {
@@ -320,6 +321,13 @@ export function jelentesOldal(k, lista) {
   const link = (x) => (lista.egysegek.has(x.kod) ? `<a href="LINK:${lista.egysegek.get(x.kod)}">${esc(x.n.replace(/^Budapest /, ''))}</a>` : esc(x.n));
   const ut = JELENTES_UT;
   const cim = `Éves lakásár-jelentés: a ${ev}-es év valódi eladásai`;
+  const tiz = (v) => v.toFixed(1).replace('.', ',');
+  const evFelirat = (s) => `${tiz(s.evek)} év${s.evekMa ? `, ma kb. ${tiz(s.evekMa)}` : ''}`;
+  // A mai szint becslése: Budapest és az ország (a vármegyék becsült árának adásvétellel súlyozott átlaga)
+  const megyeBecs = Object.entries(a.megyek).map(([m, mu]) => ({ m, db: mu.s.od?.[n] || 0, be: S.arBecsles(adat, { ...mu, m }) })).filter((x) => x.be);
+  const maCimke = megyeBecs[0]?.be.cimke;
+  const bpMa = megyeBecs.find((x) => x.m === '01')?.be.ar;
+  const orszMa = megyeBecs.reduce((t, x) => t + x.be.ar * x.db, 0) / (megyeBecs.reduce((t, x) => t + x.db, 0) || 1);
   const csokkent = fel.filter((x) => x.valt1 < 0);
   const oszlopok = [['Ft/m², ' + ev, (x) => M.fmt(x.ar * 1000)], ['Egy év alatt', (x) => szaz(x.valt1)], ['Adásvétel', (x) => M.fmt(x.db)], ['Becsült mai ár', (x) => (x.becsles ? `${M.fmt(x.becsles * 1000)} Ft/m²` : '–')]];
   const leiras = `Éves jelentés a ${ev}. évi valódi lakáseladásokból (KSH Ingatlanadattár): hol drágult és hol olcsóbbodott a lakás, kvadráns a kerületekről és városokról, és hány évnyi fizetés egy ${S.MEGFIZ_M2} m²-es lakás.`;
@@ -330,6 +338,7 @@ export function jelentesOldal(k, lista) {
     `Azok közül, ahol legalább ${JELENTES_MIN_DB} adásvétel volt, ${fel[0].n} drágult a legjobban (${szaz(fel[0].valt1)}), ${le[0].valt1 < 0 ? `${le[0].n} olcsóbbodott a legtöbbet (${szaz(le[0].valt1)})` : `${le[0].n} drágult a legkevésbé (${szaz(le[0].valt1)})`}.`,
     mfEleg.length ? `A legkevésbé megfizethető település ${mfEleg[0].n}: ott egy ${S.MEGFIZ_M2} m²-es lakás ára ${M.tized(mfEleg[0].evek, 1)} évnyi helyi nettó átlagkereset. Budapesten ez kerülettől függően ${M.tized(kerMf.at(-1).evek, 1)} és ${M.tized(kerMf[0].evek, 1)} év között van, a legjobban megfizethető település ${mfEleg.at(-1).n} (${M.tized(mfEleg.at(-1).evek, 1)} év).` : '',
     `${ev0} óta a budapesti átlagár ${szaz(valt(bp.s.o, n, 0)).replace('+', '')}-kal nőtt.`,
+    maCimke ? `Mára (${maCimke}, becslés) az országos átlag kb. ${ft(Math.round(orszMa / 10) * 10)}, a budapesti kb. ${ft(Math.round(bpMa / 10) * 10)} négyzetméterenként.` : '',
   ].filter(Boolean);
   const tabla = (t, oszl) => `<div class="tabla-tarto"><table class="tabla kicsi-tabla"><thead><tr><th scope="col">Hol?</th>${oszl.map(([c]) => `<th scope="col">${c}</th>`).join('')}</tr></thead><tbody>${t.map((x) => `<tr><th scope="row">${link(x)}</th>${oszl.map(([, f]) => `<td>${f(x)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
   const tartalom = (L) => {
@@ -344,10 +353,10 @@ ${kvadrans(ker, { cim: `Budapest kerületei, ${ev}: árszint és drágulás`, ci
 <h2>A piac négy negyede: a városok</h2>
 ${kvadrans(varos, { cim: `Városok legalább 100 adásvétellel, ${ev}: árszint és drágulás`, cimkek: 'valogatott', id: 'kvadrans-varos' })}
 <h2>Hány évnyi fizetésbe kerül egy lakás?</h2>
-<p>Egy ${S.MEGFIZ_M2} m²-es lakás ára, osztva a helyben lakók nettó átlagkeresetével (KSH, lakóhely szerint, ${ev}). Budapest kerületeinél a budapesti átlagkeresettel számolunk. <a href="${L.l(ARAK_UT)}?mutato=evek">Térképen az egész ország</a>.</p>
-${savDiagram(kerMf, { cim: `Budapest kerületei: hány év fizetés egy ${S.MEGFIZ_M2} m²-es lakás, ${ev}`, ertek: (s) => s.evek, felirat: (s) => `${s.evek.toFixed(1).replace('.', ',')} év`, id: 'megfiz-kerulet' })}
-${savDiagram(mfEleg.slice(0, 15), { cim: `A legkevésbé megfizethető települések, ${ev}`, ertek: (s) => s.evek, felirat: (s) => `${s.evek.toFixed(1).replace('.', ',')} év`, id: 'megfiz-felso', max: mfEleg[0]?.evek })}
-${savDiagram(mfEleg.slice(-15).reverse(), { cim: `A legjobban megfizethető települések, ${ev}`, ertek: (s) => s.evek, felirat: (s) => `${s.evek.toFixed(1).replace('.', ',')} év`, id: 'megfiz-also', max: mfEleg[0]?.evek })}
+<p>Egy ${S.MEGFIZ_M2} m²-es lakás ára, osztva a helyben lakók nettó átlagkeresetével (KSH, lakóhely szerint, ${ev}). A „ma kb.” érték a becsült mai árral és a legfrissebb, ${adat.kereset?.evek.at(-1)}-es (előzetes) keresettel számol. Budapest kerületeinél a budapesti átlagkeresettel számolunk. <a href="${L.l(ARAK_UT)}?mutato=evek">Térképen az egész ország</a>.</p>
+${savDiagram(kerMf, { cim: `Budapest kerületei: hány év fizetés egy ${S.MEGFIZ_M2} m²-es lakás, ${ev}`, ertek: (s) => s.evek, felirat: evFelirat, id: 'megfiz-kerulet' })}
+${savDiagram(mfEleg.slice(0, 15), { cim: `A legkevésbé megfizethető települések, ${ev}`, ertek: (s) => s.evek, felirat: evFelirat, id: 'megfiz-felso', max: mfEleg[0]?.evek })}
+${savDiagram(mfEleg.slice(-15).reverse(), { cim: `A legjobban megfizethető települések, ${ev}`, ertek: (s) => s.evek, felirat: evFelirat, id: 'megfiz-also', max: mfEleg[0]?.evek })}
 <h2>Hol drágult a legjobban ${M.evBan(ev)}?</h2>
 ${tabla(fel.slice(0, 20), oszlopok)}
 <h2>Hol drágult a legkevésbé?</h2>

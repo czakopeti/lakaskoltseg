@@ -721,6 +721,16 @@ export function megfizethetoseg(adat, kod, u, ev = adat.arak.evek[adat.arak.evek
   if (ar == null || !k) return null;
   return { ev, ar, kereset: k, evek: (ar * 1000 * MEGFIZ_M2) / (k * 12) };
 }
+/** Ugyanez mára: a becsült mai ár a legfrissebb (akár félévi, előzetes) helyi keresettel. */
+export function megfizethetosegMa(adat, kod, u) {
+  const be = arBecsles(adat, u);
+  const ke = adat.kereset;
+  if (!be || !ke) return null;
+  const ev = ke.evek.filter((e) => e <= be.ev).at(-1);
+  const k = ev && keresetEv(adat, kod, u, ev);
+  if (!k) return null;
+  return { ev, ar: be.ar, cimke: be.cimke, kereset: k, evek: (be.ar * 1000 * MEGFIZ_M2) / (k * 12) };
+}
 const ROMAI_NEGYED = ['I.', 'II.', 'III.', 'IV.'];
 export const negyedevNev = (k) => `${k.slice(0, 4)}. ${ROMAI_NEGYED[Number(k.slice(5)) - 1]} negyedév`;
 
