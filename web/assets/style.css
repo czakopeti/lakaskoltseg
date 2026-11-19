@@ -631,9 +631,9 @@ body.beagyazott .mini, body.beagyazott .vj, body.beagyazott .kovetkezo { display
 
 /* ---------- Település- és vármegyeoldalak ---------- */
 .telepules-fej { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 24px; align-items: start; margin: 8px 0 24px; }
-.mini { margin: 0; background: var(--felulet); border-radius: var(--r-nagy); padding: 18px; display: grid; gap: 10px; }
-.mini-nagy { margin: 8px 0 28px; }
-.mini figcaption { font-size: 14px; color: var(--tinta2); }
+.tmini { margin: 0; background: var(--felulet); border-radius: var(--r-nagy); padding: 18px; display: grid; gap: 10px; }
+.tmini-nagy { margin: 8px 0 28px; }
+.tmini figcaption { font-size: 14px; color: var(--tinta2); }
 .mini-terkep { width: 100%; height: auto; max-height: 460px; }
 .mini-terkep path { fill: var(--felulet2); stroke: var(--felulet); stroke-width: .25; transition: opacity .2s; }
 .mini-terkep[viewBox^="0 0 600"] path { stroke-width: 1.2; }

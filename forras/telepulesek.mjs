@@ -135,7 +135,7 @@ export function telepulesOldal(k, kod, lista) {
 ${oldalfej(L, { morzsa: [['Lakásárak', ARAK_UT], ...(mUt && !kerulet ? [[csoport, mUt]] : kerulet ? [['Budapest', mUt]] : []), u.n], cim, valasz: `${M.evBan(ev)} átlagosan ${ft(ar)} volt egy négyzetméter, ${M.fmt(db)} adásvétel alapján. ${elsoEv} óta ${szaz(v15).replace('+', '')}-kal drágultak a lakások${v1 != null ? `, az utolsó évben ${szaz(v1)}` : ''}. ${megyeAr != null && !kerulet ? `A vármegyei átlag ${ft(megyeAr)}, ` : kerulet ? `A budapesti átlag ${ft(megyeAr)}, ` : ''}${kerulet ? `a 23 kerület közül ez ${helyezes(hely)}.` : `${csoport} ${tars.length} települése közül ez ${helyezes(hely)}.`}${be ? ` Mai becslés: kb. ${ft(be.ar)}/m².` : ''}`, friss: M.datumNapon(a.ellenorizve || k.ma) })}
 <div class="keret"><article class="cikk telepules">
 <div class="telepules-fej">
-<figure class="mini">${miniTerkep(adat, u.m, kod, L, lista)}${skala()}<figcaption>${esc(csoport)}, ${ev}. <a href="${L.l(ARAK_UT)}#${encodeURIComponent(u.n)}">Megnyitás a nagy térképen</a></figcaption></figure>
+<figure class="tmini">${miniTerkep(adat, u.m, kod, L, lista)}${skala()}<figcaption>${esc(csoport)}, ${ev}. <a href="${L.l(ARAK_UT)}#${encodeURIComponent(u.n)}">Megnyitás a nagy térképen</a></figcaption></figure>
 <dl class="szam-kartyak">
 <div><dt>Átlagár, ${ev}</dt><dd>${ft(ar)}<small>/m²</small></dd></div>
 <div><dt>Adásvétel, ${ev}</dt><dd>${M.fmt(db)}</dd></div>
@@ -184,7 +184,7 @@ export function megyeOldal(k, mkod, lista) {
   const tartalom = (L) => `
 ${oldalfej(L, { morzsa: [['Lakásárak', ARAK_UT], nev], cim, valasz: `${M.evBan(ev)} átlagosan ${ft(ar)} volt egy négyzetméter, ${M.fmt(db)} adásvétel alapján, ${evek[0]} óta ${szaz(v15).replace('+', '')}-kal több. ${bp ? '' : `A 20 vármegye közül ez ${helyezes(hely)}. `}A legdrágább ${bp ? 'kerület' : 'település'}${bp ? '' : ' (legalább 10 adásvétellel)'} ${esc(rovid(d.n))} (${ft(d.s.o[n])}), a legolcsóbb ${esc(rovid(o.n))} (${ft(o.s.o[n])}).`, friss: M.datumNapon(a.ellenorizve || k.ma) })}
 <div class="keret"><article class="cikk telepules">
-<figure class="mini mini-nagy">${miniTerkep(adat, mkod, null, L, lista)}${skala()}<figcaption>${esc(nev)}, ${ev}. Kattints egy ${bp ? 'kerületre' : 'településre'} az oldaláért.</figcaption></figure>
+<figure class="tmini tmini-nagy">${miniTerkep(adat, mkod, null, L, lista)}${skala()}<figcaption>${esc(nev)}, ${ev}. Kattints egy ${bp ? 'kerületre' : 'településre'} az oldaláért.</figcaption></figure>
 <h2>${bp ? 'A kerületek' : 'A települések'}, ${ev}</h2>
 <div class="tabla-tarto"><table class="tabla kicsi-tabla"><thead><tr><th scope="col">${bp ? 'Kerület' : 'Település'}</th><th scope="col">Ft/m²</th><th scope="col">Adásvétel</th><th scope="col">Egy év alatt</th></tr></thead><tbody>${sorok.map(([kk, x]) => `<tr><th scope="row">${lista.egysegek.has(kk) ? `<a href="${L.l(lista.egysegek.get(kk))}">${esc(rovid(x.n))}</a>` : esc(rovid(x.n))}</th><td>${M.fmt(x.s.o[n] * 1000)}</td><td>${M.fmt(x.s.od?.[n] || 0)}</td><td>${szaz(valt(x.s.o, n, n - 1))}</td></tr>`).join('')}</tbody></table></div>
 <p class="kicsi halk">Csak ahol ${M.evBan(ev)} legalább három adásvétel volt. Saját oldala annak van, ahol az utolsó három évben együtt legalább ${OLDAL_MIN_DB} adásvétel volt${bp ? ' (a kerületeknek mindig)' : ''}.</p>
