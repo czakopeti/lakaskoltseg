@@ -1,6 +1,6 @@
 // A lakásár-térkép: valódi eladási árak (KSH Ingatlanadattár) településenként és budapesti kerületenként.
 // SVG-térkép külső könyvtár nélkül; az adat és a határok a /adatok/lakasarak/ alól jönnek.
-import { fmt, tized, AR_SZINEK as SZINEK, AR_HATAR as HATAR, arOsztaly as osztaly } from './megjelenites.js?v=1bfa1950';
+import { fmt, tized, AR_SZINEK as SZINEK, AR_HATAR as HATAR, arOsztaly as osztaly } from './megjelenites.js?v=ec0c8f78';
 
 const doboz = document.querySelector('[data-terkep]');
 if (doboz) indit(doboz).catch((e) => {

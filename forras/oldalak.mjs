@@ -425,7 +425,7 @@ export function illetekOldal(k) {
   const p1 = S.illetek(adat, { ertek: 60e6 }), p2 = S.illetek(adat, { ertek: 60e6, eladottErtek: 45e6, eladasMikor: 'elotte' });
   return kalkOldal(k, {
     ut: ILLETEK_UT, tipus: 'illetek', nev: 'Illeték', temak: ['illetek', 'haszonelvezet'],
-    adatExtra: { lakasar: { forras: adat.lakasar.forras, evek: adat.lakasar.evek, hasznalt: adat.lakasar.hasznalt, uj: adat.lakasar.uj, hasznaltRegio: adat.lakasar.hasznaltRegio } },
+    adatExtra: { lakasar: { forras: adat.lakasar.forras, evek: adat.lakasar.evek, hasznalt: adat.lakasar.hasznalt, uj: adat.lakasar.uj, hasznaltRegio: adat.lakasar.hasznaltRegio }, telepAr: S.telepArak(adat, k.arLista?.egysegek), arakForras: adat.arak.forras, oldalAlap: `${k.cfg.domain}/` },
     oldalCim: `Vagyonszerzési illeték kalkulátor ${k.ev}: minden kedvezménnyel`,
     leiras: `Lakásvásárlás illetéke ${M.evBan(k.ev)}: ${m}% és a kedvezmények (cserét pótló vétel, új lakás, 35 év alatti első lakás, CSOK Plusz, rokontól vétel), a legkedvezőbb kiválasztásával.`,
     cim: 'Mennyi illetéket fizetsz, ha lakást veszel?',
@@ -449,8 +449,10 @@ ${sor('', jelolo('csok', 'CSOK Plusz hitellel vagy falusi CSOK-kal veszed', 'Ily
 ${sor('', jelolo('telek', 'Telket veszel, és 4 éven belül lakóházat építesz rá', 'Ilyenkor nincs illeték. Ha nem épül meg a ház, késedelmi pótlékkal kell megfizetni.'))}
 </fieldset>
 <fieldset>${reszCim('', 'Elfogadja a NAV a vételárat?')}
-<p class="fieldset-megj">Ha megadod, összevetjük a vételár négyzetméterárát a KSH szerinti környékbeli átlaggal. Ha jóval kisebb, a NAV magasabb forgalmi értékkel számolhat.</p>
+<p class="fieldset-megj">Ha megadod, összevetjük a vételár négyzetméterárát a településen ténylegesen eladott lakások átlagával (KSH Ingatlanadattár). Ha jóval kisebb, a NAV magasabb forgalmi értékkel számolhat.</p>
 ${sor('', szamMezo({ id: 'terulet', cim: 'Alapterület', me: 'm²', placeholder: 'pl. 55', min: 1, max: 2000 }))}
+${sor('', `<label for="telepules">Település vagy budapesti kerület</label><div class="beir szeles"><input id="telepules" name="telepules" type="text" list="telepules-lista" autocomplete="off" placeholder="pl. Debrecen vagy Budapest XI. kerület"></div><datalist id="telepules-lista"></datalist><span class="sugo">Ha nincs a listában, add meg lent a vármegyét és a településtípust.</span>`)}
+${sor('', negyzetek('ingTipus', 'Milyen ingatlan?', [['tarsas', 'Társasházi lakás'], ['panel', 'Panellakás'], ['haz', 'Családi ház']], ''))}
 ${sor('', valaszto('megye', 'Vármegye', [['', 'Válassz'], ...S.MEGYEK.map(([k, n]) => [k, n])], ''))}
 ${sor('', negyzetek('telepTipus', 'Milyen településen?', [['megyeszekhely', 'Megyeszékhely'], ['varos', 'Más város'], ['kozseg', 'Község']], '', 'tt-'), ` data-mutat="${S.MEGYEK.filter(([k]) => k !== 'budapest').map(([k]) => `megye=${k}`).join('|')}" hidden`)}
 </fieldset>

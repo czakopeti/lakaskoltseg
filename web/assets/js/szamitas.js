@@ -162,7 +162,7 @@ export function illetek(adat, b) {
   const legjobb = jaro.reduce((m, x) => (x.ado < m.ado ? x : m), jaro[0]);
   return { ertek, hanyad, resz, haszonelvezet: he && !he.hiba ? he : null, alap, altalanos: alt, lehetosegek: l, legjobb, ado: legjobb.ado, megtakaritas: alt - legjobb.ado,
     reszletben: b.elso ? f.reszlet_honap : 0, hatarido_nap: sz('fizetesi_hatarido').ertek.nap,
-    forgalmi: adat.lakasar ? forgalmiOsszevetes(adat, { ertek, terulet: b.terulet, megye: b.megye, telepTipus: b.telepTipus, uj: b.ujVallalkozotol }) : null };
+    forgalmi: adat.lakasar ? forgalmiOsszevetes(adat, { ertek, terulet: b.terulet, megye: b.megye, telepTipus: b.telepTipus, uj: b.ujVallalkozotol, telepules: b.telepules, ingTipus: b.ingTipus }) : null };
 }
 const fmtSzam = (n) => new Intl.NumberFormat('hu-HU', { useGrouping: 'always' }).format(Math.round(n));
 
@@ -734,8 +734,38 @@ const TIPUS_HOL = { megyeszekhely: 'a megyeszékhelyeken', varos: 'a városokban
  * A vételár négyzetméterára a KSH szerinti környékbeli átlaghoz képest (régió és településtípus; új lakásnál az országos átlag).
  * Ha jóval kisebb, a NAV a forgalmi értéket magasabban állapíthatja meg (Itv. 70. §). null, ha nincs elég adat.
  */
+/**
+ * A települések legutóbbi valódi eladási ára (KSH Ingatlanadattár) a kalkulátoroldalba ágyazva:
+ * név → [vármegyekód, év, a mai árra görgető szorzó, összes, társasház, panel, családi ház, oldal útja]
+ */
+export function telepArak(adat, oldalak = new Map()) {
+  const a = adat.arak, out = {};
+  for (const [k, u] of Object.entries(a.egysegek)) {
+    let i = a.evek.length - 1;
+    while (i >= a.evek.length - 3 && u.s.o?.[i] == null) i--;
+    if (i < a.evek.length - 3) continue;
+    const be = i === a.evek.length - 1 ? arBecsles(adat, u) : null;
+    out[u.n] = [u.m, a.evek[i], be ? Math.round(be.szorzo * 1000) / 1000 : null, ...['o', 't', 'p', 'h'].map((t) => u.s[t]?.[i] ?? null), oldalak.get(k) || null];
+  }
+  return out;
+}
+const TIPUS_IA = { tarsas: [4, 'társasházi lakás'], panel: [5, 'panellakás'], haz: [6, 'családi ház'] };
+
 export function forgalmiOsszevetes(adat, b) {
   const la = adat.lakasar, ertek = Number(b.ertek), terulet = Number(b.terulet);
+  // Ha a települést is megadta, és van róla valódi eladási ár: azzal vetjük össze (új lakásnál nincs, az első eladás nem szerepel benne)
+  const tn = String(b.telepules || '').trim().toLowerCase();
+  const t = tn && adat.telepAr ? Object.entries(adat.telepAr).find(([n]) => n.toLowerCase() === tn) : null;
+  if (t && !b.uj && ertek > 0 && terulet > 0) {
+    const [nev, [, ev, szorzo, o, ...tip]] = t;
+    const [ix, tipNev] = TIPUS_IA[b.ingTipus] || [];
+    const alap = ix != null && tip[ix - 4] != null ? tip[ix - 4] : o;
+    const mai = szorzo ? alap * szorzo : null;
+    const atlag = (mai ?? alap) * 1000, m2 = ertek / terulet;
+    const kuszob = szabaly(adat, 'illetek.forgalmi_ertek').ertek.jelzes_szazalek;
+    return { helyi: true, nev, ev, tipNev: ix != null && tip[ix - 4] != null ? tipNev : null, alapAtlag: alap * 1000, becsles: mai != null, becsEv: mai != null ? la.evek[la.evek.length - 1] : null,
+      m2: Math.round(m2), atlag: Math.round(atlag / 1000) * 1000, arany: m2 / atlag * 100, kuszob, alacsony: m2 / atlag * 100 < kuszob, oldal: t[1][7] };
+  }
   const megye = MEGYEK.find(([k]) => k === b.megye);
   if (!la || !(ertek > 0) || !(terulet > 0) || !megye) return null;
   const regio = megye[2];

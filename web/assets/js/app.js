@@ -1,7 +1,7 @@
 // Böngészős réteg: menü, űrlapok, élő elszámolás, megosztható link.
 // Szerverre csak az megy, amit a látogató a visszajelzés-dobozban maga elküld.
-import * as S from './szamitas.js?v=1bfa1950';
-import * as M from './megjelenites.js?v=1bfa1950';
+import * as S from './szamitas.js?v=ec0c8f78';
+import * as M from './megjelenites.js?v=ec0c8f78';
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -244,6 +244,9 @@ function indit() {
   const adat = JSON.parse($('#adat').textContent);
   const panel = $('.elsz-tartalom');
   $$('input[data-ezres]', form).forEach(ezresMezo);
+  // A település-javaslatok (illetékkalkulátor): a beágyazott árlistából
+  const tl = $('#telepules-lista');
+  if (tl && adat.telepAr) tl.innerHTML = Object.keys(adat.telepAr).sort((x, y) => x.localeCompare(y, 'hu')).map((n) => `<option value="${n.replace(/"/g, '&quot;')}">`).join('');
   const u = urlbol();
   if (u) {
     beallit(form, u);

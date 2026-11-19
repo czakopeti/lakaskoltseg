@@ -133,3 +133,19 @@ test('flipping: szja-alap, nem levonható költségek, nullszaldó, évenkénti 
   assert.equal(S.flip(adat, { vetelar: 40e6, eladasiAr: 50e6, honap: 30 }).evek, 2);
   assert.ok(S.flip(adat, {}).hiba);
 });
+
+test('illeték: a vételár a település valódi eladási árához mérve', () => {
+  const { telepArak } = S;
+  const a2 = { ...adat, telepAr: telepArak(adat) };
+  const deb = a2.telepAr.Debrecen;
+  assert.ok(deb && deb[3] > 0);
+  const r = S.illetek(a2, { ertek: 30e6, terulet: 60, telepules: 'debrecen', ingTipus: 'tarsas' });
+  assert.equal(r.forgalmi.helyi, true);
+  assert.equal(r.forgalmi.tipNev, 'társasházi lakás');
+  assert.equal(r.forgalmi.alapAtlag, deb[4] * 1000);
+  assert.equal(r.forgalmi.alacsony, 500000 / r.forgalmi.atlag * 100 < r.forgalmi.kuszob);
+  // ismeretlen település: a régi, vármegyei összevetés
+  assert.notEqual(S.illetek(a2, { ertek: 30e6, terulet: 60, telepules: 'Nincsilyen', megye: 'hajdu', telepTipus: 'megyeszekhely' }).forgalmi.helyi, true);
+  // új lakásnál nincs helyi adat (az első eladás nincs benne)
+  assert.notEqual(S.illetek(a2, { ertek: 30e6, terulet: 60, telepules: 'Debrecen', ujVallalkozotol: true }).forgalmi?.helyi, true);
+});

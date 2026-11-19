@@ -15,6 +15,7 @@ const TELE = { eladasiAr: '60000000', szerzesiErtek: '40000000', szerzesEv: '202
   allagmegovas: '3500000', ismeretlen: false, hitel: '40000000', allampapir: '4,5', berlet: '220000', kozos: '25000', arNo: '4', berNo: '4', hozam: '4,5', karbantartas: '1,5',
   ejAr: '30000', ejszaka: '18', tartozkodas: '2,5', platform: '15', takaritas: '7000', rezsi: '30000', kozosEv: '300000', egyebEv: '200000', szobak: '2', telepules: 'budapest', tobbLakas: false, hosszuHavi: '250000', hosszuHonap: '11',
   tamogatott: true, ugyvedi: '400000', ertekbecsles: '0', kozjegyzo: '60000', folyositas: '0', foglalo: '10',
+  telepules: 'Debrecen', ingTipus: 'tarsas',
   felujitas: '5000000', szamlas: true, eladasiAr: '60000000', honap: '8', rezsi: '40000', kozvetito: '3',
   gyerekek: '1', vallalt: '2', felesegKor: '33', varandos: false, kozosLakas: 'nincs', csokHitel: '30000000' };
 

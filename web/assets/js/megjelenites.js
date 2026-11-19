@@ -1,6 +1,6 @@
 // Az elszámolás (eredmény) HTML-je. Ugyanezt használja az építő (a HTML-ben már benne van a szám)
 // és a böngésző (élő számolás), így a kettő nem térhet el.
-import * as S from './szamitas.js?v=1bfa1950';
+import * as S from './szamitas.js?v=ec0c8f78';
 
 const nf = new Intl.NumberFormat('hu-HU', { useGrouping: 'always' });
 export const fmt = (n) => nf.format(Math.round(n));
@@ -219,10 +219,15 @@ export function forgalmiBlokk(adat, f) {
   const it = S.szabaly(adat, 'illetek.forgalmi_ertek'), ea = S.szabaly(adat, 'illetek.ertekadat');
   let h = `<p class="panel-cim">Elfogadja a NAV a vételárat?</p><ul class="tetelek">`;
   h += tetel('A vételár négyzetméterenként', `${fmt(f.m2)} Ft/m²`, { forras: 'sajat' });
-  h += tetel(`A KSH szerint ${f.uj ? 'az új' : 'a használt'} lakások átlaga ${f.hol}, ${f.ev}`, `${fmt(f.atlag)} Ft/m²`, { al: `a te lakásod ennek ${fmt(Math.round(f.arany))}%-a` });
+  if (f.helyi) {
+    const ia = adat.arakForras;
+    h += tetel(`Valódi eladások átlaga: ${esc(f.nev)}${f.tipNev ? `, ${f.tipNev}` : ''}, ${f.ev}`, `${fmt(f.alapAtlag)} Ft/m²`, { forras: 'hivatalos', forrasUrl: ia?.url, al: f.oldal ? `<a href="${esc((adat.oldalAlap || '/') + f.oldal)}">Utcánként is megnézheted</a>` : '' });
+    if (f.becsles) h += tetel(`Mai becslés, ${f.becsEv}`, `${fmt(f.atlag)} Ft/m²`, { forras: 'becsles', forrasUrl: adat.lakasar?.forras?.url, al: `a KSH településtípusos átlagárának változásával` });
+    h += tetel('A te lakásod ehhez képest', `${fmt(Math.round(f.arany))}%`, { cls: 'vegso' });
+  } else h += tetel(`A KSH szerint ${f.uj ? 'az új' : 'a használt'} lakások átlaga ${f.hol}, ${f.ev}`, `${fmt(f.atlag)} Ft/m²`, { al: `a te lakásod ennek ${fmt(Math.round(f.arany))}%-a` });
   h += '</ul>';
-  if (f.alacsony) h += megjegyzes(`A vételár négyzetméterára a környékbeli átlag ${fmt(Math.round(f.arany))}%-a. Az illeték alapja a forgalmi érték. Ha a NAV szerint az nagyobb a vételárnál, helyszíni szemle és hasonló eladások alapján maga állapítja meg, és a magasabb érték után kéri az illetéket (<a href="${esc(it.forras.url)}" rel="noopener" target="_blank">${esc(it.jogszabaly)}</a>). Ha a lakás állapota vagy fekvése miatt olcsóbb, őrizd meg, ami ezt mutatja, például fényképet, értékbecslést, a hibák listáját. A NAV-tól a hasonló ingatlanok értékadatait díj ellenében előre is lekérheted (<a href="${esc(ea.forras.url)}" rel="noopener" target="_blank">${esc(ea.jogszabaly)}</a>).`, 'figyelem');
-  else h += megjegyzes(`A KSH átlaga településtípusra vonatkozik, egy kerületen vagy településen belül is nagy a szórás. A NAV a hasonló, közeli eladásokkal veti össze a vételárat, és ha szerinte a forgalmi érték eltér, maga állapítja meg. A kalkulátor akkor jelez, ha a négyzetméterár a környékbeli átlag ${f.kuszob}%-ánál kisebb.`, 'halk');
+  if (f.alacsony) h += megjegyzes(`A vételár négyzetméterára ${f.helyi ? 'a településen eladott lakások átlagának' : 'a környékbeli átlag'} ${fmt(Math.round(f.arany))}%-a. Az illeték alapja a forgalmi érték. Ha a NAV szerint az nagyobb a vételárnál, helyszíni szemle és hasonló eladások alapján maga állapítja meg, és a magasabb érték után kéri az illetéket (<a href="${esc(it.forras.url)}" rel="noopener" target="_blank">${esc(it.jogszabaly)}</a>). Ha a lakás állapota vagy fekvése miatt olcsóbb, őrizd meg, ami ezt mutatja, például fényképet, értékbecslést, a hibák listáját. A NAV-tól a hasonló ingatlanok értékadatait díj ellenében előre is lekérheted (<a href="${esc(ea.forras.url)}" rel="noopener" target="_blank">${esc(ea.jogszabaly)}</a>).`, 'figyelem');
+  else h += megjegyzes(f.helyi ? `Ez a település átlaga, az utcák és a lakások állapota között nagy a különbség. A NAV a hasonló, közeli eladásokkal veti össze a vételárat, és ha szerinte a forgalmi érték eltér, maga állapítja meg. A kalkulátor akkor jelez, ha a négyzetméterár a helyi átlag ${f.kuszob}%-ánál kisebb.` : `A KSH átlaga településtípusra vonatkozik, egy kerületen vagy településen belül is nagy a szórás. A NAV a hasonló, közeli eladásokkal veti össze a vételárat, és ha szerinte a forgalmi érték eltér, maga állapítja meg. A kalkulátor akkor jelez, ha a négyzetméterár a környékbeli átlag ${f.kuszob}%-ánál kisebb.`, 'halk');
   return h;
 }
 
@@ -700,7 +705,7 @@ export const KALKULATOROK = {
   illetek: {
     kulcs: ['ertek'],
     minta: () => ({ adat: { ertek: '68000000', eladottErtek: '52000000', eladasMikor: 'elotte' }, leiras: 'egy 68 millió forintos lakás, miközben az előző lakásodat két éve 52 millióért adtad el' }),
-    panel: (adat, e) => illetekPanel(adat, S.illetek(adat, { ertek: sz(e.ertek), hanyad: e.hanyad === '' || e.hanyad == null ? 100 : sz(e.hanyad), ujVallalkozotol: e.kitol === 'vallalkozo', rokon: e.kitol === 'rokon', csok: e.csok === true, telek: e.telek === true, haszonelvezoKor: e.haszonelvezoKor, elso: e.elso === true, fiatal35: e.fiatal35 === true, eladottErtek: sz(e.eladottErtek), eladasMikor: e.eladasMikor || 'elotte', terulet: sz(e.terulet), megye: e.megye || '', telepTipus: e.telepTipus || '' })),
+    panel: (adat, e) => illetekPanel(adat, S.illetek(adat, { telepules: e.telepules || '', ingTipus: e.ingTipus || '', ertek: sz(e.ertek), hanyad: e.hanyad === '' || e.hanyad == null ? 100 : sz(e.hanyad), ujVallalkozotol: e.kitol === 'vallalkozo', rokon: e.kitol === 'rokon', csok: e.csok === true, telek: e.telek === true, haszonelvezoKor: e.haszonelvezoKor, elso: e.elso === true, fiatal35: e.fiatal35 === true, eladottErtek: sz(e.eladottErtek), eladasMikor: e.eladasMikor || 'elotte', terulet: sz(e.terulet), megye: e.megye || '', telepTipus: e.telepTipus || '' })),
   },
   wekerle: {
     kulcs: ['vetelar', 'eletkor', 'onero', 'alapterulet'],

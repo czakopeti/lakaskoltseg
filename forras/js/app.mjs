@@ -244,6 +244,9 @@ function indit() {
   const adat = JSON.parse($('#adat').textContent);
   const panel = $('.elsz-tartalom');
   $$('input[data-ezres]', form).forEach(ezresMezo);
+  // A település-javaslatok (illetékkalkulátor): a beágyazott árlistából
+  const tl = $('#telepules-lista');
+  if (tl && adat.telepAr) tl.innerHTML = Object.keys(adat.telepAr).sort((x, y) => x.localeCompare(y, 'hu')).map((n) => `<option value="${n.replace(/"/g, '&quot;')}">`).join('');
   const u = urlbol();
   if (u) {
     beallit(form, u);
