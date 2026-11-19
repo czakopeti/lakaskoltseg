@@ -160,7 +160,8 @@ export function illetek(adat, b) {
   const jaro = l.filter((x) => x.jar);
   const legjobb = jaro.reduce((m, x) => (x.ado < m.ado ? x : m), jaro[0]);
   return { ertek, hanyad, resz, haszonelvezet: he && !he.hiba ? he : null, alap, altalanos: alt, lehetosegek: l, legjobb, ado: legjobb.ado, megtakaritas: alt - legjobb.ado,
-    reszletben: b.elso ? f.reszlet_honap : 0, hatarido_nap: sz('fizetesi_hatarido').ertek.nap };
+    reszletben: b.elso ? f.reszlet_honap : 0, hatarido_nap: sz('fizetesi_hatarido').ertek.nap,
+    forgalmi: adat.lakasar ? forgalmiOsszevetes(adat, { ertek, terulet: b.terulet, megye: b.megye, telepTipus: b.telepTipus, uj: b.ujVallalkozotol }) : null };
 }
 const fmtSzam = (n) => new Intl.NumberFormat('hu-HU', { useGrouping: 'always' }).format(Math.round(n));
 
@@ -594,6 +595,34 @@ export function lakasarTrend(adat, tipus) {
   const tol = la.evek[0], ig = la.evek[n];
   const t10 = Math.max(0, n - 10);
   return { tipus, nev: TELEPULESTIPUS[tipus][0], hol: TELEPULESTIPUS[tipus][1], tol, ig, hosszu: atlagNo(sor[0], sor[n], ig - tol), tiz: atlagNo(sor[t10], sor[n], ig - la.evek[t10]), tizTol: la.evek[t10], arM2: sor[n] * 1000, forras: la.forras };
+}
+
+/** Vármegye → KSH-régió (a STADAT lakásár-táblájának régiói). */
+export const MEGYEK = [['budapest', 'Budapest', 'budapest'], ['bacs', 'Bács-Kiskun', 'del_alfold'], ['baranya', 'Baranya', 'del_dunantul'], ['bekes', 'Békés', 'del_alfold'], ['borsod', 'Borsod-Abaúj-Zemplén', 'eszak_magyarorszag'], ['csongrad', 'Csongrád-Csanád', 'del_alfold'], ['fejer', 'Fejér', 'kozep_dunantul'], ['gyor', 'Győr-Moson-Sopron', 'nyugat_dunantul'], ['hajdu', 'Hajdú-Bihar', 'eszak_alfold'], ['heves', 'Heves', 'eszak_magyarorszag'], ['jasz', 'Jász-Nagykun-Szolnok', 'eszak_alfold'], ['komarom', 'Komárom-Esztergom', 'kozep_dunantul'], ['nograd', 'Nógrád', 'eszak_magyarorszag'], ['pest', 'Pest', 'pest'], ['somogy', 'Somogy', 'del_dunantul'], ['szabolcs', 'Szabolcs-Szatmár-Bereg', 'eszak_alfold'], ['tolna', 'Tolna', 'del_dunantul'], ['vas', 'Vas', 'nyugat_dunantul'], ['veszprem', 'Veszprém', 'kozep_dunantul'], ['zala', 'Zala', 'nyugat_dunantul']];
+const REGIO_NEV = { budapest: 'Budapesten', pest: 'Pest megyében', kozep_dunantul: 'Közép-Dunántúlon', nyugat_dunantul: 'Nyugat-Dunántúlon', del_dunantul: 'Dél-Dunántúlon', eszak_magyarorszag: 'Észak-Magyarországon', eszak_alfold: 'az Észak-Alföldön', del_alfold: 'a Dél-Alföldön' };
+const TIPUS_HOL = { megyeszekhely: 'a megyeszékhelyeken', varos: 'a városokban', kozseg: 'a községekben' };
+
+/**
+ * A vételár négyzetméterára a KSH szerinti környékbeli átlaghoz képest (régió és településtípus; új lakásnál az országos átlag).
+ * Ha jóval kisebb, a NAV a forgalmi értéket magasabban állapíthatja meg (Itv. 70. §). null, ha nincs elég adat.
+ */
+export function forgalmiOsszevetes(adat, b) {
+  const la = adat.lakasar, ertek = Number(b.ertek), terulet = Number(b.terulet);
+  const megye = MEGYEK.find(([k]) => k === b.megye);
+  if (!la || !(ertek > 0) || !(terulet > 0) || !megye) return null;
+  const regio = megye[2];
+  let tipus = regio === 'budapest' ? 'fovaros' : TIPUS_HOL[b.telepTipus] ? b.telepTipus : null;
+  if (!tipus) return { hiany: 'Add meg, milyen településen van a lakás.' };
+  if (regio === 'pest' && tipus === 'megyeszekhely') tipus = 'varos'; // Pest megye székhelye Budapest
+  let sor, hol, uj = false, evek = la.evek;
+  if (b.uj && la.uj?.[tipus]?.some((x) => x != null)) { sor = la.uj[tipus]; hol = tipus === 'fovaros' ? 'Budapesten' : `országosan, ${TIPUS_HOL[tipus]}`; uj = true; }
+  else if (la.hasznaltRegio?.[regio]?.[tipus]) { sor = la.hasznaltRegio[regio][tipus]; hol = tipus === 'fovaros' ? 'Budapesten' : `${REGIO_NEV[regio]}, ${TIPUS_HOL[tipus]}`; }
+  else { sor = la.hasznalt[tipus]; hol = tipus === 'fovaros' ? 'Budapesten' : `országosan, ${TIPUS_HOL[tipus]}`; }
+  let i = Math.min(sor.length, evek.length) - 1;
+  while (i > 0 && sor[i] == null) i--;
+  const atlag = sor[i] * 1000, m2 = ertek / terulet;
+  const kuszob = szabaly(adat, 'illetek.forgalmi_ertek').ertek.jelzes_szazalek;
+  return { m2: Math.round(m2), atlag, ev: evek[i], hol, uj, arany: m2 / atlag * 100, kuszob, alacsony: m2 / atlag * 100 < kuszob, megye: megye[1] };
 }
 
 /* ---------------- Rövid vagy hosszú távú kiadás ---------------- */

@@ -283,6 +283,7 @@ export function illetekOldal(k) {
   const p1 = S.illetek(adat, { ertek: 60e6 }), p2 = S.illetek(adat, { ertek: 60e6, eladottErtek: 45e6, eladasMikor: 'elotte' });
   return kalkOldal(k, {
     ut: ILLETEK_UT, tipus: 'illetek', nev: 'Illeték', temak: ['illetek', 'haszonelvezet'],
+    adatExtra: { lakasar: { forras: adat.lakasar.forras, evek: adat.lakasar.evek, hasznalt: adat.lakasar.hasznalt, uj: adat.lakasar.uj, hasznaltRegio: adat.lakasar.hasznaltRegio } },
     oldalCim: `Vagyonszerzési illeték kalkulátor ${k.ev}: minden kedvezménnyel`,
     leiras: `Lakásvásárlás illetéke ${k.ev}-ben: ${m}% és a kedvezmények (cserét pótló vétel, új lakás, 35 év alatti első lakás, CSOK Plusz, rokontól vétel), a legkedvezőbb kiválasztásával.`,
     cim: 'Mennyi illetéket fizetsz, ha lakást veszel?',
@@ -305,6 +306,12 @@ ${sor('', jelolo('fiatal35', 'Még nem töltötted be a 35. évedet', `Az első 
 ${sor('', jelolo('csok', 'CSOK Plusz hitellel vagy falusi CSOK-kal veszed', 'Ilyenkor nincs illeték.'))}
 ${sor('', jelolo('telek', 'Telket veszel, és 4 éven belül lakóházat építesz rá', 'Ilyenkor nincs illeték. Ha nem épül meg a ház, késedelmi pótlékkal kell megfizetni.'))}
 </fieldset>
+<fieldset>${reszCim('', 'Elfogadja a NAV a vételárat?')}
+<p class="fieldset-megj">Ha megadod, összevetjük a vételár négyzetméterárát a KSH szerinti környékbeli átlaggal. Ha jóval kisebb, a NAV magasabb forgalmi értékkel számolhat.</p>
+${sor('', szamMezo({ id: 'terulet', cim: 'Alapterület', me: 'm²', placeholder: 'pl. 55', min: 1, max: 2000 }))}
+${sor('', valaszto('megye', 'Vármegye', [['', 'Válassz'], ...S.MEGYEK.map(([k, n]) => [k, n])], ''))}
+${sor('', negyzetek('telepTipus', 'Milyen településen?', [['megyeszekhely', 'Megyeszékhely'], ['varos', 'Más város'], ['kozseg', 'Község']], '', 'tt-'), ` data-mutat="${S.MEGYEK.filter(([k]) => k !== 'budapest').map(([k]) => `megye=${k}`).join('|')}" hidden`)}
+</fieldset>
 <fieldset>${reszCim('III.', 'Haszonélvezet')}
 <p class="fieldset-megj">Ha a lakáson haszonélvezet marad (a tulajdoni lap III. részében látod), kevesebb illetéket fizetsz.</p>
 ${sor('', szamMezo({ id: 'haszonelvezoKor', cim: 'A haszonélvező életkora', me: 'év', placeholder: 'pl. 72', min: 0, max: 120 }))}
@@ -320,7 +327,10 @@ ${sor('', szamMezo({ id: 'haszonelvezoKor', cim: 'A haszonélvező életkora', m
 <tr><th scope="row">Szülőtől, gyermektől, házastárstól</th><td>nincs</td></tr>
 <tr><th scope="row">Otthon Start vagy Wekerle Plusz hitel</th><td>a hitel önmagában nem ad kedvezményt</td></tr>
 </tbody></table></div>
-<p>Az illetéket a NAV határozat alapján szabja ki. Az adásvételi szerződést az ügyvéd nyújtja be a földhivatalhoz, és a kedvezményt is ilyenkor, a B400-as adatlapon kell kérni.</p>`,
+<p>Az illetéket a NAV határozat alapján szabja ki. Az adásvételi szerződést az ügyvéd nyújtja be a földhivatalhoz, és a kedvezményt is ilyenkor, a B400-as adatlapon kell kérni.</p>
+<h2>Mi van, ha olcsón veszed a lakást?</h2>
+<p>${esc(sz('forgalmi_ertek').szoveg.replace(/ A kalkulátor akkor jelez.*$/, ''))} Ez akkor is előfordulhat, ha a vételár valódi, csak a lakás olcsóbb a környékbelieknél, például rossz állapota miatt. Ilyenkor érdemes megőrizni, ami ezt mutatja, például fényképet, értékbecslést, a hibák listáját.</p>
+<p>${esc(sz('ertekadat').szoveg)} A kalkulátorban az alapterületet és a lakás helyét megadva összevetjük a vételárat a KSH szerinti környékbeli négyzetméterárral, és szólunk, ha annak felénél kisebb.</p>`,
     kerdesek: [
       { k: 'Mikor kell kifizetni az illetéket?', v: [`Nem a szerződéskor, hanem amikor megkapod a NAV határozatát: a kézbesítéstől számított ${sz('fizetesi_hatarido').ertek.nap} napon belül. Ez a vétel után általában néhány hónap.`] },
       { k: 'Mi az a cserét pótló vétel?', v: [esc(sz('cserepotlo').szoveg), esc(sz('cserepotlo').megjegyzes)] },
@@ -328,7 +338,7 @@ ${sor('', szamMezo({ id: 'haszonelvezoKor', cim: 'A haszonélvező életkora', m
       { k: 'Mennyi az illeték, ha csak a lakás felét veszem meg?', v: ['A rád eső rész értéke után fizetsz. Egy 60 millió forintos lakás feléért az illeték alapja 30 millió forint.', `A 35 év alattiak kedvezményénél viszont az egész lakás értéke számít: ha az ${f.ertekhatar_ft / 1e6} millió forint felett van, a fele sem kedvezményes.`] },
       { k: 'Ki számít első lakásszerzőnek?', v: ['Akinek nincs és nem is volt lakástulajdona, lakásban 50%-os vagy nagyobb tulajdoni hányada, és lakáshoz kapcsolódó, bejegyzett vagyoni értékű joga.'] },
     ],
-    forrasKulcsok: ['illetek.altalanos_mertek', 'illetek.cserepotlo', 'illetek.uj_lakas', 'illetek.elso_lakas_35', 'illetek.tamogatott_hitel'], forrasExtra: [{ nev: 'Az illetékekről szóló 1990. évi XCIII. törvény (Itv.) 19–26. §', d: '' }],
+    forrasKulcsok: ['illetek.altalanos_mertek', 'illetek.cserepotlo', 'illetek.uj_lakas', 'illetek.elso_lakas_35', 'illetek.tamogatott_hitel', 'illetek.forgalmi_ertek', 'illetek.ertekadat'], forrasExtra: [{ nev: 'Az illetékekről szóló 1990. évi XCIII. törvény (Itv.) 19–26. §', d: '' }, { nev: adat.lakasar.forras.nev, url: adat.lakasar.forras.url, d: datumHu(adat.lakasar.ellenorizve) }],
   });
 }
 

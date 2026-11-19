@@ -48,7 +48,7 @@ export function forrasLista(szabalyok, kulon = []) {
     e.automata = e.automata && !!x.automata; // csak akkor, ha a forrás minden szabályát az önálló frissítő kezeli
     m.set(x.forras.url, e);
   }
-  for (const k of kulon) m.set(k.url, { szabalyok: [], ...m.get(k.url), automata: false, ...k });
+  for (const k of kulon) { const e = m.get(k.url); m.set(k.url, { ...e, automata: false, ...k, szabalyok: [...new Set([...(e?.szabalyok || []), ...(k.szabalyok || [])])] }); }
   return [...m.values()];
 }
 

@@ -31,6 +31,8 @@ export function pmapKamat(html) {
 
 // A KSH STADAT-táblák angol HTML-je: a „Country” sorok településtípusonként, a használt és az új lakásokra külön.
 const TIPUS_EN = [['capital', 'fovaros'], ['county seats', 'megyeszekhely'], ['towns', 'varos'], ['villages', 'kozseg'], ['total', 'orszag']];
+const REGIO_EN = { budapest: 'budapest', pest: 'pest', 'central transdanubia': 'kozep_dunantul', 'western transdanubia': 'nyugat_dunantul', 'southern transdanubia': 'del_dunantul', 'northern hungary': 'eszak_magyarorszag', 'northern great plain': 'eszak_alfold', 'southern great plain': 'del_alfold' };
+const REGIO_TIPUS = { capital: 'fovaros', 'county seats': 'megyeszekhely', towns: 'varos', villages: 'kozseg', together: 'egyutt' };
 const cellaSzoveg = (c) => c.replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
 
 /** A lak0025 táblából: { evek, hasznalt: {tipus: [..]}, uj: {...} }, vagy null, ha a szerkezet nem a várt. */
@@ -45,15 +47,20 @@ export function kshLakasar(html) {
     const sor = s.join(' ');
     if (/second-hand/i.test(sor) && s.filter(Boolean).length <= 2) { resz = 'hasznalt'; continue; }
     if (/new dwellings/i.test(sor) && s.filter(Boolean).length <= 2) { resz = 'uj'; continue; }
-    const i = s.findIndex((c) => TIPUS_EN.some(([en]) => c.toLowerCase() === en));
+    const i = s.findIndex((c) => REGIO_TIPUS[c.toLowerCase()] || c.toLowerCase() === 'total');
     if (i < 0) continue;
     if (i > 0 && s[i - 1]) regio = s[i - 1];
-    if (!resz || !/^country$/i.test(regio)) continue;
+    if (!resz) continue;
     const ertekek = s.slice(i + 1).map((c) => (c === '..' || c === '' ? null : Number(c.replace(/[,\s]/g, ''))));
     if (ertekek.length !== evek.length || ertekek.some((x) => x !== null && !Number.isFinite(x))) return null;
-    ki[resz][TIPUS_EN.find(([en]) => en === s[i].toLowerCase())[1]] = ertekek;
+    const t = s[i].toLowerCase();
+    if (/^country$/i.test(regio)) { const k = TIPUS_EN.find(([en]) => en === t)?.[1]; if (k) ki[resz][k] = ertekek; }
+    else if (resz === 'hasznalt' && REGIO_EN[regio.toLowerCase()] && REGIO_TIPUS[t]) ((ki.hasznaltRegio ??= {})[REGIO_EN[regio.toLowerCase()]] ??= {})[REGIO_TIPUS[t]] = ertekek;
   }
   for (const r of ['hasznalt', 'uj']) if (TIPUS_EN.some(([, k]) => !ki[r][k])) return null;
+  // A régiós sorok csak akkor kellenek, ha mind a nyolc régió megvan, hiánytalanul
+  const rg = ki.hasznaltRegio;
+  if (!rg || Object.values(REGIO_EN).some((k) => !rg[k]) || Object.values(rg).some((x) => Object.values(x).some((sor) => sor.some((v) => v == null || v <= 0)))) delete ki.hasznaltRegio;
   return ki;
 }
 
@@ -148,11 +155,12 @@ export async function futtat({ leto = letolt, ma = maBudapest() } = {}) {
     if (gond) j.gond.push({ nev: 'KSH: a lakások átlagos négyzetméterára', url: la.forras.url, ok: `${gond}. Nem írtam át.` });
     else {
       const ujEv = uj.evek[uj.evek.length - 1], regiEv = la.evek[la.evek.length - 1];
-      const valtozott = JSON.stringify([uj.evek, uj.hasznalt, uj.uj]) !== JSON.stringify([la.evek, la.hasznalt, la.uj]);
+      if (!uj.hasznaltRegio) j.gond.push({ nev: 'KSH: a lakások átlagos négyzetméterára régiónként', url: la.forras.url, ok: 'A régiós sorokat nem találtam hiánytalanul. Az országos adatot átírtam, a régiósat nem.' });
+      const valtozott = JSON.stringify([uj.evek, uj.hasznalt, uj.uj, uj.hasznaltRegio || la.hasznaltRegio]) !== JSON.stringify([la.evek, la.hasznalt, la.uj, la.hasznaltRegio]);
       if (valtozott) {
         if (ujEv > regiEv) j.atirt.push({ mi: `A lakások ${ujEv}. évi átlagos négyzetméterára, Budapest, használt (KSH, ezer Ft/m²)`, regi: la.hasznalt.fovaros[la.evek.length - 1], uj: uj.hasznalt.fovaros[uj.evek.length - 1], url: la.forras.url });
         else j.atirt.push({ mi: `A KSH módosította a lakások négyzetméterárát (${regiEv}. évi adat, Budapest, használt, ezer Ft/m²)`, regi: la.hasznalt.fovaros[la.evek.length - 1], uj: uj.hasznalt.fovaros[uj.evek.length - 1], url: la.forras.url });
-        Object.assign(la, { evek: uj.evek, hasznalt: uj.hasznalt, uj: uj.uj });
+        Object.assign(la, { evek: uj.evek, hasznalt: uj.hasznalt, uj: uj.uj }, uj.hasznaltRegio ? { hasznaltRegio: uj.hasznaltRegio } : {});
         la.forras.kelt = ma;
       }
       la.ellenorizve = ma;

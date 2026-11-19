@@ -181,6 +181,38 @@
           },
           "szint": "elsodleges",
           "ellenorizve": "2026-11-18"
+        },
+        {
+          "kulcs": "forgalmi_ertek",
+          "nev": "A forgalmi érték megállapítása",
+          "ertek": {
+            "jelzes_szazalek": 50
+          },
+          "szoveg": "Az illeték alapja a forgalmi érték, amelyet a vevő a B400-as adatlapon bejelent. Ha a NAV szerint a bejelentett érték eltér a forgalmi értéktől, maga állapítja meg, helyszíni szemle és összehasonlító értékadatok alapján. A kalkulátor akkor jelez, ha a négyzetméterár a KSH szerinti környékbeli átlag felénél kisebb. Ez a mi küszöbünk, a törvény nem ír elő ilyet.",
+          "jogszabaly": "Itv. 70. § (2)–(3)",
+          "forras": {
+            "nev": "Az illetékekről szóló 1990. évi XCIII. törvény, hatályos szöveg (Nemzeti Jogszabálytár)",
+            "url": "https://njt.jog.gov.hu/jogszabaly/1990-93-00-00",
+            "kelt": "2026-11-19"
+          },
+          "szint": "elsodleges",
+          "becsles": true,
+          "ellenorizve": "2026-11-19",
+          "megjegyzes": "A 70. § (2)–(3) bekezdésére a Kúria BH 2020.253. döntése is így hivatkozik. Az 50%-os jelzési küszöb a mi becslésünk: a KSH településtípusos átlaga durva összevetés, egy kerületen vagy településen belül is nagy a szórás."
+        },
+        {
+          "kulcs": "ertekadat",
+          "nev": "A NAV ingatlan-értékadatai",
+          "ertek": {},
+          "szoveg": "A NAV az illetékkiszabáskor gyűjtött ingatlan-értékadatokból kérelemre, igazgatási szolgáltatási díj ellenében adatot szolgáltat, így a hasonló ingatlanok értékét előre megnézheted.",
+          "jogszabaly": "33/2007. (XII. 23.) PM rendelet",
+          "forras": {
+            "nev": "33/2007. (XII. 23.) PM rendelet az ingatlanok forgalmi értékadatainak szolgáltatási rendjéről, hatályos szöveg",
+            "url": "https://njt.jog.gov.hu/jogszabaly/2007-33-20-53",
+            "kelt": "2025-01-23"
+          },
+          "szint": "elsodleges",
+          "ellenorizve": "2026-11-19"
         }
       ]
     },

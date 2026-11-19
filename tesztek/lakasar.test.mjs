@@ -33,3 +33,29 @@ test('ha megadod, hol van a lakás, a lakásár alapesete a KSH-átlag; a beírt
   assert.match(html, /a lakásár évente [\d,]+%-kal, a bérleti díj [\d,]+%-kal nő/);
   assert.doesNotMatch(M.berlesVetelPanel(adat, inf), /KSH adatából jön/);
 });
+
+test('illeték: a négyzetméterár összevetése a KSH szerinti környékbeli átlaggal', () => {
+  const la = adat.lakasar, n = la.evek.length - 1;
+  // Miskolc környéki város, 55 m², 6 millió: Észak-Magyarország városainak átlaga ennél jóval nagyobb
+  const r = S.illetek(adat, { ertek: 6e6, terulet: 55, megye: 'borsod', telepTipus: 'varos' });
+  const atlag = la.hasznaltRegio.eszak_magyarorszag.varos[n] * 1000;
+  assert.equal(r.forgalmi.atlag, atlag);
+  assert.equal(r.forgalmi.m2, Math.round(6e6 / 55));
+  assert.equal(r.forgalmi.alacsony, 6e6 / 55 < atlag * 0.5);
+  assert.match(r.forgalmi.hol, /Észak-Magyarországon, a városokban/);
+  // Budapest: a településtípust nem kell megadni
+  const bp = S.illetek(adat, { ertek: 30e6, terulet: 55, megye: 'budapest' });
+  assert.equal(bp.forgalmi.hol, 'Budapesten');
+  assert.ok(bp.forgalmi.alacsony, '545 ezer Ft/m² a budapesti átlag fele alatt');
+  assert.ok(!S.illetek(adat, { ertek: 70e6, terulet: 55, megye: 'budapest' }).forgalmi.alacsony);
+  // Pest megyében nincs megyeszékhely: a városok átlaga
+  assert.equal(S.illetek(adat, { ertek: 30e6, terulet: 60, megye: 'pest', telepTipus: 'megyeszekhely' }).forgalmi.atlag, la.hasznaltRegio.pest.varos[n] * 1000);
+  // Új lakás vállalkozótól: az új lakások átlaga
+  assert.equal(S.illetek(adat, { ertek: 60e6, terulet: 50, megye: 'budapest', ujVallalkozotol: true }).forgalmi.uj, true);
+  // Hiányos adat: nincs összevetés, vagy kéri a településtípust
+  assert.equal(S.illetek(adat, { ertek: 30e6, megye: 'budapest' }).forgalmi, null);
+  assert.match(S.illetek(adat, { ertek: 30e6, terulet: 50, megye: 'zala' }).forgalmi.hiany, /milyen településen/);
+  const html = M.illetekPanel(adat, bp);
+  assert.match(html, /Elfogadja a NAV a vételárat\?[\s\S]*Itv\. 70\. §[\s\S]*33\/2007/);
+  assert.doesNotMatch(M.illetekPanel(adat, S.illetek(adat, { ertek: 30e6 })), /Elfogadja a NAV/);
+});
