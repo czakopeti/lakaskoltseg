@@ -5,7 +5,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import * as M from './js/megjelenites.mjs';
 import * as S from './js/szamitas.mjs';
-import { oldal, oldalfej, morzsaLd, tovabb, esc, gyik, gyikLd, forrasLista, datumHu } from './sablon.mjs';
+import { oldal, oldalfej, morzsaLd, tovabb, esc, gyik, gyikLd, forrasLista, datumHu, forgalmi, elszamolas, sor, szamMezo } from './sablon.mjs';
 import { ARAK_UT, ILLETEK_UT, INDULO_UT, FLIP_UT } from './oldalak.mjs';
 import { GYOKER } from './adat.mjs';
 
@@ -168,6 +168,7 @@ ${mf ? `<div><dt>${S.MEGFIZ_M2} m² ára, ${ev}</dt><dd>${M.tized(mf.evek, 1)}<s
 </dl>
 </div>
 ${be ? `<p class="becsles-sor"><strong>Becsült mai ár, ${be.cimke}: kb. ${ft(be.ar)}/m².</strong> Így számoltuk: ${becslesMagyarazat(be, esc(u.n))} A valódi eladási árak ${be.alapEv + 1}-től az Ingatlanadattár következő kiadásaiban jelennek meg, és akkor ezek váltják a becslést.</p>` : ''}
+<p class="ertek-link"><a class="gomb" href="${L.l(ERTEK_UT)}?t=${kod}">Mennyit ér a lakásom itt?</a> Becslés sávval, utcánként is.</p>
 ${tipSorok.length ? `<h2>Típusonként, ${ev}</h2><div class="tabla-tarto"><table class="tabla"><thead><tr><th scope="col">Típus</th><th scope="col">Ft/m²</th><th scope="col">Adásvétel</th><th scope="col">${elsoEv} óta</th></tr></thead><tbody>${tipSorok.map((t) => `<tr><th scope="row">${TIPUS[t]}</th><td>${M.fmt(s[t][n] * 1000)}</td><td>${M.fmt(s[`${t}d`]?.[n] || 0)}</td><td>${szaz(valt(s[t], n, s[t].findIndex((x) => x != null)))}</td></tr>`).join('')}</tbody></table></div>` : ''}
 <h2>Az árak ${elsoEv} óta</h2>
 ${grafikon(s.o, evek)}
@@ -362,3 +363,52 @@ ${tovabb(L, ARAK_UT)}
   return oldal(k, { cim: `Lakásárak ${ev}: éves jelentés településenként és kerületenként, valódi eladásokból`, leiras, ut, tartalom, jsonld: [morzsaLd(k.cfg, [{ nev: 'Lakásárak', ut: ARAK_UT }, { nev: `Éves jelentés, ${ev}`, ut }]), { '@context': 'https://schema.org', '@type': 'Article', headline: cim, description: leiras, inLanguage: 'hu', url: `${k.cfg.domain}/${ut}`, dateModified: a.ellenorizve || k.ma, author: { '@type': 'Organization', name: k.cfg.marka, url: `${k.cfg.domain}/` }, isBasedOn: a.forras.url }, { '@context': 'https://schema.org', '@type': 'Dataset', name: `Lakásárak és megfizethetőség településenként, ${ev}`, description: leiras, url: `${k.cfg.domain}/${ut}`, inLanguage: 'hu', isAccessibleForFree: true, isBasedOn: [a.forras.url, adat.kereset?.forras.url].filter(Boolean), distribution: [{ '@type': 'DataDownload', encodingFormat: 'text/csv', contentUrl: `${k.cfg.domain}/${ARAK_ADAT_JEL}${csvNev}` }] }] });
 }
 export const ARAK_ADAT_JEL = 'adatok/lakasarak/';
+
+/* ======================= MENNYIT ÉR A LAKÁSOM? ======================= */
+export const ERTEK_UT = 'mennyit-er-a-lakasom/';
+export function ertekOldal(k) {
+  const { adat } = k;
+  const a = adat.arak, ev = a.evek.at(-1);
+  const sz = adat.arSzoras || { telep: {}, utca: null };
+  const ut = ERTEK_UT;
+  const negyed = (s) => Math.round((Math.exp(0.6745 * s) - 1) * 100);
+  const cim = 'Mennyit ér a lakásom?';
+  const leiras = `Becsült mai érték sávval, a környéken valóban eladott lakások áraiból (KSH Ingatlanadattár, NAV-illetékadatok): utcánként, ha ott elég adásvétel volt, különben a település vagy kerület átlagából, ${a.evek.length} év adatából.`;
+  const cimke = Object.values(a.egysegek).map((u) => S.arBecsles(adat, u)).find(Boolean)?.cimke || String(ev);
+  const kerdesek = [
+    { k: 'Mennyire pontos a becslés?', v: [`Annyira, amennyire a környék valódi eladásai engedik. Egy utcán belül is nagy a különbség a lakások között: a négyzetméterárak fele nagyjából ±${negyed(sz.utca?.szigma ?? 0.28)}%-on belül van az utca átlagától, a település egészében ±${negyed(sz.telep?.t?.szigma ?? 0.42)}%-on belül. Ezért mutatunk sávot egyetlen szám helyett. Hogy a sávon belül hol van a lakásod, azt az állapota, az emelet, a kilátás, a fűtés és az alaprajz dönti el, amit a KSH-adat nem ismer.`] },
+    { k: 'Miért nem egyezik a hirdetési árakkal?', v: ['A hirdetésben a kért ár szerepel, ez itt az eladási ár, amit a vevő végül kifizetett és illetéket fizetett utána. Alku után a lakások jellemzően a hirdetési ár alatt kelnek el.'] },
+    { k: `Hogyan lesz ${ev}-es adatból mai ár?`, v: [`A legutóbbi három év eladásait a település árindexével ${ev}-re hozzuk, majd a KSH lakásárindexeivel a legfrissebb negyedévre: ${esc(cimke)}. A lépések a <a href="../${ARAK_UT}">település oldalán</a> részletesen is látszanak.`] },
+    { k: 'Mire használhatom?', v: [`Tájékozódásra: eladás előtt, vételi ajánlathoz, öröklésnél vagy válásnál első közelítésnek. Hitelhez és hivatalos ügyekhez értékbecslő kell, és az illeték alapjául a NAV is a környékbeli eladásokkal veti össze a vételárat. Ezt <a href="../${ILLETEK_UT}">az illetékkalkulátor</a> is megmutatja.`] },
+  ];
+  const kezdo = `<p class="elsz-ures">Add meg a települést vagy kerületet és az alapterületet. Ha tudod az utcát is, pontosabb lesz.</p>`;
+  const urlap = `
+<fieldset>
+${sor('', `<label for="e-telep">Település vagy budapesti kerület</label><div class="beir szeles"><input id="e-telep" name="telep" type="text" list="e-telep-lista" autocomplete="off" placeholder="pl. Debrecen vagy XI. kerület"><datalist id="e-telep-lista"></datalist></div>`)}
+${sor('', `<label for="e-utca">Utca <span class="halk">(nem kötelező)</span></label><div class="beir szeles"><input id="e-utca" name="utca" type="text" list="e-utca-lista" autocomplete="off" placeholder="előbb a települést add meg" disabled><datalist id="e-utca-lista"></datalist></div><span class="sugo" data-utca-sugo>Csak azok az utcák szerepelnek, ahol a KSH közölt árat.</span>`)}
+${sor('', `<label for="e-tipus">Milyen ingatlan?</label><div class="beir szeles"><select id="e-tipus" name="tipus"><option value="t">Társasházi lakás</option><option value="p">Panellakás</option><option value="h">Családi ház</option><option value="o">Nem tudom, vagy más</option></select></div>`)}
+${sor('', szamMezo({ id: 'e-m2', nev: 'm2', cim: 'Alapterület', me: 'm²', placeholder: 'pl. 60', min: 10, max: 1000 }))}
+</fieldset>`;
+  const tartalom = (L) => `
+${oldalfej(L, { morzsa: [['Lakásárak', ARAK_UT], 'Mennyit ér a lakásom?'], cim, valasz: `Add meg, hol van és mekkora, és a környéken valóban eladott lakások árából kiszámoljuk, mennyit érhet ma (${esc(cimke)}). Egy szám helyett sávot kapsz, mert egy utcán belül is nagyok a különbségek.`, friss: M.datumNapon(a.ellenorizve || k.ma) })}
+<div class="keret ertek" data-ertek data-alap="${L.gyoker(ARAK_ADAT_JEL)}" data-telep-ut="${L.l(ARAK_UT)}"><div class="asztal">
+${forgalmi({ cim: 'A lakás', al: `KSH Ingatlanadattár, ${a.evek[0]}–${ev}`, tartalom: urlap, osztaly: 'ertek-urlap' })}
+${elszamolas(k, kezdo, { gombok: false, labjegy: 'Tájékoztató becslés, nem értékbecslés.' })}
+</div></div>
+<div class="keret"><article class="cikk">
+<h2>Hogyan számolunk?</h2>
+<ol>
+<li><strong>Utca.</strong> Ha az utcában az elmúlt három évben volt adásvétel, ezek átlagából indulunk. Kevés eladásnál az utca átlaga erősen ugrál, ezért ilyenkor a település átlagát is beleszámítjuk, annál nagyobb súllyal, minél kevesebb az eladás.</li>
+<li><strong>Település vagy kerület.</strong> Ha nincs utcai adat, a település választott típusú ingatlanjainak (társasházi, panel, családi ház) átlagát használjuk az utolsó három évből.</li>
+<li><strong>Mai ár.</strong> A régebbi évek árait a település árindexével ${ev}-re hozzuk, majd a KSH használtlakás-árindexeivel a legfrissebb negyedévre (${esc(cimke)}).</li>
+<li><strong>Sáv.</strong> A KSH csak átlagot közöl, de abból, hogy a kevés eladásból számolt átlagok mennyire ugrálnak évről évre, kiszámolható, mennyire szórnak az egyes lakások árai. ${sz.utca ? `${M.fmt(sz.utca.minta)} utcai évpár alapján egy utcán belül a lakások fele ±${negyed(sz.utca.szigma)}%-on belül van.` : ''} Ebből adjuk meg, hogy a hasonló lakások fele és tízből nyolc milyen áron kelt el.</li>
+</ol>
+<p>A becslés magától frissül: amikor a KSH új évet vagy új negyedéves árindexet ad ki, a számok átállnak.</p>
+<h2>Gyakori kérdések</h2>
+${gyik(kerdesek)}
+${forrasBlokk(adat, null)}
+${tovabb(L, ut)}
+</article></div>
+<script type="module" src="${L.a(`js/ertek.js?v=${k.verzio}`)}"></script>`;
+  return oldal(k, { cim: 'Mennyit ér a lakásom? Becslés utcánként, valódi eladási árakból', leiras, ut, tartalom, jsonld: [morzsaLd(k.cfg, [{ nev: 'Lakásárak', ut: ARAK_UT }, { nev: 'Mennyit ér a lakásom?', ut }]), gyikLd(kerdesek), { '@context': 'https://schema.org', '@type': 'WebApplication', name: 'Mennyit ér a lakásom?', url: `${k.cfg.domain}/${ut}`, applicationCategory: 'FinanceApplication', operatingSystem: 'Web', inLanguage: 'hu', isAccessibleForFree: true, offers: { '@type': 'Offer', price: 0, priceCurrency: 'HUF' }, isBasedOn: a.forras.url }] });
+}

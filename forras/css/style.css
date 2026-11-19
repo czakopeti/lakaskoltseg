@@ -716,3 +716,19 @@ body.beagyazott .mini, body.beagyazott .vj, body.beagyazott .kovetkezo { display
 .abra-letolt { justify-self: start; font: 600 14px var(--szoveg); border: 1px solid var(--tinta); background: none; color: var(--tinta); border-radius: 99px; padding: 8px 14px; cursor: pointer; }
 .idezes { background: var(--felulet); border-radius: var(--r-kozep); padding: 12px 16px; font-size: 15px; }
 .kv-svg .kv-negyednev { opacity: .75; }
+
+/* ---------- Mennyit ér a lakásom? ---------- */
+.ertek select { width: 100%; font: inherit; border: 0; background: none; padding: 10px 0; color: inherit; }
+.ev-fo { display: grid; gap: 4px; margin-bottom: 18px; }
+.ev-cim { font-size: 15px; color: var(--tinta2); }
+.ev-szam { font: 700 clamp(34px, 6vw, 48px)/1.05 var(--cim, var(--szoveg)); letter-spacing: -0.02em; }
+.ev-al { font-size: 15px; color: var(--tinta2); }
+.ev-sav { position: relative; height: 34px; margin: 6px 0 4px; }
+.ev-sav-vonal { position: absolute; left: 0; right: 0; top: 16px; height: 2px; background: var(--tinta); opacity: .35; }
+.ev-sav-doboz { position: absolute; top: 6px; height: 22px; background: var(--sarga); border: 1.5px solid var(--tinta); border-radius: 6px; }
+.ev-sav-jel { position: absolute; top: 0; width: 3px; height: 34px; margin-left: -1.5px; background: var(--tinta); border-radius: 2px; }
+.ev-sav-cimkek { display: flex; justify-content: space-between; font-size: 13px; color: var(--tinta2); margin-bottom: 14px; }
+.ev-lista { display: grid; gap: 6px; padding-left: 1.1em; margin-bottom: 14px; }
+.ev-reszlet summary { cursor: pointer; font-weight: 600; }
+.ev-reszlet p { margin-top: 8px; font-size: 15px; }
+.ertek-link { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 14px 0 6px; font-size: 15px; color: var(--tinta2); }

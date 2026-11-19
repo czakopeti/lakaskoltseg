@@ -78,3 +78,41 @@ test('megfizethetőség: évnyi nettó kereset egy 50 m²-es lakásra, kerületn
   assert.equal(m.kereset, adat.kereset.megye.Budapest[adat.kereset.evek.indexOf(ev)]);
   assert.ok(Math.abs(m.evek - (u.s.o.at(-1) * 1000 * 50) / (m.kereset * 12)) < 1e-9);
 });
+
+test('lakásérték: utcai becslés szűkebb sávval, kevés eladásnál a település felé húz', async () => {
+  const { lakasErtek } = await import('../forras/js/szamitas.mjs');
+  const ev = [2022, 2023, 2024];
+  const A = { evek: ev, becsles: { cimke: '2026. II. negyedév', szorzok: { 1: 1.2 } }, szoras: { telep: { t: { szigma: 0.4 }, o: { szigma: 0.5 } }, utca: { szigma: 0.28, tau: 0.19 } },
+    egysegek: { 1: { n: 'Próbaváros', m: '02', t: 3, s: { o: [500, 550, 600], od: [100, 100, 100], t: [500, 550, 600], td: [100, 100, 100] } } } };
+  const utcak = [['Fő utca', [800, 880, 960], [50, 50, 50]], ['Kis utca', [null, null, 1200], [null, null, 3]]];
+  const tel = lakasErtek(A, utcak, { kod: '1', tipus: 't', m2: 50 });
+  const fo = lakasErtek(A, utcak, { kod: '1', utca: 'Fő utca', tipus: 't', m2: 50 });
+  const kis = lakasErtek(A, utcak, { kod: '1', utca: 'Kis utca', tipus: 't', m2: 50 });
+  assert.equal(tel.hol, 'telepules');
+  assert.ok(Math.abs(tel.telepules.ar - 600) < 1, 'a régebbi évek a település indexével 2024-re hozva');
+  assert.equal(fo.hol, 'utca');
+  assert.ok(fo.sav[0.5] > tel.sav[0.5] * 1.4, 'a drágább utca feljebb viszi');
+  assert.ok(fo.sav[0.9] / fo.sav[0.1] < tel.sav[0.9] / tel.sav[0.1], 'az utca szűkebb sávot ad');
+  assert.ok(kis.utca.suly < fo.utca.suly, 'kevés eladásnál kisebb az utca súlya');
+  assert.ok(kis.m2ar < 1200 * 1.2 * 1000 && kis.m2ar > 600 * 1.2 * 1000 * 0.9);
+  assert.ok(tel.sav[0.1] < tel.sav[0.25] && tel.sav[0.25] < tel.sav[0.5] && tel.sav[0.5] < tel.sav[0.75] && tel.sav[0.75] < tel.sav[0.9]);
+  assert.equal(lakasErtek(A, utcak, { kod: '1', tipus: 'h', m2: 50 }).tipus, 'o', 'családi ház adat nélkül: összes lakóingatlan');
+  assert.equal(lakasErtek(A, utcak, { kod: '9', tipus: 't', m2: 50 }), null);
+});
+
+test('árszórás: az átlagok évenkénti ugrásából visszaadja a beállított szórást', async () => {
+  const { arSzoras } = await import('../forras/js/szamitas.mjs');
+  // Szimulált piac: a lakások négyzetméterára lognormális, σ = 0.3; az átlag n eladásból
+  let mag = 7; const rnd = () => { mag = (mag * 16807) % 2147483647; return mag / 2147483647; };
+  const gauss = () => Math.sqrt(-2 * Math.log(rnd())) * Math.cos(2 * Math.PI * rnd());
+  const atl = (n, szint) => { let s = 0; for (let i = 0; i < n; i++) s += szint * Math.exp(0.3 * gauss() - 0.045); return Math.round(s / n); };
+  const egysegek = {}, utcak = {};
+  for (let k = 0; k < 300; k++) {
+    const n = 3 + (k % 20), ev = [0, 1, 2, 3].map((i) => 500 * 1.1 ** i);
+    egysegek[k] = { m: '02', s: { o: ev.map((v) => atl(400, v)), od: [400, 400, 400, 400] } };
+    utcak[k] = [['A utca', ev.map((v) => atl(n, v)), [n, n, n, n]]];
+  }
+  const megyek = { '02': { s: { o: [500, 550, 605, 666] } } };
+  const sz = arSzoras({ egysegek, megyek }, { '02': utcak });
+  assert.ok(Math.abs(sz.utca.szigma - 0.3) < 0.05, `utcai szórás ${sz.utca.szigma}`);
+});

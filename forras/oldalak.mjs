@@ -24,6 +24,7 @@ export const FOOLDAL_KARTYAK = {
   'csok-plusz-kalkulator/': [() => 'Mennyi hitel jár a gyerekszámotok szerint, mennyi lesz a törlesztő, és mennyit enged el az állam a gyerekek után.', 'Kiszámolom'],
   'lakasvasarlas-menete/': [() => 'Foglaló, szerződés, hitel, földhivatal, birtokba adás és illeték sorrendben, minden lépésnél a díjjal és a határidővel.', 'Elolvasom'],
   'flipping-kalkulator/': [() => 'Vétel, felújítás és eladás: mennyi marad az illeték, a rezsi, a kamat és az szja után, és mennyiért kell legalább eladnod.', 'Kiszámolom'],
+  'mennyit-er-a-lakasom/': [() => 'Becsült mai érték sávval, a környéken valóban eladott lakások áraiból, utcánként.', 'Megbecsülöm'],
   'lakasarak/jelentes/': [() => 'Hol drágult és hol olcsóbbodott a lakás, és hány évnyi fizetés egy 50 m²-es lakás, a legújabb valódi eladásokból.', 'Elolvasom'],
   'lakasarak/': [() => 'Valódi eladási árak a NAV illetékadataiból, településenként, kerületenként és utcánként, térképen.', 'Megnézem'],
   'lakastamogatasok/': [() => 'A Wekerle Plusz és a CSOK Plusz egy táblázatban, és az illetékkedvezmények: melyik jár neked.', 'Megnézem'],

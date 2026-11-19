@@ -52,12 +52,16 @@ if (elonezet) css = css.replace(/url\(fonts\/([\w.-]+\.woff2)\)/g, (m, f) => `ur
 writeFileSync(join(KI, 'assets/style.css'), css);
 // A JavaScript-modulok egymást is verziószámmal töltik be: a Cloudflare a böngészőben órákig gyorsítótárazza a fájlokat,
 // és enélkül egy új app.js a régi szamitas.js-t kaphatná (2026. november 6-án így állt le két új kalkulátor).
-const JS = ['szamitas', 'megjelenites', 'app', 'terkep'];
+const JS = ['szamitas', 'megjelenites', 'app', 'terkep', 'ertek'];
 const jsNyers = Object.fromEntries(JS.map((f) => [f, readFileSync(join(GYOKER, `forras/js/${f}.mjs`), 'utf8')]));
 const jsOssz = JS.map((f) => jsNyers[f]).join('');
 const jsVerzio = createHash('sha1').update(jsOssz).digest('hex').slice(0, 8);
 for (const f of JS) writeFileSync(join(KI, `assets/js/${f}.js`), jsNyers[f].replace(/from '\.\/(\w+)\.mjs'/g, `from './$1.js?v=${jsVerzio}'`));
 const verzio = createHash('sha1').update(css + jsOssz).digest('hex').slice(0, 8);
+// Az egyedi lakásárak szóródása (a „Mennyit ér a lakásom?” sávjához), az utcai és települési átlagokból
+const utcakOssz = Object.fromEntries(readdirSync(join(GYOKER, 'data/utcak')).map((f) => [f.replace('.json', ''), JSON.parse(readFileSync(join(GYOKER, 'data/utcak', f), 'utf8'))]));
+adat.arSzoras = S.arSzoras(adat.arak, utcakOssz);
+const kerek = (o) => JSON.parse(JSON.stringify(o, (key, v) => (typeof v === 'number' && !Number.isInteger(v) ? Math.round(v * 10000) / 10000 : v)));
 // A település- és vármegyeoldalak listája (melyiknek van saját oldala)
 const arLista = T.oldalLista(adat);
 // A lakásár-térkép adatai: árak, határok, utcák vármegyénként (tömör JSON, a böngésző tölti be)
@@ -76,7 +80,7 @@ const arLista = T.oldalLista(adat);
   const jsor = T.jelentesSorok(adat);
   writeFileSync(join(ki, `lakasarak-${evek.at(-1)}.csv`), csv([['Település vagy kerület', 'Vármegye', 'KSH-kód', `Átlagár ${evek.at(-1)} (Ft/m²)`, `Adásvétel ${evek.at(-1)}`, 'Változás egy év alatt (%)', 'Évi átlagos változás 3 év alatt (%)', 'Változás az első év óta (%)', 'Első év', `Nettó átlagkereset ${evek.at(-1)} (Ft/hó)`, `${S.MEGFIZ_M2} m² ára évnyi nettó keresetben`, 'Becsült mai ár (Ft/m²)', 'Becslés időpontja'],
     ...jsor.map((x) => [x.n, x.megye, x.kod, x.ar * 1000, x.db, x.valt1 == null ? null : Math.round(x.valt1 * 10) / 10, x.valt3 == null ? null : Math.round(x.valt3 * 10) / 10, x.valtKezd == null ? null : Math.round(x.valtKezd), x.kezdEv, x.kereset, x.evek == null ? null : Math.round(x.evek * 10) / 10, x.becsles == null ? null : x.becsles * 1000, x.becslesCimke])]));
-  writeFileSync(join(ki, 'arak.json'), JSON.stringify({ forras, ellenorizve, evek, megyek, egysegek, oldalak: Object.fromEntries(arLista.egysegek), becsles, megfiz }));
+  writeFileSync(join(ki, 'arak.json'), JSON.stringify({ forras, ellenorizve, evek, megyek, egysegek, oldalak: Object.fromEntries(arLista.egysegek), becsles, megfiz, szoras: kerek(adat.arSzoras) }));
   for (const f of ['orszag', 'budapest']) cpSync(join(GYOKER, `forras/geo/${f}.json`), join(ki, `${f}.json`));
   for (const f of readdirSync(join(GYOKER, 'data/utcak'))) cpSync(join(GYOKER, 'data/utcak', f), join(ki, 'utcak', f));
 }
@@ -95,6 +99,7 @@ const oldalak = [
   [O.ARAK_UT, O.arakOldal(k)],
   [O.FLIP_UT, O.flipOldal(k)],
   [T.JELENTES_UT, T.jelentesOldal(k, arLista)],
+  [T.ERTEK_UT, T.ertekOldal(k)],
   ...[...arLista.megyek.keys()].map((m) => [arLista.megyek.get(m), T.megyeOldal(k, m, arLista)]),
   ...[...arLista.egysegek.keys()].map((kod) => [arLista.egysegek.get(kod), T.telepulesOldal(k, kod, arLista)]),
   [O.ELOT_UT, O.elotorlesztesOldal(k)],
@@ -224,6 +229,7 @@ https://:version.:project.pages.dev/*
     'ingatlaneladas-szja-kalkulator/': `az eladott lakás, ház vagy telek személyi jövedelemadója a szerzés és az eladás évéből, az elszámolható költségekkel; mikortól adómentes, és meddig kell bevallani`,
     'lakasvasarlas-menete/': `a lakásvásárlás lépései sorrendben (foglaló és adásvételi szerződés, hitelkérelem, értékbecslés, közjegyző, földhivatal, birtokba adás, illeték), minden lépésnél a díjjal és a határidővel, egy 50 millió forintos minta számaival`,
     'flipping-kalkulator/': `lakás vétele, felújítása és eladása: illeték, ügyvéd, hitel díjai és kamata, rezsi, közvetítő és az ingatlaneladás szja-ja (Szja tv. 62. §, a nyereség adóköteles része évenként), a nullszaldós eladási ár, és mennyi lenne az adó, ha később adnád el`,
+    'mennyit-er-a-lakasom/': `becsült mai érték egy lakásra vagy házra sávval (a hasonló lakások fele és tízből nyolc milyen áron kel el), az utca vagy a település valódi eladási áraiból (KSH Ingatlanadattár), a KSH negyedéves árindexével a legfrissebb negyedévre hozva`,
     'lakasarak/jelentes/': `éves jelentés a legutóbbi év valódi lakáseladásaiból: fő megállapítások, kvadráns (árszint és egyéves drágulás) Budapest kerületeiről és a városokról, megfizethetőség (hány évnyi nettó átlagkereset egy 50 m²-es lakás), legnagyobb drágulások és csökkenések, letölthető CSV`,
     'lakasarak/': `valódi lakáseladási árak (KSH Ingatlanadattár, NAV-illetékadatok) településenként, budapesti kerületenként és utcánként, ${adat.arak.evek[0]}–${adat.arak.evek.at(-1)}: átlagos négyzetméterár típusonként (társasház, panel, családi ház), adásvételek száma, drágulás, térképen évenkénti animációval; letölthető JSON`,
     'lakastamogatasok/': `a Wekerle Plusz és a CSOK Plusz egy táblázatban (kinek, mennyi, kamat, árkorlát, önerő, illeték, gyerekek után), és az illetékkedvezmények jogszabályhellyel`,

@@ -912,3 +912,113 @@ export function kovetkezoQuery(q) {
   const s = p.toString();
   return s ? `?${s}` : '';
 }
+
+/* ======================= MENNYIT ÉR A LAKÁSOM? ======================= */
+const ERTEK_TIPUSOK = ['o', 't', 'p', 'h'];
+const atlag = (t) => t.reduce((a, b) => a + b, 0) / t.length;
+/** Meredekség az origón át: y ≈ b·x. */
+const meredek = (X, Y) => X.reduce((s, x, i) => s + x * Y[i], 0) / X.reduce((s, x) => s + x * x, 0);
+
+/**
+ * Mennyire szórnak az egyes lakások négyzetméterárai a helyi átlag körül? A KSH csak átlagot közöl, de az átlag
+ * évről évre annál jobban ugrál, minél kevesebb adásvételből áll: az ugrás négyzete ≈ σ²·(1/n₁ + 1/n₂).
+ * Ebből visszaszámolható az egyedi lakások szórása (σ, logaritmikus skálán). Utcára és településre, típusonként.
+ */
+export function arSzoras(arak, utcakMegyenkent) {
+  const eg = arak.egysegek, mg = arak.megyek;
+  const telep = {};
+  for (const t of ERTEK_TIPUSOK) {
+    const X = [], Y = [];
+    for (const u of Object.values(eg)) {
+      const s = u.s[t], d = u.s[`${t}d`], m = mg[u.m]?.s?.[t];
+      if (!s || !d || !m) continue;
+      for (let i = 1; i < s.length; i++) {
+        if (s[i] && s[i - 1] && m[i] && m[i - 1] && d[i] && d[i - 1]) { X.push(1 / d[i] + 1 / d[i - 1]); Y.push((Math.log(s[i] / s[i - 1]) - Math.log(m[i] / m[i - 1])) ** 2); }
+      }
+    }
+    if (X.length >= 200) telep[t] = { szigma: Math.sqrt(meredek(X, Y)), minta: X.length };
+  }
+  // Utca: az utcai átlag változása a település változásához képest
+  const X = [], Y = [], eltX = [], eltY = [];
+  for (const utcak of Object.values(utcakMegyenkent)) {
+    for (const [kod, sorok] of Object.entries(utcak)) {
+      const u = eg[kod]; if (!u) continue;
+      const to = u.s.o, td = u.s.od;
+      for (const [, ar, db] of sorok) {
+        for (let i = 0; i < ar.length; i++) {
+          if (i > 0 && ar[i] && ar[i - 1] && db[i] && db[i - 1] && to[i] && to[i - 1]) { X.push(1 / db[i] + 1 / db[i - 1]); Y.push((Math.log(ar[i] / ar[i - 1]) - Math.log(to[i] / to[i - 1])) ** 2); }
+          if (ar[i] && db[i] && to[i] && td[i] >= 5 * db[i]) { eltX.push(1 / db[i]); eltY.push(Math.log(ar[i] / to[i]) ** 2); }
+        }
+      }
+    }
+  }
+  if (X.length < 200) return { telep, utca: null };
+  const s2 = meredek(X, Y);
+  // Mennyire tér el valójában egy utca a településtől (τ²)? Az eltérés négyzetéből levonjuk a mintavételi zajt.
+  const tau2 = Math.max(0.005, atlag(eltY) - s2 * atlag(eltX));
+  return { telep, utca: { szigma: Math.sqrt(s2), tau: Math.sqrt(tau2), minta: X.length } };
+}
+
+/** A legutóbbi legfeljebb 3 év átlaga, adásvételekkel súlyozva, a település összesített árindexével a legutolsó évre hozva. */
+function frissAtlag(ar, db, index, evek = 3) {
+  const n = ar.length - 1; let sum = 0, w = 0; const hasznalt = [];
+  for (let i = n; i >= Math.max(0, n - evek + 1); i--) {
+    if (ar[i] == null || !db[i]) continue;
+    const sk = i === n ? 1 : index[n] && index[i] ? index[n] / index[i] : null;
+    if (sk == null) continue;
+    sum += ar[i] * sk * db[i]; w += db[i]; hasznalt.push(i);
+  }
+  return w ? { ar: sum / w, db: w, evek: hasznalt.reverse() } : null;
+}
+
+const NORM = [[0.1, -1.2816], [0.25, -0.6745], [0.5, 0], [0.75, 0.6745], [0.9, 1.2816]];
+
+/**
+ * Sávos becslés egy lakás mai értékére: utcai átlag (ha van elég adásvétel), különben a település típus szerinti átlaga,
+ * a mai napra hozva, és a környékbeli lakások szóródása szerinti sáv.
+ * b = { kod, utca, tipus: 'o'|'t'|'p'|'h', m2 }
+ */
+export function lakasErtek(A, utcak, b) {
+  const u = A.egysegek?.[b.kod];
+  const m2 = Number(b.m2);
+  if (!u || !(m2 > 0)) return null;
+  const evek = A.evek, n = evek.length - 1, idx = u.s.o;
+  const sz = A.szoras || {};
+  let tipus = ERTEK_TIPUSOK.includes(b.tipus) ? b.tipus : 'o';
+  let tel = u.s[tipus] && frissAtlag(u.s[tipus], u.s[`${tipus}d`] || [], idx);
+  const megjegyzes = [];
+  if (!tel || tel.db < 3) {
+    if (tipus !== 'o') megjegyzes.push('Erre az ingatlantípusra itt kevés volt az adásvétel, ezért a település összes lakóingatlanának átlagával számoltunk.');
+    tipus = 'o'; tel = frissAtlag(u.s.o, u.s.od || [], idx);
+  }
+  if (!tel) return null;
+  const osszes = frissAtlag(u.s.o, u.s.od || [], idx);
+  const szigmaTel = sz.telep?.[tipus]?.szigma ?? 0.4;
+  let szint = tel.ar, szigma = szigmaTel, se2 = szigmaTel ** 2 / tel.db, hol = 'telepules', utcaAdat = null;
+  const sor = b.utca && utcak?.find((x) => x[0] === b.utca);
+  if (sor) {
+    const ua = frissAtlag(sor[1], sor[2], idx);
+    if (ua && sz.utca) {
+      // Az utcai átlagban az utca minden lakóingatlana benne van, típus szerinti bontás nincs
+      if (tipus !== 'o' && osszes && Math.abs(tel.ar / osszes.ar - 1) > 0.15) megjegyzes.push('Az utcai átlagban az utca minden lakóingatlana benne van, a KSH típus szerint nem bontja. Ha az utcában főleg más típusú ingatlanok vannak, a valódi érték eltérhet.');
+      const s2u = sz.utca.szigma ** 2, t2 = sz.utca.tau ** 2;
+      const suly = t2 / (t2 + s2u / ua.db); // kevés eladásnál inkább a település átlaga számít
+      const logSzint = suly * Math.log(ua.ar) + (1 - suly) * Math.log(tel.ar);
+      szint = Math.exp(logSzint);
+      szigma = Math.sqrt(suly * s2u + (1 - suly) * szigmaTel ** 2);
+      se2 = suly * suly * s2u / ua.db + (1 - suly) ** 2 * se2;
+      hol = 'utca'; utcaAdat = { ar: ua.ar, db: ua.db, evek: ua.evek.map((i) => evek[i]), suly };
+    } else if (!ua) megjegyzes.push('Ebben az utcában az elmúlt három évben nem volt elég adásvétel, ezért a település átlagával számoltunk.');
+  }
+  const szorzo = A.becsles?.szorzok?.[b.kod] ?? 1;
+  const ma = szint * szorzo; // ezer Ft/m², átlag
+  // Az átlag a lakásonkénti árak számtani átlaga; a medián ennél kisebb: exp(−σ²/2)-szerese
+  const sd = Math.sqrt(szigma ** 2 + se2);
+  const logMed = Math.log(ma) - szigma ** 2 / 2;
+  const sav = Object.fromEntries(NORM.map(([p, z]) => [p, Math.round((Math.exp(logMed + z * sd) * 1000 * m2) / 100000) * 100000]));
+  return {
+    nev: u.n, tipus, m2, hol, utca: utcaAdat, telepules: { ar: tel.ar, db: tel.db, evek: tel.evek.map((i) => evek[i]) },
+    alapEv: evek[n], cimke: A.becsles?.szorzok?.[b.kod] ? A.becsles.cimke : String(evek[n]), szorzo,
+    m2ar: Math.round(Math.exp(logMed)) * 1000, sav, szigma: sd, megjegyzes,
+  };
+}
