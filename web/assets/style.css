@@ -678,3 +678,17 @@ body.beagyazott .mini, body.beagyazott .vj, body.beagyazott .kovetkezo { display
 .utca-ev select { font: 500 16px var(--szoveg); padding: 10px 14px; border-radius: 99px; border: 1px solid var(--vonal2); background: var(--hatter); color: var(--tinta); }
 .szam-kartyak .becsles-kartya { background: var(--sarga2); }
 .tk-becsles { margin: 0; padding: 8px 12px; background: var(--sarga2); border-radius: var(--r-kicsi); justify-self: start; }
+
+/* ---------- Vízesés-ábra ---------- */
+.vizeses { margin: 18px 0 8px; }
+.vizeses svg { width: 100%; height: auto; overflow: visible; }
+.vizeses .vz-cim { font: 500 14px var(--szoveg); fill: var(--tinta); }
+.vizeses .vz-ertek { font: 600 13px var(--szoveg); fill: var(--tinta2); }
+.vizeses .vz-be rect { fill: var(--tinta); }
+.vizeses .vz-ki rect { fill: #E8806A; }
+.vizeses .vz-resz rect { fill: var(--sarga); }
+.vizeses .vz-veg rect { fill: var(--sarga); stroke: var(--tinta); stroke-width: 1.5; }
+.vizeses .vz-veg .vz-cim, .vizeses .vz-resz .vz-cim { font-weight: 700; }
+.vizeses .vz-nulla { stroke: var(--vonal2); stroke-width: 1; }
+.vizeses .vz-osszekoto { stroke: var(--vonal2); stroke-dasharray: 2 3; }
+.vizeses figcaption { font-size: 13px; color: var(--tinta2); }

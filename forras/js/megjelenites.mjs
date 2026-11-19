@@ -360,10 +360,46 @@ export function kiadasPanel(adat, r) {
 }
 
 /* ---------- Lakásváltás ---------- */
+/**
+ * Vízesés-ábra: hová megy a pénz. lepesek: [{ nev, ft (előjeles), tipus: 'be' | 'ki' | 'resz' | 'veg' }]
+ * A 'resz' és a 'veg' sáv nulláról indul (részösszeg, végeredmény), a többi a futó összegtől lép.
+ */
+export function vizeses(lepesek) {
+  let fut = 0;
+  const sav = lepesek.map((l) => {
+    if (l.tipus === 'resz' || l.tipus === 'veg') { fut = l.ft; return { ...l, a: 0, b: l.ft }; }
+    const a = fut; fut += l.ft; return { ...l, a, b: fut };
+  });
+  const min = Math.min(0, ...sav.flatMap((s) => [s.a, s.b])), max = Math.max(0, ...sav.flatMap((s) => [s.a, s.b]));
+  const W = 640, cimW = 190, ertW = 112, sorH = 34, H = sav.length * sorH + 8;
+  const x = (v) => cimW + ((v - min) / (max - min || 1)) * (W - cimW - ertW);
+  const mill = (v) => `${v < 0 ? '−' : ''}${tized(Math.abs(v) / 1e6, 1)} M`;
+  return `<figure class="vizeses"><svg viewBox="0 0 ${W} ${H}" aria-hidden="true">
+<line class="vz-nulla" x1="${x(0)}" x2="${x(0)}" y1="0" y2="${H}"/>
+${sav.map((s, i) => {
+    const y = i * sorH + 6, x0 = x(Math.min(s.a, s.b)), w = Math.max(2, Math.abs(x(s.b) - x(s.a)));
+    const kov = sav[i + 1];
+    return `<g class="vz-${s.tipus}"><text class="vz-cim" x="${cimW - 12}" y="${y + 17}" text-anchor="end">${esc(s.nev)}</text><rect x="${x0.toFixed(1)}" y="${y}" width="${w.toFixed(1)}" height="${sorH - 12}" rx="5"/><text class="vz-ertek" x="${(Math.max(x(s.a), x(s.b)) + 8).toFixed(1)}" y="${y + 17}">${s.tipus === 'ki' ? '−' : s.tipus === 'be' && i ? '+' : ''}${mill(Math.abs(s.ft) * (s.tipus === 'resz' || s.tipus === 'veg' ? Math.sign(s.ft) || 1 : 1))}</text>${kov && kov.tipus !== 'resz' && kov.tipus !== 'veg' ? `<line class="vz-osszekoto" x1="${x(s.b).toFixed(1)}" x2="${x(s.b).toFixed(1)}" y1="${y + sorH - 12}" y2="${y + sorH + 6}"/>` : ''}</g>`;
+  }).join('')}
+</svg><figcaption>Hová megy a pénz, millió forintban</figcaption></figure>`;
+}
+
 export function lakasvaltasPanel(adat, r) {
   if (r.hiba) return hianyPanel(r.hiba);
   const nincsHiany = r.hiany <= 0;
   let h = vegosszeg(nincsHiany ? 'Ennyi marad a váltás után' : 'Ennyi hitel kell még a váltáshoz', Math.abs(r.hiany), nincsHiany ? 'Az eladásból és a megtakarításodból kifizeted az új lakást és minden költségét.' : 'Az eladásból kapott pénz és a megtakarításod után ennyi hiányzik az új lakás árához és költségeihez.');
+  h += vizeses([
+    { nev: 'Eladási ár', ft: r.elado, tipus: 'be' },
+    ...(r.kozvetito ? [{ nev: 'Közvetítő', ft: -r.kozvetito, tipus: 'ki' }] : []),
+    ...(r.tartozas ? [{ nev: 'Régi hitel', ft: -r.tartozas, tipus: 'ki' }] : []),
+    ...(r.szja.ado ? [{ nev: 'Szja', ft: -r.szja.ado, tipus: 'ki' }] : []),
+    { nev: 'Kézhez kapod', ft: r.kapsz, tipus: 'resz' },
+    ...(r.megtakaritas ? [{ nev: 'Megtakarításod', ft: r.megtakaritas, tipus: 'be' }] : []),
+    { nev: 'Új lakás', ft: -r.vetel, tipus: 'ki' },
+    ...(r.illetek.ado ? [{ nev: 'Illeték', ft: -r.illetek.ado, tipus: 'ki' }] : []),
+    ...(r.vetelKoltseg ? [{ nev: 'Ügyvéd, egyéb', ft: -r.vetelKoltseg, tipus: 'ki' }] : []),
+    { nev: nincsHiany ? 'Marad' : 'Hitel kell még', ft: -r.hiany, tipus: 'veg' },
+  ]);
   h += `<div class="valtas"><div class="v-oldal"><p class="m-cim">Eladás</p><ul class="tetelek">`;
   h += tetel('Eladási ár', ftx(r.elado), { forras: 'sajat' });
   if (r.kozvetito) h += tetel('Ingatlanközvetítő', `−${ftx(r.kozvetito)}`, { cls: 'levonas', forras: 'sajat' });
