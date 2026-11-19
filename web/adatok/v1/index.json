@@ -8,6 +8,16 @@
       "fajl": "szabalyok.json",
       "url": "https://ingatlanmerleg.hu/adatok/v1/szabalyok.json",
       "leiras": "A szabályok, amelyekkel az oldal számol. Minden tételnél: gépi érték, olvasható szöveg, jogszabályhely, forrás a közzététel napjával, és az ellenőrzés szintje (elsodleges: a jogszabály vagy a NAV saját oldala alapján ellenőrizve; masodlagos: szaksajtó alapján, az elsődleges forrással még össze kell vetni)."
+    },
+    {
+      "fajl": "lakasar.json",
+      "url": "https://ingatlanmerleg.hu/adatok/v1/lakasar.json",
+      "leiras": "A lakások átlagos négyzetméterára településtípusonként, évente (KSH STADAT 18.1.2.9., ezer Ft/m²): az országos sorok, és a használt lakásoké régiónként is. Az önálló frissítő (frissito/automata.mjs) hetente letölti, és ha hihető, magától átírja. A legutolsó év a KSH-nál előzetes adat. Ez átlagár, nem tiszta árindex: ha egy évben több kisebb vagy jobb helyen lévő lakást adnak el, az is mozgatja."
+    },
+    {
+      "fajl": "inflacio.json",
+      "url": "https://ingatlanmerleg.hu/adatok/v1/inflacio.json",
+      "leiras": "A KSH éves átlagos fogyasztóiár-indexe, forrással."
     }
   ]
 }

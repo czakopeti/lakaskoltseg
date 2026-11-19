@@ -1,7 +1,7 @@
 // Böngészős réteg: menü, űrlapok, élő elszámolás, megosztható link.
 // Szerverre csak az megy, amit a látogató a visszajelzés-dobozban maga elküld.
-import * as S from './szamitas.js?v=893146c2';
-import * as M from './megjelenites.js?v=893146c2';
+import * as S from './szamitas.js?v=654c964d';
+import * as M from './megjelenites.js?v=654c964d';
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -302,5 +302,14 @@ function indit() {
   addEventListener('beforeprint', () => { zartak = $$('details.levezetes:not([open])'); zartak.forEach((d) => { d.open = true; }); });
   addEventListener('afterprint', () => { zartak.forEach((d) => { d.open = false; }); zartak = []; });
 }
+
+// Beágyazás oldal: a kód másolása a vágólapra
+document.querySelectorAll('[data-masol-kod]').forEach((g) => g.addEventListener('click', async () => {
+  const mezo = document.getElementById(g.dataset.masolKod);
+  const felirat = g.textContent;
+  try { await navigator.clipboard.writeText(mezo.value); g.textContent = 'A kód a vágólapon'; }
+  catch { mezo.select(); g.textContent = 'Jelöld ki, és másold ki'; }
+  setTimeout(() => (g.textContent = felirat), 2600);
+}));
 
 indit();

@@ -7,6 +7,17 @@
   Cross-Origin-Opener-Policy: same-origin
   X-Robots-Tag: noindex, nofollow, noarchive
 
+# A beágyazható kalkulátorok bármely oldalon megjelenhetnek iframe-ben
+/beagyaz/*
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+
+# A letölthető CSV-k bármely oldalról és táblázatkezelőből lekérhetők (Google Táblázat, Excel), egy óráig gyorsítótárazhatók
+/adatok/*.csv
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=3600
+  Content-Type: text/csv; charset=utf-8
+
 # Az adatcsatorna (JSON) bármely oldalról lekérhető; egy óráig gyorsítótárazható
 /adatok/v1/*
   Access-Control-Allow-Origin: *

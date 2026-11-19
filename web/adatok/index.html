@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Lakásárak, infláció és szabályok letöltése: Excel, CSV, JSON | Ingatlanmérleg</title>
+<meta name="description" content="A KSH lakásárai településtípusonként és régiónként, az éves infláció és a lakásos adó- és illetékszabályok forrással, Excelben, CSV-ben és JSON-ban, ingyen.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://ingatlanmerleg.hu/adatok/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="hu_HU">
+<meta property="og:site_name" content="Ingatlanmérleg">
+<meta property="og:title" content="Lakásárak, infláció és szabályok letöltése: Excel, CSV, JSON">
+<meta property="og:description" content="A KSH lakásárai településtípusonként és régiónként, az éves infláció és a lakásos adó- és illetékszabályok forrással, Excelben, CSV-ben és JSON-ban, ingyen.">
+<meta property="og:url" content="https://ingatlanmerleg.hu/adatok/">
+<meta property="og:image" content="https://ingatlanmerleg.hu/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Ingatlanmérleg. Számolj, mielőtt aláírsz. Ingyenes lakásos kalkulátorok forrással és dátummal.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16181D" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/bricolage-grotesque-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/onest-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/style.css?v=baa85c90">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Lakásárak, infláció és szabályok letöltése: Excel, CSV, JSON","description":"A KSH lakásárai településtípusonként és régiónként, az éves infláció és a lakásos adó- és illetékszabályok forrással, Excelben, CSV-ben és JSON-ban, ingyen.","url":"https://ingatlanmerleg.hu/adatok/","inLanguage":"hu","dateModified":"2026-11-19","isPartOf":{"@type":"WebSite","name":"Ingatlanmérleg","url":"https://ingatlanmerleg.hu/"},"publisher":{"@type":"Organization","name":"Ingatlanmérleg","url":"https://ingatlanmerleg.hu/","slogan":"Számolj, mielőtt aláírsz."}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Főoldal","item":"https://ingatlanmerleg.hu/"},{"@type":"ListItem","position":2,"name":"Adatok és letöltések","item":"https://ingatlanmerleg.hu/adatok/"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Dataset","name":"Magyar lakásárak településtípusonként és régiónként","description":"A lakások átlagos négyzetméterára településtípusonként, használt és új lakás, évente","url":"https://ingatlanmerleg.hu/adatok/","license":"https://creativecommons.org/licenses/by/4.0/","isAccessibleForFree":true,"creator":{"@type":"Organization","name":"Ingatlanmérleg","url":"https://ingatlanmerleg.hu/"},"temporalCoverage":"2007/2025","spatialCoverage":"Magyarország","dateModified":"2026-11-19","distribution":[{"@type":"DataDownload","encodingFormat":"text/csv","contentUrl":"https://ingatlanmerleg.hu/adatok/lakasar-orszagos.csv"},{"@type":"DataDownload","encodingFormat":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet","contentUrl":"https://ingatlanmerleg.hu/adatok/ingatlanmerleg-adatok.xlsx"},{"@type":"DataDownload","encodingFormat":"application/json","contentUrl":"https://ingatlanmerleg.hu/adatok/v1/lakasar.json"}]}</script>
+</head>
+<body>
+<a class="ugras" href="#tartalom">Ugrás a tartalomra</a>
+<header class="fejlec"><div class="keret">
+<div class="marka-blokk"><a class="jegy" href="/" aria-label="Ingatlanmérleg, főoldal"><span class="logo"><svg class="logo-jel" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#FFD21A"/><path d="M16 5 24.5 11.8V20.6H18.6V16.4H13.4V20.6H7.5V11.8Z" fill="#14161B"/><path d="M4.6 23h22.8" stroke="#14161B" stroke-width="2.3" stroke-linecap="round"/><path d="M16 23.4 19.4 27.8H12.6Z" fill="#14161B"/></svg><span class="logo-szoveg">ingatlanmérleg</span></span></a></div>
+<nav class="menu" id="fomenu" aria-label="Fő menü"><a href="/lakasvasarlas-koltsegei-kalkulator/">Vásárlás költségei</a><a href="/vagyonszerzesi-illetek-kalkulator/">Illeték</a><a href="/wekerle-plusz-kalkulator/">Wekerle Plusz</a><a href="/ingatlaneladas-szja-kalkulator/">Eladás adója</a><a href="/lakaskiadas-ado-kalkulator/">Kiadás adója</a></nav>
+<button class="fiok-gomb" type="button" aria-label="Minden kalkulátor" aria-haspopup="dialog" aria-controls="fiok" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Minden kalkulátor</span></button>
+</div></header>
+<dialog class="fiok" id="fiok" aria-label="Minden oldal">
+<div class="fiok-fej"><a class="jegy" href="/" aria-label="Ingatlanmérleg, főoldal"><span class="logo"><svg class="logo-jel" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#FFD21A"/><path d="M16 5 24.5 11.8V20.6H18.6V16.4H13.4V20.6H7.5V11.8Z" fill="#14161B"/><path d="M4.6 23h22.8" stroke="#14161B" stroke-width="2.3" stroke-linecap="round"/><path d="M16 23.4 19.4 27.8H12.6Z" fill="#14161B"/></svg><span class="logo-szoveg">ingatlanmérleg</span></span></a><button class="fiok-zar" type="button" aria-label="Menü bezárása">✕</button></div>
+<nav aria-label="Minden oldal"><h2>Lakást veszel</h2><ul><li><a href="/lakasvasarlas-koltsegei-kalkulator/"><span><b>Vásárlás költségei</b><small>Önerő, illeték és minden díj, időrendben</small></span></a></li><li><a href="/vagyonszerzesi-illetek-kalkulator/"><span><b>Illeték</b><small>Mennyi, és melyik kedvezmény jár</small></span></a></li><li><a href="/alberlet-vagy-lakasvasarlas-kalkulator/"><span><b>Bérlés vagy vétel</b><small>Melyikkel jársz jobban hosszú távon</small></span></a></li></ul><h2>Lakáshitel</h2><ul><li><a href="/mennyi-lakashitelt-kaphatok/"><span><b>Mennyi hitelt kaphatsz</b><small>A jövedelmed és a lakás értéke szerint</small></span></a></li><li><a href="/wekerle-plusz-kalkulator/"><span><b>Wekerle Plusz</b><small>Jogosultság és törlesztő</small></span></a></li><li><a href="/elotorlesztes-kalkulator/"><span><b>Előtörlesztés</b><small>Rövidebb futamidő vagy kisebb törlesztő</small></span></a></li></ul><h2>Eladod a lakásod</h2><ul><li><a href="/ingatlaneladas-szja-kalkulator/"><span><b>Eladás adója</b><small>Mennyi szja-t fizetsz, és mikortól nem kell</small></span></a></li><li><a href="/lakasvaltas-kalkulator/"><span><b>Lakásváltás</b><small>Eladás és vétel együtt, hitelszükséglet</small></span></a></li></ul><h2>Kiadod a lakásod</h2><ul><li><a href="/lakaskiadas-ado-kalkulator/"><span><b>Kiadás adója</b><small>10% vagy tételes, határidőkkel</small></span></a></li><li><a href="/lakas-befektetes-hozam-kalkulator/"><span><b>Megéri kiadásra venni?</b><small>Bruttó és nettó hozam</small></span></a></li><li><a href="/airbnb-vagy-hosszu-tavu-kiadas/"><span><b>Airbnb vagy hosszú táv</b><small>Melyik hoz többet adózás után</small></span></a></li><li><a href="/berleti-dij-emeles-inflacio/"><span><b>Bérleti díj emelése</b><small>A KSH átlagos inflációjával</small></span></a></li></ul><h2>Örökölsz vagy ajándékba kapod</h2><ul><li><a href="/oroklesi-ajandekozasi-illetek-kalkulator/"><span><b>Öröklés és ajándék</b><small>Mennyi illeték, ki mentes</small></span></a></li><li><a href="/haszonelvezeti-jog-erteke/"><span><b>Haszonélvezet</b><small>Mennyit ér, és mi az illetéke</small></span></a></li></ul><h2>Adatok és források</h2><ul><li><a href="/forrasok/"><span><b>Honnan vannak a számok?</b><small>Minden szabály forrása és dátuma</small></span></a></li><li><a href="/adatok/" aria-current="page"><span><b>Adatok letöltése</b><small>Lakásárak, infláció, szabályok Excelben, CSV-ben, JSON-ban</small></span></a></li><li><a href="/beagyazas/"><span><b>Kalkulátor a saját oldaladra</b><small>Beágyazható kalkulátorok, ingyen</small></span></a></li></ul><h2>Az oldalról</h2><ul><li><a href="/rolunk/"><span><b>Rólunk és szerkesztői elvek</b></span></a></li></ul></nav>
+</dialog>
+<main id="tartalom">
+
+<div class="keret oldalfej"><ol class="morzsa" aria-label="Hol vagy"><li><a href="/">Főoldal</a></li><li aria-current="page">Adatok és letöltések</li></ol><h1>Lakásárak, infláció és szabályok, letölthetően</h1><p class="valasz">A KSH lakásárai településtípusonként és régiónként 2007-től 2025-ig, az éves infláció és a kalkulátorok összes szabálya forrással. Excelben, CSV-ben és JSON-ban, ingyen, a forrás megjelölésével szabadon felhasználhatod. Minden táblázat magától frissül, amikor a KSH új adatot közöl.</p></div>
+<div class="keret"><article class="cikk">
+<div class="letoltes-fo"><a class="gomb" href="/adatok/ingatlanmerleg-adatok.xlsx" download>Minden tábla egy Excel-fájlban</a><span class="kicsi halk">4 munkalap: lakásár országos, lakásár régiónként, infláció, szabályok</span></div>
+
+<h2 id="lakasar">Lakásárak településtípusonként</h2>
+<p>A használt lakások átlagos négyzetméterára 2025-ben, és hogy 2007 óta, illetve 2015 óta évente átlagosan hány százalékkal nőtt. A legutolsó év a KSH-nál előzetes adat.</p>
+<div class="tabla-tarto"><table class="tabla"><thead><tr><th scope="col">Hol?</th><th scope="col">Ft/m²</th><th scope="col">2007 óta</th><th scope="col">2015 óta</th></tr></thead><tbody><tr><th scope="row">Budapest</th><td>1 207 000</td><td>8,8%</td><td>15,3%</td></tr><tr><th scope="row">Megyeszékhely</th><td>691 000</td><td>8,3%</td><td>15,5%</td></tr><tr><th scope="row">Más város</th><td>484 000</td><td>7,4%</td><td>14,1%</td></tr><tr><th scope="row">Község</th><td>247 000</td><td>6,2%</td><td>13,6%</td></tr><tr class="kiemelt-sor"><th scope="row">Országos átlag</th><td>634 000</td><td>7,3%</td><td>13,7%</td></tr></tbody></table></div>
+<details class="osszes-ev"><summary>Mind a 19 év, használt és új lakás</summary>
+<div class="tabla-tarto"><table class="tabla kicsi-tabla"><thead><tr><th scope="col">Év</th><th scope="col">Budapest</th><th scope="col">Megyeszékhely</th><th scope="col">Más város</th><th scope="col">Község</th><th scope="col">Országos átlag</th></tr></thead><tbody><tr><th scope="row">2025</th><td>1 207 000</td><td>691 000</td><td>484 000</td><td>247 000</td><td>634 000</td></tr><tr><th scope="row">2024</th><td>977 000</td><td>566 000</td><td>402 000</td><td>194 000</td><td>531 000</td></tr><tr><th scope="row">2023</th><td>887 000</td><td>502 000</td><td>335 000</td><td>152 000</td><td>440 000</td></tr><tr><th scope="row">2022</th><td>844 000</td><td>465 000</td><td>304 000</td><td>144 000</td><td>411 000</td></tr><tr><th scope="row">2021</th><td>692 000</td><td>369 000</td><td>256 000</td><td>124 000</td><td>339 000</td></tr><tr><th scope="row">2020</th><td>640 000</td><td>316 000</td><td>218 000</td><td>103 000</td><td>282 000</td></tr><tr><th scope="row">2019</th><td>623 000</td><td>297 000</td><td>202 000</td><td>99 000</td><td>276 000</td></tr><tr><th scope="row">2018</th><td>508 000</td><td>244 000</td><td>170 000</td><td>87 000</td><td>241 000</td></tr><tr><th scope="row">2017</th><td>419 000</td><td>206 000</td><td>151 000</td><td>79 000</td><td>212 000</td></tr><tr><th scope="row">2016</th><td>361 000</td><td>182 000</td><td>137 000</td><td>72 000</td><td>191 000</td></tr><tr><th scope="row">2015</th><td>290 000</td><td>164 000</td><td>129 000</td><td>69 000</td><td>175 000</td></tr><tr><th scope="row">2014</th><td>240 000</td><td>147 000</td><td>120 000</td><td>63 000</td><td>154 000</td></tr><tr><th scope="row">2013</th><td>226 000</td><td>143 000</td><td>117 000</td><td>61 000</td><td>145 000</td></tr><tr><th scope="row">2012</th><td>236 000</td><td>149 000</td><td>121 000</td><td>64 000</td><td>150 000</td></tr><tr><th scope="row">2011</th><td>245 000</td><td>154 000</td><td>127 000</td><td>69 000</td><td>154 000</td></tr><tr><th scope="row">2010</th><td>252 000</td><td>156 000</td><td>132 000</td><td>73 000</td><td>160 000</td></tr><tr><th scope="row">2009</th><td>259 000</td><td>161 000</td><td>128 000</td><td>68 000</td><td>154 000</td></tr><tr><th scope="row">2008</th><td>265 000</td><td>169 000</td><td>136 000</td><td>76 000</td><td>161 000</td></tr><tr><th scope="row">2007</th><td>266 000</td><td>165 000</td><td>135 000</td><td>84 000</td><td>178 000</td></tr></tbody></table></div>
+<p class="kicsi halk">Használt lakások, Ft/m². Az új lakásoké a letölthető fájlokban van.</p>
+</details>
+<p class="letoltes-sor">Letöltés: <a href="/adatok/lakasar-orszagos.csv" download>CSV</a> · <a href="/adatok/v1/lakasar.json">JSON</a></p>
+
+<h2 id="regiok">Lakásárak régiónként</h2>
+<p>A használt lakások átlagos négyzetméterára 2025-ben, régiónként és településtípusonként. Budapest külön régió, Pest megyében nincs megyeszékhely.</p>
+<div class="tabla-tarto"><table class="tabla kicsi-tabla"><thead><tr><th scope="col">Régió</th><th scope="col">Megyeszékhely</th><th scope="col">Más város</th><th scope="col">Község</th><th scope="col">Együtt</th></tr></thead><tbody><tr><th scope="row">Budapest</th><td colspan="4">1 207 000</td></tr><tr><th scope="row">Pest</th><td>–</td><td>753 000</td><td>504 000</td><td>682 000</td></tr><tr><th scope="row">Közép-Dunántúl</th><td>773 000</td><td>558 000</td><td>366 000</td><td>562 000</td></tr><tr><th scope="row">Nyugat-Dunántúl</th><td>747 000</td><td>588 000</td><td>333 000</td><td>554 000</td></tr><tr><th scope="row">Dél-Dunántúl</th><td>659 000</td><td>491 000</td><td>189 000</td><td>435 000</td></tr><tr><th scope="row">Észak-Magyarország</th><td>499 000</td><td>310 000</td><td>162 000</td><td>304 000</td></tr><tr><th scope="row">Észak-Alföld</th><td>740 000</td><td>298 000</td><td>127 000</td><td>403 000</td></tr><tr><th scope="row">Dél-Alföld</th><td>708 000</td><td>299 000</td><td>147 000</td><td>386 000</td></tr></tbody></table></div>
+<p class="letoltes-sor">Letöltés, mind a 19 évvel: <a href="/adatok/lakasar-regios.csv" download>CSV</a> · <a href="/adatok/v1/lakasar.json">JSON</a></p>
+
+<h2 id="inflacio">Éves átlagos infláció</h2>
+<p>A KSH által januárban közölt előző évi átlag. Ezzel emelik a legtöbb bérleti díjat, és ehhez igazodik a Prémium Magyar Állampapír kamata.</p>
+<div class="tabla-tarto"><table class="tabla"><thead><tr><th scope="col">Év</th><th scope="col">Átlagos infláció</th><th scope="col">Közölte</th></tr></thead><tbody><tr><th scope="row">2025</th><td>4,4%</td><td><a href="https://infostart.hu/gazdasag/2026/01/13/megjott-a-friss-inflacios-adat" rel="noopener" target="_blank">KSH</a></td></tr><tr><th scope="row">2024</th><td>3,7%</td><td><a href="https://ksh.hu/en/first-releases/far/efar2412.html" rel="noopener" target="_blank">KSH</a></td></tr><tr><th scope="row">2023</th><td>17,6%</td><td><a href="https://telex.hu/gazdasag/2024/01/12/ksh-inflacio-2023-december" rel="noopener" target="_blank">KSH</a></td></tr><tr><th scope="row">2022</th><td>14,5%</td><td><a href="https://infostart.hu/gazdasag/2023/01/13/dermeszto-inflacios-adatot-kozolt-a-ksh" rel="noopener" target="_blank">KSH</a></td></tr></tbody></table></div>
+<p class="letoltes-sor">Letöltés: <a href="/adatok/inflacio.csv" download>CSV</a> · <a href="/adatok/v1/inflacio.json">JSON</a></p>
+
+<h2 id="szabalyok">A kalkulátorok szabályai</h2>
+<p>Mind a 73 szabály, amellyel számolunk: mérték, jogszabályhely, forrás és az ellenőrzés napja. Ugyanez olvasható a <a href="/forrasok/">Források</a> oldalon.</p>
+<p class="letoltes-sor">Letöltés: <a href="/adatok/szabalyok.csv" download>CSV</a> · <a href="/adatok/v1/szabalyok.json">JSON</a></p>
+
+<h2 id="tablazatba">Behúzod a saját táblázatodba?</h2>
+<p>A CSV-fájlok címe állandó, és a tartalmuk magától frissül. Ha a saját táblázatodba húzod be őket, a számok is frissülnek.</p>
+<p><strong>Google Táblázatban</strong> írd egy cellába:</p>
+<pre class="kod-blokk"><code>=IMPORTDATA("https://ingatlanmerleg.hu/adatok/lakasar-orszagos.csv"; ";"; "hu_HU")</code></pre>
+<p><strong>Excelben</strong> válaszd az Adatok menüben a Weblapról lehetőséget, és add meg a CSV címét, például ezt: <code>https://ingatlanmerleg.hu/adatok/inflacio.csv</code>. A frissítés gombbal később bármikor újratöltheted.</p>
+
+<h2 id="felhasznalas">Felhasználhatom?</h2>
+<p>Igen, ingyen, kereskedelmi célra is (CC BY 4.0). Írd mellé a forrást, például így: „Forrás: KSH, Ingatlanmérleg (ingatlanmerleg.hu)”. A lakásárak és az infláció a KSH adatai, a szabályok gyűjteménye a miénk. A jogszabályok szövege mindenkié.</p>
+<p>A kalkulátorokat a saját oldaladra is beteheted, erről a <a href="/beagyazas/">beágyazás</a> oldalon olvashatsz.</p>
+</article></div>
+<div class="keret"><div class="vj vj-oldal" data-visszajelzes data-ut="/adatok/">
+<p class="vj-kerdes" id="vj-kerdes">Hasznos volt ez az oldal?</p>
+<div class="vj-gombok" role="group" aria-labelledby="vj-kerdes"><button class="vj-gomb" type="button" data-vj="fel" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"><path d="M7 10.5v9.5H4v-9.5h3Zm0 0 3.6-6.8c1.6 0 2.7 1.1 2.3 2.8L12.4 10h5.4a2 2 0 0 1 2 2.4l-1.2 5.9a2.1 2.1 0 0 1-2.1 1.7H7"/></svg><span>Igen</span></button><button class="vj-gomb vj-le" type="button" data-vj="le" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"><path d="M7 10.5v9.5H4v-9.5h3Zm0 0 3.6-6.8c1.6 0 2.7 1.1 2.3 2.8L12.4 10h5.4a2 2 0 0 1 2 2.4l-1.2 5.9a2.1 2.1 0 0 1-2.1 1.7H7"/></svg><span>Nem</span></button></div>
+<form class="vj-urlap" hidden novalidate>
+<label for="vj-szoveg">Mi hiányzott, vagy mi nem stimmel?</label>
+<textarea id="vj-szoveg" name="szoveg" rows="3" maxlength="1000"></textarea>
+
+<input class="vj-csapda" name="web" tabindex="-1" autocomplete="off" aria-hidden="true">
+<div class="vj-sor"><button class="gomb" type="submit">Elküldöm</button><p class="kicsi halk">Nevet, e-mail-címet, pontos címet és helyrajzi számot ne írj bele.</p></div>
+</form>
+<p class="vj-allapot" role="status"></p>
+</div></div>
+</main>
+<footer class="lablec"><div class="keret">
+<div>
+<p><strong>Független oldal, nem hatóság és nem hitelközvetítő.</strong> A jogszabályok és a NAV közzétett tájékoztatói alapján számolunk. A számítások tájékoztató jellegűek, és nem helyettesítik az adótanácsadást vagy az ügyvédet. A ténylegesen fizetendő adót és illetéket a NAV határozata tartalmazza.</p>
+<p>A szabályokat rendszeresen összevetjük a forrásokkal. Legutóbbi ellenőrzés: 2026. november 19.</p>
+</div>
+<nav class="lablec-csoportok" aria-label="Az oldal tartalma"><div><h2>Lakást veszel</h2><ul><li><a href="/lakasvasarlas-koltsegei-kalkulator/">Vásárlás költségei</a></li><li><a href="/vagyonszerzesi-illetek-kalkulator/">Illeték</a></li><li><a href="/alberlet-vagy-lakasvasarlas-kalkulator/">Bérlés vagy vétel</a></li></ul></div><div><h2>Lakáshitel</h2><ul><li><a href="/mennyi-lakashitelt-kaphatok/">Mennyi hitelt kaphatsz</a></li><li><a href="/wekerle-plusz-kalkulator/">Wekerle Plusz</a></li><li><a href="/elotorlesztes-kalkulator/">Előtörlesztés</a></li></ul></div><div><h2>Eladod a lakásod</h2><ul><li><a href="/ingatlaneladas-szja-kalkulator/">Eladás adója</a></li><li><a href="/lakasvaltas-kalkulator/">Lakásváltás</a></li></ul></div><div><h2>Kiadod a lakásod</h2><ul><li><a href="/lakaskiadas-ado-kalkulator/">Kiadás adója</a></li><li><a href="/lakas-befektetes-hozam-kalkulator/">Megéri kiadásra venni?</a></li><li><a href="/airbnb-vagy-hosszu-tavu-kiadas/">Airbnb vagy hosszú táv</a></li><li><a href="/berleti-dij-emeles-inflacio/">Bérleti díj emelése</a></li></ul></div><div><h2>Örökölsz vagy ajándékba kapod</h2><ul><li><a href="/oroklesi-ajandekozasi-illetek-kalkulator/">Öröklés és ajándék</a></li><li><a href="/haszonelvezeti-jog-erteke/">Haszonélvezet</a></li></ul></div><div><h2>Adatok és források</h2><ul><li><a href="/forrasok/">Honnan vannak a számok?</a></li><li><a href="/adatok/">Adatok letöltése</a></li><li><a href="/beagyazas/">Kalkulátor a saját oldaladra</a></li></ul></div><div><h2>Ingatlanmérleg</h2><ul><li><a href="/rolunk/">Rólunk és szerkesztői elvek</a></li><li><a href="/adatvedelem/">Adatvédelem</a></li><li><a href="/impresszum/">Impresszum</a></li></ul></div></nav>
+</div></footer>
+
+<script type="module" src="/assets/js/app.js?v=baa85c90"></script>
+</body>
+</html>

@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { betoltAdat, olvas, maBudapest, GYOKER } from './forras/adat.mjs';
 import { lastmodDontes, CSOPORTOK } from './forras/sablon.mjs';
+import { xlsx, csv } from './forras/xlsx.mjs';
 import * as O from './forras/oldalak.mjs';
 import * as M from './forras/js/megjelenites.mjs';
 
@@ -75,6 +76,8 @@ const oldalak = [
   [O.HASZON_UT, O.haszonelvezetOldal(k)],
   [O.BERLES_UT, O.berlesVetelOldal(k)],
   ['forrasok/', O.forrasokOldal(k)],
+  [O.ADATOK_UT, O.adatokOldal(k)],
+  [O.BEAGYAZAS_UT, O.beagyazasOldal(k)],
   ['rolunk/', O.rolunkOldal(k)],
   ['impresszum/', O.impresszumOldal(k)],
   ['adatvedelem/', O.adatvedelemOldal(k)],
@@ -84,6 +87,21 @@ for (const [ut, html] of oldalak) {
   writeFileSync(join(KI, ut, 'index.html'), html);
 }
 writeFileSync(join(KI, '404.html'), O.nemTalalhatoOldal(k));
+// Beágyazható kalkulátorok (iframe-be, noindex) és a letölthető adatok (Excel, CSV)
+for (const [ut, html] of O.beagyazottOldalak(k)) {
+  mkdirSync(join(KI, ut), { recursive: true });
+  writeFileSync(join(KI, ut, 'index.html'), html);
+}
+{
+  const tablak = O.adatTablak(adat);
+  mkdirSync(join(KI, O.ADATOK_UT), { recursive: true });
+  for (const t of tablak) writeFileSync(join(KI, O.ADATOK_UT, `${t.fajl}.csv`), csv(t.sorok));
+  if (elonezet) { mkdirSync(join(KI, O.JSON_UT), { recursive: true }); for (const [f, o] of Object.entries(O.adatJsonok(adat, cfg))) writeFileSync(join(KI, O.JSON_UT, f), `${JSON.stringify(o, null, 2)}\n`); }
+  writeFileSync(join(KI, O.ADATOK_UT, 'ingatlanmerleg-adatok.xlsx'), xlsx([
+    { nev: 'Olvass el', sorok: [['Ingatlanmérleg: adatok'], ['Forrás', `${cfg.domain}/${O.ADATOK_UT}`], ['Készült', ma], ['Felhasználás', 'CC BY 4.0, a forrás megjelölésével: „Forrás: KSH, Ingatlanmérleg”'], [], ['Munkalap', 'Tartalom', 'Forrás'], ...tablak.map((t) => [t.nev, t.cim, t.forras])], szelessegek: [22, 80, 40] },
+    ...tablak.map((t) => ({ nev: t.nev, sorok: t.sorok, szelessegek: t.szelessegek })),
+  ]));
+}
 // A mérő végpont (functions/api/meres.js) csak ezekre az oldalakra számol
 if (!elonezet) {
   mkdirSync(join(GYOKER, 'kozos'), { recursive: true });
@@ -118,6 +136,17 @@ if (!elonezet) {
   X-Frame-Options: SAMEORIGIN
   Cross-Origin-Opener-Policy: same-origin
 ${cfg.eles ? '' : '  X-Robots-Tag: noindex, nofollow, noarchive\n'}
+# A beágyazható kalkulátorok bármely oldalon megjelenhetnek iframe-ben
+/beagyaz/*
+  ! X-Frame-Options
+  Content-Security-Policy: frame-ancestors *
+
+# A letölthető CSV-k bármely oldalról és táblázatkezelőből lekérhetők (Google Táblázat, Excel), egy óráig gyorsítótárazhatók
+/adatok/*.csv
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=3600
+  Content-Type: text/csv; charset=utf-8
+
 # Az adatcsatorna (JSON) bármely oldalról lekérhető; egy óráig gyorsítótárazható
 /adatok/v1/*
   Access-Control-Allow-Origin: *
@@ -155,6 +184,8 @@ https://:version.:project.pages.dev/*
     'lakaskiadas-ado-kalkulator/': `lakáskiadás szja-ja: 10% költséghányad vagy tételes elszámolás, a döntési pont, negyedéves adóelőleg és bevallás naptárfájlban`,
     'ingatlaneladas-szja-kalkulator/': `az eladott lakás, ház vagy telek személyi jövedelemadója a szerzés és az eladás évéből, az elszámolható költségekkel; mikortól adómentes, és meddig kell bevallani`,
     'forrasok/': `minden szabály jogszabályhelye, forrása és az ellenőrzés napja`,
+    'adatok/': `a KSH lakásárai településtípusonként és régiónként, az éves infláció és a szabályok Excelben, CSV-ben és JSON-ban, CC BY 4.0`,
+    'beagyazas/': `ingyenes, beágyazható kalkulátorok más weboldalakra`,
     'rolunk/': `független, ingyenes, forrással; mi hivatalos, mi saját adat, mi becslés`,
   };
   const sor = ([u, n, , teljes]) => `- [${teljes || n}](${cfg.domain}/${u}): ${LLMS[u]}`;

@@ -2,7 +2,7 @@
 // Most a váz van itt: főoldal (munkaverzió), források, rólunk, jogi oldalak. A kalkulátorok a tartalomterv szerint jönnek.
 import * as M from './js/megjelenites.mjs';
 import * as S from './js/szamitas.mjs';
-import { CSOPORTOK, oldal, oldalfej, ellenorzesKesik, morzsaLd, tovabb, esc, datumHu, forgalmi, elszamolas, sor, szamMezo, reszCim, negyzetek, jelolo, valaszto, gyik, gyikLd, alkalmazasLd, forrasLista } from './sablon.mjs';
+import { CSOPORTOK, beagyazottLap, oldal, oldalfej, ellenorzesKesik, morzsaLd, tovabb, esc, datumHu, forgalmi, elszamolas, sor, szamMezo, reszCim, negyzetek, jelolo, valaszto, gyik, gyikLd, alkalmazasLd, forrasLista } from './sablon.mjs';
 
 /* ======================= FŐOLDAL ======================= */
 /**
@@ -25,6 +25,8 @@ export const FOOLDAL_KARTYAK = {
   'lakaskiadas-ado-kalkulator/': [() => 'Mennyi adót fizetsz a bérleti díj után, és melyik a jobb: a 10% költséghányad vagy a tételes elszámolás.', 'Kiszámolom'],
   'ingatlaneladas-szja-kalkulator/': [() => 'Mennyi adót fizetsz, ha eladod a lakásod, a házad vagy a telked, mit vonhatsz le, és melyik évtől nem fizetsz semmit.', 'Kiszámolom'],
   'forrasok/': [() => 'Minden szabály, amivel számolunk: jogszabályhely, forrás, és mikor ellenőriztük utoljára.', 'Megnézem'],
+  'adatok/': [() => 'A KSH lakásárai településtípusonként és régiónként, az éves infláció és minden szabály Excelben, CSV-ben és JSON-ban.', 'Letöltöm'],
+  'beagyazas/': [() => 'Ingatlaniroda, ügyvéd vagy blog? A kalkulátorokat ingyen beteheted a saját oldaladra, és a szabályok nálad is maguktól frissülnek.', 'Megnézem'],
 };
 
 // A főoldali mintakártya lépéseinek rövid tartalma (a kalkulátorban a teljes leírás látszik)
@@ -36,13 +38,13 @@ export function fooldal(k) {
   const p = S.indulo(k.adat, { vetelar: 50e6, hitel: 40e6 });
   const ill = p.illetek.ado, dij = p.vetelarFelett - ill;
   const ar = (x) => (x / p.osszes * 100).toFixed(1);
-  const GYORS = [[INDULO_UT, 'Mennyi pénz kell a vételhez?'], [ILLETEK_UT, 'Illeték'], [ELADAS_UT, 'Eladás adója'], [ROVID_UT, 'Airbnb vagy hosszú táv'], [WEKERLE_UT, 'Wekerle Plusz'], [KIADAS_UT, 'Kiadás adója']];
+  const GYORS = [[INDULO_UT, 'A lakásvásárlás költségei'], [ILLETEK_UT, 'Illeték'], [ELADAS_UT, 'Eladás adója'], [ROVID_UT, 'Airbnb vagy hosszú táv'], [WEKERLE_UT, 'Wekerle Plusz'], [KIADAS_UT, 'Kiadás adója']];
   const tartalom = (L) => `
 <section class="hero keret">
 <div class="hero-szoveg">
-<h1>Mennyibe jön ki a lakás mindennel együtt?</h1>
-<p class="valasz">Illeték, adó, hitel és minden mellékköltség forintra pontosan, akár veszel, akár eladsz, akár kiadsz. Minden szám mellett ott a jogszabály, és hogy mikor néztük meg utoljára.</p>
-<div class="kezdo"><a class="fo-gomb" href="${L.l(INDULO_UT)}">Számold ki, mennyi pénz kell a vételhez</a><span>Önerő, illeték és minden díj egy lapon, időrendben.</span></div>
+<h1>${esc(k.cfg.szlogen)}</h1>
+<p class="valasz">Mennyi illetéket, adót és díjat fizetsz, ha lakást veszel, eladsz vagy kiadsz, és mennyi hitelt kaphatsz hozzá. Forintra pontosan, minden szám mellett a jogszabállyal, és hogy mikor néztük meg utoljára.</p>
+<div class="kezdo"><a class="fo-gomb" href="${L.l(INDULO_UT)}">Kiszámolom a lakásvásárlás költségeit</a><span>Önerő, illeték és minden díj egy lapon, időrendben.</span></div>
 <nav class="gyors" aria-label="Más kalkulátorok"><span class="gyors-cim">Vagy válassz:</span>${GYORS.slice(1).map(([u, n]) => `<a href="${L.l(u)}">${n}</a>`).join('')}</nav>
 <p class="hero-tenyek"><span><b>${sz('illetek.altalanos_mertek').szazalek}%</b> illeték</span><span><b>${sz('szja_eladas.ado_mertek').szazalek}%</b> szja eladáskor</span><span><b>${sz('wekerle_plusz.kamat').uj_szazalek}% és ${sz('wekerle_plusz.kamat').hasznalt_szazalek}%</b> Wekerle Plusz</span></p>
 </div>
@@ -101,9 +103,135 @@ export const JSON_UT = 'adatok/v1/';
 export function adatJsonok(adat, cfg) {
   const kozos = { forras: cfg.domain, licenc: 'CC BY 4.0', ellenorizve: adat.allapot.utolso_ellenorzes };
   return {
-    'index.json': { ...kozos, leiras: 'Magyar lakásvásárlási, -eladási és -kiadási szabályok gépi formában.', fajlok: [{ fajl: 'szabalyok.json', url: `${cfg.domain}/${JSON_UT}szabalyok.json`, leiras: adat.szabalyok.leiras }] },
+    'index.json': { ...kozos, leiras: 'Magyar lakásvásárlási, -eladási és -kiadási szabályok gépi formában.', fajlok: [{ fajl: 'szabalyok.json', url: `${cfg.domain}/${JSON_UT}szabalyok.json`, leiras: adat.szabalyok.leiras }, { fajl: 'lakasar.json', url: `${cfg.domain}/${JSON_UT}lakasar.json`, leiras: adat.lakasar.leiras }, { fajl: 'inflacio.json', url: `${cfg.domain}/${JSON_UT}inflacio.json`, leiras: 'A KSH éves átlagos fogyasztóiár-indexe, forrással.' }] },
     'szabalyok.json': { ...kozos, ...adat.szabalyok },
+    'lakasar.json': { ...kozos, ellenorizve: adat.lakasar.ellenorizve, ...adat.lakasar },
+    'inflacio.json': { ...kozos, ellenorizve: adat.inflacio.ellenorizve || adat.allapot.utolso_ellenorzes, ...adat.inflacio },
   };
+}
+
+/* ======================= ADATOK ÉS LETÖLTÉSEK ======================= */
+export const ADATOK_UT = 'adatok/';
+const REGIO_NEV = { budapest: 'Budapest', pest: 'Pest', kozep_dunantul: 'Közép-Dunántúl', nyugat_dunantul: 'Nyugat-Dunántúl', del_dunantul: 'Dél-Dunántúl', eszak_magyarorszag: 'Észak-Magyarország', eszak_alfold: 'Észak-Alföld', del_alfold: 'Dél-Alföld' };
+const TIPUS_NEV = { fovaros: 'Budapest', megyeszekhely: 'Megyeszékhely', varos: 'Más város', kozseg: 'Község', orszag: 'Országos átlag', egyutt: 'Együtt' };
+const TIPUSOK = ['fovaros', 'megyeszekhely', 'varos', 'kozseg', 'orszag'];
+
+/** A letölthető táblák: ugyanebből készül az Excel, a CSV és az oldalon látható táblázat. Minden szám az adatfájlokból jön. */
+export function adatTablak(adat) {
+  const la = adat.lakasar, inf = adat.inflacio;
+  const orszagos = [['Év', ...TIPUSOK.map((t) => `${TIPUS_NEV[t]}, használt (Ft/m²)`), ...TIPUSOK.map((t) => `${TIPUS_NEV[t]}, új (Ft/m²)`)],
+    ...la.evek.map((ev, i) => [ev, ...TIPUSOK.map((t) => (la.hasznalt[t][i] == null ? null : la.hasznalt[t][i] * 1000)), ...TIPUSOK.map((t) => (la.uj[t]?.[i] == null ? null : la.uj[t][i] * 1000))])];
+  const regios = [['Régió', 'Településtípus', ...la.evek.map((e) => `${e} (Ft/m²)`)],
+    ...Object.entries(la.hasznaltRegio || {}).flatMap(([r, o]) => Object.entries(o).map(([t, sor]) => [REGIO_NEV[r] || r, TIPUS_NEV[t] || t, ...la.evek.map((_, i) => (sor[i] == null ? null : sor[i] * 1000))]))];
+  const inflacio = [['Év', 'Átlagos infláció (%)', 'Forrás', 'Forrás címe', 'Közlés napja'],
+    ...Object.keys(inf.evek).sort().map((ev) => [Number(ev), inf.evek[ev].szazalek, inf.evek[ev].forras?.nev || '', inf.evek[ev].forras?.url || '', inf.evek[ev].forras?.kelt || ''])];
+  const szabalyok = [['Téma', 'Kulcs', 'Név', 'Szabály', 'Jogszabály', 'Forrás', 'Forrás címe', 'Forrás kelte', 'Ellenőrizve', 'Becslés', 'Értékek (JSON)'],
+    ...adat.szabalyok.temak.flatMap((t) => t.tetelek.map((x) => [t.cim || t.id, `${t.id}.${x.kulcs}`, x.nev, x.szoveg, x.jogszabaly, x.forras.nev, x.forras.url, x.forras.kelt || '', x.ellenorizve || '', x.becsles ? 'igen' : '', JSON.stringify(x.ertek)]))];
+  return [
+    { fajl: 'lakasar-orszagos', nev: 'Lakásár országos', cim: 'A lakások átlagos négyzetméterára településtípusonként, használt és új lakás, évente', forras: `KSH STADAT 18.1.2.9., ${la.evek[0]}–${la.evek[la.evek.length - 1]}`, sorok: orszagos, szelessegek: [8, ...Array(10).fill(22)] },
+    { fajl: 'lakasar-regios', nev: 'Lakásár régiónként', cim: 'A használt lakások átlagos négyzetméterára régiónként és településtípusonként, évente', forras: 'KSH STADAT 18.1.2.9.', sorok: regios, szelessegek: [22, 16, ...Array(la.evek.length).fill(14)] },
+    { fajl: 'inflacio', nev: 'Infláció', cim: 'A KSH éves átlagos fogyasztóiár-indexe (infláció)', forras: 'KSH', sorok: inflacio, szelessegek: [8, 20, 50, 60, 14] },
+    { fajl: 'szabalyok', nev: 'Szabályok', cim: 'A kalkulátorok szabályai: mérték, jogszabályhely, forrás, ellenőrzés napja', forras: 'Ingatlanmérleg, a jogszabályok és a NAV alapján', sorok: szabalyok, szelessegek: [26, 34, 34, 80, 26, 40, 50, 12, 12, 9, 40] },
+  ];
+}
+
+export function adatokOldal(k) {
+  const { adat, cfg } = k;
+  const ut = ADATOK_UT;
+  const la = adat.lakasar, n = la.evek.length - 1, ig = la.evek[n];
+  const tablak = adatTablak(adat);
+  const infEvek = Object.keys(adat.inflacio.evek).sort();
+  const url = (f) => `${cfg.domain}/${ut}${f}`;
+  const tr = TIPUSOK.map((t) => S.lakasarTrend(adat, t));
+  const regiok = Object.entries(la.hasznaltRegio || {});
+  const tipusokRegio = ['megyeszekhely', 'varos', 'kozseg', 'egyutt'];
+  const tartalom = (L) => `
+${oldalfej(L, { morzsa: ['Adatok és letöltések'], cim: 'Lakásárak, infláció és szabályok, letölthetően', valasz: `A KSH lakásárai településtípusonként és régiónként ${M.rag(la.evek[0], 'tól', 'től')} ${ig}-ig, az éves infláció és a kalkulátorok összes szabálya forrással. Excelben, CSV-ben és JSON-ban, ingyen, a forrás megjelölésével szabadon felhasználhatod. Minden táblázat magától frissül, amikor a KSH új adatot közöl.` })}
+<div class="keret"><article class="cikk">
+<div class="letoltes-fo"><a class="gomb" href="${L.gyoker(`${ut}ingatlanmerleg-adatok.xlsx`)}" download>Minden tábla egy Excel-fájlban</a><span class="kicsi halk">${tablak.length} munkalap: ${tablak.map((t) => t.nev.toLowerCase()).join(', ')}</span></div>
+
+<h2 id="lakasar">Lakásárak településtípusonként</h2>
+<p>A használt lakások átlagos négyzetméterára ${M.rag(ig, 'ban', 'ben')}, és hogy ${la.evek[0]} óta, illetve ${tr[0].tizTol} óta évente átlagosan hány százalékkal nőtt. A legutolsó év a KSH-nál előzetes adat.</p>
+<div class="tabla-tarto"><table class="tabla"><thead><tr><th scope="col">Hol?</th><th scope="col">Ft/m²</th><th scope="col">${la.evek[0]} óta</th><th scope="col">${tr[0].tizTol} óta</th></tr></thead><tbody>${tr.map((t) => `<tr${t.tipus === 'orszag' ? ' class="kiemelt-sor"' : ''}><th scope="row">${t.nev}</th><td>${M.fmt(t.arM2)}</td><td>${M.tized(t.hosszu, 1)}%</td><td>${M.tized(t.tiz, 1)}%</td></tr>`).join('')}</tbody></table></div>
+<details class="osszes-ev"><summary>Mind a ${la.evek.length} év, használt és új lakás</summary>
+<div class="tabla-tarto"><table class="tabla kicsi-tabla"><thead><tr><th scope="col">Év</th>${TIPUSOK.map((t) => `<th scope="col">${TIPUS_NEV[t]}</th>`).join('')}</tr></thead><tbody>${la.evek.map((ev, i) => `<tr><th scope="row">${ev}</th>${TIPUSOK.map((t) => `<td>${M.fmt(la.hasznalt[t][i] * 1000)}</td>`).join('')}</tr>`).reverse().join('')}</tbody></table></div>
+<p class="kicsi halk">Használt lakások, Ft/m². Az új lakásoké a letölthető fájlokban van.</p>
+</details>
+<p class="letoltes-sor">Letöltés: <a href="${L.gyoker(`${ut}lakasar-orszagos.csv`)}" download>CSV</a> · <a href="${L.gyoker(`${JSON_UT}lakasar.json`)}">JSON</a></p>
+
+<h2 id="regiok">Lakásárak régiónként</h2>
+<p>A használt lakások átlagos négyzetméterára ${M.rag(ig, 'ban', 'ben')}, régiónként és településtípusonként. Budapest külön régió, Pest megyében nincs megyeszékhely.</p>
+<div class="tabla-tarto"><table class="tabla kicsi-tabla"><thead><tr><th scope="col">Régió</th>${tipusokRegio.map((t) => `<th scope="col">${TIPUS_NEV[t]}</th>`).join('')}</tr></thead><tbody>${regiok.map(([r, o]) => `<tr><th scope="row">${REGIO_NEV[r]}</th>${r === 'budapest' ? `<td colspan="4">${M.fmt(o.fovaros[n] * 1000)}</td>` : tipusokRegio.map((t) => `<td>${o[t] ? M.fmt(o[t][n] * 1000) : '–'}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+<p class="letoltes-sor">Letöltés, mind a ${la.evek.length} évvel: <a href="${L.gyoker(`${ut}lakasar-regios.csv`)}" download>CSV</a> · <a href="${L.gyoker(`${JSON_UT}lakasar.json`)}">JSON</a></p>
+
+<h2 id="inflacio">Éves átlagos infláció</h2>
+<p>A KSH által januárban közölt előző évi átlag. Ezzel emelik a legtöbb bérleti díjat, és ehhez igazodik a Prémium Magyar Állampapír kamata.</p>
+<div class="tabla-tarto"><table class="tabla"><thead><tr><th scope="col">Év</th><th scope="col">Átlagos infláció</th><th scope="col">Közölte</th></tr></thead><tbody>${infEvek.slice().reverse().map((e) => `<tr><th scope="row">${e}</th><td>${M.tized(adat.inflacio.evek[e].szazalek, 1)}%</td><td><a href="${esc(adat.inflacio.evek[e].forras?.url || '#')}" rel="noopener" target="_blank">KSH</a></td></tr>`).join('')}</tbody></table></div>
+<p class="letoltes-sor">Letöltés: <a href="${L.gyoker(`${ut}inflacio.csv`)}" download>CSV</a> · <a href="${L.gyoker(`${JSON_UT}inflacio.json`)}">JSON</a></p>
+
+<h2 id="szabalyok">A kalkulátorok szabályai</h2>
+<p>Mind a ${tablak[3].sorok.length - 1} szabály, amellyel számolunk: mérték, jogszabályhely, forrás és az ellenőrzés napja. Ugyanez olvasható a <a href="${L.l('forrasok/')}">Források</a> oldalon.</p>
+<p class="letoltes-sor">Letöltés: <a href="${L.gyoker(`${ut}szabalyok.csv`)}" download>CSV</a> · <a href="${L.gyoker(`${JSON_UT}szabalyok.json`)}">JSON</a></p>
+
+<h2 id="tablazatba">Behúzod a saját táblázatodba?</h2>
+<p>A CSV-fájlok címe állandó, és a tartalmuk magától frissül. Ha a saját táblázatodba húzod be őket, a számok is frissülnek.</p>
+<p><strong>Google Táblázatban</strong> írd egy cellába:</p>
+<pre class="kod-blokk"><code>=IMPORTDATA("${url('lakasar-orszagos.csv')}"; ";"; "hu_HU")</code></pre>
+<p><strong>Excelben</strong> válaszd az Adatok menüben a Weblapról lehetőséget, és add meg a CSV címét, például ezt: <code>${url('inflacio.csv')}</code>. A frissítés gombbal később bármikor újratöltheted.</p>
+
+<h2 id="felhasznalas">Felhasználhatom?</h2>
+<p>Igen, ingyen, kereskedelmi célra is (CC BY 4.0). Írd mellé a forrást, például így: „Forrás: KSH, ${cfg.marka} (${cfg.domain.replace(/^https?:\/\//, '')})”. A lakásárak és az infláció a KSH adatai, a szabályok gyűjteménye a miénk. A jogszabályok szövege mindenkié.</p>
+<p>A kalkulátorokat a saját oldaladra is beteheted, erről a <a href="${L.l(BEAGYAZAS_UT)}">beágyazás</a> oldalon olvashatsz.</p>
+</article></div>`;
+  return oldal(k, { cim: 'Lakásárak, infláció és szabályok letöltése: Excel, CSV, JSON', leiras: `A KSH lakásárai településtípusonként és régiónként, az éves infláció és a lakásos adó- és illetékszabályok forrással, Excelben, CSV-ben és JSON-ban, ingyen.`, ut, tartalom, jsonld: [morzsaLd(cfg, [{ nev: 'Adatok és letöltések', ut }]), {
+    '@context': 'https://schema.org', '@type': 'Dataset', name: 'Magyar lakásárak településtípusonként és régiónként', description: tablak[0].cim, url: `${cfg.domain}/${ut}`, license: 'https://creativecommons.org/licenses/by/4.0/', isAccessibleForFree: true, creator: { '@type': 'Organization', name: cfg.marka, url: `${cfg.domain}/` }, temporalCoverage: `${la.evek[0]}/${ig}`, spatialCoverage: 'Magyarország', dateModified: la.ellenorizve,
+    distribution: [{ '@type': 'DataDownload', encodingFormat: 'text/csv', contentUrl: url('lakasar-orszagos.csv') }, { '@type': 'DataDownload', encodingFormat: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', contentUrl: url('ingatlanmerleg-adatok.xlsx') }, { '@type': 'DataDownload', encodingFormat: 'application/json', contentUrl: `${cfg.domain}/${JSON_UT}lakasar.json` }],
+  }] });
+}
+
+/* ======================= BEÁGYAZÁS ======================= */
+const rovidCim = (x) => x.oldalCim.replace(/:.*$/, '').replace(/ 20\d\d$/, '');
+/** A beágyazott kalkulátorok: csak az űrlap és az eredmény, iframe-be. */
+export function beagyazottOldalak(k) {
+  return KALK_LISTA.map((x) => [beagyazUt(x.ut), beagyazottLap(k, {
+    cim: rovidCim(x), ut: beagyazUt(x.ut), foUt: x.ut, adatJson: x.adatJson,
+    tartalom: () => `<div class="asztal">
+${forgalmi({ kalk: x.tipus, cim: x.urlapCim, al: x.urlapAl || '', tartalom: x.urlap, extra: ` data-kalk-nev="${x.tipus}"` })}
+${elszamolas(k, x.kezdo, { gombok: false })}
+</div>`,
+  })]);
+}
+
+/** A befogadó oldalra másolandó kód: iframe, magasság-igazítás és egy látható forráslink. */
+export function beagyazoKod(cfg, x) {
+  const src = `${cfg.domain}/${beagyazUt(x.ut)}`;
+  return `<iframe src="${src}" title="${rovidCim(x).replace(/"/g, '&quot;')}" data-ingatlanmerleg style="width:100%;min-height:900px;border:0" loading="lazy"></iframe>
+<p style="font-size:13px">Kalkulátor: <a href="${cfg.domain}/${x.ut}">${rovidCim(x)}, ${cfg.marka}</a></p>
+<script>addEventListener("message",function(e){if(e.origin!=="${cfg.domain}"||!e.data||!e.data.ingatlanmerleg)return;document.querySelectorAll("iframe[data-ingatlanmerleg]").forEach(function(f){if(f.contentWindow===e.source)f.style.height=e.data.h+"px"})});</script>`;
+}
+
+export function beagyazasOldal(k) {
+  const { cfg } = k;
+  const ut = BEAGYAZAS_UT;
+  const sorrend = CSOPORTOK.flatMap((cs) => cs.elemek.map(([u]) => u));
+  const lista = [...KALK_LISTA].sort((a, b) => sorrend.indexOf(a.ut) - sorrend.indexOf(b.ut));
+  const tartalom = (L) => `
+${oldalfej(L, { morzsa: ['Kalkulátor a saját oldaladra'], cim: 'Tedd ki a kalkulátort a saját oldaladra', valasz: `Ingatlanirodák, ügyvédek, hitelközvetítők, bloggerek és társasházak ingyen beágyazhatják a kalkulátorainkat. Másold be a kódot az oldaladba, és a kalkulátor ott is ugyanúgy működik, a szabályok nálad is maguktól frissülnek. Regisztráció nem kell.` })}
+<div class="keret"><article class="cikk">
+<h2>Hogyan működik?</h2>
+<p>Válaszd ki a kalkulátort, másold ki a kódját, és illeszd be az oldalad HTML-jébe oda, ahol meg akarod jeleníteni. A kalkulátor kitölti a rendelkezésre álló szélességet, a magassága pedig az eredményhez igazodik. Mobilon is működik.</p>
+<p>Cserébe annyit kérünk, hogy a kód alatti forráslinket hagyd meg. Reklám nincs benne, és nem gyűjtünk adatot a látogatóidról, a számítás az ő böngészőjükben fut.</p>
+${lista.map((x) => `<section class="beagyaz-elem" id="${x.tipus}">
+<h3>${esc(rovidCim(x))}</h3>
+<p class="kicsi"><a href="${L.l(beagyazUt(x.ut))}" target="_blank" rel="noopener">Így néz ki beágyazva</a> · <a href="${L.l(x.ut)}">A teljes oldal</a></p>
+<label class="kicsi halk" for="kod-${x.tipus}">A beillesztendő kód</label>
+<textarea class="kod-mezo" id="kod-${x.tipus}" readonly rows="4">${esc(beagyazoKod(cfg, x))}</textarea>
+<button class="szoveg-gomb" type="button" data-masol-kod="kod-${x.tipus}">Kód másolása</button>
+</section>`).join('\n')}
+<h2>Kérdésed van?</h2>
+<p>Ha más méretben, más színben vagy saját alapértékekkel szeretnéd, írj nekünk az oldal alján lévő dobozban.</p>
+</article></div>`;
+  return oldal(k, { cim: 'Beágyazható lakásos kalkulátorok: illeték, adó, hitel', leiras: 'Ingyenes, beágyazható kalkulátorok a saját weboldaladra: illeték, ingatlaneladás és lakáskiadás adója, lakáshitel. Magától frissülő szabályokkal, reklám nélkül.', ut, tartalom, jsonld: [morzsaLd(cfg, [{ nev: 'Kalkulátor a saját oldaladra', ut }])] });
 }
 
 /* ======================= RÓLUNK ======================= */
@@ -197,15 +325,21 @@ function forrasokBol(adat, kulcsok, extra = []) {
  * Egy kalkulátoroldal váza: fej a válasszal, űrlap, elszámolás a címkézett mintával (ugyanaz a kód számolja, mint a böngészőben),
  * magyarázat, gyakori kérdések, források. o: { ut, tipus, nev, cim, valasz, urlapCim, urlapAl, urlap, cikk, kerdesek, forrasKulcsok, temak, oldalCim, leiras }
  */
+/** A kalkulátoroldalak adatai a beágyazott változathoz (az epit.mjs a kalkulátoroldalak után kéri le). */
+export const KALK_LISTA = [];
+export const BEAGYAZAS_UT = 'beagyazas/';
+export const beagyazUt = (ut) => `beagyaz/${ut}`;
+
 function kalkOldal(k, o) {
   const adatJson = { ...temaAdat(k.adat, ...o.temak), ...(o.adatExtra || {}), ev: k.ev, ma: k.ma };
   const kezdo = M.kalkHtml(o.tipus, adatJson, {}).html;
+  if (!KALK_LISTA.some((x) => x.ut === o.ut)) KALK_LISTA.push({ ut: o.ut, tipus: o.tipus, nev: o.nev, cim: o.cim, oldalCim: o.oldalCim, urlapCim: o.urlapCim, urlapAl: o.urlapAl, urlap: o.urlap, adatJson, kezdo });
   const tartalom = (L) => `
 ${oldalfej(L, { morzsa: [o.nev], cim: o.cim, valasz: o.valasz, friss: M.datumNapon(k.adat.allapot.utolso_ellenorzes || k.ma) })}
 <p class="csak-nyomtatas nyomtat-fej"><strong>${esc(o.cim)}</strong><br>${esc(k.cfg.marka)}, ${esc(k.cfg.domain.replace(/^https?:\/\//, ''))}/${o.ut}. A szabályokat utoljára ${M.datumNapon(k.adat.allapot.utolso_ellenorzes || k.ma)} ellenőriztük. Tájékoztató számítás, nem adótanácsadás.</p>
 <div class="keret asztal">
 ${forgalmi({ kalk: o.tipus, cim: o.urlapCim, al: o.urlapAl || '', tartalom: o.urlap, extra: ` data-kalk-nev="${o.tipus}"` })}
-${elszamolas(k, kezdo, { kesz: true })}
+${elszamolas(k, kezdo, { kesz: true, beagyaz: L.l(BEAGYAZAS_UT, `#${o.tipus}`) })}
 </div>
 <div class="keret"><article class="cikk">
 ${o.cikk}
@@ -664,7 +798,7 @@ export function emelesOldal(k) {
 <fieldset>${reszCim('', 'A díj')}
 ${sor('', szamMezo({ id: 'dij', cim: 'Mostani havi bérleti díj', me: 'Ft', placeholder: 'pl. 240 000', min: 0, szeles: true }))}
 ${sor('', negyzetek('ev', 'Melyik év inflációjával?', evek.slice().reverse().map((e) => [e, `${e}: ${M.tized(adat.inflacio.evek[e].szazalek, 1)}%`]), ''))}
-${sor('', szamMezo({ id: 'sajat', cim: 'Vagy saját mértékkel', me: '%', placeholder: 'pl. 5', tized: true, sugo: 'Ha a szerződés más mértéket ír, például fix 5%-ot.' }))}
+${sor('', szamMezo({ id: 'sajat', cim: 'Vagy saját mértékkel', me: '%', placeholder: 'pl. 5', tized: true, min: -50, max: 100, sugo: 'Ha a szerződés más mértéket ír, például fix 5%-ot.' }))}
 </fieldset>`,
     cikk: `<h2>Mit kell tudni?</h2>
 <p>A bérbeadó csak akkor emelhet díjat, ha a szerződés ezt lehetővé teszi, és csak úgy, ahogy ott áll. A leggyakoribb kikötés: „évente a KSH által közzétett előző évi átlagos fogyasztói árindex mértékével”. A KSH ezt minden év januárjában közli.</p>
@@ -729,9 +863,9 @@ export function induloOldal(k) {
   const p = S.indulo(adat, { vetelar: 50e6, hitel: 40e6 });
   const fh = v('foldhivatal'), uv = v('ugyvedi');
   return kalkOldal(k, {
-    ut: INDULO_UT, tipus: 'indulo', nev: 'Mennyi pénz kell a vételhez?', temak: ['illetek', 'haszonelvezet', 'hitel', 'vetel_koltsegek'],
+    ut: INDULO_UT, tipus: 'indulo', nev: 'A lakásvásárlás költségei', temak: ['illetek', 'haszonelvezet', 'hitel', 'vetel_koltsegek'],
     oldalCim: `Lakásvásárlás költségei kalkulátor ${k.ev}: mennyi pénz kell a vételáron felül?`,
-    leiras: 'Önerő, illeték a kedvezményekkel, ügyvéd, földhivatal, értékbecslés, közjegyző és folyósítási díj időrendben. Megmutatja, mennyi saját pénz kell, és mennyi hiányzik a megtakarításodból.',
+    leiras: 'Önerő, illeték, ügyvéd, földhivatal, értékbecslés, közjegyző és banki díjak időrendben: mennyi saját pénz kell a lakásvásárláshoz, és mennyi hiányzik még.',
     cim: 'Mennyi saját pénz kell egy lakás megvételéhez?',
     valasz: `Az önerő, plusz az illeték és a mellékköltségek. Egy 50 millió forintos lakásnál 40 millió forint hitellel ez ${M.fmt(p.osszes)} Ft, ebből ${M.fmt(p.vetelarFelett)} Ft a vételáron felül. A legnagyobb tétel az illeték, és az érkezik utoljára.`,
     urlapCim: 'A lakás és a hitel', urlapAl: 'Ingatlan-adásvétel',
@@ -796,7 +930,7 @@ export function berlesVetelOldal(k) {
     ut: BERLES_UT, tipus: 'berlesvetel', nev: 'Bérlés vagy vétel', temak: ['illetek', 'haszonelvezet', 'hitel', 'vetel_koltsegek', 'wekerle_plusz', 'berles_vetel', 'szja_eladas'],
     adatExtra: { inflacio: adat.inflacio, lakasar: { forras: la.forras, evek: la.evek, hasznalt: la.hasznalt } },
     oldalCim: 'Albérlet vagy lakásvásárlás kalkulátor: melyikkel jársz jobban?',
-    leiras: 'Bérlés vagy vétel hitelből: mekkora vagyonod lesz N év múlva háromféle lakásár-alakulással, az illetékkel, a mellékköltségekkel és a karbantartással, bérlésnél a pénzed állampapírban.',
+    leiras: 'Albérlet vagy saját lakás hitelből: mekkora vagyonod lesz 10 vagy 20 év múlva háromféle lakásár-alakulással, illetékkel, mellékköltségekkel és karbantartással.',
     cim: 'Albérlet vagy saját lakás: melyikkel jársz jobban?',
     valasz: `A bérleti díj, a lakásárak és az időtáv dönti el. Ha egy 50 millió forintos lakást 10 millió forint önerővel megveszel, ahelyett hogy havi 220 000 forintért bérelnél, alapesetben 10 év múlva ${M.fmt(Math.abs(p.alap.kulonbseg) / 1e6)} millió forinttal nagyobb lesz a vagyonod, ha ${p.nyero === 'vetel' ? 'megveszed' : 'bérelsz'}${p.alap.fordul ? `. A ${p.alap.fordul}. évtől a vétel jár jobban` : ''}.`,
     urlapCim: 'A két út', urlapAl: 'Vétel hitelből, vagy bérlés',
@@ -851,7 +985,7 @@ export function rovidtavOldal(k) {
   return kalkOldal(k, {
     ut: ROVID_UT, tipus: 'rovidtav', nev: 'Airbnb vagy hosszú távú kiadás', temak: ['berbeadas', 'rovid_tav'],
     oldalCim: `Airbnb vagy hosszú távú kiadás kalkulátor ${k.ev}: melyik hoz többet adó után?`,
-    leiras: `Rövid távú (Airbnb, Booking) és hosszú távú lakáskiadás adó után: tételes átalányadó (${M.fmt(at.budapest_ft)} Ft/szoba Budapesten), 10% költséghányad vagy tételes elszámolás, áfa, turizmusfejlesztési hozzájárulás, jutalék, takarítás, rezsi, és a fordulópont.`,
+    leiras: `Airbnb vagy hosszú távú bérlő: melyik hoz többet adózás után? Tételes átalányadó (${M.fmt(at.budapest_ft)} Ft/szoba Budapesten), jutalék, takarítás és a fordulópont.`,
     cim: 'Airbnb vagy hosszú távú bérlő: melyik hoz többet?',
     valasz: `A foglalt éjszakák száma dönti el. Egy budapesti egyszobás lakásnál, 32 000 forintos éjszakai árral és havi 20 foglalt éjszakával rövid távú kiadásnál évi ${M.fmt(p.rovid.netto)} Ft marad, hosszú távon havi 260 000 forintért ${M.fmt(p.hosszu.netto)} Ft. Itt havi ${M.fmt(Math.ceil(p.fordul))} foglalt éjszakától hoz többet a rövid távú kiadás.`,
     urlapCim: 'A lakás kétféle kiadása', urlapAl: 'Szálláshely vagy bérlet',

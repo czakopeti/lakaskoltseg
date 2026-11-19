@@ -4,25 +4,30 @@
 
 ## Lakást veszel
 
-Amit a vételáron felül fizetsz, és hogy jár-e neked kamattámogatott hitel.
+Mennyi saját pénz kell, mennyi illetéket fizetsz, és megéri-e venni bérlés helyett.
 
-- [Mennyi pénz kell a vételhez?](https://ingatlanmerleg.hu/lakasvasarlas-koltsegei-kalkulator/): mennyi saját pénz kell egy lakás megvételéhez: önerő (HFM 80%, első lakásnál 90%), illeték a kedvezményekkel, ügyvédi díj, földhivatal (10 600 Ft, jelzálog 20 000 Ft), értékbecslés, közjegyzői díj a díjszabás sávjai szerint, folyósítási díj; időrendben, a megtakarításból hiányzó összeggel
+- [A lakásvásárlás költségei](https://ingatlanmerleg.hu/lakasvasarlas-koltsegei-kalkulator/): mennyi saját pénz kell egy lakás megvételéhez: önerő (HFM 80%, első lakásnál 90%), illeték a kedvezményekkel, ügyvédi díj, földhivatal (10 600 Ft, jelzálog 20 000 Ft), értékbecslés, közjegyzői díj a díjszabás sávjai szerint, folyósítási díj; időrendben, a megtakarításból hiányzó összeggel
 - [Vagyonszerzési illeték](https://ingatlanmerleg.hu/vagyonszerzesi-illetek-kalkulator/): lakásvásárlás illetéke (4%) és minden kedvezmény: cserét pótló vétel 5 éven belüli eladással, új lakás vállalkozótól, 35 év alatti első lakásszerző, CSOK Plusz, egyenes ági rokon; a legkedvezőbb kiválasztásával
+- [Albérlet vagy lakásvásárlás](https://ingatlanmerleg.hu/alberlet-vagy-lakasvasarlas-kalkulator/): albérlet vagy hitelből vétel: a vagyon N év múlva havi modellel, illetékkel és mellékköltségekkel, karbantartással, a bérlő pénze Prémium Magyar Állampapírban; három forgatókönyv a lakásárakra (infláció ±3 százalékpont), és melyik évben kerül előre a vétel
+
+## Lakáshitel
+
+Mennyit kaphatsz, mennyi lesz a törlesztő, és megéri-e előtörleszteni.
+
 - [Mennyi lakáshitelt kaphatsz](https://ingatlanmerleg.hu/mennyi-lakashitelt-kaphatok/): felvehető lakáshitel az MNB 2026-os szabályai szerint: JTM 25–60% a jövedelemtől (800 000 Ft-os küszöb) és a kamatperiódustól függően, HFM 80% (első lakásnál 90%), összevetve a Wekerle Plusszal
 - [Wekerle Plusz hitel](https://ingatlanmerleg.hu/wekerle-plusz-kalkulator/): a Wekerle Plusz hitel feltételei a 298/2026. Korm. rendelet paragrafusaival (18–45 év, 50 millió forint, 3% új és 5% használt lakásra, ár- és négyzetméterár-korlát), havi törlesztő és a támogatás értéke
 - [Előtörlesztés](https://ingatlanmerleg.hu/elotorlesztes-kalkulator/): lakáshitel előtörlesztése: kamatmegtakarítás rövidebb futamidővel vagy kisebb törlesztővel, az előtörlesztési díj után
-- [Albérlet vagy lakásvásárlás](https://ingatlanmerleg.hu/alberlet-vagy-lakasvasarlas-kalkulator/): albérlet vagy hitelből vétel: a vagyon N év múlva havi modellel, illetékkel és mellékköltségekkel, karbantartással, a bérlő pénze Prémium Magyar Állampapírban; három forgatókönyv a lakásárakra (infláció ±3 százalékpont), és melyik évben kerül előre a vétel
 
-## Eladod, és másikat veszel
+## Eladod a lakásod
 
-Az eladás és a vétel együtt, mert az egyik adója és a másik illetéke összefügg.
+Mennyi adót fizetsz az eladás után, és mi a helyzet, ha az árából másikat veszel.
 
-- [Lakásváltás](https://ingatlanmerleg.hu/lakasvaltas-kalkulator/): eladás és vétel egy lapon: az eladás szja-ja, a régi hitel, az illeték a cserét pótló kedvezménnyel, és mennyi hitel kell az új lakáshoz
 - [Ingatlaneladás szja-ja](https://ingatlanmerleg.hu/ingatlaneladas-szja-kalkulator/): az eladott lakás, ház vagy telek személyi jövedelemadója a szerzés és az eladás évéből, az elszámolható költségekkel; mikortól adómentes, és meddig kell bevallani
+- [Lakásváltás](https://ingatlanmerleg.hu/lakasvaltas-kalkulator/): eladás és vétel egy lapon: az eladás szja-ja, a régi hitel, az illeték a cserét pótló kedvezménnyel, és mennyi hitel kell az új lakáshoz
 
 ## Kiadod a lakásod
 
-Mennyi adót kell fizetni a bérleti díj után, és mikor.
+Mennyi adót kell fizetni a bérleti díj után, mennyit hoz a lakás, és mennyivel emelheted a díjat.
 
 - [Lakáskiadás adója](https://ingatlanmerleg.hu/lakaskiadas-ado-kalkulator/): lakáskiadás szja-ja: 10% költséghányad vagy tételes elszámolás, a döntési pont, negyedéves adóelőleg és bevallás naptárfájlban
 - [Megéri kiadásra venni?](https://ingatlanmerleg.hu/lakas-befektetes-hozam-kalkulator/): kiadásra vett lakás bruttó és nettó hozama illetékkel, felújítással, üres hónapokkal, költségekkel és szja-val
@@ -38,9 +43,11 @@ Családon belül többnyire nincs illeték, de a haszonélvezet és a terhek sz�
 
 ## Adatok és források
 
-A szabályok, amelyekkel számolunk, forrással és dátummal.
+A szabályok forrással és dátummal, a KSH lakásárai letölthetően, és a kalkulátorok a saját oldaladra.
 
 - [Honnan vannak a számok?](https://ingatlanmerleg.hu/forrasok/): minden szabály jogszabályhelye, forrása és az ellenőrzés napja
+- [Adatok és letöltések](https://ingatlanmerleg.hu/adatok/): a KSH lakásárai településtípusonként és régiónként, az éves infláció és a szabályok Excelben, CSV-ben és JSON-ban, CC BY 4.0
+- [Kalkulátor a saját oldaladra](https://ingatlanmerleg.hu/beagyazas/): ingyenes, beágyazható kalkulátorok más weboldalakra
 
 ## Gépi adatok
 

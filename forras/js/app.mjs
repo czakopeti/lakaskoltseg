@@ -303,4 +303,13 @@ function indit() {
   addEventListener('afterprint', () => { zartak.forEach((d) => { d.open = false; }); zartak = []; });
 }
 
+// Beágyazás oldal: a kód másolása a vágólapra
+document.querySelectorAll('[data-masol-kod]').forEach((g) => g.addEventListener('click', async () => {
+  const mezo = document.getElementById(g.dataset.masolKod);
+  const felirat = g.textContent;
+  try { await navigator.clipboard.writeText(mezo.value); g.textContent = 'A kód a vágólapon'; }
+  catch { mezo.select(); g.textContent = 'Jelöld ki, és másold ki'; }
+  setTimeout(() => (g.textContent = felirat), 2600);
+}));
+
 indit();

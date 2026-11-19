@@ -79,3 +79,21 @@ test('KSH lakásár-tábla: hihetőségi őr', async () => {
   assert.match(lakasarHiheto(regi, atiras), /2023, varos: 335 helyett 200/);
   assert.match(lakasarHiheto({ ...regi, evek: [2022, 2023, 2024] }, uj), /hiányzik egy korábbi év/);
 });
+
+test('letöltések: az Excel érvényes zip, a CSV a magyar Excelnek való, a táblák az adatfájlokból jönnek', async () => {
+  const { xlsx, csv } = await import('../forras/xlsx.mjs');
+  const O = await import('../forras/oldalak.mjs');
+  const { betoltAdat } = await import('../forras/adat.mjs');
+  const adat = betoltAdat();
+  const t = O.adatTablak(adat);
+  assert.deepEqual(t.map((x) => x.fajl), ['lakasar-orszagos', 'lakasar-regios', 'inflacio', 'szabalyok']);
+  assert.equal(t[0].sorok.length, adat.lakasar.evek.length + 1);
+  assert.equal(t[0].sorok[1][1], adat.lakasar.hasznalt.fovaros[0] * 1000);
+  assert.equal(t[3].sorok.length - 1, adat.szabalyok.temak.reduce((a, x) => a + x.tetelek.length, 0));
+  const b = xlsx([{ nev: 'Próba', sorok: [['Év', 'Érték'], [2025, 4.4], ['szöveg <&>', null]] }]);
+  assert.equal(b.readUInt32LE(0), 0x04034b50, 'zip fejléc');
+  assert.ok(b.includes(Buffer.from('xl/worksheets/sheet1.xml')));
+  const c = csv([['Év', 'Infláció (%)'], [2025, 4.4], ['a;b', 'idéz"ő']]);
+  assert.ok(c.startsWith('﻿Év;Infláció (%)\r\n2025;4,4\r\n'));
+  assert.ok(c.includes('"a;b";"idéz""ő"'));
+});

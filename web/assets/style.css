@@ -186,7 +186,7 @@ p { margin: 0; text-wrap: pretty; }
 .tetelek { list-style: none; margin: 12px 0 0; padding: 0; }
 .tetelek li { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 11px 0; border-bottom: 1px solid var(--vonal); font-size: 15.5px; }
 .tetelek li > span:first-child { min-width: 0; }
-.tetelek li .ossz-ertek { font-weight: 650; white-space: nowrap; font-variant-numeric: tabular-nums lining-nums; }
+.tetelek li .ossz-ertek { font-weight: 650; white-space: normal; overflow-wrap: anywhere; text-align: right; font-variant-numeric: tabular-nums lining-nums; }
 .tetelek li.levonas .ossz-ertek { color: var(--tinta2); font-weight: 550; }
 .tetelek li.vegso { border-bottom: 0; padding-top: 14px; font-weight: 650; }
 .tetelek li.vegso .ossz-ertek { font: 750 22px/1.2 var(--cim); letter-spacing: -.02em; }
@@ -371,7 +371,7 @@ a.jel:hover { filter: brightness(1.15); }
 .mini.lathato { transform: none; }
 .mini:not(.lathato) { visibility: hidden; transition: transform .3s var(--lagy), visibility 0s .3s; }
 .mini .mi { font-size: 13.5px; opacity: .8; }
-.mini .mennyi { font: 750 20px var(--cim); color: var(--sarga); white-space: nowrap; }
+.mini .mennyi { font: 750 20px var(--cim); color: var(--sarga); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; max-width: 60vw; }
 @media (min-width: 961px) { .mini { display: none; } }
 
 /* ---------- Főoldal ---------- */
@@ -494,6 +494,33 @@ a.jel:hover { filter: brightness(1.15); }
 
 /* ---------- Nyomtatás: egyoszlopos kimutatás ---------- */
 .csak-nyomtatas { display: none; }
+/* Nagyon hosszú szám se lógjon ki (szélsőséges bevitelnél) */
+.vegosszeg .mennyi, .vegosszeg .ertek, .ossz-ertek { overflow-wrap: anywhere; min-width: 0; }
+.vegosszeg .mennyi { flex-wrap: wrap; }
+
+/* Adatok és letöltések */
+.letoltes-fo { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: 6px 0 10px; }
+.letoltes-fo .gomb { text-decoration: none; display: inline-block; }
+.letoltes-sor { font-size: 14.5px; color: var(--tinta2); margin-top: -4px; }
+.letoltes-sor a { font-weight: 600; }
+.kicsi-tabla { font-size: 14px; }
+.kicsi-tabla th, .kicsi-tabla td { padding: 8px 10px; white-space: nowrap; }
+details.osszes-ev { margin: 4px 0 18px; }
+details.osszes-ev summary { cursor: pointer; font-weight: 600; font-size: 15px; }
+.kod-blokk { background: var(--felulet); border-radius: var(--r-kicsi); padding: 12px 14px; overflow-x: auto; font-size: 13.5px; }
+.kod-blokk code, .cikk code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; word-break: break-all; }
+/* Beágyazás */
+.beagyaz-elem { border-top: 1px solid var(--vonal); padding: 18px 0 6px; }
+.beagyaz-elem h3 { margin: 0 0 4px; }
+.kod-mezo { display: block; width: 100%; box-sizing: border-box; margin: 6px 0 8px; font: 12.5px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--tinta); background: var(--felulet); border: 1px solid var(--vonal); border-radius: var(--r-kicsi); padding: 10px 12px; resize: vertical; }
+body.beagyazott { background: var(--hatter); }
+body.beagyazott main { padding: 12px 0 8px; }
+body.beagyazott .asztal { padding: 0 12px; }
+body.beagyazott .mini, body.beagyazott .vj, body.beagyazott .kovetkezo { display: none !important; }
+.beagyaz-forras { display: flex; align-items: center; gap: 10px; margin: 14px 12px 0; padding-top: 12px; border-top: 1px solid var(--vonal); font-size: 13px; color: var(--tinta2); }
+.beagyaz-forras .logo { font-size: 15px; gap: 6px; }
+.beagyaz-forras .logo-jel { width: 18px; height: 18px; }
+
 @media print {
   @page { margin: 16mm; }
   body { background: #fff; color: #000; font-size: 11pt; }

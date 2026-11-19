@@ -136,3 +136,11 @@ Egy másik értékelés öt fejlesztést javasolt. Pontozás (K: kereslet, R: r�
 | Vitatott szabályok | Cserét pótló vétel: a teljes mentességnél 3 év, a különbözetnél 5 év (Itv. 26. § (1) y), 21. § (2) b)); az űrlapon külön választható, és az eredmény jelzi. Wekerle Plusz illeték: az Itv. mentességei között nem szerepel, mentesség nélkül számolunk. |
 | Nincs banki forgalmiérték-mező | Az induló költségnél választható mező; a hitel felső határát ebből számoljuk. |
 | Adatátadás böngészőben tárolva | Nem építjük: az űrlap üresen nyílik. A linkek továbbadják a beírt számokat, és minden számítás megosztható. |
+
+
+## Adatok, letöltések, beágyazás (2026. november 19.)
+
+- `adatok/`: a KSH lakásárai (országos és régiós), az éves infláció és minden szabály táblázatban, egy Excel-munkafüzetben (`ingatlanmerleg-adatok.xlsx`, a `forras/xlsx.mjs` írja függőség nélkül), CSV-ben (pontosvessző, tizedesvessző, UTF-8 BOM) és JSON-ban (`adatok/v1/`). Minden építéskor az adatfájlokból készül, ezért magától frissül. Google Táblázatba IMPORTDATA-val, Excelbe a Weblapról menüvel húzható be. CC BY 4.0.
+- `beagyazas/` és `beagyaz/<kalkulátor>/`: minden kalkulátor iframe-be tehető, fejléc és lábléc nélkül, noindex, kanonikusan a fő oldalra mutat. A magasságot üzenetben küldi, a befogadó kód tartalmaz egy látható forráslinket (ez a valódi visszamutató link). A `_headers` a `/beagyaz/*` útvonalon engedi a keretezést.
+- Menü: Lakást veszel, Lakáshitel, Eladod a lakásod, Kiadod a lakásod, Örökölsz, Adatok és források. A főcím a mottó: „Számolj, mielőtt aláírsz.”
+- Ellenőrző szkript (Playwright): minden oldal mobilon és asztalon, konzolhiba, túlcsordulás, belső linkek, duplikált id, címkék, és minden kalkulátor mintával, nullával és extrém értékkel.

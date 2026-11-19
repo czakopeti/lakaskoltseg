@@ -1,13 +1,13 @@
 // Oldalkeret és űrlap-építőkockák: fejléc, lábléc, űrlapkártya mezői, elszámolás, pecsét, guilloche.
 // A motor az autózom (czakopeti/autokoltseg) sablonjából jön; a saját vizuális identitás a DIZAJN.md szerint épül rá.
-import { datumHu, fmt, honapHu } from './js/megjelenites.mjs';
+import { datumHu, datumNapon, fmt, honapHu } from './js/megjelenites.mjs';
 
 export const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 export const MENU = [
+  { ut: 'lakasvasarlas-koltsegei-kalkulator/', nev: 'Vásárlás költségei' },
   { ut: 'vagyonszerzesi-illetek-kalkulator/', nev: 'Illeték' },
   { ut: 'wekerle-plusz-kalkulator/', nev: 'Wekerle Plusz' },
-  { ut: 'lakasvaltas-kalkulator/', nev: 'Lakásváltás' },
   { ut: 'ingatlaneladas-szja-kalkulator/', nev: 'Eladás adója' },
   { ut: 'lakaskiadas-ado-kalkulator/', nev: 'Kiadás adója' },
 ];
@@ -17,19 +17,21 @@ export const MENU = [
  * Az elemek: [cím, név, rövid mondat a menübe, és ha kell, a hosszabb név a főoldalra és az llms.txt-be].
  */
 export const CSOPORTOK = [
-  { id: 'veszel', cim: 'Lakást veszel', bevezeto: 'Amit a vételáron felül fizetsz, és hogy jár-e neked kamattámogatott hitel.', elemek: [
-    ['lakasvasarlas-koltsegei-kalkulator/', 'Mennyi pénz kell?', 'Önerő, illeték, mellékköltségek, időrendben', 'Mennyi pénz kell a vételhez?'],
+  { id: 'veszel', cim: 'Lakást veszel', bevezeto: 'Mennyi saját pénz kell, mennyi illetéket fizetsz, és megéri-e venni bérlés helyett.', elemek: [
+    ['lakasvasarlas-koltsegei-kalkulator/', 'Vásárlás költségei', 'Önerő, illeték és minden díj, időrendben', 'A lakásvásárlás költségei'],
     ['vagyonszerzesi-illetek-kalkulator/', 'Illeték', 'Mennyi, és melyik kedvezmény jár', 'Vagyonszerzési illeték'],
+    ['alberlet-vagy-lakasvasarlas-kalkulator/', 'Bérlés vagy vétel', 'Melyikkel jársz jobban hosszú távon', 'Albérlet vagy lakásvásárlás'],
+  ] },
+  { id: 'hitel', cim: 'Lakáshitel', bevezeto: 'Mennyit kaphatsz, mennyi lesz a törlesztő, és megéri-e előtörleszteni.', elemek: [
     ['mennyi-lakashitelt-kaphatok/', 'Mennyi hitelt kaphatsz', 'A jövedelmed és a lakás értéke szerint', 'Mennyi lakáshitelt kaphatsz'],
     ['wekerle-plusz-kalkulator/', 'Wekerle Plusz', 'Jogosultság és törlesztő', 'Wekerle Plusz hitel'],
     ['elotorlesztes-kalkulator/', 'Előtörlesztés', 'Rövidebb futamidő vagy kisebb törlesztő', 'Előtörlesztés'],
-    ['alberlet-vagy-lakasvasarlas-kalkulator/', 'Bérlés vagy vétel', 'Melyikkel jársz jobban hosszú távon', 'Albérlet vagy lakásvásárlás'],
   ] },
-  { id: 'valtasz', cim: 'Eladod, és másikat veszel', bevezeto: 'Az eladás és a vétel együtt, mert az egyik adója és a másik illetéke összefügg.', elemek: [
-    ['lakasvaltas-kalkulator/', 'Lakásváltás', 'Eladás és vétel együtt, hitelszükséglet', 'Lakásváltás'],
+  { id: 'eladod', cim: 'Eladod a lakásod', bevezeto: 'Mennyi adót fizetsz az eladás után, és mi a helyzet, ha az árából másikat veszel.', elemek: [
     ['ingatlaneladas-szja-kalkulator/', 'Eladás adója', 'Mennyi szja-t fizetsz, és mikortól nem kell', 'Ingatlaneladás szja-ja'],
+    ['lakasvaltas-kalkulator/', 'Lakásváltás', 'Eladás és vétel együtt, hitelszükséglet', 'Lakásváltás'],
   ] },
-  { id: 'kiadod', cim: 'Kiadod a lakásod', bevezeto: 'Mennyi adót kell fizetni a bérleti díj után, és mikor.', elemek: [
+  { id: 'kiadod', cim: 'Kiadod a lakásod', bevezeto: 'Mennyi adót kell fizetni a bérleti díj után, mennyit hoz a lakás, és mennyivel emelheted a díjat.', elemek: [
     ['lakaskiadas-ado-kalkulator/', 'Kiadás adója', '10% vagy tételes, határidőkkel', 'Lakáskiadás adója'],
     ['lakas-befektetes-hozam-kalkulator/', 'Megéri kiadásra venni?', 'Bruttó és nettó hozam', 'Megéri kiadásra venni?'],
     ['airbnb-vagy-hosszu-tavu-kiadas/', 'Airbnb vagy hosszú táv', 'Melyik hoz többet adózás után', 'Airbnb vagy hosszú távú kiadás'],
@@ -39,8 +41,10 @@ export const CSOPORTOK = [
     ['oroklesi-ajandekozasi-illetek-kalkulator/', 'Öröklés és ajándék', 'Mennyi illeték, ki mentes', 'Öröklési és ajándékozási illeték'],
     ['haszonelvezeti-jog-erteke/', 'Haszonélvezet', 'Mennyit ér, és mi az illetéke', 'A haszonélvezet értéke'],
   ] },
-  { id: 'adatok', cim: 'Adatok és források', bevezeto: 'A szabályok, amelyekkel számolunk, forrással és dátummal.', elemek: [
+  { id: 'adatok', cim: 'Adatok és források', bevezeto: 'A szabályok forrással és dátummal, a KSH lakásárai letölthetően, és a kalkulátorok a saját oldaladra.', elemek: [
     ['forrasok/', 'Honnan vannak a számok?', 'Minden szabály forrása és dátuma'],
+    ['adatok/', 'Adatok letöltése', 'Lakásárak, infláció, szabályok Excelben, CSV-ben, JSON-ban', 'Adatok és letöltések'],
+    ['beagyazas/', 'Kalkulátor a saját oldaladra', 'Beágyazható kalkulátorok, ingyen', 'Kalkulátor a saját oldaladra'],
   ] },
 ];
 /** Az oldalról szóló, nem tartalmi oldalak: csak a menüben és a láblécben. */
@@ -145,7 +149,7 @@ ${ld}
 <body>
 <a class="ugras" href="#tartalom">Ugrás a tartalomra</a>
 <header class="fejlec"><div class="keret">
-<div class="marka-blokk"><a class="jegy" href="${L.l('')}" aria-label="${esc(cfg.marka)}, főoldal">${logo(cfg)}</a>${cfg.szlogen ? `<p class="szlogen">${esc(cfg.szlogen)}</p>` : ''}</div>
+<div class="marka-blokk"><a class="jegy" href="${L.l('')}" aria-label="${esc(cfg.marka)}, főoldal">${logo(cfg)}</a></div>
 <nav class="menu" id="fomenu" aria-label="Fő menü">${MENU.map((m) => `<a href="${L.l(m.ut)}"${m.ut === ut ? ' aria-current="page"' : ''}>${m.nev}</a>`).join('')}</nav>
 <button class="fiok-gomb" type="button" aria-label="Minden kalkulátor" aria-haspopup="dialog" aria-controls="fiok" aria-expanded="false">${HAMBURGER}<span>Minden kalkulátor</span></button>
 </div></header>
@@ -164,6 +168,39 @@ ${(() => {
 ${lablec(k, L)}
 ${adatJson ? `<script type="application/json" id="adat">${JSON.stringify(adatJson)}</script>\n<script type="application/json" id="utak">${JSON.stringify(Object.fromEntries(Object.entries(KALK_UTAK).map(([kk, u]) => [kk, L.l(u)])))}</script>` : ''}
 <script type="module" src="${L.a(`js/app.js?v=${verzio}`)}"></script>
+</body>
+</html>
+`;
+}
+
+/**
+ * Beágyazható kalkulátor (más oldalakon iframe-ben): csak az űrlap és az eredmény, fejléc és lábléc nélkül.
+ * Minden link új lapon nyílik, alul a forrás és a link a teljes oldalra. A magasságot üzenetben küldi a befogadó oldalnak.
+ */
+export function beagyazottLap(k, { cim, ut, foUt, tartalom, adatJson }) {
+  const { cfg, elonezet, verzio } = k;
+  const L = linkelo(ut, elonezet);
+  return `<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(cim)} | ${esc(cfg.marka)}</title>
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="${cfg.domain}/${foUt}">
+<base target="_blank">
+<link rel="icon" href="${L.gyoker('favicon.svg')}" type="image/svg+xml">
+<link rel="stylesheet" href="${L.a(`style.css?v=${verzio}`)}">
+</head>
+<body class="beagyazott">
+<main id="tartalom">
+${tartalom(L)}
+<p class="beagyaz-forras">${logo(cfg)}<span>Számítás: <a href="${cfg.domain}/${foUt}" rel="noopener">${esc(cfg.marka)}</a>. A szabályokat ${datumNapon(adatDatum(k.adat).iso)} ellenőriztük. Tájékoztató számítás.</span></p>
+</main>
+<script type="application/json" id="adat">${JSON.stringify(adatJson)}</script>
+<script type="application/json" id="utak">${JSON.stringify(Object.fromEntries(Object.entries(KALK_UTAK).map(([kk, u]) => [kk, `${cfg.domain}/${u}`])))}</script>
+<script type="module" src="${L.a(`js/app.js?v=${verzio}`)}"></script>
+<script>(function(){var k=function(){try{parent.postMessage({ingatlanmerleg:1,h:document.documentElement.scrollHeight},"*")}catch(e){}};addEventListener("load",k);if(window.ResizeObserver)new ResizeObserver(k).observe(document.body);})();</script>
 </body>
 </html>
 `;
@@ -229,11 +266,11 @@ export function forgalmi({ cim, al = '', tartalom, kalk, extra = '', osztaly = '
 }
 
 /** Az elszámolás kerete a pecséttel. */
-export function elszamolas(k, belso, { cim = 'Elszámolás', gombok = true, labjegy = '', szeles = false, kesz = false } = {}) {
+export function elszamolas(k, belso, { cim = 'Elszámolás', gombok = true, labjegy = '', szeles = false, kesz = false, beagyaz = '' } = {}) {
   return `<section class="elszamolas${szeles ? ' szeles' : ''}" id="eredmeny" aria-labelledby="elsz-cim">
 <div class="elsz-fej"><h2 id="elsz-cim">${cim === 'Elszámolás' ? 'Eredmény' : cim}</h2>${(() => { const d = adatDatum(k.adat); return `<time datetime="${d.iso}" title="${d.cimke === 'Ellenőrizve' ? 'Ekkor vetettük össze a szabályokat a forrásokkal' : 'A legfrissebb adat napja'}">${d.cimke}: ${datumHu(d.iso)}</time>`; })()}</div>
 <div class="elsz-tartalom" aria-live="polite">${belso}</div>
-${gombok ? `<div class="elsz-lab"><button class="szoveg-gomb" type="button" data-masol>Számítás megosztása</button><button class="szoveg-gomb" type="button" data-nyomtat>Nyomtatás</button></div>${VJ_HELY}` : labjegy ? `<div class="elsz-lab"><p class="kicsi">${labjegy}</p></div>` : ''}
+${gombok ? `<div class="elsz-lab"><button class="szoveg-gomb" type="button" data-masol>Számítás megosztása</button><button class="szoveg-gomb" type="button" data-nyomtat>Nyomtatás</button>${beagyaz ? `<a class="szoveg-gomb" href="${beagyaz}">Beágyazás</a>` : ''}</div>${VJ_HELY}` : labjegy ? `<div class="elsz-lab"><p class="kicsi">${labjegy}</p></div>` : ''}
 </section>
 <a class="mini" href="#eredmeny" hidden><span class="mi"></span><span class="mennyi"></span></a>`;
 }
