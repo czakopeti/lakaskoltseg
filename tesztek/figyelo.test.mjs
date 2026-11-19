@@ -40,6 +40,7 @@ test('csak a számot és mértéket tartalmazó mondatok számítanak: a változ
   assert.deepEqual(h1.tenyek, elso.tenyek, 'az alap nem változik, amíg nincs megerősítve');
   assert.equal(ertekel(f, { ...elso, hiany: h1.hiany }, hianyos).allapot, 'valtozott');
   assert.deepEqual(tenyek('Szja tv. 57/A. § (4) bekezdés a) pont Ugrás a myNAV oldalamra.'), [], 'felületi szöveg nem ténymondat');
+  assert.deepEqual(tenyek('12 órája Részvény / Deviza / Áru Kiment az erő a forintból, 7,2 milliárd forint. Elolvasom 2026-11-18 Megjelentek a kereseti adatok, 737 400 forint. Az ügyvédi díj a vételár 1%-a.'), ['Az ügyvédi díj a vételár 1%-a.'], 'hírfolyam nem ténymondat');
   const v = ertekel(f, elso, cikk('').replace('30 nap', '15 nap'));
   assert.equal(v.allapot, 'valtozott');
   assert.deepEqual(v.ujMondatok, ['A határidő 15 nap.']);

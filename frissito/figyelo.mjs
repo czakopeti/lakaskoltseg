@@ -25,7 +25,8 @@ export function szakasz(szoveg, tol = '', ig = '') {
 export const lenyomat = (s) => createHash('sha256').update(s).digest('hex').slice(0, 16);
 
 // A szabályok szempontjából érdekes mondat: van benne szám, és mérték, összeg, idő vagy jogszabályhely.
-const REKLAM = /(PROMÓCIÓ|Hirdetés|Szponzorált|THM.*Részletek|textbox_adv|-->|Ugrás a|Bejelentkezés|Belépés|Kattints|Megosztás|Feliratkoz|cookie|süti)/i;
+// Reklám, felületi szöveg és hírfolyam („12 órája”, „Elolvasom 2026-11-18”, „Kapcsolódó cikkek”): ezek naponta változnak, a szabályhoz nincs közük.
+const REKLAM = /(PROMÓCIÓ|Hirdetés|Szponzorált|THM.*Részletek|textbox_adv|-->|Ugrás a|Bejelentkezés|Belépés|Kattints|Megosztás|Feliratkoz|cookie|süti|Elolvasom|Tovább olvas|Kapcsolódó|Legfrissebb|Legolvasott|Népszerű|Ajánló|\b\d+\s*(perce|órája|napja|hete)\b|\b20\d\d-\d\d-\d\d\b|\s\/\s\S+\s\/\s)/i;
 const TENY = /(%|százalék|forint|\bFt\b|§|millió|ezer|\bév|\bnap|hónap|határid|mérték|kamat)/i;
 /** A szöveg „ténymondatai”: számot és mértéket tartalmazó mondatok, sorba rendezve, ismétlés nélkül. */
 export function tenyek(szoveg) {
@@ -36,7 +37,7 @@ export function tenyek(szoveg) {
 }
 const rovid = (x) => lenyomat(x).slice(0, 10);
 /** A mondatválogatás változata: ha a szabályai változnak, minden forrás csendben új alapot kap, téves riasztás nélkül. */
-export const VALTOZAT = 4;
+export const VALTOZAT = 5;
 
 /** A figyelendő források: a szabályok forrásai (melyik szabály függ tőlük), és a külön felvett oldalak. */
 export function forrasLista(szabalyok, kulon = []) {
