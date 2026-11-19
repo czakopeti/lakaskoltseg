@@ -244,6 +244,38 @@ export function wekerlePanel(adat, r) {
   return h;
 }
 
+/* ---------- CSOK Plusz ---------- */
+export function csokPanel(adat, r) {
+  if (r.hiba) return hianyPanel(r.hiba);
+  const src = S.szabaly(adat, 'csok_plusz.osszeg').forras.url;
+  const allapot = r.jogosult === true ? 'A megadott adatok alapján megfeleltek a rendelet feltételeinek. A hitelt a bank bírálja el: a jövedelmetek, a hiteltörténetetek és a lakás értékbecslése is számít.' : r.jogosult === false ? `${r.nemOk.length === 1 ? 'Egy feltétel' : `${r.nemOk.length} feltétel`} nem teljesül: ${r.nemOk.map((x) => x.nev.toLowerCase()).join(', ')}.` : `Még ${r.hianyzik.length === 1 ? 'egy adat' : `${r.hianyzik.length} adat`} hiányzik a döntéshez: ${r.hianyzik.map((x) => x.nev.toLowerCase()).join(', ')}.`;
+  let h = vegosszeg('Havi törlesztő', r.havi, `${fmt(r.hitel)} Ft hitel ${r.ev} évre, ${tized(r.kamat, 0)}% kamattal. Az első ${r.turelmiHonap} hónapban csak a kamatot fizetitek, havi ${fmt(r.turelmiHavi)} Ft-ot. ${allapot}`);
+  h += `<p class="panel-cim">A feltételek, a rendelet szerint</p><ul class="feltetelek">${r.feltetelek.map((x) => `<li class="f-${JEL_OK[x.ok][0]}"><span class="f-jel" aria-hidden="true"></span><span><b>${x.nev}</b> <span class="sr">${JEL_OK[x.ok][1]}</span><span class="al">${x.szoveg} <a href="${src}" target="_blank" rel="noopener">${x.par}</a></span></span></li>`).join('')}</ul>`;
+  h += '<ul class="tetelek">';
+  h += tetel('Legnagyobb hitelösszeg', ftx(r.maxHitel), { forras: 'hivatalos', forrasUrl: src, al: `${r.gyerekek} meglévő és ${r.vallalt} vállalt gyerekkel` });
+  h += tetel('Hitelösszeg', ftx(r.hitel), { forras: 'sajat' });
+  h += tetel(`Kamat: ${tized(r.kamat, 0)}%`, ftx(r.kamatOssz), { forras: 'hivatalos', forrasUrl: src, al: `${r.ev} év alatt, összesen ${ftx(r.osszesen)}-ot fizettek vissza` });
+  h += tetel(`Ugyanez ${tized(r.piaciKamat, 1)}% kamattal`, `${ftx(r.piaciHavi)}/hó`, { forras: r.piaciSajat ? 'sajat' : 'becsles', forrasUrl: S.szabaly(adat, 'wekerle_plusz.piaci_kamat').forras.url, al: 'támogatás nélküli piaci hitelnél' });
+  h += tetel('Ennyit ér a kamattámogatás', ftx(r.megtakaritas), { al: `${r.ev} év alatt` });
+  if (r.elengedes > 0) h += tetel(`Tartozáscsökkentés ${r.elengedesDb} gyerek után`, `−${ftx(r.elengedes)}`, { cls: 'levonas', forras: 'hivatalos', forrasUrl: src, al: 'ha a vállalt gyerekek megszületnek' });
+  if (r.illetekMegtakaritas) h += tetel('Illeték, amit nem kell kifizetni', ftx(r.illetekMegtakaritas), { forras: 'hivatalos', forrasUrl: S.szabaly(adat, 'illetek.csok_plusz').forras.url, al: 'a CSOK Plusszal vett lakás illetékmentes' });
+  h += tetel('Az állam támogatása összesen', ftx(r.megtakaritas + r.elengedes + (r.illetekMegtakaritas || 0)), { cls: 'vegso' });
+  h += '</ul>';
+  const hatralevo = r.ev * 12 - r.turelmiHonap;
+  h += levezetes([
+    ['Legnagyobb összeg', `${r.gyerekek} + ${r.vallalt} = ${r.gyerekek + r.vallalt} gyerek → ${F(r.maxHitel)}`, '11. § (1)'],
+    ['Az első év', `${F(r.hitel)} × ${tized(r.kamat, 0)}% ÷ 12 = ${F(r.turelmiHavi)} havonta, csak kamat`, '12. § (2)'],
+    ['Havi törlesztő utána', `${F(r.hitel)} × r ÷ (1 − (1 + r)<sup>−${hatralevo}</sup>) = ${F(r.havi)}, ahol r = ${tized(r.kamat, 0)}% ÷ 12`, '32. § (2)'],
+    ['Visszafizetendő', `${F(r.turelmiHavi)} × ${r.turelmiHonap} + ${F(r.havi)} × ${hatralevo} = ${F(r.osszesen)}`, ''],
+    ['A kamattámogatás értéke', `${F(r.piaciHavi)} × ${r.ev * 12} − ${F(r.osszesen)} = ${F(r.megtakaritas)}`, ''],
+    ...(r.elengedes > 0 ? [['Tartozáscsökkentés', `${r.elengedesDb} × ${F(10000000)} = ${F(r.elengedes)}`, '46. § (1)']] : []),
+  ]);
+  h = jelekkel(h);
+  h += megjegyzes(`A ${r.vallalt === 1 ? 'vállalt gyereknek' : `${r.vallalt} vállalt gyereknek`} ${r.hatarido} éven belül kell megszületnie, vásárlásnál a szerződéskötéstől számítva. Ha nem születik meg, a rá jutó hitelrész után vissza kell fizetni a kapott kamattámogatást, büntetőkamattal.`);
+  h += megjegyzes(`A kérelem után elsőként születő gyerek után legfeljebb ${r.szunet} évig szüneteltethetitek a törlesztést, a második és minden további gyerek után pedig 10 millió forinttal csökken a tartozás. Ez akkor is jár, ha több gyerek születik, mint amennyit vállaltatok.`);
+  return h;
+}
+
 /* ---------- Lakáskiadás adója ---------- */
 export function kiadasPanel(adat, r) {
   if (r.hiba) return hianyPanel(r.hiba);
@@ -629,6 +661,11 @@ export const KALKULATOROK = {
     kulcs: ['vetelar', 'eletkor', 'onero', 'alapterulet'],
     minta: () => ({ adat: { vetelar: '62000000', alapterulet: '54', onero: '12000000', eletkor: '31', tulajdon: 'nincs', ingatlan: 'lakas', allapot: 'hasznalt' }, leiras: 'egy 31 éves vevő, 62 millió forintos, 54 négyzetméteres használt lakás, 12 millió forint önerővel' }),
     panel: (adat, e) => wekerlePanel(adat, S.wekerle(adat, { vetelar: sz(e.vetelar), alapterulet: e.alapterulet, onero: e.onero, eletkor: e.eletkor, eletkor2: e.kozos === true ? e.eletkor2 : '', tulajdon: e.tulajdon || '', ingatlan: e.ingatlan || 'lakas', allapot: e.allapot || 'hasznalt', futamido: e.futamido, piaciKamat: e.piaciKamat === '' || e.piaciKamat == null ? '' : sz(e.piaciKamat), ujVallalkozotol: e.allapot === 'uj' })),
+  },
+  csok: {
+    kulcs: ['gyerekek', 'vallalt', 'vetelar', 'csokHitel'],
+    minta: () => ({ adat: { gyerekek: '1', vallalt: '1', felesegKor: '32', kozosLakas: 'nincs', ingatlan: 'lakas', vetelar: '58000000' }, leiras: 'egy egygyermekes házaspár, amely még egy gyereket vállal, és 58 millió forintos lakást vesz, az első közös lakását' }),
+    panel: (adat, e) => csokPanel(adat, S.csokPlusz(adat, { gyerekek: e.gyerekek, vallalt: e.vallalt, felesegKor: e.felesegKor, varandos: e.varandos === true, kozosLakas: e.kozosLakas || '', ingatlan: e.ingatlan || 'lakas', vetelar: e.vetelar === '' || e.vetelar == null ? '' : sz(e.vetelar), csokHitel: e.csokHitel === '' || e.csokHitel == null ? '' : sz(e.csokHitel), futamido: e.futamido, piaciKamat: e.piaciKamat === '' || e.piaciKamat == null ? '' : sz(e.piaciKamat) })),
   },
   kiadas: {
     kulcs: ['havi'],

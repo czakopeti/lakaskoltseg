@@ -85,3 +85,32 @@ test('minden kalkulátor eredménye levezetést ad, a látogató számaival', ()
   }
   assert.match(M.kalkHtml('eladas', adat, { eladasiAr: '60000000', szerzesiErtek: '50000000', szerzesKoltseg: '2000000', szerzesEv: '2024', eladasEv: '2026' }).html, /8\u00a0000\u00a0000&nbsp;Ft × 90% = 7\u00a0200\u00a0000&nbsp;Ft/);
 });
+
+test('CSOK Plusz: összeg a gyerekszám szerint, türelmi év, feltételek, tartozáscsökkentés', () => {
+  const c = (b) => S.csokPlusz(adat, b);
+  assert.equal(c({ gyerekek: 0, vallalt: 1 }).maxHitel, 15e6);
+  assert.equal(c({ gyerekek: 0, vallalt: 2 }).maxHitel, 30e6);
+  assert.equal(c({ gyerekek: 1, vallalt: 1 }).maxHitel, 30e6);
+  assert.equal(c({ gyerekek: 2, vallalt: 1 }).maxHitel, 50e6);
+  assert.equal(c({ gyerekek: 0, vallalt: 3 }).maxHitel, 50e6);
+  const r = c({ gyerekek: 0, vallalt: 1 });
+  assert.equal(r.turelmiHavi, 37500, 'az első évben csak a 3% kamat');
+  assert.equal(r.havi, 73126, '15 millió, 288 hónap, 3%');
+  assert.equal(r.hatarido, 4);
+  const tul = c({ gyerekek: 2, vallalt: 2 });
+  assert.equal(tul.feltetelek.find((x) => x.kulcs === 'vallalas').ok, false, 'két gyerektől csak egyet vállalhatnak');
+  assert.equal(tul.vallalt, 1);
+  assert.equal(c({ gyerekek: 0, vallalt: 1, felesegKor: 41 }).feltetelek.find((x) => x.kulcs === 'feleseg').ok, false);
+  assert.equal(c({ gyerekek: 0, vallalt: 1, felesegKor: 41, varandos: true }).feltetelek.find((x) => x.kulcs === 'feleseg').ok, true);
+  const ar = (b) => c({ gyerekek: 0, vallalt: 1, vetelar: 120e6, ...b }).feltetelek.find((x) => x.kulcs === 'vetelar').ok;
+  assert.equal(ar({ kozosLakas: 'nincs', ingatlan: 'lakas' }), false, 'első közös lakás: 100 millió');
+  assert.equal(ar({ kozosLakas: 'nincs', ingatlan: 'haz' }), true, 'családi ház: 150 millió');
+  assert.equal(ar({ kozosLakas: 'van', ingatlan: 'lakas' }), true);
+  assert.equal(ar({}), null, 'közös lakás nélkül nincs döntés');
+  assert.equal(c({ gyerekek: 0, vallalt: 3 }).elengedes, 20e6, 'a második és a harmadik után');
+  assert.equal(c({ gyerekek: 2, vallalt: 1 }).elengedes, 0, 'a kérelem utáni első gyerek után nincs');
+  assert.equal(c({ gyerekek: 0, vallalt: 1, vetelar: 60e6 }).illetekMegtakaritas, 2400000);
+  assert.equal(c({ gyerekek: 0, vallalt: 1, futamido: 5 }).ev, 10, 'a futamidő legalább 10 év');
+  assert.equal(c({ gyerekek: 0, vallalt: 1, vetelar: 10e6 }).hitel, 10e6, 'a vételárnál több nem lehet');
+  assert.ok(c({}).hiba);
+});

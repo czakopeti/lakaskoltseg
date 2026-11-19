@@ -206,6 +206,54 @@ export function wekerle(adat, b) {
     feltetelek: f, jogosult: nemOk.length ? false : hianyzik.length ? null : true, nemOk, hianyzik, illetek: ill.hiba ? 0 : ill.ado, bentlakas: w('bentlakas').ev };
 }
 
+/* ---------------- CSOK Plusz ---------------- */
+/**
+ * b: { gyerekek (meglévő), vallalt, felesegKor, varandos, kozosLakas: 'nincs' | 'van', ingatlan: 'lakas' | 'haz', vetelar, csokHitel (kért összeg), futamido, piaciKamat }
+ * A törlesztő az első 12 hónapban csak kamat (12. § (2)), utána annuitás a hátralévő hónapokra.
+ * A gyermekvállalási támogatást a vállalt gyerekekkel számoljuk: a kérelem után született második és minden további gyerek 10 millió.
+ */
+export function csokPlusz(adat, b) {
+  const c = (k) => szabaly(adat, `csok_plusz.${k}`).ertek;
+  const van = (v) => v !== '' && v != null && !Number.isNaN(Number(v));
+  if (!van(b.gyerekek)) return { hiba: 'Hány gyereketek van most?' };
+  const os = c('osszeg'), va = c('vallalas'), hz = c('hazaspar'), ka = c('kamat'), ve = c('vetelar'), tc = c('tartozascsokkentes');
+  const gyerekek = Math.max(0, Math.floor(Number(b.gyerekek)));
+  const maxVallal = gyerekek === 0 ? va.gyermektelen_max : gyerekek === 1 ? va.egygyermekes_max : va.tobbgyermekes_max;
+  const kertVallal = van(b.vallalt) && Number(b.vallalt) >= 1 ? Math.floor(Number(b.vallalt)) : 1;
+  const vallalt = Math.min(kertVallal, maxVallal);
+  const ossz = gyerekek + vallalt;
+  const maxHitel = ossz >= 3 ? os.harom_ft : ossz === 2 ? os.ketto_ft : os.egy_ft;
+  const f = [];
+  f.push({ kulcs: 'vallalas', nev: 'Gyermekvállalás', ok: kertVallal <= maxVallal, par: '2. § (1)', szoveg: `${gyerekek === 0 ? 'Gyerek nélkül' : gyerekek === 1 ? 'Egy gyerekkel' : 'Két vagy több gyerekkel'} ${maxVallal === 1 ? '1 gyereket' : `1–${maxVallal} gyereket`} vállalhattok${kertVallal > maxVallal ? `, ezért ${vallalt} vállalt gyerekkel számoltunk` : ''}.` });
+  const kor = van(b.felesegKor) ? Number(b.felesegKor) : null;
+  f.push({ kulcs: 'feleseg', nev: 'A feleség életkora', ok: kor === null ? null : kor < hz.feleseg_max_kor || b.varandos === true, par: '5. § (1) 5. pont', szoveg: `A kérelem beadásakor még nem töltötte be a ${hz.feleseg_max_kor}. évét, vagy legalább 12 hetes terhes, vagy már beadtátok az örökbefogadási kérelmet.` });
+  const ar = van(b.vetelar) && Number(b.vetelar) > 0 ? Number(b.vetelar) : null;
+  const elso = b.kozosLakas === 'van' ? false : b.kozosLakas === 'nincs' ? true : null;
+  const arMax = elso === false ? ve.egyeb_ft : b.ingatlan === 'haz' ? ve.haz_ft : ve.elso_lakas_ft;
+  f.push({ kulcs: 'vetelar', nev: 'Vételár', ok: ar === null || elso === null ? null : ar <= arMax, par: '6. § (8)', szoveg: elso === false ? `Ha már van közös lakásotok, legfeljebb ${fmtSzam(ve.egyeb_ft)} Ft, és drágábbnak kell lennie a mostaninál.` : `Első közös lakásnál legfeljebb ${fmtSzam(ve.elso_lakas_ft)} Ft, családi háznál ${fmtSzam(ve.haz_ft)} Ft.` });
+  const kert = van(b.csokHitel) && Number(b.csokHitel) > 0 ? Number(b.csokHitel) : null;
+  f.push({ kulcs: 'osszeg', nev: 'Hitelösszeg', ok: kert === null ? true : kert <= maxHitel, par: '11. § (1)', szoveg: `${ossz >= 3 ? 'Három vagy több' : ossz === 2 ? 'Két' : 'Egy'} gyereknél (a meglévőkkel együtt) legfeljebb ${fmtSzam(maxHitel)} Ft.` });
+  let hitel = Math.min(kert ?? maxHitel, maxHitel);
+  if (ar !== null) hitel = Math.min(hitel, ar);
+  const ev = van(b.futamido) && Number(b.futamido) > 0 ? Math.min(Math.max(Math.round(Number(b.futamido)), ka.min_futamido_ev), ka.tamogatas_max_ev) : ka.tamogatas_max_ev;
+  const n = ev * 12, tu = ka.turelmi_honap;
+  const turelmiHavi = hitel * ka.szazalek / 100 / 12;
+  const havi = torlesztoKamatbol(hitel, n - tu, ka.szazalek);
+  const osszesen = turelmiHavi * tu + havi * (n - tu);
+  const pk = van(b.piaciKamat) && Number(b.piaciKamat) > 0 ? Number(b.piaciKamat) : szabaly(adat, 'wekerle_plusz.piaci_kamat').ertek.szazalek;
+  const piaciHavi = torlesztoKamatbol(hitel, n, pk);
+  const utana = vallalt; // a kérelem után születő gyerekek, ha a vállalás teljesül
+  const elengedes = Math.min(Math.max(0, utana - 1) * tc.ft, hitel);
+  const ill = ar !== null ? illetek(adat, { ertek: ar }) : null;
+  const nemOk = f.filter((x) => x.ok === false), hianyzik = f.filter((x) => x.ok === null);
+  return { gyerekek, vallalt, kertVallal, maxVallal, maxHitel, hitel, ar, ev, kamat: ka.szazalek, turelmiHonap: tu,
+    turelmiHavi: Math.round(turelmiHavi), havi: Math.round(havi), osszesen: Math.round(osszesen), kamatOssz: Math.round(osszesen - hitel),
+    piaciKamat: pk, piaciSajat: van(b.piaciKamat) && Number(b.piaciKamat) > 0, piaciHavi: Math.round(piaciHavi), megtakaritas: Math.round(piaciHavi * n - osszesen),
+    hatarido: va.hatarido_ev[String(vallalt)], szunet: c('szuneteltetes').ev, elengedes, elengedesDb: Math.max(0, utana - 1), maradek: hitel - elengedes,
+    illetekMegtakaritas: ill && !ill.hiba ? ill.ado : null,
+    feltetelek: f, jogosult: nemOk.length ? false : hianyzik.length ? null : true, nemOk, hianyzik };
+}
+
 /* ---------------- Lakáskiadás adója ---------------- */
 /**
  * b: { havi, honap, egyeb (évi egyéb bevétel), koltseg (évi igazolt költség), ertekcsokkenes (évi), berelt (évi bérleti díj máshol), ev }

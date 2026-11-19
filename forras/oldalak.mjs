@@ -21,6 +21,7 @@ export const FOOLDAL_KARTYAK = {
   'alberlet-vagy-lakasvasarlas-kalkulator/': [() => 'Mekkora vagyonod lesz 10 vagy 20 év múlva, ha veszel, és mekkora, ha bérelsz. Háromféle lakásár-alakulással.', 'Kiszámolom'],
   'vagyonszerzesi-illetek-kalkulator/': [() => 'Mennyi illetéket fizetsz a megvett lakás után, és melyik kedvezmény jár: cserét pótló vétel, új lakás, első lakás 35 év alatt, CSOK Plusz.', 'Kiszámolom'],
   'wekerle-plusz-kalkulator/': [() => 'Pontról pontra megnézi, megfelelsz-e a feltételeknek, és mennyi lesz a havi törlesztő 3 vagy 5%-os kamattal.', 'Megnézem'],
+  'csok-plusz-kalkulator/': [() => 'Mennyi hitel jár a gyerekszámotok szerint, mennyi lesz a törlesztő, és mennyit enged el az állam a gyerekek után.', 'Kiszámolom'],
   'lakasvaltas-kalkulator/': [() => 'Mennyit kapsz kézhez a régiért, mennyibe kerül az új, és mennyi hitel kell még.', 'Kiszámolom'],
   'lakaskiadas-ado-kalkulator/': [() => 'Mennyi adót fizetsz a bérleti díj után, és melyik a jobb: a 10% költséghányad vagy a tételes elszámolás.', 'Kiszámolom'],
   'ingatlaneladas-szja-kalkulator/': [() => 'Mennyi adót fizetsz, ha eladod a lakásod, a házad vagy a telked, mit vonhatsz le, és melyik évtől nem fizetsz semmit.', 'Kiszámolom'],
@@ -527,6 +528,60 @@ ${sor('', szamMezo({ id: 'piaciKamat', cim: 'Összehasonlító piaci kamat', me:
       { k: 'Kiadhatom a lakást?', v: [`Nem: ${w('bentlakas').ev} évig neked kell ott laknod, és ez alatt a lakást nem adhatod másnak használatra.`] },
     ],
     forrasKulcsok: ['wekerle_plusz.kamat', 'wekerle_plusz.illetek', 'wekerle_plusz.piaci_kamat'],
+  });
+}
+
+/* ======================= CSOK PLUSZ ======================= */
+export const CSOK_UT = 'csok-plusz-kalkulator/';
+export function csokOldal(k) {
+  const { adat } = k;
+  const c = (kk) => S.szabaly(adat, `csok_plusz.${kk}`).ertek;
+  const os = c('osszeg'), va = c('vallalas'), ka = c('kamat'), ve = c('vetelar'), hz = c('hazaspar'), tc = c('tartozascsokkentes');
+  const mill = (x) => M.fmt(x / 1e6);
+  const p = S.csokPlusz(adat, { gyerekek: 0, vallalt: 1 }), q = S.csokPlusz(adat, { gyerekek: 0, vallalt: 3 });
+  return kalkOldal(k, {
+    ut: CSOK_UT, tipus: 'csok', nev: 'CSOK Plusz', temak: ['csok_plusz', 'illetek', 'wekerle_plusz'],
+    oldalCim: 'CSOK Plusz kalkulátor: mennyi hitel jár, mennyi a törlesztő',
+    leiras: `CSOK Plusz ${k.ev}: ${mill(os.egy_ft)}, ${mill(os.ketto_ft)} vagy ${mill(os.harom_ft)} millió forint ${ka.szazalek}%-os hitel a gyerekszám szerint, havi törlesztő, ${mill(tc.ft)} millió forint tartozáscsökkentés gyerekenként, az 518/2023. Korm. rendelet szerint.`,
+    cim: 'Mennyi CSOK Plusz hitel jár, és mennyi lesz a törlesztő?',
+    valasz: `A meglévő és a vállalt gyerekek számától függ: egy gyereknél ${mill(os.egy_ft)}, kettőnél ${mill(os.ketto_ft)}, háromnál ${mill(os.harom_ft)} millió forint, legfeljebb ${ka.szazalek}% kamattal. ${mill(os.egy_ft)} millió forint törlesztője ${ka.tamogatas_max_ev} évre havi ${M.fmt(p.havi)} Ft, ${mill(os.harom_ft)} millióé ${M.fmt(q.havi)} Ft, az első évben csak a kamatot fizetitek.`,
+    urlapCim: 'A család és a lakás', urlapAl: '518/2023. (XI. 30.) Korm. rendelet',
+    urlap: `
+<fieldset>${reszCim('', 'A család')}
+${sor('', negyzetek('gyerekek', 'Hány gyereketek van most?', [['0', 'Nincs'], ['1', 'Egy'], ['2', 'Kettő'], ['3', 'Három vagy több']], ''))}
+${sor('', negyzetek('vallalt', 'Hány gyereket vállaltok?', [['1', 'Egyet'], ['2', 'Kettőt'], ['3', 'Hármat']], '') + '<span class="sugo">Gyerek nélkül 1–3, egy gyerekkel 1–2, két gyerektől 1 gyereket vállalhattok. A 12 hetesnél idősebb magzat is vállalt gyereknek számít.</span>')}
+${sor('', szamMezo({ id: 'felesegKor', cim: 'A feleség életkora', me: 'év', placeholder: 'pl. 32', min: 14, max: 120 }))}
+${sor('', jelolo('varandos', 'Legalább 12 hetes terhesség vagy beadott örökbefogadási kérelem', `${hz.feleseg_max_kor} év felett is így igényelhetitek.`))}
+</fieldset>
+<fieldset>${reszCim('', 'A lakás')}
+${sor('', negyzetek('kozosLakas', 'Van már közös lakásotok?', [['nincs', 'Nincs, ez lesz az első'], ['van', 'Van']], ''))}
+${sor('', negyzetek('ingatlan', 'Lakás vagy ház?', [['lakas', 'Lakás'], ['haz', 'Családi ház']], ''))}
+${sor('', szamMezo({ id: 'vetelar', cim: 'Vételár', me: 'Ft', placeholder: 'pl. 58 000 000', min: 0, szeles: true }))}
+</fieldset>
+<fieldset>${reszCim('', 'A hitel')}
+${sor('', szamMezo({ id: 'csokHitel', cim: 'Mennyi CSOK Plusz hitelt kértek?', me: 'Ft', placeholder: 'a legtöbb, ami jár', min: 0, szeles: true, sugo: 'Ha üresen hagyod, a gyerekszám szerinti legnagyobb összeggel számolunk.' }))}
+${sor('', szamMezo({ id: 'futamido', cim: 'Futamidő', me: 'év', placeholder: `${ka.tamogatas_max_ev}`, min: ka.min_futamido_ev, max: ka.tamogatas_max_ev, sugo: `${ka.min_futamido_ev} és ${ka.tamogatas_max_ev} év között. Ha üresen hagyod, ${ka.tamogatas_max_ev} évvel számolunk.` }))}
+${sor('', szamMezo({ id: 'piaciKamat', cim: 'Összehasonlító piaci kamat', me: '%', placeholder: `${M.tized(S.szabaly(adat, 'wekerle_plusz.piaci_kamat').ertek.szazalek, 1)}`, tized: true, sugo: 'Ha van piaci ajánlatod, írd be a kamatát, és azzal vetjük össze.' }))}
+</fieldset>`,
+    cikk: `<h2>A feltételek röviden</h2>
+<ul>
+<li><strong>Kik igényelhetik:</strong> csak házaspárok, együtt. A feleség a kérelem beadásakor még nem töltötte be a ${hz.feleseg_max_kor}. évét, vagy ha igen, legalább 12 hetes terhes, vagy már beadtátok az örökbefogadási kérelmet. Életetekben egyszer vehetitek igénybe.</li>
+<li><strong>Gyermekvállalás:</strong> legalább egy gyereket vállalni kell. Gyerek nélkül legfeljebb ${va.gyermektelen_max}, egy gyerekkel ${va.egygyermekes_max}, két gyerektől ${va.tobbgyermekes_max} gyereket vállalhattok. A határidő egy gyereknél ${va.hatarido_ev['1']}, kettőnél ${va.hatarido_ev['2']}, háromnál ${va.hatarido_ev['3']} év.</li>
+<li><strong>A hitel:</strong> a meglévő és a vállalt gyerekek együttes számától függ: egy gyereknél ${mill(os.egy_ft)}, kettőnél ${mill(os.ketto_ft)}, háromnál vagy többnél ${mill(os.harom_ft)} millió forint. Legfeljebb ${ka.szazalek}% kamatot fizettek, a futamidő ${ka.min_futamido_ev}–${ka.tamogatas_max_ev} év, és az első ${ka.turelmi_honap} hónapban csak kamatot.</li>
+<li><strong>A lakás:</strong> első közös lakásnál legfeljebb ${mill(ve.elso_lakas_ft)}, családi háznál ${mill(ve.haz_ft)} millió forint. Ha már van közös lakásotok, legfeljebb ${mill(ve.egyeb_ft)} millió forint, és drágábbnak kell lennie a mostaninál.</li>
+<li><strong>Gyerekek után:</strong> a kérelem után elsőként születő gyerek után legfeljebb ${c('szuneteltetes').ev} évig szünetel a törlesztés, a második és minden további után ${mill(tc.ft)} millió forinttal csökken a tartozás.</li>
+<li><strong>Illeték:</strong> a CSOK Plusszal vett lakás után nem kell vagyonszerzési illetéket fizetni.</li>
+</ul>
+<p>Bankot nem ajánlunk: a kamat minden banknál legfeljebb ugyanannyi, a díjakban és a feltételekben lehet különbség. A bankok ajánlatait a hitelösszehasonlító oldalakon találod.</p>`,
+    kerdesek: [
+      { k: 'Mennyi CSOK Plusz hitel jár egy, két vagy három gyerekre?', v: [`A meglévő és a vállalt gyerekeket együtt számolják. Egy gyereknél legfeljebb ${mill(os.egy_ft)}, kettőnél ${mill(os.ketto_ft)}, háromnál vagy többnél ${mill(os.harom_ft)} millió forint jár. Ha tehát van egy gyereketek, és még egyet vállaltok, ${mill(os.ketto_ft)} millió forintot vehettek fel.`] },
+      { k: 'Hány éves koráig igényelheti a feleség?', v: [`A kérelem beadásakor a feleség még nem töltheti be a ${hz.feleseg_max_kor}. évét. Ha betöltötte, akkor is igényelhetitek, ha legalább 12 hetes terhes, vagy már beadtátok az örökbefogadási kérelmet.`] },
+      { k: 'Mi történik, ha nem születik meg a vállalt gyerek?', v: [esc(S.szabaly(adat, 'csok_plusz.nemteljesites').szoveg), 'Ha a határidőig legalább 12 hetes terhesség van, a határidő a terhesség végéig meghosszabbodik.'] },
+      { k: 'Mikor csökken 10 millió forinttal a tartozás?', v: [`A kérelem beadása után született gyerekek közül a második és minden további után. Az első után nem csökken a tartozás, helyette legfeljebb ${c('szuneteltetes').ev} évig szüneteltethetitek a törlesztést.`] },
+      { k: 'Kell illetéket fizetni a CSOK Plusszal vett lakás után?', v: [esc(S.szabaly(adat, 'illetek.csok_plusz').szoveg), `<a href="../${ILLETEK_UT}">Az illetékkalkulátorban</a> megnézheted, mennyit spóroltok vele.`] },
+      { k: 'Igényelhető mellé Wekerle Plusz is?', v: [`A CSOK Plusz rendelete a Wekerle Pluszt még nem említi, csak a korábbi Otthon Startot. Az összevonásról a bankotok tud biztosat mondani. <a href="../${WEKERLE_UT}">A Wekerle Plusz feltételeit itt nézheted meg.</a>`] },
+    ],
+    forrasKulcsok: ['csok_plusz.osszeg', 'csok_plusz.kamat', 'illetek.csok_plusz', 'wekerle_plusz.piaci_kamat'],
   });
 }
 
