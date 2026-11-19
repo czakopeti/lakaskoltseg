@@ -1,6 +1,6 @@
 // Az elszámolás (eredmény) HTML-je. Ugyanezt használja az építő (a HTML-ben már benne van a szám)
 // és a böngésző (élő számolás), így a kettő nem térhet el.
-import * as S from './szamitas.js?v=1379653b';
+import * as S from './szamitas.js?v=0d140b89';
 
 const nf = new Intl.NumberFormat('hu-HU', { useGrouping: 'always' });
 export const fmt = (n) => nf.format(Math.round(n));
@@ -280,6 +280,40 @@ export function csokPanel(adat, r) {
   h = jelekkel(h);
   h += megjegyzes(`A ${r.vallalt === 1 ? 'vállalt gyereknek' : `${r.vallalt} vállalt gyereknek`} ${r.hatarido} éven belül kell megszületnie, vásárlásnál a szerződéskötéstől számítva. Ha nem születik meg, a rá jutó hitelrész után vissza kell fizetni a kapott kamattámogatást, büntetőkamattal.`);
   h += megjegyzes(`A kérelem után elsőként születő gyerek után legfeljebb ${r.szunet} évig szüneteltethetitek a törlesztést, a második és minden további gyerek után pedig 10 millió forinttal csökken a tartozás. Ez akkor is jár, ha több gyerek születik, mint amennyit vállaltatok.`);
+  return h;
+}
+
+/* ---------- Felújítás és továbbeladás ---------- */
+export function flipPanel(adat, r) {
+  if (r.hiba) return hianyPanel(r.hiba);
+  const u = (k) => S.szabaly(adat, k).forras.url;
+  const nyer = r.netto >= 0;
+  let h = vegosszeg(nyer ? 'Ami a végén marad' : 'Ennyit veszítesz', Math.abs(r.netto), `${r.honap} hónap alatt, minden költség és az szja után.${r.megterules != null ? ` A beletett ${fmt(r.sajat)} Ft saját pénz ${tized(r.megterules, 1)}%-a${r.eves != null && r.honap < 12 ? `, egy évre vetítve ${tized(r.eves, 1)}%` : ''}.` : ''}`);
+  h += `<div class="ket-modszer"><div class="modszer"><p class="m-cim">Legalább ennyiért add el</p><p class="m-nagy">${tized(r.nulla / 1e6, 1)} millió Ft</p><p class="m-al">ennél olcsóbban veszteséges</p></div><div class="modszer nyero nincs-cimke"><p class="m-cim">Szja</p><p class="m-nagy">${fmt(r.szja)} Ft</p><p class="m-al">${r.szjaHanyad === 100 ? 'a nyereség teljes egészében adóköteles' : `a nyereség ${r.szjaHanyad}%-a adóköteles`}</p></div></div>`;
+  h += '<ul class="tetelek">';
+  h += tetel('Eladási ár', ftx(r.elad), { forras: 'sajat' });
+  h += tetel('Vételár', `−${ftx(r.ar)}`, { cls: 'levonas', forras: 'sajat' });
+  h += tetel('Illeték', `−${ftx(r.illetek)}`, { cls: 'levonas', forras: 'hivatalos', forrasUrl: u('illetek.altalanos_mertek'), al: 'a vételár 4%-a, kedvezmény nélkül' });
+  h += tetel('Ügyvéd és földhivatal', `−${ftx(r.ugyvedi + r.foldhivatal)}`, { cls: 'levonas', forras: 'becsles', forrasUrl: u('vetel_koltsegek.ugyvedi') });
+  if (r.hitelDij) h += tetel('A hitel díjai', `−${ftx(r.hitelDij)}`, { cls: 'levonas', forras: 'becsles', forrasUrl: u('vetel_koltsegek.kozjegyzo'), al: 'értékbecslés, közjegyző, folyósítás, jelzálog' });
+  if (r.felujitas) h += tetel('Felújítás', `−${ftx(r.felujitas)}`, { cls: 'levonas', forras: 'sajat', al: r.szamlas ? 'számlával, az szja-ból levonható' : 'számla nélkül, az szja-ból nem vonható le' });
+  if (r.tartas) h += tetel(`Rezsi és közös költség, ${r.honap} hónap`, `−${ftx(r.tartas)}`, { cls: 'levonas', forras: 'sajat' });
+  if (r.kamat) h += tetel(`Kamat, ${tized(r.kamatSz, 1)}%`, `−${ftx(r.kamat)}`, { cls: 'levonas', forras: r.kamatSajat ? 'sajat' : 'becsles', forrasUrl: r.kamatSajat ? undefined : u('wekerle_plusz.piaci_kamat'), al: `${fmt(r.hitel)} Ft hitel ${r.honap} hónapig` });
+  if (r.kozvetito) h += tetel(`Közvetítő, ${tized(r.kozvetitoSz, 1)}%`, `−${ftx(r.kozvetito)}`, { cls: 'levonas', forras: 'sajat' });
+  if (r.egyeb) h += tetel('Egyéb költség', `−${ftx(r.egyeb)}`, { cls: 'levonas', forras: 'sajat' });
+  h += tetel('Szja', `−${ftx(r.szja)}`, { cls: 'levonas', forras: 'hivatalos', forrasUrl: u('szja_eladas.ado_mertek'), al: `${r.evek === 0 ? 'a vétel évében' : `${r.evek} év után`} eladva` });
+  h += tetel(nyer ? 'Marad' : 'Veszteség', `${nyer ? '' : '−'}${ftx(Math.abs(r.netto))}`, { cls: 'vegso' });
+  h += '</ul>';
+  h += `<p class="panel-cim">Ha később adod el ugyanennyiért</p><div class="tabla-tarto"><table class="tabla kicsi-tabla"><thead><tr><th scope="col">Eladás</th><th scope="col">Adóköteles rész</th><th scope="col">Szja</th></tr></thead><tbody>${r.evenkent.map((x) => `<tr${x.ev === Math.min(r.evek, r.evenkent.length - 1) ? ' class="kiemelt-sor"' : ''}><th scope="row">${x.ev === 0 ? 'a vétel évében' : x.ev === r.evenkent.length - 1 ? `${x.ev}. évtől` : `${x.ev}. évben`}</th><td>${x.szazalek}%</td><td>${fmt(x.ado)} Ft</td></tr>`).join('')}</tbody></table></div>`;
+  h += levezetes([
+    ['Az szja alapja', `${F(r.elad)} − ${F(r.kozvetito)} − ${F(r.ar)} − ${F(r.szerzesKoltseg)}${r.szamlas && r.felujitas ? ` − ${F(r.felujitas)}` : ''} = ${F(r.szjaAlap)}`, 'Szja tv. 62. § (1)–(2)'],
+    ['Szja', `${F(r.szjaAlap)} × ${r.szjaHanyad}% × 15% = ${F(r.szja)}`, 'Szja tv. 62. § (4)'],
+    ['Nem vonható le', `rezsi, kamat, hitel díjai, egyéb: ${F(r.nemLevonhato)}`, ''],
+    ['Marad', `${F(r.elad)} − minden költség − ${F(r.szja)} = ${F(r.netto)}`, ''],
+  ]);
+  h = jelekkel(h);
+  h += megjegyzes('Az szja-ból csak a számlával igazolt felújítás vonható le. A festés, javítás és burkolatcsere (állagmegóvás) csak akkor, ha az eladás előtti 24 hónapban készült, és együtt meghaladja az eladási ár 5%-át. A rezsi, a kamat és a hitel díjai nem csökkentik az adót.');
+  h += megjegyzes('Ha rendszeresen veszel, felújítasz és eladsz lakásokat, a NAV ezt üzletszerű tevékenységnek tekintheti, és akkor más adózás vonatkozhat rád. Ilyenkor kérdezd meg a könyvelődet. A kamatot egyszerűsítve számoljuk: a futamidő elején a törlesztő nagy része kamat.');
   return h;
 }
 
@@ -708,6 +742,11 @@ export const KALKULATOROK = {
     kulcs: ['vetelar', 'havi'],
     minta: () => ({ adat: { vetelar: '48000000', egyeb: '600000', felujitas: '2500000', havi: '230000', honap: '11', koltseg: '450000' }, leiras: 'egy 48 millió forintos lakás 2,5 millió forintos felújítással, havi 230 000 forintért kiadva, évi 11 hónapra' }),
     panel: (adat, e) => hozamPanel(adat, S.hozam(adat, { vetelar: sz(e.vetelar), egyeb: sz(e.egyeb), felujitas: sz(e.felujitas), havi: sz(e.havi), honap: e.honap, koltseg: sz(e.koltseg), ev: adat.ev, hitel: sz(e.hitel), kamat: e.kamat === '' || e.kamat == null ? '' : sz(e.kamat), futamido: e.futamido, allampapir: e.allampapir === '' || e.allampapir == null ? '' : sz(e.allampapir) })),
+  },
+  flip: {
+    kulcs: ['vetelar', 'eladasiAr'],
+    minta: () => ({ adat: { vetelar: '40000000', felujitas: '6000000', szamlas: true, eladasiAr: '56000000', honap: '8', rezsi: '40000', kozvetito: '3' }, leiras: 'egy 40 millió forintos lakás 6 millió forintos, számlás felújítással, 8 hónap múlva 56 millió forintért eladva, 3% közvetítői díjjal' }),
+    panel: (adat, e) => { const o = (k) => (e[k] === '' || e[k] == null ? '' : sz(e[k])); return flipPanel(adat, S.flip(adat, { vetelar: sz(e.vetelar), felujitas: sz(e.felujitas), szamlas: e.szamlas !== false, eladasiAr: sz(e.eladasiAr), honap: e.honap, rezsi: sz(e.rezsi), hitel: sz(e.hitel), kamat: o('kamat'), kozvetito: o('kozvetito'), egyeb: sz(e.egyeb) })); },
   },
   rovidtav: {
     kulcs: ['ejAr', 'ejszaka', 'hosszuHavi'],

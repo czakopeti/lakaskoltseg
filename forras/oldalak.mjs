@@ -23,6 +23,7 @@ export const FOOLDAL_KARTYAK = {
   'wekerle-plusz-kalkulator/': [() => 'Pontról pontra megnézi, megfelelsz-e a feltételeknek, és mennyi lesz a havi törlesztő 3 vagy 5%-os kamattal.', 'Megnézem'],
   'csok-plusz-kalkulator/': [() => 'Mennyi hitel jár a gyerekszámotok szerint, mennyi lesz a törlesztő, és mennyit enged el az állam a gyerekek után.', 'Kiszámolom'],
   'lakasvasarlas-menete/': [() => 'Foglaló, szerződés, hitel, földhivatal, birtokba adás és illeték sorrendben, minden lépésnél a díjjal és a határidővel.', 'Elolvasom'],
+  'flipping-kalkulator/': [() => 'Vétel, felújítás és eladás: mennyi marad az illeték, a rezsi, a kamat és az szja után, és mennyiért kell legalább eladnod.', 'Kiszámolom'],
   'lakasarak/': [() => 'Valódi eladási árak a NAV illetékadataiból, településenként, kerületenként és utcánként, térképen.', 'Megnézem'],
   'lakastamogatasok/': [() => 'A Wekerle Plusz és a CSOK Plusz egy táblázatban, és az illetékkedvezmények: melyik jár neked.', 'Megnézem'],
   'lakasvaltas-kalkulator/': [() => 'Mennyit kapsz kézhez a régiért, mennyibe kerül az új, és mennyi hitel kell még.', 'Kiszámolom'],
@@ -1189,6 +1190,55 @@ ${utmutatoForrasok(adat, ['wekerle_plusz.kamat', 'csok_plusz.osszeg', 'illetek.a
 ${tovabb(L, ut)}
 </article></div>`;
   return oldal(k, { cim: `Lakástámogatások ${k.ev}: Wekerle Plusz, CSOK Plusz és illetékkedvezmények`, leiras, ut, tartalom, jsonld: [morzsaLd(k.cfg, [{ nev: 'Lakáshitel', ut: HITEL_UT }, { nev: 'Lakástámogatások', ut }]), ...utmutatoLd(k, cim, leiras, ut, kerdesek)] });
+}
+
+/* ======================= FELÚJÍTÁS ÉS TOVÁBBELADÁS ======================= */
+export const FLIP_UT = 'flipping-kalkulator/';
+export function flipOldal(k) {
+  const { adat } = k;
+  const tabla = S.szabaly(adat, 'szja_eladas.jovedelem_hanyad').ertek.szazalek_evenkent;
+  const kulcs = S.szabaly(adat, 'szja_eladas.ado_mertek').ertek.szazalek;
+  const am = S.szabaly(adat, 'szja_eladas.allagmegovas').ertek;
+  const p = S.flip(adat, { vetelar: 40e6, felujitas: 6e6, szamlas: true, eladasiAr: 56e6, honap: 8, rezsi: 40000, kozvetito: 3 });
+  return kalkOldal(k, {
+    ut: FLIP_UT, tipus: 'flip', nev: 'Felújítás és eladás', temak: ['szja_eladas', 'illetek', 'vetel_koltsegek', 'hitel', 'wekerle_plusz'],
+    oldalCim: 'Flipping kalkulátor: mennyi marad egy lakás felújításán és eladásán?',
+    leiras: `Lakás vétele, felújítása és eladása ${M.evBan(k.ev)}: illeték, ügyvéd, rezsi, kamat, közvetítő és ${kulcs}% szja, a nullszaldós eladási ár, és mennyivel kevesebb az adó, ha később adod el.`,
+    cim: 'Mennyi marad, ha lakást veszel, felújítod és eladod?',
+    valasz: `Egy 40 millió forintos lakás 6 millió forintos felújítással, 8 hónap múlva 56 millió forintért eladva ${M.fmt(p.netto)} Ft-ot hoz. Ebből ${M.fmt(p.szja)} Ft az szja, mert 2 éven belüli eladásnál a teljes nyereség adóköteles. ${M.fmt(p.nulla)} Ft alatt veszteséges.`,
+    urlapCim: 'A vétel, a felújítás és az eladás', urlapAl: 'Szja tv. 62. §, Itv.',
+    urlap: `
+<fieldset>${reszCim('', 'A vétel')}
+${sor('', szamMezo({ id: 'vetelar', cim: 'Vételár', me: 'Ft', placeholder: 'pl. 40 000 000', min: 0, szeles: true }))}
+${sor('', szamMezo({ id: 'hitel', cim: 'Hitel', me: 'Ft', placeholder: 'ha nincs, hagyd üresen', min: 0, szeles: true }))}
+${sor('', szamMezo({ id: 'kamat', cim: 'A hitel kamata', me: '%', placeholder: `${M.tized(S.szabaly(adat, 'wekerle_plusz.piaci_kamat').ertek.szazalek, 1)}`, tized: true }))}
+</fieldset>
+<fieldset>${reszCim('', 'A felújítás')}
+${sor('', szamMezo({ id: 'felujitas', cim: 'A felújítás költsége', me: 'Ft', placeholder: 'pl. 6 000 000', min: 0, szeles: true }))}
+${sor('', jelolo('szamlas', 'Van róla számla', 'Csak a számlával igazolt felújítás csökkenti az szja-t.'))}
+${sor('', szamMezo({ id: 'honap', cim: 'Mennyi idő a vételtől az eladásig?', me: 'hónap', placeholder: 'pl. 8', min: 1, max: 120 }))}
+${sor('', szamMezo({ id: 'rezsi', cim: 'Rezsi és közös költség addig', me: 'Ft/hó', placeholder: 'pl. 40 000', min: 0 }))}
+</fieldset>
+<fieldset>${reszCim('', 'Az eladás')}
+${sor('', szamMezo({ id: 'eladasiAr', cim: 'Eladási ár', me: 'Ft', placeholder: 'pl. 56 000 000', min: 0, szeles: true }))}
+${sor('', szamMezo({ id: 'kozvetito', cim: 'Ingatlanközvetítő díja', me: '%', placeholder: 'ha nincs, hagyd üresen', tized: true }))}
+${sor('', szamMezo({ id: 'egyeb', cim: 'Egyéb költség', me: 'Ft', placeholder: 'pl. hirdetés, energetikai tanúsítvány', min: 0, szeles: true }))}
+</fieldset>`,
+    cikk: `<h2>Mitől függ, mennyi marad?</h2>
+<ul>
+<li><strong>Az szja a legnagyobb tétel.</strong> A vétel évében és az azt követő évben a teljes nyereség után ${kulcs}% adót fizetsz, a második évben a ${tabla[2]}%-a, a harmadikban a ${tabla[3]}%-a, a negyedikben a ${tabla[4]}%-a után adózol, az ötödik évtől semennyi.</li>
+<li><strong>Csak a számlás felújítás vonható le.</strong> Az értéknövelő munka (nyílászáró, szigetelés, fűtés) számlával levonható. A festés, javítás, burkolatcsere csak akkor, ha az eladás előtti ${am.honap} hónapban készült, és együtt meghaladja az eladási ár ${am.szazalek_bevetel}%-át.</li>
+<li><strong>A rezsi és a kamat nem csökkenti az adót.</strong> Minden hónap, amíg a lakás áll, csak költség.</li>
+<li><strong>Az illeték már a vételkor elmegy:</strong> a vételár 4%-a, befektetési vételnél általában kedvezmény nélkül.</li>
+</ul>
+<p>A környék valódi eladási árait <a href="../${ARAK_UT}">a lakásár-térképen</a> nézheted meg utcánként, és ha inkább kiadnád a lakást, <a href="../${HOZAM_UT}">a hozamkalkulátor</a> kiszámolja, mennyit hoz.</p>`,
+    kerdesek: [
+      { k: 'Mennyi szja-t kell fizetni, ha egy éven belül eladom a lakást?', v: [`A nyereség teljes egészében adóköteles, és ${kulcs}% az adó. A nyereség az eladási ár mínusz a vételár, a vételhez kapcsolódó illeték és ügyvédi díj, a számlás felújítás és az eladás költsége (például a közvetítő díja). A második évben a nyereség ${tabla[2]}%-a, az ötödik évtől semennyi sem adóköteles.`] },
+      { k: 'Levonható a felújítás az ingatlaneladás adójából?', v: [`Számlával igen, ha értéknövelő munka. Az állagmegóvó munka (festés, javítás) csak akkor, ha az eladás előtti ${am.honap} hónapban végezték, és az összege meghaladja az eladási ár ${am.szazalek_bevetel}%-át.`, esc(S.szabaly(adat, 'szja_eladas.allagmegovas').jogszabaly)] },
+      { k: 'Megéri várni az eladással?', v: [`Az adó évről évre csökken: a vétel évében és az azt követő évben a nyereség ${tabla[0]}%-a, utána ${tabla[2]}%-a, ${tabla[3]}%-a, ${tabla[4]}%-a adóköteles, az ötödik évtől semennyi. Közben viszont fizeted a rezsit és a kamatot. A kalkulátor eredménye alatti táblázat megmutatja, ugyanazon az áron hány év után mennyi lenne az szja.`] },
+    ],
+    forrasKulcsok: ['szja_eladas.jovedelem_hanyad', 'szja_eladas.ado_mertek', 'szja_eladas.allagmegovas', 'illetek.altalanos_mertek', 'vetel_koltsegek.ugyvedi'],
+  });
 }
 
 /* ======================= LAKÁSÁR-TÉRKÉP ======================= */

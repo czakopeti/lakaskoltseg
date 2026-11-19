@@ -542,6 +542,57 @@ export function indulo(adat, b) {
 }
 const tized1 = (n) => String(Math.round(n * 10) / 10).replace('.', ',');
 
+/* ---------------- Felújítás és továbbeladás (flipping) ---------------- */
+/**
+ * b: { vetelar, felujitas, szamlas (a felújításról van számla), eladasiAr, honap, rezsi (havi), hitel, kamat, kozvetito (%), egyeb }
+ * Az évek számát a hónapokból vesszük (12 hónap alatt a szerzés éve), az szja-t az eladasSzja() számolja.
+ * A rezsi, a kamat és a hitel díjai az szja-ban nem vonhatók le (Szja tv. 62. § (1)–(2)).
+ */
+export function flip(adat, b) {
+  const ar = Number(b.vetelar), elad = Number(b.eladasiAr);
+  if (!(ar > 0)) return { hiba: 'Add meg a lakás vételárát.' };
+  if (!(elad > 0)) return { hiba: 'Add meg, mennyiért adnád el felújítva.' };
+  const felujitas = nem0(b.felujitas), szamlas = b.szamlas !== false;
+  const honap = Math.min(Math.max(Math.round(Number(b.honap)) || 6, 1), 120);
+  const rezsi = nem0(b.rezsi), egyeb = nem0(b.egyeb);
+  const hitel = Math.min(nem0(b.hitel), ar);
+  const piaci = szabaly(adat, 'wekerle_plusz.piaci_kamat').ertek.szazalek;
+  const kamatSz = b.kamat === '' || b.kamat == null || Number.isNaN(Number(b.kamat)) ? piaci : Number(b.kamat);
+  const vet = indulo(adat, { vetelar: ar, hitel: hitel >= ar ? ar - 1 : hitel });
+  const ill = vet.illetek.ado;
+  const t = (k) => vet.tetelek.find((x) => x.kulcs === k)?.ft || 0;
+  const szerzesKoltseg = ill + t('ugyvedi') + t('foldhivatal'); // a szerzéshez kapcsolódó kiadás
+  const hitelDij = t('ertekbecsles') + t('kozjegyzo') + t('folyositas') + t('jelzalog');
+  // Közelítés: a futamidő elején a törlesztő szinte csak kamat, ezért a tartás idejére a kamatot számoljuk
+  const kamat = Math.round(hitel * kamatSz / 100 * honap / 12);
+  const tartas = rezsi * honap;
+  const kozSz = b.kozvetito === '' || b.kozvetito == null || Number.isNaN(Number(b.kozvetito)) ? 0 : Math.max(0, Number(b.kozvetito));
+  const evek = Math.floor(honap / 12);
+  const ado = (p) => {
+    const kozv = Math.round(p * kozSz / 100);
+    const r = eladasSzja(adat, { eladasiAr: p, szerzesEv: 2000, eladasEv: 2000 + evek, szerzesiErtek: ar, szerzesKoltseg, beruhazas: szamlas ? felujitas : 0, eladasKoltseg: kozv });
+    return { kozv, szja: r.ado, r };
+  };
+  const ki = (p) => { const a = ado(p); return p - ar - szerzesKoltseg - hitelDij - felujitas - tartas - kamat - egyeb - a.kozv - a.szja; };
+  const most = ado(elad);
+  const netto = ki(elad);
+  const sajat = ar - hitel + szerzesKoltseg + hitelDij + felujitas + tartas + kamat + egyeb;
+  // Nullszaldós eladási ár: felezéses kereséssel, mert az szja is az ártól függ
+  let lo = 0, hi = Math.max(elad, ar) * 3;
+  for (let i = 0; i < 60; i++) { const m = (lo + hi) / 2; if (ki(m) >= 0) hi = m; else lo = m; }
+  const nulla = Math.ceil(hi / 10000) * 10000;
+  const tabla = szabaly(adat, 'szja_eladas.jovedelem_hanyad').ertek.szazalek_evenkent;
+  const evenkent = tabla.map((sz, i) => ({ ev: i, szazalek: sz, ado: ado2(i) }));
+  function ado2(i) { const r = eladasSzja(adat, { eladasiAr: elad, szerzesEv: 2000, eladasEv: 2000 + i, szerzesiErtek: ar, szerzesKoltseg, beruhazas: szamlas ? felujitas : 0, eladasKoltseg: most.kozv }); return r.ado; }
+  return {
+    ar, elad, felujitas, szamlas, honap, evek, rezsi, tartas, hitel, kamatSz, kamatSajat: !(b.kamat === '' || b.kamat == null), kamat, egyeb,
+    illetek: ill, ugyvedi: t('ugyvedi'), foldhivatal: t('foldhivatal'), hitelDij, szerzesKoltseg,
+    kozvetitoSz: kozSz, kozvetito: most.kozv, szja: most.szja, szjaAlap: most.r.szamitott, szjaHanyad: most.r.hanyad,
+    netto, sajat, megterules: sajat > 0 ? netto / sajat * 100 : null, eves: sajat > 0 && netto > -sajat ? (Math.pow(1 + netto / sajat, 12 / honap) - 1) * 100 : null,
+    nulla, evenkent, nemLevonhato: tartas + kamat + hitelDij + egyeb,
+  };
+}
+
 /* ---------------- Bérlés vagy vétel ---------------- */
 /** Havi léptékű modell: ugyanannyi pénz megy ki mindkét úton; ami az egyikben kevesebb, az befektetésbe kerül. */
 function berlesVetelFut({ ar, hitel, kamat, futamido, kezdo, berlet, kozos, karbSz, arNo, berNo, hozam, evek, eladasLevonas = () => 0 }) {

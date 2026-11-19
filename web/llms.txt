@@ -35,6 +35,7 @@ Mennyi adót kell fizetni a bérleti díj után, mennyit hoz a lakás, és menny
 
 - [Lakáskiadás adója](https://ingatlanmerleg.hu/lakaskiadas-ado-kalkulator/): lakáskiadás szja-ja: 10% költséghányad vagy tételes elszámolás, a döntési pont, negyedéves adóelőleg és bevallás naptárfájlban
 - [Megéri kiadásra venni?](https://ingatlanmerleg.hu/lakas-befektetes-hozam-kalkulator/): kiadásra vett lakás bruttó és nettó hozama illetékkel, felújítással, üres hónapokkal, költségekkel és szja-val
+- [Flipping kalkulátor](https://ingatlanmerleg.hu/flipping-kalkulator/): lakás vétele, felújítása és eladása: illeték, ügyvéd, hitel díjai és kamata, rezsi, közvetítő és az ingatlaneladás szja-ja (Szja tv. 62. §, a nyereség adóköteles része évenként), a nullszaldós eladási ár, és mennyi lenne az adó, ha később adnád el
 - [Airbnb vagy hosszú távú kiadás](https://ingatlanmerleg.hu/airbnb-vagy-hosszu-tavu-kiadas/): rövid távú (Airbnb, Booking) vagy hosszú távú lakáskiadás adó után: tételes átalányadó lakószobánként (Budapesten 150 000, máshol 38 400 Ft/év), 10% költséghányad vagy tételes elszámolás 15% szja és 13% szocho mellett, 5% áfa 20 millió forint felett, 4% turizmusfejlesztési hozzájárulás, platformjutalék, takarítás, rezsi; fordulópont foglalt éjszakában; a budapesti moratórium és a kerületi tilalmak
 - [Bérleti díj emelése az inflációval](https://ingatlanmerleg.hu/berleti-dij-emeles-inflacio/): bérleti díj emelése a KSH előző évi átlagos inflációjával (2022: 14,5%, 2023: 17,6%, 2024: 3,7%, 2025: 4,4%)
 

@@ -114,3 +114,22 @@ test('CSOK Plusz: összeg a gyerekszám szerint, türelmi év, feltételek, tart
   assert.equal(c({ gyerekek: 0, vallalt: 1, vetelar: 10e6 }).hitel, 10e6, 'a vételárnál több nem lehet');
   assert.ok(c({}).hiba);
 });
+
+test('flipping: szja-alap, nem levonható költségek, nullszaldó, évenkénti adó', () => {
+  const r = S.flip(adat, { vetelar: 40e6, felujitas: 6e6, szamlas: true, eladasiAr: 56e6, honap: 8, rezsi: 40000, kozvetito: 3 });
+  assert.equal(r.illetek, 1600000);
+  assert.equal(r.kozvetito, 1680000);
+  assert.equal(r.szjaAlap, 56e6 - 1680000 - 40e6 - 1600000 - 400000 - 10600 - 6e6);
+  assert.equal(r.szja, Math.round(r.szjaAlap * 0.15));
+  assert.equal(r.netto, 56e6 - 40e6 - 2010600 - 6e6 - 320000 - 1680000 - r.szja);
+  assert.ok(Math.abs(S.flip(adat, { vetelar: 40e6, felujitas: 6e6, szamlas: true, eladasiAr: r.nulla, honap: 8, rezsi: 40000, kozvetito: 3 }).netto) < 20000, 'a nullszaldós áron nagyjából nulla marad');
+  assert.deepEqual(r.evenkent.map((x) => x.szazalek), [100, 100, 90, 60, 30, 0]);
+  assert.equal(r.evenkent.at(-1).ado, 0);
+  const szamlaNelkul = S.flip(adat, { vetelar: 40e6, felujitas: 6e6, szamlas: false, eladasiAr: 56e6, honap: 8 });
+  assert.equal(szamlaNelkul.szja - S.flip(adat, { vetelar: 40e6, felujitas: 6e6, szamlas: true, eladasiAr: 56e6, honap: 8 }).szja, 900000, 'számla nélkül a 6 millió nem vonható le');
+  const h = S.flip(adat, { vetelar: 40e6, eladasiAr: 50e6, honap: 6, hitel: 30e6, kamat: 6 });
+  assert.equal(h.kamat, 900000);
+  assert.ok(h.hitelDij > 0);
+  assert.equal(S.flip(adat, { vetelar: 40e6, eladasiAr: 50e6, honap: 30 }).evek, 2);
+  assert.ok(S.flip(adat, {}).hiba);
+});
