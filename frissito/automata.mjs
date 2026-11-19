@@ -6,7 +6,7 @@ import { olvas, ir, maBudapest, GYOKER } from '../forras/adat.mjs';
 import { szovegge } from './figyelo.mjs';
 import { mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { IA, nevlista, tomorit, hiheto as iaHiheto, arindex, ARINDEX_URL, ARINDEX_OLDAL } from './ingatlanadattar.mjs';
+import { IA, nevlista, tomorit, hiheto as iaHiheto, arindex, ARINDEX_URL, ARINDEX_OLDAL, KERESET, keresetFeldolgoz, keresetHiheto } from './ingatlanadattar.mjs';
 
 const szam = (s) => Number(String(s).replace(',', '.'));
 const hu = (n) => String(n).replace('.', ',');
@@ -223,6 +223,24 @@ export async function futtat({ leto = letolt, ma = maBudapest() } = {}) {
       ir('data/arindex.json', { leiras: 'KSH STADAT 18.2.1.8: a használt lakások tiszta árindexe negyedévenként (a megadott év átlaga = 100). A mai ár becsléséhez.', forras: { nev: 'KSH STADAT 18.2.1.8. Lakáspiaci árindex negyedévenként', url: ARINDEX_OLDAL, letoltes: ARINDEX_URL, kelt: regi && JSON.stringify(regi.negyedevek) === JSON.stringify(uj.negyedevek) ? regi.forras.kelt : ma }, ellenorizve: ma, bazis: uj.bazis, negyedevek: uj.negyedevek });
     }
   } catch (e) { j.gond.push({ nev: aiNev, url: ARINDEX_OLDAL, ok: String(e.message || e) }); }
+
+  // 6. Nettó átlagkereset lakóhely szerint, településenként (KSH TIMEA): a megfizethetőségi mutatóhoz
+  const kNev = 'KSH TIMEA: nettó átlagkereset településenként';
+  try {
+    const regi = existsSync(join(GYOKER, 'data/kereset.json')) ? olvas('data/kereset.json') : null;
+    const [t, m, mu] = [await leto(KERESET.telep, 180000), await leto(KERESET.megye, 60000), await leto(KERESET.mutato, 60000)];
+    if (t == null || m == null) j.gond.push({ nev: kNev, url: KERESET.oldal, ok: 'A TIMEA lekérdezése nem válaszolt a megszokott címen.' });
+    else {
+      const uj = keresetFeldolgoz(JSON.parse(t), JSON.parse(m), mu ? JSON.parse(mu) : null);
+      const gond = keresetHiheto(regi, uj);
+      if (gond) j.gond.push({ nev: kNev, url: KERESET.oldal, ok: `${gond[0].toUpperCase()}${gond.slice(1)}. Nem írtam át.` });
+      else {
+        const valt = !regi || JSON.stringify([uj.evek, uj.telep, uj.megye]) !== JSON.stringify([regi.evek, regi.telep, regi.megye]);
+        if (valt && (!regi || regi.evek.at(-1) !== uj.evek.at(-1))) j.atirt.push({ mi: `Nettó átlagkereset lakóhely szerint, ${uj.evek.at(-1)} (KSH TIMEA, Budapest, Ft/hó)`, regi: regi ? regi.megye.Budapest?.at(-1) ?? null : null, uj: uj.megye.Budapest?.at(-1) ?? null, url: KERESET.oldal });
+        ir('data/kereset.json', { leiras: 'A teljes munkaidőben alkalmazásban állók nettó átlagkeresete a munkavállalók lakcíme szerint (KSH, TYWN006), Ft/fő/hó. A településkulcs a KSH-törzsszám első négy jegye. Az utolsó év a megnevezés szerint lehet félévi, előzetes adat.', forras: { nev: 'KSH TIMEA: a teljes munkaidőben alkalmazásban állók nettó átlagkeresete lakcím szerint', url: KERESET.oldal, kelt: valt ? ma : regi.forras.kelt }, ellenorizve: ma, megnevezes: uj.megnevezes, evek: uj.evek, megye: uj.megye, telep: uj.telep });
+      }
+    }
+  } catch (e) { j.gond.push({ nev: kNev, url: KERESET.oldal, ok: String(e.message || e) }); }
 
   for (const a of j.atirt) naplo.bejegyzesek.unshift({ datum: ma, mi: a.mi, regi: a.regi, uj: a.uj, forras: a.url, gepi: true });
   if (j.atirt.length) ir('data/valtozasok.json', naplo);

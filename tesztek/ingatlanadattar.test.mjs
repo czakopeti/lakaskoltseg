@@ -67,3 +67,14 @@ test('településoldalak: rövid cím, ki kap oldalt, becslés', async () => {
   assert.match(b.cimke, /negyedév|^\d{4}$/);
   assert.equal(Math.round(b.ar), Math.round(deb.s.o.at(-1) * b.szorzo));
 });
+
+test('megfizethetőség: évnyi nettó kereset egy 50 m²-es lakásra, kerületnél a budapesti', async () => {
+  const { betoltAdat } = await import('../forras/adat.mjs');
+  const S = await import('../forras/js/szamitas.mjs');
+  const adat = betoltAdat();
+  const [kod, u] = Object.entries(adat.arak.egysegek).find(([, x]) => x.n === 'Budapest XI. kerület');
+  const m = S.megfizethetoseg(adat, kod, u);
+  const ev = adat.arak.evek.at(-1);
+  assert.equal(m.kereset, adat.kereset.megye.Budapest[adat.kereset.evek.indexOf(ev)]);
+  assert.ok(Math.abs(m.evek - (u.s.o.at(-1) * 1000 * 50) / (m.kereset * 12)) < 1e-9);
+});

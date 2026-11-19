@@ -67,7 +67,12 @@ const arLista = T.oldalLista(adat);
   const { forras, ellenorizve, evek, megyek, egysegek } = adat.arak;
   const becsles = { cimke: null, szorzok: {} };
   for (const [kod, u] of Object.entries(egysegek)) { const b = S.arBecsles(adat, u); if (b) { becsles.cimke = b.cimke; becsles.szorzok[kod] = Math.round(b.szorzo * 1000) / 1000; } }
-  writeFileSync(join(ki, 'arak.json'), JSON.stringify({ forras, ellenorizve, evek, megyek, egysegek, oldalak: Object.fromEntries(arLista.egysegek), becsles }));
+  const megfiz = { m2: S.MEGFIZ_M2, forras: adat.kereset.forras, ertek: {} };
+  for (const [kod, u] of Object.entries(egysegek)) {
+    const s = evek.map((ev) => { const x = S.megfizethetoseg(adat, kod, u, ev); return x ? Math.round(x.evek * 10) / 10 : null; });
+    if (s.some((v) => v != null)) megfiz.ertek[kod] = s;
+  }
+  writeFileSync(join(ki, 'arak.json'), JSON.stringify({ forras, ellenorizve, evek, megyek, egysegek, oldalak: Object.fromEntries(arLista.egysegek), becsles, megfiz }));
   for (const f of ['orszag', 'budapest']) cpSync(join(GYOKER, `forras/geo/${f}.json`), join(ki, `${f}.json`));
   for (const f of readdirSync(join(GYOKER, 'data/utcak'))) cpSync(join(GYOKER, 'data/utcak', f), join(ki, 'utcak', f));
 }

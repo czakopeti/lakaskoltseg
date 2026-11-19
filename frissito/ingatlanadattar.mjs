@@ -120,3 +120,39 @@ export function arindex(csvSzoveg) {
   }
   return out.length ? { bazis, negyedevek: out } : null;
 }
+
+/*
+ * A KSH TIMEA (map.ksh.hu) nyilvános ArcGIS-szolgáltatásából: a teljes munkaidőben alkalmazásban állók nettó átlagkeresete
+ * a munkavállalók lakcíme szerint (TYWN006), településenként és vármegyénként, évente (az utolsó év félévi, előzetes adat).
+ */
+const TIMEA = 'https://map.ksh.hu/arcgis/rest/services/ksh_map/MapServer';
+export const KERESET = {
+  oldal: 'https://map.ksh.hu/timea/?locale=hu',
+  telep: `${TIMEA}/2/query?where=M_KOD%3D%27TYWN006%27&outFields=ELEM_KOD,TELEP_NEV,MEGYE_NEV,VALUE,VON_IDO&returnGeometry=false&f=json`,
+  megye: `${TIMEA}/4/query?where=M_KOD%3D%27TYWN006%27&outFields=MEGYE_NEV,VALUE,VON_IDO&returnGeometry=false&f=json`,
+  mutato: `${TIMEA}/8/query?where=MUTATO_KOD%3D%27TYWN006%27&outFields=MUTATO_MEGNEV&returnGeometry=false&f=json`,
+};
+/** → { evek, telep: { 4 jegyű törzsszám: [Ft/hó évenként] }, megye: { név: [...] }, megnevezes } */
+export function keresetFeldolgoz(telepJson, megyeJson, mutatoJson) {
+  const t = telepJson?.features || [], m = megyeJson?.features || [];
+  const evek = [...new Set([...t, ...m].map((f) => Number(f.attributes.VON_IDO)))].filter(Number.isFinite).sort((a, b) => a - b);
+  const ix = new Map(evek.map((e, i) => [e, i]));
+  const telep = {}, megye = {};
+  for (const { attributes: a } of t) {
+    const k = String(a.ELEM_KOD).padStart(4, '0');
+    (telep[k] ||= evek.map(() => null))[ix.get(Number(a.VON_IDO))] = a.VALUE == null ? null : Math.round(a.VALUE);
+  }
+  for (const { attributes: a } of m) (megye[a.MEGYE_NEV] ||= evek.map(() => null))[ix.get(Number(a.VON_IDO))] = a.VALUE == null ? null : Math.round(a.VALUE);
+  const megnevezes = mutatoJson?.features?.[0]?.attributes?.MUTATO_MEGNEV || '';
+  return { evek, telep, megye, megnevezes };
+}
+export function keresetHiheto(regi, uj) {
+  if (uj.evek.length < 3) return `csak ${uj.evek.length} év van benne`;
+  if (Object.keys(uj.megye).length !== 20) return `${Object.keys(uj.megye).length} vármegyét találtam, 20 helyett`;
+  const n = Object.values(uj.telep).filter((s) => s[uj.evek.length - 2] != null).length;
+  if (n < 2500) return `csak ${n} településen van adat`;
+  const bp = uj.megye.Budapest?.[uj.evek.length - 2];
+  if (!(bp > 150000 && bp < 3000000)) return `valószínűtlen budapesti nettó átlagkereset: ${bp}`;
+  if (regi?.evek?.length && uj.evek.at(-1) < regi.evek.at(-1)) return `az utolsó év ${uj.evek.at(-1)}, korábban ${regi.evek.at(-1)} volt`;
+  return null;
+}

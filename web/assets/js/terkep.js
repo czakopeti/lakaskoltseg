@@ -1,6 +1,6 @@
 // A lakásár-térkép: valódi eladási árak (KSH Ingatlanadattár) településenként és budapesti kerületenként.
 // SVG-térkép külső könyvtár nélkül; az adat és a határok a /adatok/lakasarak/ alól jönnek.
-import { fmt, tized, evBan, AR_SZINEK as SZINEK, AR_HATAR as HATAR, arOsztaly as osztaly } from './megjelenites.js?v=dbc7ec12';
+import { fmt, tized, evBan, AR_SZINEK as SZINEK, AR_HATAR as HATAR, arOsztaly as osztaly } from './megjelenites.js?v=7eaff764';
 
 const doboz = document.querySelector('[data-terkep]');
 if (doboz) indit(doboz).catch((e) => {
@@ -48,6 +48,7 @@ async function indit(el) {
     const v = s?.[ix];
     if (v == null) return null;
     if (S.mutato === 'ar') return v;
+    if (S.mutato === 'evek') return A.megfiz?.ertek?.[k]?.[ix] ?? null;
     return s[0] ? (v / s[0] - 1) * 100 : null;
   }
   const szin = (v) => (v == null ? null : SZINEK[osztaly(v, HATAR[S.mutato])]);
@@ -64,11 +65,11 @@ async function indit(el) {
   }
   function skalaRajz() {
     const h = HATAR[S.mutato];
-    const cimkek = S.mutato === 'ar' ? h.map((x) => ftRovid(x)) : h.map((x) => `${x}%`);
-    skala.innerHTML = `<p class="tk-skala-cim">${S.mutato === 'ar' ? `Átlagár, Ft/m², ${evek[S.ix]}` : `Drágulás ${evek[0]} óta, ${evek[S.ix]}-ig`}${S.tipus !== 'o' ? `, ${TIPUS[S.tipus].toLowerCase()}` : ''}</p>
+    const cimkek = S.mutato === 'ar' ? h.map((x) => ftRovid(x)) : S.mutato === 'evek' ? h.map((x) => `${x} év`) : h.map((x) => `${x}%`);
+    skala.innerHTML = `<p class="tk-skala-cim">${S.mutato === 'ar' ? `Átlagár, Ft/m², ${evek[S.ix]}` : S.mutato === 'evek' ? `Hány évnyi helyi nettó átlagkereset egy ${A.megfiz?.m2 || 50} m²-es lakás, ${evek[S.ix]}` : `Drágulás ${evek[0]} óta, ${evek[S.ix]}-ig`}${S.tipus !== 'o' && S.mutato !== 'evek' ? `, ${TIPUS[S.tipus].toLowerCase()}` : ''}</p>
 <div class="tk-sav">${SZINEK.map((c, i) => `<i style="background:${c}" title="${i === 0 ? `${cimkek[0]} alatt` : i === SZINEK.length - 1 ? `${cimkek.at(-1)} felett` : `${cimkek[i - 1]} – ${cimkek[i]}`}"></i>`).join('')}</div>
 <div class="tk-sav-cimkek">${cimkek.map((c, i) => `<span style="left:${((i + 1) / SZINEK.length) * 100}%">${i % 2 === 0 || cimkek.length < 6 ? c : ''}</span>`).join('')}</div>
-<p class="tk-skala-nincs"><i></i>Nincs adat: az évben háromnál kevesebb adásvétel volt</p>`;
+<p class="tk-skala-nincs"><i></i>${S.mutato === 'evek' ? 'Nincs adat: kevés adásvétel, vagy erre az évre még nincs kereseti adat' : 'Nincs adat: az évben háromnál kevesebb adásvétel volt'}</p>${S.mutato === 'evek' && A.megfiz?.forras ? `<p class="tk-skala-nincs">Kereset: <a href="${esc(A.megfiz.forras.url)}" target="_blank" rel="noopener">KSH, nettó átlagkereset lakóhely szerint</a>; Budapest kerületeinél a budapesti átlag.</p>` : ''}`;
   }
 
   // ---- első megjelenés: nyugatról keletre töltődik ki
@@ -85,7 +86,7 @@ async function indit(el) {
     const nev = u?.n || 'Nincs adat';
     const v = ertek(k);
     const ar = u?.s[S.tipus]?.[S.ix], db = u?.s[`${S.tipus}d`]?.[S.ix];
-    tipp.innerHTML = `<b>${esc(nev)}</b>${ar != null ? `<span>${ft(ar)}/m²${db ? ` · ${fmt(db)} adásvétel` : ''}</span>${S.mutato === 'valt' && v != null ? `<span>${szaz(v)} ${evek[0]} óta</span>` : ''}` : `<span>${evek[S.ix]}: nincs adat${S.tipus !== 'o' ? ' ennél a típusnál' : ''}</span>`}`;
+    tipp.innerHTML = `<b>${esc(nev)}</b>${ar != null ? `<span>${ft(ar)}/m²${db ? ` · ${fmt(db)} adásvétel` : ''}</span>${S.mutato === 'valt' && v != null ? `<span>${szaz(v)} ${evek[0]} óta</span>` : ''}${S.mutato === 'evek' && v != null ? `<span>${tized(v, 1)} évnyi nettó átlagkereset egy ${A.megfiz.m2} m²-es lakás</span>` : ''}` : `<span>${evek[S.ix]}: nincs adat${S.tipus !== 'o' ? ' ennél a típusnál' : ''}</span>`}`;
     tipp.hidden = false;
     const r = el.querySelector('.tk-vaszon').getBoundingClientRect();
     const x = e.clientX - r.left, y = e.clientY - r.top;
@@ -212,6 +213,10 @@ ${A.oldalak?.[k] ? `<a class="tk-reszletek" href="${alapUt}${A.oldalak[k].replac
   };
   kereso.addEventListener('change', keres);
   kereso.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); keres(); } });
+
+  // ---- előre beállított mutató: ?mutato=evek | valt
+  const kert = new URLSearchParams(location.search).get('mutato');
+  if (kert && HATAR[kert]) { S.mutato = kert; el.querySelectorAll('[data-mutato]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.mutato === kert))); if (el.classList.contains('tk-kesz')) fest(); }
 
   // ---- megosztott link: #Településnév
   if (location.hash.length > 1) {

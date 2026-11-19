@@ -7,7 +7,7 @@ export const fmt = (n) => nf.format(Math.round(n));
 export const tized = (n, j = 1) => new Intl.NumberFormat('hu-HU', { maximumFractionDigits: j }).format(n);
 // A lakásár-térkép és a településoldalak közös színskálája: tíz fokozat a villamossárgától a tintabarnáig
 export const AR_SZINEK = ['#FFF6CF', '#FFEB99', '#FFDC4F', '#FFC61A', '#F4A60B', '#DC8406', '#B86208', '#8C450E', '#5E2D10', '#33190A'];
-export const AR_HATAR = { ar: [150, 250, 350, 450, 550, 700, 850, 1000, 1250], valt: [25, 50, 75, 100, 125, 150, 200, 250, 300] };
+export const AR_HATAR = { ar: [150, 250, 350, 450, 550, 700, 850, 1000, 1250], valt: [25, 50, 75, 100, 125, 150, 200, 250, 300], evek: [2, 3, 4, 5, 6, 7, 8, 10, 12] };
 export const arOsztaly = (v, h = AR_HATAR.ar) => { let i = 0; while (i < h.length && v >= h[i]) i++; return i; };
 export const ftx = (n) => `${fmt(n)}&nbsp;Ft`;
 

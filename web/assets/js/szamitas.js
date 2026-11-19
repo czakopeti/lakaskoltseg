@@ -702,6 +702,25 @@ export const MEGYEK = [['budapest', 'Budapest', 'budapest'], ['bacs', 'Bács-Kis
 // A KSH „megyeszékhely” településtípusa (Budapest nélkül)
 export const MEGYESZEKHELYEK = ['Békéscsaba', 'Debrecen', 'Eger', 'Győr', 'Kaposvár', 'Kecskemét', 'Miskolc', 'Nyíregyháza', 'Pécs', 'Salgótarján', 'Szeged', 'Szekszárd', 'Székesfehérvár', 'Szolnok', 'Szombathely', 'Tatabánya', 'Veszprém', 'Zalaegerszeg'];
 
+/** A megfizethetőségi mutató alapterülete: ennyi négyzetméteres lakással számolunk. */
+export const MEGFIZ_M2 = 50;
+/** A település vagy kerület nettó átlagkeresete (lakóhely szerint, KSH TIMEA) adott évben, Ft/hó. A kerületeknél a budapesti. */
+export function keresetEv(adat, kod, u, ev) {
+  const ke = adat.kereset;
+  if (!ke) return null;
+  const i = ke.evek.indexOf(ev);
+  if (i < 0) return null;
+  if (u.m === '01') return ke.megye.Budapest?.[i] ?? null;
+  return ke.telep[String(kod).slice(0, 4)]?.[i] ?? null;
+}
+/** Hány évnyi nettó átlagkereset egy MEGFIZ_M2 négyzetméteres lakás ára az adott évben (az ár és a kereset ugyanarra az évre). */
+export function megfizethetoseg(adat, kod, u, ev = adat.arak.evek[adat.arak.evek.length - 1]) {
+  const i = adat.arak.evek.indexOf(ev);
+  const ar = u?.s?.o?.[i];
+  const k = keresetEv(adat, kod, u, ev);
+  if (ar == null || !k) return null;
+  return { ev, ar, kereset: k, evek: (ar * 1000 * MEGFIZ_M2) / (k * 12) };
+}
 const ROMAI_NEGYED = ['I.', 'II.', 'III.', 'IV.'];
 export const negyedevNev = (k) => `${k.slice(0, 4)}. ${ROMAI_NEGYED[Number(k.slice(5)) - 1]} negyedév`;
 
