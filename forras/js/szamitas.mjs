@@ -246,7 +246,7 @@ export function csokPlusz(adat, b) {
   const elengedes = Math.min(Math.max(0, utana - 1) * tc.ft, hitel);
   const ill = ar !== null ? illetek(adat, { ertek: ar }) : null;
   const nemOk = f.filter((x) => x.ok === false), hianyzik = f.filter((x) => x.ok === null);
-  return { gyerekek, vallalt, kertVallal, maxVallal, maxHitel, hitel, ar, ev, kamat: ka.szazalek, turelmiHonap: tu,
+  return { gyerekek, vallalt, kertVallal, maxVallal, maxHitel, hitel, kertMegadva: kert !== null, ar, ev, kamat: ka.szazalek, turelmiHonap: tu,
     turelmiHavi: Math.round(turelmiHavi), havi: Math.round(havi), osszesen: Math.round(osszesen), kamatOssz: Math.round(osszesen - hitel),
     piaciKamat: pk, piaciSajat: van(b.piaciKamat) && Number(b.piaciKamat) > 0, piaciHavi: Math.round(piaciHavi), megtakaritas: Math.round(piaciHavi * n - osszesen),
     hatarido: va.hatarido_ev[String(vallalt)], szunet: c('szuneteltetes').ev, elengedes, elengedesDb: Math.max(0, utana - 1), maradek: hitel - elengedes,

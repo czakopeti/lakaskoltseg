@@ -22,6 +22,8 @@ export const FOOLDAL_KARTYAK = {
   'vagyonszerzesi-illetek-kalkulator/': [() => 'Mennyi illetéket fizetsz a megvett lakás után, és melyik kedvezmény jár: cserét pótló vétel, új lakás, első lakás 35 év alatt, CSOK Plusz.', 'Kiszámolom'],
   'wekerle-plusz-kalkulator/': [() => 'Pontról pontra megnézi, megfelelsz-e a feltételeknek, és mennyi lesz a havi törlesztő 3 vagy 5%-os kamattal.', 'Megnézem'],
   'csok-plusz-kalkulator/': [() => 'Mennyi hitel jár a gyerekszámotok szerint, mennyi lesz a törlesztő, és mennyit enged el az állam a gyerekek után.', 'Kiszámolom'],
+  'lakasvasarlas-menete/': [() => 'Foglaló, szerződés, hitel, földhivatal, birtokba adás és illeték sorrendben, minden lépésnél a díjjal és a határidővel.', 'Elolvasom'],
+  'lakastamogatasok/': [() => 'A Wekerle Plusz és a CSOK Plusz egy táblázatban, és az illetékkedvezmények: melyik jár neked.', 'Megnézem'],
   'lakasvaltas-kalkulator/': [() => 'Mennyit kapsz kézhez a régiért, mennyibe kerül az új, és mennyi hitel kell még.', 'Kiszámolom'],
   'lakaskiadas-ado-kalkulator/': [() => 'Mennyi adót fizetsz a bérleti díj után, és melyik a jobb: a 10% költséghányad vagy a tételes elszámolás.', 'Kiszámolom'],
   'ingatlaneladas-szja-kalkulator/': [() => 'Mennyi adót fizetsz, ha eladod a lakásod, a házad vagy a telked, mit vonhatsz le, és melyik évtől nem fizetsz semmit.', 'Kiszámolom'],
@@ -1082,4 +1084,108 @@ ${sor('', szamMezo({ id: 'hosszuHonap', cim: 'Hány hónapig van kiadva egy évb
     ],
     forrasKulcsok: ['rovid_tav.atalany', 'rovid_tav.onallo', 'rovid_tav.afa_mentesseg', 'rovid_tav.afa_mertek', 'rovid_tav.tfh', 'rovid_tav.platform', 'rovid_tav.budapest', 'berbeadas.ado_mertek'],
   });
+}
+
+/* ======================= ÚTMUTATÓK ======================= */
+// Szöveges oldalak, minden számuk a szabályfájlból jön, így a kalkulátorokkal együtt frissülnek.
+function utmutatoForrasok(adat, kulcsok) {
+  const m = new Map();
+  for (const kk of kulcsok) { const f = S.szabaly(adat, kk).forras; if (!m.has(f.url)) m.set(f.url, { nev: esc(f.nev), url: f.url, d: f.kelt ? datumHu(f.kelt) : '' }); }
+  return `<h2>Források</h2>${forrasLista([...m.values()])}`;
+}
+function utmutatoLd(k, cim, leiras, ut, kerdesek = []) {
+  const cikk = { '@context': 'https://schema.org', '@type': 'Article', headline: cim, description: leiras, inLanguage: 'hu', url: `${k.cfg.domain}/${ut}`, dateModified: (k.adat.allapot.utolso_ellenorzes || k.ma), author: { '@type': 'Organization', name: k.cfg.marka, url: `${k.cfg.domain}/` }, publisher: { '@type': 'Organization', name: k.cfg.marka, url: `${k.cfg.domain}/` } };
+  return [cikk, ...(kerdesek.length ? [gyikLd(kerdesek.map((q) => ({ k: q.k, v: [q.v] })))] : [])];
+}
+const gyikHtml = (kerdesek) => `<h2>Gyakori kérdések</h2>${gyik(kerdesek.map((q) => ({ k: q.k, v: [q.v] })))}`;
+
+export const MENETE_UT = 'lakasvasarlas-menete/';
+export function meneteOldal(k) {
+  const { adat } = k;
+  const v = (kk) => S.szabaly(adat, `vetel_koltsegek.${kk}`).ertek;
+  const il = (kk) => S.szabaly(adat, `illetek.${kk}`).ertek;
+  const hfm = S.szabaly(adat, 'hitel.hfm').ertek;
+  const p = S.indulo(adat, { vetelar: 50e6, hitel: 40e6 });
+  const t = (kk) => p.tetelek.find((x) => x.kulcs === kk)?.ft || 0;
+  const fh = v('foldhivatal'), fo = v('folyositas');
+  const L0 = (u) => `../${u}`;
+  const ut = MENETE_UT;
+  const cim = 'Hogyan zajlik a lakásvásárlás, lépésről lépésre?';
+  const leiras = `A lakásvásárlás menete ${k.ev}-ban: foglaló és adásvételi szerződés, hitelkérelem, értékbecslés, közjegyző, földhivatal, birtokba adás és illeték, minden lépésnél a díjakkal és a határidőkkel.`;
+  const kerdesek = [
+    { k: 'Mennyi foglalót szokás adni?', v: `A gyakorlatban a vételár ${v('foglalo').szazalek}%-át. A mértékét a felek szabadon állapítják meg. Ha a vevő hibájából hiúsul meg a vétel, a foglaló az eladónál marad, ha az eladó hibájából, kétszeresen kell visszaadnia.` },
+    { k: 'Mikor kell kifizetni az illetéket?', v: `Az adásvétel után a NAV hetekkel vagy hónapokkal később küldi a határozatot, és a kézhezvételtől számított ${il('fizetesi_hatarido').nap} napon belül kell fizetni. Az általános mérték a forgalmi érték ${il('altalanos_mertek').szazalek}%-a.` },
+    { k: 'Mennyi saját pénz kell egy 50 millió forintos lakáshoz?', v: `Ha 40 millió forint hitelt kapsz, ${M.fmt(p.onero)} Ft önerőt, és nagyjából ${M.fmt(p.mellek)} Ft díjat, plusz ${M.fmt(p.illetek.ado)} Ft illetéket, ha nem jár kedvezmény. <a href="${L0(INDULO_UT)}">A saját számaiddal itt számolhatod ki.</a>` },
+  ];
+  const tartalom = (L) => `
+${oldalfej(L, { morzsa: [['Lakást veszel', INDULO_UT], 'A lakásvásárlás menete'], cim, valasz: `Foglalóval és adásvételi szerződéssel indul, utána jön a hitel, a földhivatali bejegyzés, a birtokba adás, és hetekkel később az illeték. Egy 50 millió forintos lakásnál 40 millió forint hitellel összesen ${M.fmt(p.osszes)} Ft saját pénz kell az önerővel, a díjakkal és az illetékkel együtt.`, friss: M.datumNapon(adat.allapot.utolso_ellenorzes || k.ma) })}
+<div class="keret"><article class="cikk">
+<p>A lépéseket a minta számaival mutatjuk: 50 millió forintos használt lakás, 40 millió forint hitel. <a href="${L.l(INDULO_UT)}">A lakásvásárlás költségei kalkulátorban</a> a saját vételárad és hiteled szerint, időrendben látod ugyanezt.</p>
+<h2>1. Mennyi pénz kell, és mennyi hitelt kapsz?</h2>
+<p>A bank a lakás forgalmi értékének legfeljebb ${hfm.altalanos}%-át adhatja hitelnek, első lakásnál ${hfm.elso_lakas}%-át, ha vállalja. A többi önerő. A törlesztő a jövedelmedhez is kötött, ezért érdemes a keresgélés előtt kiszámolni, <a href="${L.l(HITEL_UT)}">mennyi hitelt kaphatsz</a>. Ha gyereket vállaltok, vagy ez az első lakásod, nézd meg a <a href="${L.l(CSOK_UT)}">CSOK Pluszt</a> és a <a href="${L.l(WEKERLE_UT)}">Wekerle Pluszt</a>.</p>
+<h2>2. Foglaló és adásvételi szerződés</h2>
+<p>Ha megvan a lakás, az ügyvéd megnézi a tulajdoni lapot, és elkészíti a szerződést. Aláíráskor a vevő foglalót fizet, a gyakorlatban a vételár ${v('foglalo').szazalek}%-át. Ezt saját pénzből kell kifizetni, mert a hitel csak később érkezik. Az ügyvédi díjat jogszabály nem rögzíti, általában a vételár ${M.tized(v('ugyvedi').uj_szazalek, 1)}–${M.tized(v('ugyvedi').szazalek, 0)}%-a. Az ügyvéd beadja a szerződést a földhivatalhoz, a tulajdonjog bejegyzése ${M.fmt(fh.tulajdon_ft)} Ft.</p>
+<p>A mintában ezen a ponton ${M.fmt(p.lepesek.find((x) => x.kulcs === 'szerzodes').ft)} Ft-ot fizetsz ki.</p>
+<h2>3. Hitelkérelem, értékbecslés, közjegyző</h2>
+<p>A szerződéssel a bankhoz mész. A bank értékbecslőt küld a lakásba (a mintában ${M.fmt(t('ertekbecsles'))} Ft, sok bank visszatéríti), és ha a becsült érték alacsonyabb a vételárnál, abból számolja a hitelt. A hitelszerződést közjegyzői okiratba kell foglalni, ennek díja a hitelösszegtől függ (40 millió forintnál ${M.fmt(t('kozjegyzo'))} Ft). A folyósítási díj legfeljebb a hitel ${M.tized(fo.szazalek, 2)}%-a és ${M.fmt(fo.max_ft)} Ft, támogatott hitelnél a banki díjak együtt legfeljebb ${M.fmt(fo.tamogatott_max_ft)} Ft. A jelzálogjog bejegyzése ${M.fmt(fh.jelzalog_ft)} Ft.</p>
+<p>A mintában ez a szakasz ${M.fmt(p.lepesek.find((x) => x.kulcs === 'hitel').ft)} Ft.</p>
+<h2>4. Folyósítás és birtokba adás</h2>
+<p>A bank a hitelt közvetlenül az eladónak utalja. Te az önerő foglalón felüli részét fizeted ki (a mintában ${M.fmt(p.lepesek.find((x) => x.kulcs === 'birtok').ft)} Ft), és megkapod a kulcsokat. A közműórák állását érdemes ilyenkor jegyzőkönyvbe venni.</p>
+<h2>5. Illeték, hetekkel később</h2>
+<p>A földhivatal értesíti a NAV-ot, a NAV pedig határozatot küld. A kézhezvételtől számított ${il('fizetesi_hatarido').nap} napod van fizetni. Az általános mérték a forgalmi érték ${il('altalanos_mertek').szazalek}%-a, a mintában ${M.fmt(p.illetek.ado)} Ft. Kevesebb lehet, ha 5 éven belül eladtad az előző lakásod, ha vállalkozótól veszel új lakást, ha 35 év alatt az első, legfeljebb ${M.fmt(il('elso_lakas_35').ertekhatar_ft / 1e6)} millió forintos lakásodat veszed, vagy ha CSOK Plusszal vásárolsz. <a href="${L.l(ILLETEK_UT)}">Az illetékkalkulátor</a> megmutatja, melyik jár.</p>
+${gyikHtml(kerdesek)}
+${utmutatoForrasok(adat, ['hitel.hfm', 'vetel_koltsegek.foglalo', 'vetel_koltsegek.ugyvedi', 'vetel_koltsegek.foldhivatal', 'vetel_koltsegek.kozjegyzo', 'vetel_koltsegek.folyositas', 'illetek.altalanos_mertek', 'illetek.fizetesi_hatarido'])}
+${tovabb(L, ut)}
+</article></div>`;
+  return oldal(k, { cim: 'A lakásvásárlás menete lépésről lépésre, díjakkal és határidőkkel', leiras, ut, tartalom, jsonld: [morzsaLd(k.cfg, [{ nev: 'Lakást veszel', ut: INDULO_UT }, { nev: 'A lakásvásárlás menete', ut }]), ...utmutatoLd(k, cim, leiras, ut, kerdesek)] });
+}
+
+export const TAMOGATAS_UT = 'lakastamogatasok/';
+export function tamogatasOldal(k) {
+  const { adat } = k;
+  const w = (kk) => S.szabaly(adat, `wekerle_plusz.${kk}`).ertek;
+  const c = (kk) => S.szabaly(adat, `csok_plusz.${kk}`).ertek;
+  const il = (kk) => S.szabaly(adat, `illetek.${kk}`).ertek;
+  const mill = (x) => M.fmt(x / 1e6);
+  const ut = TAMOGATAS_UT;
+  const cim = `Milyen állami támogatás jár lakásvásárláshoz ${k.ev}-ban?`;
+  const leiras = `Lakástámogatások ${k.ev}: Wekerle Plusz és CSOK Plusz hitel összevetve (életkor, összeg, kamat, árkorlát, illeték), és az illetékkedvezmények, jogszabályhelyekkel.`;
+  const sorok = [
+    ['Kinek', `${w('eletkor').tol}–${w('eletkor').ig} éveseknek, egyedül vagy párban, első lakáshoz`, `házaspároknak, ha a feleség ${c('hazaspar').feleseg_max_kor} év alatti, gyermekvállalással`],
+    ['Legfeljebb', `${mill(w('osszeg').max_ft)} millió Ft, ${w('osszeg').max_ev} évre`, `${mill(c('osszeg').egy_ft)}, ${mill(c('osszeg').ketto_ft)} vagy ${mill(c('osszeg').harom_ft)} millió Ft a gyerekszám szerint, ${c('kamat').min_futamido_ev}–${c('kamat').tamogatas_max_ev} évre`],
+    ['Kamat', `új lakásra ${w('kamat').uj_szazalek}%, használtra ${w('kamat').hasznalt_szazalek}%, fixen`, `legfeljebb ${c('kamat').szazalek}%, az első évben csak kamat`],
+    ['Vételár', `lakásnál ${mill(w('ertekhatar').lakas_max_ft)}, háznál ${mill(w('ertekhatar').haz_max_ft)} millió Ft, legfeljebb ${M.fmt(w('ertekhatar').nm_max_ft)} Ft/m²`, `első közös lakásnál ${mill(c('vetelar').elso_lakas_ft)}, háznál ${mill(c('vetelar').haz_ft)} millió Ft`],
+    ['Önerő', `legalább ${w('onero').min_szazalek}%`, 'a bank szabálya szerint'],
+    ['Illeték', 'meg kell fizetni', 'illetékmentes'],
+    ['Gyerekek után', '–', `${mill(c('tartozascsokkentes').ft)} millió Ft tartozáscsökkentés a második és minden további gyerek után`],
+  ];
+  const kerdesek = [
+    { k: 'Melyik a jobb, a Wekerle Plusz vagy a CSOK Plusz?', v: `Ha házasok vagytok és gyereket vállaltok, a CSOK Plusz kamata legfeljebb ${c('kamat').szazalek}%, az illetéket sem kell kifizetni, és a gyerekek után csökken a tartozás. A Wekerle Pluszhoz nem kell házasság és gyermekvállalás, viszont használt lakásra ${w('kamat').hasznalt_szazalek}% a kamat, és az illetéket ki kell fizetni.` },
+    { k: 'Jár illetékkedvezmény az első lakásra?', v: `Ha még nem töltötted be a 35. évedet, és az első lakásod forgalmi értéke legfeljebb ${mill(il('elso_lakas_35').ertekhatar_ft)} millió forint, fele illetéket fizetsz. Vállalkozótól vett új lakásnál ${mill(il('uj_lakas').mentes_resz_ft)} millió forintig nincs illeték, ${mill(il('uj_lakas').ertekhatar_ft)} millió forintig pedig az első ${mill(il('uj_lakas').mentes_resz_ft)} millió után nem kell fizetni.` },
+    { k: 'Mi lett az Otthon Starttal?', v: `A Wekerle Plusz ${esc(S.szabaly(adat, 'wekerle_plusz.indulas').szoveg)}` },
+  ];
+  const tartalom = (L) => `
+${oldalfej(L, { morzsa: [['Lakáshitel', HITEL_UT], 'Lakástámogatások'], cim, valasz: `Két kamattámogatott hitel van: a Wekerle Plusz (legfeljebb ${mill(w('osszeg').max_ft)} millió forint, ${w('kamat').uj_szazalek}% vagy ${w('kamat').hasznalt_szazalek}% kamattal, ${w('eletkor').ig} év alattiaknak) és a CSOK Plusz (gyereket vállaló házaspároknak, legfeljebb ${mill(c('osszeg').harom_ft)} millió forint, ${c('kamat').szazalek}%). Mellé jöhetnek az illetékkedvezmények.`, friss: M.datumNapon(adat.allapot.utolso_ellenorzes || k.ma) })}
+<div class="keret"><article class="cikk">
+<h2>A két támogatott hitel egymás mellett</h2>
+<div class="tabla-tarto"><table class="tabla">
+<thead><tr><th scope="col"></th><th scope="col"><a href="${L.l(WEKERLE_UT)}">Wekerle Plusz</a></th><th scope="col"><a href="${L.l(CSOK_UT)}">CSOK Plusz</a></th></tr></thead>
+<tbody>${sorok.map(([a, b, cc]) => `<tr><th scope="row">${a}</th><td>${b}</td><td>${cc}</td></tr>`).join('')}</tbody>
+</table></div>
+<p>Mindkét kalkulátor pontról pontra megnézi, megfelelsz-e a feltételeknek, és kiszámolja a havi törlesztőt.</p>
+<h2>Illetékkedvezmények</h2>
+<ul>
+<li><strong>Cserét pótló vétel:</strong> ${esc(S.szabaly(adat, 'illetek.cserepotlo').szoveg)}</li>
+<li><strong>Első lakás 35 év alatt:</strong> ${esc(S.szabaly(adat, 'illetek.elso_lakas_35').szoveg)}</li>
+<li><strong>Új lakás vállalkozótól:</strong> ${esc(S.szabaly(adat, 'illetek.uj_lakas').szoveg)}</li>
+<li><strong>CSOK Plusz:</strong> ${esc(S.szabaly(adat, 'illetek.csok_plusz').szoveg)}</li>
+<li><strong>Rokontól:</strong> ${esc(S.szabaly(adat, 'illetek.egyenesagi').szoveg)}</li>
+</ul>
+<p><a href="${L.l(ILLETEK_UT)}">Az illetékkalkulátor</a> kiválasztja, melyik a legkedvezőbb neked.</p>
+<p class="halk">A falusi CSOK-kal és a babaváró kölcsönnel ezen az oldalon még nem számolunk.</p>
+${gyikHtml(kerdesek)}
+${utmutatoForrasok(adat, ['wekerle_plusz.kamat', 'csok_plusz.osszeg', 'illetek.altalanos_mertek', 'illetek.csok_plusz', 'illetek.elso_lakas_35'])}
+${tovabb(L, ut)}
+</article></div>`;
+  return oldal(k, { cim: `Lakástámogatások ${k.ev}: Wekerle Plusz, CSOK Plusz és illetékkedvezmények`, leiras, ut, tartalom, jsonld: [morzsaLd(k.cfg, [{ nev: 'Lakáshitel', ut: HITEL_UT }, { nev: 'Lakástámogatások', ut }]), ...utmutatoLd(k, cim, leiras, ut, kerdesek)] });
 }

@@ -21,11 +21,13 @@ export const CSOPORTOK = [
     ['lakasvasarlas-koltsegei-kalkulator/', 'Vásárlás költségei', 'Önerő, illeték és minden díj, időrendben', 'A lakásvásárlás költségei'],
     ['vagyonszerzesi-illetek-kalkulator/', 'Illeték', 'Mennyi, és melyik kedvezmény jár', 'Vagyonszerzési illeték'],
     ['alberlet-vagy-lakasvasarlas-kalkulator/', 'Bérlés vagy vétel', 'Melyikkel jársz jobban hosszú távon', 'Albérlet vagy lakásvásárlás'],
+    ['lakasvasarlas-menete/', 'A vásárlás menete', 'Lépésről lépésre, díjakkal', 'A lakásvásárlás menete lépésről lépésre'],
   ] },
   { id: 'hitel', cim: 'Lakáshitel', bevezeto: 'Mennyit kaphatsz, mennyi lesz a törlesztő, és megéri-e előtörleszteni.', elemek: [
     ['mennyi-lakashitelt-kaphatok/', 'Mennyi hitelt kaphatsz', 'A jövedelmed és a lakás értéke szerint', 'Mennyi lakáshitelt kaphatsz'],
     ['wekerle-plusz-kalkulator/', 'Wekerle Plusz', 'Jogosultság és törlesztő', 'Wekerle Plusz hitel'],
     ['csok-plusz-kalkulator/', 'CSOK Plusz', 'Mennyi jár a gyerekszám szerint', 'CSOK Plusz hitel'],
+    ['lakastamogatasok/', 'Lakástámogatások', 'Wekerle Plusz és CSOK Plusz egymás mellett', 'Lakástámogatások összevetve'],
     ['elotorlesztes-kalkulator/', 'Előtörlesztés', 'Rövidebb futamidő vagy kisebb törlesztő', 'Előtörlesztés'],
   ] },
   { id: 'eladod', cim: 'Eladod a lakásod', bevezeto: 'Mennyi adót fizetsz az eladás után, és mi a helyzet, ha az árából másikat veszel.', elemek: [

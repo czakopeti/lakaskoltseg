@@ -1,6 +1,6 @@
 // Az elszámolás (eredmény) HTML-je. Ugyanezt használja az építő (a HTML-ben már benne van a szám)
 // és a böngésző (élő számolás), így a kettő nem térhet el.
-import * as S from './szamitas.js?v=26823665';
+import * as S from './szamitas.js?v=cb1bcdae';
 
 const nf = new Intl.NumberFormat('hu-HU', { useGrouping: 'always' });
 export const fmt = (n) => nf.format(Math.round(n));
@@ -253,7 +253,7 @@ export function csokPanel(adat, r) {
   h += `<p class="panel-cim">A feltételek, a rendelet szerint</p><ul class="feltetelek">${r.feltetelek.map((x) => `<li class="f-${JEL_OK[x.ok][0]}"><span class="f-jel" aria-hidden="true"></span><span><b>${x.nev}</b> <span class="sr">${JEL_OK[x.ok][1]}</span><span class="al">${x.szoveg} <a href="${src}" target="_blank" rel="noopener">${x.par}</a></span></span></li>`).join('')}</ul>`;
   h += '<ul class="tetelek">';
   h += tetel('Legnagyobb hitelösszeg', ftx(r.maxHitel), { forras: 'hivatalos', forrasUrl: src, al: `${r.gyerekek} meglévő és ${r.vallalt} vállalt gyerekkel` });
-  h += tetel('Hitelösszeg', ftx(r.hitel), { forras: 'sajat' });
+  h += tetel('Hitelösszeg', ftx(r.hitel), r.kertMegadva ? { forras: 'sajat' } : { al: r.ar !== null && r.hitel < r.maxHitel ? 'legfeljebb a vételár' : 'a legtöbb, ami jár' });
   h += tetel(`Kamat: ${tized(r.kamat, 0)}%`, ftx(r.kamatOssz), { forras: 'hivatalos', forrasUrl: src, al: `${r.ev} év alatt, összesen ${ftx(r.osszesen)}-ot fizettek vissza` });
   h += tetel(`Ugyanez ${tized(r.piaciKamat, 1)}% kamattal`, `${ftx(r.piaciHavi)}/hó`, { forras: r.piaciSajat ? 'sajat' : 'becsles', forrasUrl: S.szabaly(adat, 'wekerle_plusz.piaci_kamat').forras.url, al: 'támogatás nélküli piaci hitelnél' });
   h += tetel('Ennyit ér a kamattámogatás', ftx(r.megtakaritas), { al: `${r.ev} év alatt` });
