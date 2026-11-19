@@ -541,3 +541,90 @@ body.beagyazott .mini, body.beagyazott .vj, body.beagyazott .kovetkezo { display
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ---------- Lakásár-térkép ---------- */
+.terkep { --tk-ures: var(--felulet2); margin-top: 8px; margin-bottom: 40px; display: grid; gap: 16px; }
+.tk-vezerlo { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.tk-csoport { display: inline-flex; background: var(--felulet); border-radius: 99px; padding: 4px; }
+.tk-gomb { font: 600 15px/1 var(--szoveg); border: 0; background: none; color: var(--tinta2); padding: 10px 16px; border-radius: 99px; cursor: pointer; transition: background .2s, color .2s; }
+.tk-gomb[aria-pressed="true"] { background: var(--tinta); color: var(--hatter); }
+.tk-tipus select, .tk-kereso input { font: 500 15px/1.2 var(--szoveg); color: var(--tinta); background: var(--felulet); border: 1px solid transparent; border-radius: 99px; padding: 11px 16px; }
+.tk-kereso { flex: 1 1 220px; }
+.tk-kereso input { width: 100%; }
+.tk-tipus select:focus, .tk-kereso input:focus { border-color: var(--tinta); outline: none; }
+.tk-vaszon { position: relative; display: grid; grid-template-columns: minmax(0, 3fr) minmax(220px, 1fr); gap: 20px; align-items: start; background: var(--felulet); border-radius: var(--r-nagy); padding: 28px 24px 20px; overflow: hidden; }
+.tk-orszag { min-height: 260px; }
+.tk-tolt { color: var(--tinta2); margin: 80px 0; text-align: center; }
+.tk-svg { width: 100%; height: auto; overflow: visible; }
+.tk-svg path[data-k] { fill: var(--tk-ures); stroke: var(--felulet); stroke-width: .18; cursor: pointer; transition: fill .9s var(--lagy) var(--d, 0ms); }
+.tk-svg-bp path[data-k] { stroke-width: 1.4; }
+.tk-kesz .tk-svg path[data-k] { transition: fill .7s var(--lagy); }
+.tk-svg path.tk-nincs { fill: var(--tk-ures); }
+.tk-svg path[data-k]:hover { stroke: var(--tinta); stroke-width: .5; }
+.tk-svg-bp path[data-k]:hover { stroke-width: 2.5; }
+.tk-svg path.tk-kijelolt { stroke: var(--tinta); stroke-width: .8; }
+.tk-svg-bp path.tk-kijelolt { stroke-width: 3.5; }
+.tk-svg .tk-megye { fill: none; stroke: var(--tinta); stroke-opacity: .45; stroke-width: .55; pointer-events: none; }
+.tk-bp { margin: 0; display: grid; gap: 8px; }
+.tk-bp figcaption { font: 600 14px/1.3 var(--szoveg); color: var(--tinta2); }
+.tk-ev { position: absolute; left: 28px; top: 14px; margin: 0; font: 700 clamp(40px, 7vw, 76px)/1 var(--cim); letter-spacing: -.04em; color: var(--tinta); opacity: .12; pointer-events: none; font-variant-numeric: tabular-nums; }
+.tk-jatszik .tk-ev { opacity: .9; }
+.tk-ev.tk-villan { animation: tk-villan .9s var(--lagy); }
+@keyframes tk-villan { from { transform: translateY(10px); opacity: .3; } to { transform: none; } }
+.tk-tipp { position: absolute; z-index: 5; pointer-events: none; background: var(--tinta); color: var(--hatter); border-radius: var(--r-kicsi); padding: 9px 12px; font-size: 14px; line-height: 1.4; display: grid; max-width: 260px; box-shadow: 0 6px 24px rgba(0, 0, 0, .18); }
+.tk-tipp b { font-weight: 700; }
+.tk-ido { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px 20px; align-items: center; }
+.tk-lejatszas { display: inline-flex; gap: 8px; align-items: center; font: 600 15px/1 var(--szoveg); background: var(--sarga); color: #14161B; border: 0; border-radius: 99px; padding: 12px 18px 12px 14px; cursor: pointer; transition: transform .2s var(--lagy); }
+.tk-lejatszas:hover { transform: translateY(-1px); }
+.tk-lejatszas svg { width: 18px; height: 18px; fill: currentColor; }
+.tk-jatszik .tk-lejatszas svg path { d: path("M5 4h4v12H5zM11 4h4v12h-4z"); }
+.tk-ido input[type="range"] { width: 100%; accent-color: var(--tinta); }
+.tk-skala { grid-column: 1 / -1; }
+.tk-skala-cim { margin: 0 0 6px; font-size: 14px; color: var(--tinta2); }
+.tk-sav { display: grid; grid-template-columns: repeat(10, 1fr); height: 14px; border-radius: 99px; overflow: hidden; }
+.tk-sav-cimkek { position: relative; height: 20px; font-size: 12px; color: var(--tinta2); }
+.tk-sav-cimkek span { position: absolute; top: 3px; transform: translateX(-50%); white-space: nowrap; }
+.tk-skala-nincs { display: flex; gap: 8px; align-items: center; margin: 6px 0 0; font-size: 13px; color: var(--tinta2); }
+.tk-skala-nincs i { width: 14px; height: 14px; border-radius: 4px; background: var(--tk-ures); outline: 1px solid var(--vonal2); }
+.tk-adatlap { scroll-margin: 100px; }
+.tk-lap { position: relative; background: var(--hatter); border: 1px solid var(--vonal); border-radius: var(--r-nagy); padding: 24px 24px 20px; box-shadow: 0 10px 40px rgba(20, 22, 27, .08); display: grid; gap: 10px; }
+.tk-lap.tk-uj { animation: tk-be .5s var(--lagy); }
+@keyframes tk-be { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.tk-lap h3 { font-size: clamp(24px, 3vw, 32px); }
+.tk-hol { margin: 0; font-size: 14px; color: var(--tinta2); }
+.tk-nagy { margin: 0; font: 700 clamp(32px, 5vw, 48px)/1.05 var(--cim); letter-spacing: -.03em; }
+.tk-nagy small { font: 500 16px/1 var(--szoveg); letter-spacing: 0; color: var(--tinta2); margin-left: 6px; }
+.tk-valt { margin: 0; color: var(--tinta2); }
+.tk-bezar { position: absolute; right: 14px; top: 12px; width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--felulet); color: var(--tinta); font-size: 22px; line-height: 1; cursor: pointer; }
+.tk-grafikon { width: 100%; max-width: 420px; height: auto; overflow: visible; }
+.tk-grafikon .tk-vonal { fill: none; stroke: var(--tinta); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
+.tk-uj .tk-grafikon .tk-vonal { animation: tk-rajz 1.1s var(--lagy) .15s both; }
+@keyframes tk-rajz { from { stroke-dashoffset: 1; } }
+.tk-grafikon circle { fill: var(--hatter); stroke: var(--tinta); stroke-width: 2; }
+.tk-grafikon circle.most { fill: var(--sarga); }
+.tk-grafikon text { font: 500 11px var(--szoveg); fill: var(--tinta2); }
+.tk-tipusok { border-collapse: collapse; font-size: 15px; width: 100%; max-width: 480px; }
+.tk-tipusok th, .tk-tipusok td { text-align: left; padding: 6px 12px 6px 0; border-top: 1px solid var(--vonal); font-weight: 500; }
+.tk-tipusok td { text-align: right; white-space: nowrap; }
+.tk-utca-gomb { justify-self: start; font: 600 15px/1 var(--szoveg); border: 1px solid var(--tinta); background: none; color: var(--tinta); border-radius: 99px; padding: 10px 16px; cursor: pointer; }
+.tk-utca-gomb[aria-expanded="true"] { background: var(--tinta); color: var(--hatter); }
+.tk-utcak { display: grid; gap: 10px; margin-top: 10px; }
+.tk-utca-szuro input { font: 500 15px var(--szoveg); width: min(100%, 320px); padding: 10px 14px; border-radius: 99px; border: 1px solid var(--vonal2); background: var(--hatter); color: var(--tinta); }
+.tk-utca-lista { max-height: 360px; overflow: auto; border: 1px solid var(--vonal); border-radius: var(--r-kozep); }
+.tk-utca-lista table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tk-utca-lista th, .tk-utca-lista td { padding: 7px 12px; border-bottom: 1px solid var(--vonal); text-align: left; font-weight: 500; }
+.tk-utca-lista td { text-align: right; white-space: nowrap; }
+.tk-utca-lista thead th { position: sticky; top: 0; background: var(--felulet); font-weight: 600; }
+.tk-utca-lista small { color: var(--tinta2); }
+.tk-forras { margin: 0; }
+@media (max-width: 860px) {
+  .tk-vaszon { grid-template-columns: 1fr; padding: 22px 14px 16px; }
+  .tk-bp { max-width: 420px; }
+  .tk-ido { grid-template-columns: 1fr; }
+}
+@media (prefers-color-scheme: dark) {
+  .tk-svg .tk-megye { stroke: #FFFFFF; stroke-opacity: .35; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tk-svg path[data-k], .tk-lap.tk-uj, .tk-uj .tk-grafikon .tk-vonal, .tk-ev.tk-villan { transition: none !important; animation: none !important; }
+}

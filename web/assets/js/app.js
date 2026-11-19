@@ -1,7 +1,7 @@
 // Böngészős réteg: menü, űrlapok, élő elszámolás, megosztható link.
 // Szerverre csak az megy, amit a látogató a visszajelzés-dobozban maga elküld.
-import * as S from './szamitas.js?v=cb1bcdae';
-import * as M from './megjelenites.js?v=cb1bcdae';
+import * as S from './szamitas.js?v=1379653b';
+import * as M from './megjelenites.js?v=1379653b';
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];

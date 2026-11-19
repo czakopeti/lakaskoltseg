@@ -23,6 +23,7 @@ export const FOOLDAL_KARTYAK = {
   'wekerle-plusz-kalkulator/': [() => 'Pontról pontra megnézi, megfelelsz-e a feltételeknek, és mennyi lesz a havi törlesztő 3 vagy 5%-os kamattal.', 'Megnézem'],
   'csok-plusz-kalkulator/': [() => 'Mennyi hitel jár a gyerekszámotok szerint, mennyi lesz a törlesztő, és mennyit enged el az állam a gyerekek után.', 'Kiszámolom'],
   'lakasvasarlas-menete/': [() => 'Foglaló, szerződés, hitel, földhivatal, birtokba adás és illeték sorrendben, minden lépésnél a díjjal és a határidővel.', 'Elolvasom'],
+  'lakasarak/': [() => 'Valódi eladási árak a NAV illetékadataiból, településenként, kerületenként és utcánként, térképen.', 'Megnézem'],
   'lakastamogatasok/': [() => 'A Wekerle Plusz és a CSOK Plusz egy táblázatban, és az illetékkedvezmények: melyik jár neked.', 'Megnézem'],
   'lakasvaltas-kalkulator/': [() => 'Mennyit kapsz kézhez a régiért, mennyibe kerül az új, és mennyi hitel kell még.', 'Kiszámolom'],
   'lakaskiadas-ado-kalkulator/': [() => 'Mennyi adót fizetsz a bérleti díj után, és melyik a jobb: a 10% költséghányad vagy a tételes elszámolás.', 'Kiszámolom'],
@@ -367,7 +368,7 @@ export function eladasOldal(k) {
   return kalkOldal(k, {
     ut: ELADAS_UT, tipus: 'eladas', nev: 'Eladás adója', temak: ['szja_eladas'],
     oldalCim: `Ingatlaneladás szja-kalkulátor ${k.ev}: mennyi az adó?`,
-    leiras: `Ingatlaneladás adója ${k.ev}-ben: a szerzés évéből, az eladási árból és a költségekből kiszámolja a ${kulcs}%-os szja-t, és megmutatja, melyik évtől adómentes.`,
+    leiras: `Ingatlaneladás adója ${M.evBan(k.ev)}: a szerzés évéből, az eladási árból és a költségekből kiszámolja a ${kulcs}%-os szja-t, és megmutatja, melyik évtől adómentes.`,
     cim: 'Mennyi adót fizetsz, ha eladod az ingatlanod?',
     valasz: `A nyereség egy része után ${kulcs}% személyi jövedelemadót fizetsz, a szerzést követő ${mentesEvek}. évtől pedig semmit. Például egy ${k.ev - 2}-ben 50 millió forintért vett és ${M.rag(k.ev, 'ban', 'ben')} 60 millió forintért eladott lakásnál, 2 millió forint költséggel ez ${M.fmt(pelda.ado)} Ft.`,
     urlapCim: 'Az eladott ingatlan', urlapAl: 'Lakás, ház, nyaraló, telek',
@@ -425,7 +426,7 @@ export function illetekOldal(k) {
     ut: ILLETEK_UT, tipus: 'illetek', nev: 'Illeték', temak: ['illetek', 'haszonelvezet'],
     adatExtra: { lakasar: { forras: adat.lakasar.forras, evek: adat.lakasar.evek, hasznalt: adat.lakasar.hasznalt, uj: adat.lakasar.uj, hasznaltRegio: adat.lakasar.hasznaltRegio } },
     oldalCim: `Vagyonszerzési illeték kalkulátor ${k.ev}: minden kedvezménnyel`,
-    leiras: `Lakásvásárlás illetéke ${k.ev}-ben: ${m}% és a kedvezmények (cserét pótló vétel, új lakás, 35 év alatti első lakás, CSOK Plusz, rokontól vétel), a legkedvezőbb kiválasztásával.`,
+    leiras: `Lakásvásárlás illetéke ${M.evBan(k.ev)}: ${m}% és a kedvezmények (cserét pótló vétel, új lakás, 35 év alatti első lakás, CSOK Plusz, rokontól vétel), a legkedvezőbb kiválasztásával.`,
     cim: 'Mennyi illetéket fizetsz, ha lakást veszel?',
     valasz: `A forgalmi érték ${m}%-át, egy 60 millió forintos lakásnál ${M.fmt(p1.ado)} Ft-ot. Ha az elmúlt ${cs.elotte_ev} évben eladtál egy 45 millió forintos lakást, csak a különbözet után fizetsz: ${M.fmt(p2.ado)} Ft-ot.`,
     urlapCim: 'A megvett lakás', urlapAl: 'Ingatlan-adásvétel',
@@ -597,7 +598,7 @@ export function kiadasOldal(k) {
   return kalkOldal(k, {
     ut: KIADAS_UT, tipus: 'kiadas', nev: 'Kiadás adója', temak: ['berbeadas'],
     oldalCim: `Lakáskiadás adója ${k.ev}: ${kh}% költséghányad vagy tételes?`,
-    leiras: `Lakáskiadás szja-ja ${k.ev}-ben: ${kulcs}% a ${kh}% költséghányaddal vagy tételes elszámolással, a döntési ponttal és a negyedéves adóelőleg határidőivel.`,
+    leiras: `Lakáskiadás szja-ja ${M.evBan(k.ev)}: ${kulcs}% a ${kh}% költséghányaddal vagy tételes elszámolással, a döntési ponttal és a negyedéves adóelőleg határidőivel.`,
     cim: 'Mennyi adót fizetsz, ha kiadod a lakásod?',
     valasz: `A jövedelem ${kulcs}%-át. ${kh}% költséghányaddal havi 250 000 forintos bérleti díjnál ez évi ${M.fmt(p.A.ado)} Ft. Ha az igazolt költséged évi ${M.fmt(p.dontesiPont)} Ft fölött van, a tételes elszámolás az olcsóbb.`,
     urlapCim: 'A kiadott lakás', urlapAl: 'Tartós bérbeadás magánszemélyként',
@@ -730,7 +731,7 @@ export function ingyenesOldal(k) {
   return kalkOldal(k, {
     ut: INGYENES_UT, tipus: 'ingyenes', nev: 'Öröklés és ajándék', temak: ['ingyenes', 'haszonelvezet', 'illetek'],
     oldalCim: `Öröklési és ajándékozási illeték kalkulátor ${k.ev}`,
-    leiras: `Örökölt vagy ajándékba kapott lakás illetéke ${k.ev}-ben: ${m.lakas}% vagy ${m.altalanos}%. Ki mentes, és mit számítanak a terhek és a haszonélvezet.`,
+    leiras: `Örökölt vagy ajándékba kapott lakás illetéke ${M.evBan(k.ev)}: ${m.lakas}% vagy ${m.altalanos}%. Ki mentes, és mit számítanak a terhek és a haszonélvezet.`,
     cim: 'Mennyi illetéket fizetsz, ha lakást örökölsz vagy kapsz?',
     valasz: `Szülőtől, gyermektől, nagyszülőtől, házastárstól és testvértől semmit. Mástól lakásnál a tiszta érték ${m.lakas}%-át, más vagyonnál a ${m.altalanos}%-át. Egy 40 millió forintos örökölt lakás után például ${M.fmt(40e6 * m.lakas / 100)} Ft-ot.`,
     urlapCim: 'Az örökség vagy az ajándék', urlapAl: 'Ingyenes vagyonszerzés',
@@ -1111,7 +1112,7 @@ export function meneteOldal(k) {
   const L0 = (u) => `../${u}`;
   const ut = MENETE_UT;
   const cim = 'Hogyan zajlik a lakásvásárlás, lépésről lépésre?';
-  const leiras = `A lakásvásárlás menete ${k.ev}-ban: foglaló és adásvételi szerződés, hitelkérelem, értékbecslés, közjegyző, földhivatal, birtokba adás és illeték, minden lépésnél a díjakkal és a határidőkkel.`;
+  const leiras = `A lakásvásárlás menete ${M.evBan(k.ev)}: foglaló és adásvételi szerződés, hitelkérelem, értékbecslés, közjegyző, földhivatal, birtokba adás és illeték, minden lépésnél a díjakkal és a határidőkkel.`;
   const kerdesek = [
     { k: 'Mennyi foglalót szokás adni?', v: `A gyakorlatban a vételár ${v('foglalo').szazalek}%-át. A mértékét a felek szabadon állapítják meg. Ha a vevő hibájából hiúsul meg a vétel, a foglaló az eladónál marad, ha az eladó hibájából, kétszeresen kell visszaadnia.` },
     { k: 'Mikor kell kifizetni az illetéket?', v: `Az adásvétel után a NAV hetekkel vagy hónapokkal később küldi a határozatot, és a kézhezvételtől számított ${il('fizetesi_hatarido').nap} napon belül kell fizetni. Az általános mérték a forgalmi érték ${il('altalanos_mertek').szazalek}%-a.` },
@@ -1148,7 +1149,7 @@ export function tamogatasOldal(k) {
   const il = (kk) => S.szabaly(adat, `illetek.${kk}`).ertek;
   const mill = (x) => M.fmt(x / 1e6);
   const ut = TAMOGATAS_UT;
-  const cim = `Milyen állami támogatás jár lakásvásárláshoz ${k.ev}-ban?`;
+  const cim = `Milyen állami támogatás jár lakásvásárláshoz ${M.evBan(k.ev)}?`;
   const leiras = `Lakástámogatások ${k.ev}: Wekerle Plusz és CSOK Plusz hitel összevetve (életkor, összeg, kamat, árkorlát, illeték), és az illetékkedvezmények, jogszabályhelyekkel.`;
   const sorok = [
     ['Kinek', `${w('eletkor').tol}–${w('eletkor').ig} éveseknek, egyedül vagy párban, első lakáshoz`, `házaspároknak, ha a feleség ${c('hazaspar').feleseg_max_kor} év alatti, gyermekvállalással`],
@@ -1188,4 +1189,92 @@ ${utmutatoForrasok(adat, ['wekerle_plusz.kamat', 'csok_plusz.osszeg', 'illetek.a
 ${tovabb(L, ut)}
 </article></div>`;
   return oldal(k, { cim: `Lakástámogatások ${k.ev}: Wekerle Plusz, CSOK Plusz és illetékkedvezmények`, leiras, ut, tartalom, jsonld: [morzsaLd(k.cfg, [{ nev: 'Lakáshitel', ut: HITEL_UT }, { nev: 'Lakástámogatások', ut }]), ...utmutatoLd(k, cim, leiras, ut, kerdesek)] });
+}
+
+/* ======================= LAKÁSÁR-TÉRKÉP ======================= */
+// Valódi eladási árak (KSH Ingatlanadattár, a NAV illetékadataiból) térképen és táblázatokban.
+export const ARAK_UT = 'lakasarak/';
+export const ARAK_ADAT = 'adatok/lakasarak/';
+const ARAK_MIN_DB = 10; // a rangsorokban csak ennyi adásvétel fölött
+
+export function arakStat(adat) {
+  const a = adat.arak, n = a.evek.length - 1, ev = a.evek[n];
+  const elso = (s) => s.findIndex((v) => v != null);
+  const sor = (k, e) => {
+    const o = e.s.o || [], d = e.s.od || [];
+    const i0 = elso(o);
+    return { k, n: e.n, m: e.m, t: e.t, ar: o[n], db: d[n], elozo: o[n - 1], valt15: o[n] != null && i0 === 0 ? (o[n] / o[0] - 1) * 100 : null, valt1: o[n] != null && o[n - 1] != null ? (o[n] / o[n - 1] - 1) * 100 : null };
+  };
+  const egysegek = Object.entries(a.egysegek).map(([k, e]) => sor(k, e));
+  const megyek = Object.entries(a.megyek).map(([k, e]) => sor(k, e));
+  const van = (x) => x.ar != null;
+  const kerulet = egysegek.filter((x) => x.t === 5 && van(x)).sort((x, y) => y.ar - x.ar);
+  const mjv = egysegek.filter((x) => x.t === 2 && van(x)).sort((x, y) => y.ar - x.ar);
+  const videk = egysegek.filter((x) => x.m !== '01' && van(x) && x.db >= ARAK_MIN_DB).sort((x, y) => y.ar - x.ar);
+  return { ev, evek: a.evek, egysegek, megyek: megyek.filter(van).sort((x, y) => y.ar - x.ar), kerulet, mjv, videk, bp: megyek.find((x) => x.k === '01') };
+}
+
+export function arakOldal(k) {
+  const { adat } = k;
+  const st = arakStat(adat), ev = st.ev, ev0 = st.evek[0];
+  const ft = (ezer) => `${M.fmt(ezer * 1000)} Ft`;
+  const szaz = (v) => (v == null ? '–' : `${v >= 0 ? '+' : '−'}${M.fmt(Math.abs(Math.round(v)))}%`);
+  const nevRovid = (x) => x.n.replace(/^Budapest /, '');
+  const az = (nev) => `${/^(I|V)\.|^[AÁEÉIÍOÓÖŐUÚÜŰ]/i.test(nev) ? 'az' : 'a'} ${nev}`; // „az V. kerület”: ötödik
+  const tabla = (sorok, elso = 'Hol?', nev = (x) => x.n) => `<div class="tabla-tarto"><table class="tabla"><thead><tr><th scope="col">${elso}</th><th scope="col">Ft/m², ${ev}</th><th scope="col">Adásvétel</th><th scope="col">Egy év alatt</th><th scope="col">${ev0} óta</th></tr></thead><tbody>${sorok.map((x) => `<tr><th scope="row">${esc(nev(x))}</th><td>${M.fmt(x.ar * 1000)}</td><td>${M.fmt(x.db)}</td><td>${szaz(x.valt1)}</td><td>${szaz(x.valt15)}</td></tr>`).join('')}</tbody></table></div>`;
+  const kDraga = st.kerulet[0], kOlcso = st.kerulet.at(-1), vDraga = st.videk[0];
+  const ut = ARAK_UT;
+  const forras = adat.arak.forras;
+  const cim = 'Mennyiért kelnek el a lakások a környékeden?';
+  const leiras = `Lakásárak ${M.evBan(ev)} településenként és budapesti kerületenként, valódi adásvételekből (KSH Ingatlanadattár, NAV-illetékadatok): átlagos négyzetméterár, adásvételek száma, drágulás ${ev0} óta, térképen és utcánként.`;
+  const kerdesek = [
+    { k: 'Honnan vannak az árak?', v: [`A KSH Ingatlanadattárából. A KSH a NAV illetékhivatali adatbázisából számolja, vagyis a magánszemélyek közötti valódi lakásadásvételekből, ezért ezek eladási árak, nem hirdetési árak. Csak ott közöl adatot, ahol az évben legalább három adásvétel volt.`] },
+    { k: `Miért ${ev} a legfrissebb év?`, v: ['Az illetékkiszabás az adásvétel után hónapokkal zárul le, ezért a KSH egy évvel később közli az adatokat. Amint megjelenik az újabb év, a térkép és a táblázatok maguktól frissülnek.'] },
+    { k: 'Miért drágább a hirdetésekben ugyanaz a lakás?', v: ['A hirdetési ár a kért ár, és sok lakás alku után, olcsóbban kel el. A régi, rossz állapotú lakások is benne vannak az átlagban, az újépítésű lakások vállalkozótól vett első eladása viszont nem, mert azt nem magánszemély adja el.'] },
+    { k: 'Mire jó ez lakásvásárlásnál?', v: [`Megmutatja, mennyi a reális ár a környéken. A NAV is hasonló adatokkal ellenőrzi az illeték alapjául szolgáló forgalmi értéket. <a href="../${ILLETEK_UT}">Az illetékkalkulátorban</a> azt is megnézheted, mennyi illetékre számíthatsz.`] },
+  ];
+  const tartalom = (L) => `
+${oldalfej(L, { morzsa: ['Lakásárak'], cim, valasz: `${M.evBan(ev)} Budapesten átlagosan ${ft(st.bp.ar)} volt egy négyzetméter, a legdrágább ${az(nevRovid(kDraga))} (${ft(kDraga.ar)}), a legolcsóbb ${az(nevRovid(kOlcso))} (${ft(kOlcso.ar)}). Budapesten kívül ${esc(vDraga.n)} a legdrágább, ${ft(vDraga.ar)}. Ezek valódi eladási árak a NAV illetékadataiból, nem hirdetési árak.`, friss: M.datumNapon(adat.arak.ellenorizve || k.ma) })}
+<section class="keret terkep" data-terkep data-alap="${L.gyoker(ARAK_ADAT)}" data-ev="${ev}" aria-label="Lakásárak térképe">
+<div class="tk-vezerlo">
+<div class="tk-csoport" role="group" aria-label="Mit mutasson a térkép?"><button type="button" class="tk-gomb" data-mutato="ar" aria-pressed="true">Átlagár</button><button type="button" class="tk-gomb" data-mutato="valt" aria-pressed="false">Drágulás ${ev0} óta</button></div>
+<label class="tk-tipus"><span class="sr">Ingatlantípus</span><select data-tipus><option value="o">Minden lakóingatlan</option><option value="t">Társasházi lakás</option><option value="p">Panellakás</option><option value="h">Családi ház</option></select></label>
+<label class="tk-kereso"><span class="sr">Település vagy kerület</span><input type="search" data-kereso list="tk-nevek" placeholder="Település vagy kerület" autocomplete="off"><datalist id="tk-nevek"></datalist></label>
+</div>
+<div class="tk-vaszon">
+<div class="tk-orszag" data-orszag aria-hidden="true"><p class="tk-tolt">A térkép betöltése…</p></div>
+<figure class="tk-bp"><figcaption>Budapest kerületei</figcaption><div data-budapest aria-hidden="true"></div></figure>
+<p class="tk-ev" data-ev-cimke aria-hidden="true">${ev}</p>
+<div class="tk-tipp" data-tipp hidden></div>
+</div>
+<div class="tk-ido">
+<button type="button" class="tk-lejatszas" data-lejatszas aria-label="Lejátszás ${ev0}-tól"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6 4l10 6-10 6z"/></svg><span>Lejátszás ${ev0}-tól</span></button>
+<input type="range" min="${ev0}" max="${ev}" step="1" value="${ev}" data-ev-csuszka aria-label="Év">
+<div class="tk-skala" data-skala></div>
+</div>
+<div class="tk-adatlap" data-adatlap hidden></div>
+<p class="kicsi halk tk-forras">Forrás: <a href="${forras.url}" target="_blank" rel="noopener">${esc(forras.nev)}</a>. A KSH csak ott közöl árat, ahol az évben legalább három adásvétel volt. Határok: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>-közreműködők (ODbL), wuerdo/geoHungary.</p>
+<noscript><p>A térképhez JavaScript kell. Az árakat lent táblázatban is megtalálod.</p></noscript>
+</section>
+<div class="keret"><article class="cikk">
+<h2>Budapest kerületei</h2>
+<p>${M.evBan(ev)} a legdrágább és a legolcsóbb kerület között ${M.tized(kDraga.ar / kOlcso.ar, 1)}-szeres volt a különbség. ${ev0} óta a budapesti átlagár ${szaz(st.bp.valt15).replace('+', '')}-kal nőtt.</p>
+${tabla(st.kerulet, 'Kerület', nevRovid)}
+<h2>Vármegyék</h2>
+${tabla(st.megyek, 'Vármegye')}
+<h2>Megyei jogú városok</h2>
+${tabla(st.mjv, 'Város')}
+<h2>A legdrágább települések Budapesten kívül</h2>
+<p class="halk">Csak ahol legalább ${ARAK_MIN_DB} adásvétel volt ${M.evBan(ev)}.</p>
+${tabla(st.videk.slice(0, 20), 'Település')}
+<h2>A legolcsóbb települések</h2>
+${tabla(st.videk.slice(-20).reverse(), 'Település')}
+<h2>Gyakori kérdések</h2>
+${gyik(kerdesek)}
+<h2>Letöltés</h2>
+<p>A térkép adatai gépileg is letölthetők: <a href="${L.gyoker(ARAK_ADAT + 'arak.json')}">arak.json</a> (települések és kerületek, ${ev0}–${ev}). A KSH eredeti adatai az <a href="${forras.url}" target="_blank" rel="noopener">Ingatlanadattárban</a> vannak.</p>
+${tovabb(L, ut)}
+</article></div>
+<script type="module" src="${L.a(`js/terkep.js?v=${k.verzio}`)}"></script>`;
+  return oldal(k, { cim: `Lakásárak térképe ${ev}: településenként és kerületenként, valódi eladási árakból`, leiras, ut, tartalom, jsonld: [morzsaLd(k.cfg, [{ nev: 'Lakásárak', ut }]), gyikLd(kerdesek), { '@context': 'https://schema.org', '@type': 'Dataset', name: `Lakásárak településenként, ${ev0}–${ev}`, description: leiras, url: `${k.cfg.domain}/${ut}`, inLanguage: 'hu', isAccessibleForFree: true, temporalCoverage: `${ev0}/${ev}`, spatialCoverage: 'Magyarország', creator: { '@type': 'Organization', name: 'Központi Statisztikai Hivatal', url: 'https://www.ksh.hu/' }, isBasedOn: forras.url, distribution: [{ '@type': 'DataDownload', encodingFormat: 'application/json', contentUrl: `${k.cfg.domain}/${ARAK_ADAT}arak.json` }] }] });
 }

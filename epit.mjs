@@ -50,12 +50,21 @@ if (elonezet) css = css.replace(/url\(fonts\/([\w.-]+\.woff2)\)/g, (m, f) => `ur
 writeFileSync(join(KI, 'assets/style.css'), css);
 // A JavaScript-modulok egymást is verziószámmal töltik be: a Cloudflare a böngészőben órákig gyorsítótárazza a fájlokat,
 // és enélkül egy új app.js a régi szamitas.js-t kaphatná (2026. november 6-án így állt le két új kalkulátor).
-const JS = ['szamitas', 'megjelenites', 'app'];
+const JS = ['szamitas', 'megjelenites', 'app', 'terkep'];
 const jsNyers = Object.fromEntries(JS.map((f) => [f, readFileSync(join(GYOKER, `forras/js/${f}.mjs`), 'utf8')]));
 const jsOssz = JS.map((f) => jsNyers[f]).join('');
 const jsVerzio = createHash('sha1').update(jsOssz).digest('hex').slice(0, 8);
 for (const f of JS) writeFileSync(join(KI, `assets/js/${f}.js`), jsNyers[f].replace(/from '\.\/(\w+)\.mjs'/g, `from './$1.js?v=${jsVerzio}'`));
 const verzio = createHash('sha1').update(css + jsOssz).digest('hex').slice(0, 8);
+// A lakásár-térkép adatai: árak, határok, utcák vármegyénként (tömör JSON, a böngésző tölti be)
+{
+  const ki = join(KI, O.ARAK_ADAT);
+  mkdirSync(join(ki, 'utcak'), { recursive: true });
+  const { forras, ellenorizve, evek, megyek, egysegek } = adat.arak;
+  writeFileSync(join(ki, 'arak.json'), JSON.stringify({ forras, ellenorizve, evek, megyek, egysegek }));
+  for (const f of ['orszag', 'budapest']) cpSync(join(GYOKER, `forras/geo/${f}.json`), join(ki, `${f}.json`));
+  for (const f of readdirSync(join(GYOKER, 'data/utcak'))) cpSync(join(GYOKER, 'data/utcak', f), join(ki, 'utcak', f));
+}
 if (existsSync(join(GYOKER, 'forras/kepek'))) for (const f of readdirSync(join(GYOKER, 'forras/kepek'))) cpSync(join(GYOKER, 'forras/kepek', f), join(KI, f === 'og.png' ? 'assets/og.png' : f));
 
 const k = { cfg, adat, ma, ev, elonezet, verzio };
@@ -68,6 +77,7 @@ const oldalak = [
   [O.CSOK_UT, O.csokOldal(k)],
   [O.MENETE_UT, O.meneteOldal(k)],
   [O.TAMOGATAS_UT, O.tamogatasOldal(k)],
+  [O.ARAK_UT, O.arakOldal(k)],
   [O.ELOT_UT, O.elotorlesztesOldal(k)],
   [O.VALTAS_UT, O.lakasvaltasOldal(k)],
   [O.ELADAS_UT, O.eladasOldal(k)],
@@ -156,6 +166,12 @@ ${cfg.eles ? '' : '  X-Robots-Tag: noindex, nofollow, noarchive\n'}
   Cache-Control: public, max-age=3600
   Content-Type: application/json; charset=utf-8
 
+# A lakásár-térkép adatai: bárhonnan lekérhetők, egy napig gyorsítótárazhatók
+/adatok/lakasarak/*
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=86400
+  Content-Type: application/json; charset=utf-8
+
 # A betűk és a verziózott fájlok sokáig gyorsítótárazhatók
 /assets/fonts/*
   Cache-Control: public, max-age=31536000, immutable
@@ -188,6 +204,7 @@ https://:version.:project.pages.dev/*
     'lakaskiadas-ado-kalkulator/': `lakáskiadás szja-ja: 10% költséghányad vagy tételes elszámolás, a döntési pont, negyedéves adóelőleg és bevallás naptárfájlban`,
     'ingatlaneladas-szja-kalkulator/': `az eladott lakás, ház vagy telek személyi jövedelemadója a szerzés és az eladás évéből, az elszámolható költségekkel; mikortól adómentes, és meddig kell bevallani`,
     'lakasvasarlas-menete/': `a lakásvásárlás lépései sorrendben (foglaló és adásvételi szerződés, hitelkérelem, értékbecslés, közjegyző, földhivatal, birtokba adás, illeték), minden lépésnél a díjjal és a határidővel, egy 50 millió forintos minta számaival`,
+    'lakasarak/': `valódi lakáseladási árak (KSH Ingatlanadattár, NAV-illetékadatok) településenként, budapesti kerületenként és utcánként, ${adat.arak.evek[0]}–${adat.arak.evek.at(-1)}: átlagos négyzetméterár típusonként (társasház, panel, családi ház), adásvételek száma, drágulás, térképen évenkénti animációval; letölthető JSON`,
     'lakastamogatasok/': `a Wekerle Plusz és a CSOK Plusz egy táblázatban (kinek, mennyi, kamat, árkorlát, önerő, illeték, gyerekek után), és az illetékkedvezmények jogszabályhellyel`,
     'forrasok/': `minden szabály jogszabályhelye, forrása és az ellenőrzés napja`,
     'adatok/': `a KSH lakásárai településtípusonként és régiónként, az éves infláció és a szabályok Excelben, CSV-ben és JSON-ban, CC BY 4.0`,

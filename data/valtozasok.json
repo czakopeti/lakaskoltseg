@@ -3,6 +3,14 @@
   "bejegyzesek": [
     {
       "datum": "2026-11-19",
+      "mi": "Új adatforrás: a KSH Ingatlanadattár valódi eladási árai településenként, 2015–2024 (Budapest 2024-ben, ezer Ft/m²)",
+      "regi": null,
+      "uj": 981,
+      "forras": "https://www.ksh.hu/s/ingatlanadattar/",
+      "gepi": true
+    },
+    {
+      "datum": "2026-11-19",
       "mi": "A lakások négyzetméterára régiónként (KSH, használt lakások, új adatsor)",
       "regi": null,
       "uj": null,

@@ -19,6 +19,7 @@ export function betoltAdat() {
     allapot: olvas('data/allapot.json'),
     valtozasok: olvas('data/valtozasok.json'),
     lakasar: olvas('data/lakasar.json'),
+    arak: olvas('data/ingatlanadattar.json'),
   };
 }
 

@@ -10,6 +10,7 @@ Mennyi saját pénz kell, mennyi illetéket fizetsz, és megéri-e venni bérlé
 - [Vagyonszerzési illeték](https://ingatlanmerleg.hu/vagyonszerzesi-illetek-kalkulator/): lakásvásárlás illetéke (4%) és minden kedvezmény: cserét pótló vétel 5 éven belüli eladással, új lakás vállalkozótól, 35 év alatti első lakásszerző, CSOK Plusz, egyenes ági rokon; a legkedvezőbb kiválasztásával
 - [Albérlet vagy lakásvásárlás](https://ingatlanmerleg.hu/alberlet-vagy-lakasvasarlas-kalkulator/): albérlet vagy hitelből vétel: a vagyon N év múlva havi modellel, illetékkel és mellékköltségekkel, karbantartással, a bérlő pénze Prémium Magyar Állampapírban; három forgatókönyv a lakásárakra (infláció ±3 százalékpont), és melyik évben kerül előre a vétel
 - [A lakásvásárlás menete lépésről lépésre](https://ingatlanmerleg.hu/lakasvasarlas-menete/): a lakásvásárlás lépései sorrendben (foglaló és adásvételi szerződés, hitelkérelem, értékbecslés, közjegyző, földhivatal, birtokba adás, illeték), minden lépésnél a díjjal és a határidővel, egy 50 millió forintos minta számaival
+- [Lakásárak településenként](https://ingatlanmerleg.hu/lakasarak/): valódi lakáseladási árak (KSH Ingatlanadattár, NAV-illetékadatok) településenként, budapesti kerületenként és utcánként, 2015–2024: átlagos négyzetméterár típusonként (társasház, panel, családi ház), adásvételek száma, drágulás, térképen évenkénti animációval; letölthető JSON
 
 ## Lakáshitel
 

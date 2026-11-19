@@ -2,8 +2,11 @@
 // Mindegyik ugyanúgy működik: letölti az oldalt, kiolvassa a számot, és csak akkor írja át az adatot,
 // ha a szám hihető. Ha a kiolvasás nem sikerül, vagy a szám valószínűtlenül nagyot ugrik, a régi érték marad,
 // és a jelentésbe kerül (a workflow ebből jegyet nyit). Minden átírás a data/valtozasok.json naplóba is bekerül.
-import { olvas, ir, maBudapest } from '../forras/adat.mjs';
+import { olvas, ir, maBudapest, GYOKER } from '../forras/adat.mjs';
 import { szovegge } from './figyelo.mjs';
+import { mkdirSync, writeFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { IA, nevlista, tomorit, hiheto as iaHiheto } from './ingatlanadattar.mjs';
 
 const szam = (s) => Number(String(s).replace(',', '.'));
 const hu = (n) => String(n).replace('.', ',');
@@ -86,8 +89,8 @@ export function hiheto(uj, regi, { min, max, ugras }) {
   return regi == null || Math.abs(uj - regi) <= ugras;
 }
 
-async function letolt(url) {
-  const r = await fetch(url, { headers: { 'user-agent': 'Mozilla/5.0 (onallo-frissito; +https://github.com/czakopeti/lakaskoltseg)', 'accept-language': 'hu,en' }, redirect: 'follow', signal: AbortSignal.timeout(30000) });
+async function letolt(url, ido = 30000) {
+  const r = await fetch(url, { headers: { 'user-agent': 'Mozilla/5.0 (onallo-frissito; +https://github.com/czakopeti/lakaskoltseg)', 'accept-language': 'hu,en' }, redirect: 'follow', signal: AbortSignal.timeout(ido) });
   if (r.status === 404) return null;
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.text();
@@ -176,9 +179,42 @@ export async function futtat({ leto = letolt, ma = maBudapest() } = {}) {
     }
   } catch (e) { j.gond.push({ nev: 'KSH: a lakások átlagos négyzetméterára', url: la.forras.url, ok: String(e.message || e) }); }
 
+  // 4. Valódi eladási árak településenként és utcánként (KSH Ingatlanadattár, évente egyszer bővül)
+  const iaNev = 'KSH Ingatlanadattár: eladási árak településenként';
+  try {
+    const regi = existsSync(join(GYOKER, 'data/ingatlanadattar.json')) ? olvas('data/ingatlanadattar.json') : null;
+    const [adat, lista] = [await leto(IA.adat, 180000), await leto(IA.nevek, 60000)];
+    if (adat == null || lista == null) j.gond.push({ nev: iaNev, url: IA.oldal, ok: 'Az adatfájl vagy a településlista nem érhető el a megszokott címen.' });
+    else {
+      const uj = tomorit(JSON.parse(adat.replace(/^\uFEFF/, '')), nevlista(lista));
+      const gond = iaHiheto(regi, uj);
+      if (gond) j.gond.push({ nev: iaNev, url: IA.oldal, ok: `${gond[0].toUpperCase()}${gond.slice(1)}. Nem írtam át.` });
+      else {
+        const { utcak, ...fo } = uj;
+        const valtozott = !regi || JSON.stringify([fo.evek, fo.megyek, fo.egysegek]) !== JSON.stringify([regi.evek, regi.megyek, regi.egysegek]);
+        if (valtozott) {
+          const ujEv = fo.evek.at(-1);
+          j.atirt.push(regi && regi.evek.at(-1) === ujEv
+            ? { mi: `A KSH módosította az Ingatlanadattár ${ujEv}. évi adatait (Budapest, ezer Ft/m²)`, regi: regi.megyek['01'].s.o.at(-1), uj: fo.megyek['01'].s.o.at(-1), url: IA.oldal }
+            : { mi: `Megjelentek az Ingatlanadattár ${ujEv}. évi adatai (Budapest, ezer Ft/m²)`, regi: regi ? regi.megyek['01'].s.o.at(-1) : null, uj: fo.megyek['01'].s.o.at(-1), url: IA.oldal });
+          ir('data/ingatlanadattar.json', { forras: { nev: 'KSH Ingatlanadattár (a NAV illetékadatai alapján)', url: IA.oldal, letoltes: IA.adat, kelt: ma }, ellenorizve: ma, ...fo });
+          utcakIr(utcak);
+        } else if (regi) { regi.ellenorizve = ma; ir('data/ingatlanadattar.json', regi); }
+      }
+    }
+  } catch (e) { j.gond.push({ nev: iaNev, url: IA.oldal, ok: String(e.message || e) }); }
+
   for (const a of j.atirt) naplo.bejegyzesek.unshift({ datum: ma, mi: a.mi, regi: a.regi, uj: a.uj, forras: a.url, gepi: true });
   if (j.atirt.length) ir('data/valtozasok.json', naplo);
   return j;
+}
+
+/** Utcák vármegyénként: soronként egy település, hogy a git-különbség olvasható maradjon. */
+function utcakIr(utcak) {
+  mkdirSync(join(GYOKER, 'data/utcak'), { recursive: true });
+  for (const [m, tel] of Object.entries(utcak)) {
+    writeFileSync(join(GYOKER, `data/utcak/${m}.json`), `{\n${Object.entries(tel).map(([k, l]) => `${JSON.stringify(k)}: ${JSON.stringify(l)}`).join(',\n')}\n}\n`);
+  }
 }
 
 /** A jegy szövege (csak a gondok; az átírások a commitban és a naplóban látszanak). */

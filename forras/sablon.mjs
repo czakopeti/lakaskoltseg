@@ -5,6 +5,7 @@ import { datumHu, datumNapon, fmt, honapHu } from './js/megjelenites.mjs';
 export const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 export const MENU = [
+  { ut: 'lakasarak/', nev: 'Lakásárak' },
   { ut: 'lakasvasarlas-koltsegei-kalkulator/', nev: 'Vásárlás költségei' },
   { ut: 'vagyonszerzesi-illetek-kalkulator/', nev: 'Illeték' },
   { ut: 'wekerle-plusz-kalkulator/', nev: 'Wekerle Plusz' },
@@ -22,6 +23,7 @@ export const CSOPORTOK = [
     ['vagyonszerzesi-illetek-kalkulator/', 'Illeték', 'Mennyi, és melyik kedvezmény jár', 'Vagyonszerzési illeték'],
     ['alberlet-vagy-lakasvasarlas-kalkulator/', 'Bérlés vagy vétel', 'Melyikkel jársz jobban hosszú távon', 'Albérlet vagy lakásvásárlás'],
     ['lakasvasarlas-menete/', 'A vásárlás menete', 'Lépésről lépésre, díjakkal', 'A lakásvásárlás menete lépésről lépésre'],
+    ['lakasarak/', 'Lakásárak térképe', 'Valódi eladási árak településenként', 'Lakásárak településenként'],
   ] },
   { id: 'hitel', cim: 'Lakáshitel', bevezeto: 'Mennyit kaphatsz, mennyi lesz a törlesztő, és megéri-e előtörleszteni.', elemek: [
     ['mennyi-lakashitelt-kaphatok/', 'Mennyi hitelt kaphatsz', 'A jövedelmed és a lakás értéke szerint', 'Mennyi lakáshitelt kaphatsz'],

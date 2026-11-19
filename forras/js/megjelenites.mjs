@@ -38,6 +38,13 @@ export function os(ev) {
   return `${ev}-${r}`;
 }
 /** januárban … novemberben */
+/** Évszám a -ban/-ben raggal: 2024-ben, 2026-ban, 2030-ban. */
+export function evBan(y) {
+  const d = y % 10, t = Math.floor(y / 10) % 10;
+  const MELY = [3, 6, 8], MELY_TIZ = [2, 3, 6, 8]; // három, hat, nyolc; húsz, harminc, hatvan, nyolcvan
+  const mely = d ? MELY.includes(d) : t ? MELY_TIZ.includes(t) : y % 1000 !== 0; // száz: -ban, ezer: -ben
+  return `${y}-${mely ? 'ban' : 'ben'}`;
+}
 export function honapBan(h) { const n = S.HONAPOK[h - 1]; return n + (/(szeptember|október|november|december)$/.test(n) ? 'ben' : 'ban'); }
 export function honapHu(ev, honap) { return `${ev}. ${S.HONAPOK[honap - 1]}`; }
 
