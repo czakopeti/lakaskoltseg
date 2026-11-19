@@ -132,6 +132,7 @@ async function indit(el) {
 <button type="button" class="tk-bezar" data-bezar aria-label="Bezárás">×</button>
 <p class="tk-hol">${esc(hol)}</p><h3>${esc(u.n)}</h3>
 ${ar != null ? `<p class="tk-nagy">${ft(ar)}<small>/m², ${evek[S.ix]}${tip !== 'o' ? `, ${TIPUS[tip].toLowerCase()}` : ''}</small></p>
+${S.ix === utolso && A.becsles?.szorzok?.[k] && ar != null ? `<p class="tk-becsles">Becsült mai ár, ${A.becsles.cimke}: <b>kb. ${ft(Math.round(ar * A.becsles.szorzok[k]))}/m²</b></p>` : ''}
 <p class="tk-valt">${db ? `${fmt(db)} adásvétel alapján. ` : ''}${elozo != null ? `Egy év alatt ${szaz((ar / elozo - 1) * 100)}` : ''}${kezd != null && S.ix > 0 ? `${elozo != null ? ', ' : ''}${evek[0]} óta ${szaz((ar / kezd - 1) * 100)}.` : elozo != null ? '.' : ''}</p>` : `<p class="tk-valt">${evek[S.ix]}-re nincs adat: az évben háromnál kevesebb adásvétel volt.</p>`}
 ${grafikon(s)}
 ${sorok ? `<table class="tk-tipusok"><tbody>${sorok}</tbody></table>` : ''}

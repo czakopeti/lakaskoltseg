@@ -91,3 +91,32 @@ export function hiheto(regi, uj) {
   if (regiBp && regi.evek.at(-1) === ujEv && Math.abs(bp - regiBp.at(-1)) > regiBp.at(-1) * 0.3) return `a budapesti átlagár ugyanarra az évre ${regiBp.at(-1)} helyett ${bp}`;
   return null;
 }
+
+/**
+ * KSH STADAT 18.2.1.8 (lak0036.csv, ISO-8859-2, pontosvessző): a „YYYY = 100,0%” blokkból a használt lakások tiszta árindexe.
+ * → { bazis, negyedevek: [["2025-1", 94.2], ...] } vagy null.
+ */
+export const ARINDEX_URL = 'https://www.ksh.hu/stadat_files/lak/hu/lak0036.csv';
+export const ARINDEX_OLDAL = 'https://www.ksh.hu/stadat_files/lak/hu/lak0036.html';
+export function arindex(csvSzoveg) {
+  const sorok = csvSzoveg.split(/\r?\n/).map((x) => x.split(';'));
+  // a kódolástól független minta (ISO-8859-2-ként vagy UTF-8-ként olvasva is talál)
+  const fej = sorok.find((r) => /Tiszta.{1,20}haszn/.test(r.join(';')));
+  if (!fej) return null;
+  const oszlop = fej.findIndex((c) => /Tiszta.{1,20}haszn/.test(c));
+  const kezd = sorok.findIndex((r) => /^\d{4} = 100/.test(r[0].trim()));
+  if (kezd < 0 || oszlop < 0) return null;
+  const bazis = Number(sorok[kezd][0].trim().slice(0, 4));
+  const RN = { 'I.': 1, 'II.': 2, 'III.': 3, 'IV.': 4 };
+  const out = [];
+  let ev = null;
+  for (let i = kezd + 1; i < sorok.length; i++) {
+    const r = sorok[i];
+    if (/= 100/.test(r[0])) break;
+    if (/^\d{4}\.?$/.test(r[0].trim())) ev = Number(r[0].trim().slice(0, 4));
+    const q = RN[(r[1] || '').trim()];
+    const v = Number(String(r[oszlop] || '').replace(/\s/g, '').replace(',', '.'));
+    if (ev && q && r[oszlop] && r[oszlop].trim() && Number.isFinite(v)) out.push([`${ev}-${q}`, v]);
+  }
+  return out.length ? { bazis, negyedevek: out } : null;
+}

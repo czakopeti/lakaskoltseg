@@ -20,6 +20,7 @@ export function betoltAdat() {
     valtozasok: olvas('data/valtozasok.json'),
     lakasar: olvas('data/lakasar.json'),
     arak: olvas('data/ingatlanadattar.json'),
+    arindex: olvas('data/arindex.json'),
   };
 }
 

@@ -702,29 +702,49 @@ export const MEGYEK = [['budapest', 'Budapest', 'budapest'], ['bacs', 'Bács-Kis
 // A KSH „megyeszékhely” településtípusa (Budapest nélkül)
 export const MEGYESZEKHELYEK = ['Békéscsaba', 'Debrecen', 'Eger', 'Győr', 'Kaposvár', 'Kecskemét', 'Miskolc', 'Nyíregyháza', 'Pécs', 'Salgótarján', 'Szeged', 'Szekszárd', 'Székesfehérvár', 'Szolnok', 'Szombathely', 'Tatabánya', 'Veszprém', 'Zalaegerszeg'];
 
+const ROMAI_NEGYED = ['I.', 'II.', 'III.', 'IV.'];
+export const negyedevNev = (k) => `${k.slice(0, 4)}. ${ROMAI_NEGYED[Number(k.slice(5)) - 1]} negyedév`;
+
 /**
- * Az Ingatlanadattár utolsó évének ára továbbgörgetve a KSH településtípusos átlagárának (STADAT 18.1.2.9) újabb évére.
- * u: { n, m (KSH vármegyekód), t (KSH településtípus), s } — az adat.arak.egysegek eleme. ar: ezer Ft/m². null, ha nincs újabb év.
+ * Az Ingatlanadattár utolsó évének ára a mai napra görgetve, két lépésben:
+ *  1. a KSH településtípusos (és régiós) éves átlagárával (STADAT 18.1.2.9) a legújabb évre, ha az újabb az Ingatlanadattárénál;
+ *  2. az országos negyedéves árindexszel (STADAT 18.2.1.8, használt lakások, tiszta árváltozás) a legutóbbi negyedévre,
+ *     a lépés évének negyedéves átlagához képest.
+ * u: az adat.arak.egysegek eleme. ar: ezer Ft/m². null, ha egyik lépés sem tehető meg.
  */
 export function arBecsles(adat, u, tipus = 'o') {
-  const la = adat.lakasar, ia = adat.arak;
+  const la = adat.lakasar, ia = adat.arak, ai = adat.arindex;
   if (!la || !ia || !u?.s?.[tipus]) return null;
   const iaEv = ia.evek[ia.evek.length - 1], i0 = la.evek.indexOf(iaEv), i1 = la.evek.length - 1;
-  const ar = u.s[tipus][ia.evek.length - 1];
-  if (i0 < 0 || i0 === i1 || ar == null) return null;
-  let sor, hol;
-  if (u.m === '01') { sor = la.hasznalt.fovaros; hol = 'Budapesten'; }
-  else if (MEGYESZEKHELYEK.includes(u.n)) { sor = la.hasznalt.megyeszekhely; hol = 'a megyeszékhelyeken'; }
-  else {
-    const megyeNev = (ia.megyek[u.m]?.n || '').replace(/ vármegye$/, '');
-    const reg = MEGYEK.find((x) => x[1] === megyeNev)?.[2];
-    const tip = u.t === 4 ? 'kozseg' : 'varos';
-    sor = la.hasznaltRegio?.[reg]?.[tip] || la.hasznalt[tip];
-    hol = `${tip === 'kozseg' ? 'a községekben' : 'a városokban'}${la.hasznaltRegio?.[reg]?.[tip] && REGIO_NEV[reg] ? ` ${REGIO_NEV[reg]}` : ''}`;
+  const alap = u.s[tipus][ia.evek.length - 1];
+  if (alap == null || i0 < 0) return null;
+  let szorzo1 = 1, hol = null, ev1 = iaEv;
+  if (i0 < i1) {
+    let sor;
+    if (u.m === '01') { sor = la.hasznalt.fovaros; hol = 'Budapesten'; }
+    else if (MEGYESZEKHELYEK.includes(u.n)) { sor = la.hasznalt.megyeszekhely; hol = 'a megyeszékhelyeken'; }
+    else {
+      const megyeNev = (ia.megyek[u.m]?.n || '').replace(/ vármegye$/, '');
+      const reg = MEGYEK.find((x) => x[1] === megyeNev)?.[2];
+      const tip = u.t === 4 ? 'kozseg' : 'varos';
+      sor = la.hasznaltRegio?.[reg]?.[tip] || la.hasznalt[tip];
+      hol = `${tip === 'kozseg' ? 'a községekben' : 'a városokban'}${la.hasznaltRegio?.[reg]?.[tip] && REGIO_NEV[reg] ? ` ${REGIO_NEV[reg]}` : ''}`;
+    }
+    if (sor?.[i0] && sor[i1]) { szorzo1 = sor[i1] / sor[i0]; ev1 = la.evek[i1]; } else hol = null;
   }
-  if (!sor?.[i0] || !sor[i1]) return null;
-  const szorzo = sor[i1] / sor[i0];
-  return { ev: la.evek[i1], alapEv: iaEv, ar: Math.round(ar * szorzo), szorzo, hol, forras: la.forras };
+  // 2. lépés: a legutóbbi negyedév az ev1 év átlagához képest
+  let szorzo2 = 1, negyedev = null;
+  const q = ai?.negyedevek?.filter(([k]) => k.startsWith(`${ev1}-`)) || [];
+  const utolso = ai?.negyedevek?.at(-1);
+  if (q.length === 4 && utolso && utolso[0] > `${ev1}-4`) {
+    szorzo2 = utolso[1] / (q.reduce((t, [, v]) => t + v, 0) / 4);
+    negyedev = utolso[0];
+  }
+  if (szorzo1 === 1 && !negyedev) return null;
+  const szorzo = szorzo1 * szorzo2;
+  return { alapEv: iaEv, ev: negyedev ? Number(negyedev.slice(0, 4)) : ev1, cimke: negyedev ? negyedevNev(negyedev) : String(ev1),
+    lepes1: szorzo1 !== 1 ? { ev: ev1, szorzo: szorzo1, hol } : null, lepes2: negyedev ? { negyedev, szorzo: szorzo2 } : null,
+    ar: Math.round(alap * szorzo), szorzo, forras: la.forras, indexForras: ai?.forras };
 }
 
 const REGIO_NEV = { budapest: 'Budapesten', pest: 'Pest megyében', kozep_dunantul: 'a Közép-Dunántúlon', nyugat_dunantul: 'a Nyugat-Dunántúlon', del_dunantul: 'a Dél-Dunántúlon', eszak_magyarorszag: 'Észak-Magyarországon', eszak_alfold: 'az Észak-Alföldön', del_alfold: 'a Dél-Alföldön' };
@@ -745,7 +765,7 @@ export function telepArak(adat, oldalak = new Map()) {
     while (i >= a.evek.length - 3 && u.s.o?.[i] == null) i--;
     if (i < a.evek.length - 3) continue;
     const be = i === a.evek.length - 1 ? arBecsles(adat, u) : null;
-    out[u.n] = [u.m, a.evek[i], be ? Math.round(be.szorzo * 1000) / 1000 : null, ...['o', 't', 'p', 'h'].map((t) => u.s[t]?.[i] ?? null), oldalak.get(k) || null];
+    out[u.n] = [u.m, a.evek[i], be ? Math.round(be.szorzo * 1000) / 1000 : null, ...['o', 't', 'p', 'h'].map((t) => u.s[t]?.[i] ?? null), oldalak.get(k) || null, be ? be.cimke : null];
   }
   return out;
 }
@@ -757,13 +777,14 @@ export function forgalmiOsszevetes(adat, b) {
   const tn = String(b.telepules || '').trim().toLowerCase();
   const t = tn && adat.telepAr ? Object.entries(adat.telepAr).find(([n]) => n.toLowerCase() === tn) : null;
   if (t && !b.uj && ertek > 0 && terulet > 0) {
-    const [nev, [, ev, szorzo, o, ...tip]] = t;
+    const [nev, [, ev, szorzo, o, ...tip4]] = t;
+    const tip = tip4.slice(0, 3);
     const [ix, tipNev] = TIPUS_IA[b.ingTipus] || [];
     const alap = ix != null && tip[ix - 4] != null ? tip[ix - 4] : o;
     const mai = szorzo ? alap * szorzo : null;
     const atlag = (mai ?? alap) * 1000, m2 = ertek / terulet;
     const kuszob = szabaly(adat, 'illetek.forgalmi_ertek').ertek.jelzes_szazalek;
-    return { helyi: true, nev, ev, tipNev: ix != null && tip[ix - 4] != null ? tipNev : null, alapAtlag: alap * 1000, becsles: mai != null, becsEv: mai != null ? la.evek[la.evek.length - 1] : null,
+    return { helyi: true, nev, ev, tipNev: ix != null && tip[ix - 4] != null ? tipNev : null, alapAtlag: alap * 1000, becsles: mai != null, becsEv: mai != null ? t[1][8] : null,
       m2: Math.round(m2), atlag: Math.round(atlag / 1000) * 1000, arany: m2 / atlag * 100, kuszob, alacsony: m2 / atlag * 100 < kuszob, oldal: t[1][7] };
   }
   const megye = MEGYEK.find(([k]) => k === b.megye);

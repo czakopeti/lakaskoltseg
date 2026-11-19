@@ -9,6 +9,7 @@ import { xlsx, csv } from './forras/xlsx.mjs';
 import * as O from './forras/oldalak.mjs';
 import * as T from './forras/telepulesek.mjs';
 import * as M from './forras/js/megjelenites.mjs';
+import * as S from './forras/js/szamitas.mjs';
 
 const elonezet = process.argv.includes('--elonezet');
 const KI = join(GYOKER, elonezet ? 'elonezet' : 'web');
@@ -64,7 +65,9 @@ const arLista = T.oldalLista(adat);
   const ki = join(KI, O.ARAK_ADAT);
   mkdirSync(join(ki, 'utcak'), { recursive: true });
   const { forras, ellenorizve, evek, megyek, egysegek } = adat.arak;
-  writeFileSync(join(ki, 'arak.json'), JSON.stringify({ forras, ellenorizve, evek, megyek, egysegek, oldalak: Object.fromEntries(arLista.egysegek) }));
+  const becsles = { cimke: null, szorzok: {} };
+  for (const [kod, u] of Object.entries(egysegek)) { const b = S.arBecsles(adat, u); if (b) { becsles.cimke = b.cimke; becsles.szorzok[kod] = Math.round(b.szorzo * 1000) / 1000; } }
+  writeFileSync(join(ki, 'arak.json'), JSON.stringify({ forras, ellenorizve, evek, megyek, egysegek, oldalak: Object.fromEntries(arLista.egysegek), becsles }));
   for (const f of ['orszag', 'budapest']) cpSync(join(GYOKER, `forras/geo/${f}.json`), join(ki, `${f}.json`));
   for (const f of readdirSync(join(GYOKER, 'data/utcak'))) cpSync(join(GYOKER, 'data/utcak', f), join(ki, 'utcak', f));
 }

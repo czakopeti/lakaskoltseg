@@ -676,3 +676,5 @@ body.beagyazott .mini, body.beagyazott .vj, body.beagyazott .kovetkezo { display
 .utca-vezerlo { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .utca-ev { display: inline-flex; gap: 8px; align-items: center; font-weight: 600; }
 .utca-ev select { font: 500 16px var(--szoveg); padding: 10px 14px; border-radius: 99px; border: 1px solid var(--vonal2); background: var(--hatter); color: var(--tinta); }
+.szam-kartyak .becsles-kartya { background: var(--sarga2); }
+.tk-becsles { margin: 0; padding: 8px 12px; background: var(--sarga2); border-radius: var(--r-kicsi); justify-self: start; }

@@ -6,7 +6,7 @@ import { olvas, ir, maBudapest, GYOKER } from '../forras/adat.mjs';
 import { szovegge } from './figyelo.mjs';
 import { mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { IA, nevlista, tomorit, hiheto as iaHiheto } from './ingatlanadattar.mjs';
+import { IA, nevlista, tomorit, hiheto as iaHiheto, arindex, ARINDEX_URL, ARINDEX_OLDAL } from './ingatlanadattar.mjs';
 
 const szam = (s) => Number(String(s).replace(',', '.'));
 const hu = (n) => String(n).replace('.', ',');
@@ -203,6 +203,26 @@ export async function futtat({ leto = letolt, ma = maBudapest() } = {}) {
       }
     }
   } catch (e) { j.gond.push({ nev: iaNev, url: IA.oldal, ok: String(e.message || e) }); }
+
+  // 5. A KSH negyedéves lakáspiaci árindexe (használt lakások, tiszta árváltozás): a mai ár becsléséhez
+  const aiNev = 'KSH: negyedéves lakáspiaci árindex';
+  try {
+    const regi = existsSync(join(GYOKER, 'data/arindex.json')) ? olvas('data/arindex.json') : null;
+    const szoveg = await leto(ARINDEX_URL);
+    const uj = szoveg == null ? null : arindex(szoveg);
+    const utolso = uj?.negyedevek.at(-1);
+    const gond = !uj ? 'nem találtam a „YYYY = 100” blokkot a használt lakások tiszta árindexével'
+      : uj.negyedevek.length < 8 ? `csak ${uj.negyedevek.length} negyedév van benne`
+      : !(utolso[1] > 20 && utolso[1] < 300) ? `valószínűtlen utolsó érték: ${utolso[1]}`
+      : regi && regi.negyedevek.at(-1)[0] > utolso[0] ? `az utolsó negyedév ${utolso[0]}, korábban ${regi.negyedevek.at(-1)[0]} volt` : null;
+    if (gond) j.gond.push({ nev: aiNev, url: ARINDEX_OLDAL, ok: `${gond[0].toUpperCase()}${gond.slice(1)}. Nem írtam át.` });
+    else {
+      if (!regi || JSON.stringify([uj.bazis, uj.negyedevek]) !== JSON.stringify([regi.bazis, regi.negyedevek])) {
+        if (!regi || regi.negyedevek.at(-1)[0] !== utolso[0]) j.atirt.push({ mi: `A KSH negyedéves lakásárindexe, ${utolso[0].slice(0, 4)}. ${['I', 'II', 'III', 'IV'][Number(utolso[0].slice(5)) - 1]}. negyedév (használt lakások, ${uj.bazis} = 100)`, regi: null, uj: utolso[1], url: ARINDEX_OLDAL });
+      }
+      ir('data/arindex.json', { leiras: 'KSH STADAT 18.2.1.8: a használt lakások tiszta árindexe negyedévenként (a megadott év átlaga = 100). A mai ár becsléséhez.', forras: { nev: 'KSH STADAT 18.2.1.8. Lakáspiaci árindex negyedévenként', url: ARINDEX_OLDAL, letoltes: ARINDEX_URL, kelt: regi && JSON.stringify(regi.negyedevek) === JSON.stringify(uj.negyedevek) ? regi.forras.kelt : ma }, ellenorizve: ma, bazis: uj.bazis, negyedevek: uj.negyedevek });
+    }
+  } catch (e) { j.gond.push({ nev: aiNev, url: ARINDEX_OLDAL, ok: String(e.message || e) }); }
 
   for (const a of j.atirt) naplo.bejegyzesek.unshift({ datum: ma, mi: a.mi, regi: a.regi, uj: a.uj, forras: a.url, gepi: true });
   if (j.atirt.length) ir('data/valtozasok.json', naplo);

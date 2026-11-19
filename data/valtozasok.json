@@ -3,6 +3,14 @@
   "bejegyzesek": [
     {
       "datum": "2026-11-19",
+      "mi": "A KSH negyedéves lakásárindexe, 2026. II. negyedév (használt lakások, 2025 = 100)",
+      "regi": null,
+      "uj": 107,
+      "forras": "https://www.ksh.hu/stadat_files/lak/hu/lak0036.html",
+      "gepi": true
+    },
+    {
+      "datum": "2026-11-19",
       "mi": "Új adatforrás: a KSH Ingatlanadattár valódi eladási árai településenként, 2015–2024 (Budapest 2024-ben, ezer Ft/m²)",
       "regi": null,
       "uj": 981,
