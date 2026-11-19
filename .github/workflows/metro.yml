@@ -1,0 +1,34 @@
+name: Metró- és HÉV-megállók (OSM)
+# Havonta letölti a budapesti metró- és HÉV-megállókat és a 500 méteren belüli utcákat az OpenStreetMapből
+# (data/metro.json). Az árakat az építés teszi hozzá a KSH utcai adataiból. Nyilvános tárolóban ingyenes.
+on:
+  schedule:
+    - cron: '41 3 3 * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['frissito/metro.mjs', '.github/workflows/metro.yml']
+permissions:
+  contents: write
+concurrency:
+  group: metro
+  cancel-in-progress: false
+jobs:
+  metro:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Megállók és utcák letöltése
+        run: node frissito/metro.mjs
+      - name: Mentés
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898283+github-actions[bot]@users.noreply.github.com'
+          git add data/metro.json
+          if git diff --cached --quiet; then echo 'nincs változás'; exit 0; fi
+          git commit -m 'Metró- és HÉV-megállók frissítése (OSM)'
+          for i in 1 2 3; do git pull --rebase && git push && break; sleep 10; done
