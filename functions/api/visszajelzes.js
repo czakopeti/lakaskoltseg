@@ -90,7 +90,11 @@ export async function onRequestPost({ request, env }) {
       headers: { authorization: `Bearer ${env.GITHUB_TOKEN}`, accept: 'application/vnd.github+json', 'user-agent': 'ingatlanmerleg-visszajelzes', 'content-type': 'application/json' },
       body: JSON.stringify(j),
     });
-    return r.ok ? valasz({ ok: true }) : valasz({ hiba: 'github', status: r.status }, 502);
+    if (r.ok) return valasz({ ok: true });
+    // 4xx-szel válaszolunk: az 5xx-et a Cloudflare a saját hibaoldalára cseréli, és elveszne az ok
+    let uzenet = '';
+    try { uzenet = String((await r.json()).message || '').slice(0, 200); } catch {}
+    return valasz({ hiba: 'github', status: r.status, uzenet, repo: env.GITHUB_REPO || ALAP_REPO }, 424);
   }
   return valasz({ hiba: 'rossz kérés' }, 400);
 }
