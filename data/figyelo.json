@@ -75,7 +75,7 @@
     },
     "https://biztosdontes.hu/cikkek/illetekmentesseg": {
       "v": 6,
-      "hossz": 12187,
+      "hossz": 12202,
       "tenyek": [
         "90f5292209",
         "f3c1011aec",
@@ -159,7 +159,6 @@
       "v": 6,
       "hossz": 15544,
       "tenyek": [
-        "b228145d1a",
         "5ee0453207",
         "0b99005f94",
         "581e15cda7",
@@ -173,7 +172,6 @@
         "ede86171a1",
         "f6b86c677a"
       ],
-      "hiany": "b228145d1a",
       "latva": "2026-11-19",
       "ellenorizve": "2026-11-19"
     },
@@ -300,12 +298,13 @@
     },
     "https://infostart.hu/gazdasag/2022/08/21/fontos-kerdeseket-tisztaz-az-adohatosag": {
       "v": 6,
-      "hossz": 11187,
+      "hossz": 10893,
       "tenyek": [
         "100cb5a190",
         "933e08aa54",
         "c09f923c50"
       ],
+      "hiany": "100cb5a190",
       "latva": "2026-11-19",
       "ellenorizve": "2026-11-19"
     },
@@ -480,7 +479,6 @@
       "hossz": 10594,
       "tenyek": [
         "5b80d49d02",
-        "b1b603f977",
         "09921b36e1",
         "a0c68704c3",
         "104b31327c",
@@ -502,7 +500,6 @@
         "a3ea3902b7",
         "eb39d8f6d9",
         "2302a38221",
-        "1e72b91384",
         "5f98d8dfcd",
         "e94c8ca623",
         "8120d42318",
@@ -522,7 +519,6 @@
         "e206a62603",
         "75887e6296"
       ],
-      "hiany": "1e72b91384,b1b603f977",
       "latva": "2026-11-19",
       "ellenorizve": "2026-11-19"
     },
@@ -567,7 +563,7 @@
     },
     "https://hovege.hu/ugyes-bajos/2026/09/06/ennyi-az-ajandekozasi-illetek-merteke-2026-ban-mutatjuk-min-mulik-mennyit-kell-fizetned/": {
       "v": 6,
-      "hossz": 7061,
+      "hossz": 7040,
       "tenyek": [
         "6a7464d6f0",
         "c746a6a46a",
@@ -578,6 +574,7 @@
         "52284d8fb8",
         "e6d71a2268",
         "702783bbc7",
+        "b9670f8a89",
         "b980eef0f2",
         "61fa50719f"
       ],
@@ -906,7 +903,7 @@
     },
     "https://infostart.hu/gazdasag/2026/01/13/megjott-a-friss-inflacios-adat": {
       "v": 6,
-      "hossz": 11468,
+      "hossz": 11707,
       "tenyek": [
         "fbbc5b9544",
         "100cb5a190",
@@ -925,6 +922,7 @@
         "0bf9928c16",
         "0997d0a45f"
       ],
+      "hiany": "100cb5a190",
       "latva": "2026-11-19",
       "ellenorizve": "2026-11-19"
     },
@@ -994,7 +992,7 @@
     },
     "https://www.penzcentrum.hu/otthon/20260519/vegleges-tiltas-lep-eletbe-a-fovaros-sziveben-rengeteg-ingatlantulajdonos-bukja-el-emiatt-a-biztos-bevetelt-1198922/amp": {
       "v": 6,
-      "hossz": 3774,
+      "hossz": 3806,
       "tenyek": [
         "2d9ffbf48e",
         "1b64a823be",
@@ -1005,6 +1003,7 @@
         "5eb3d21bde",
         "abf1f60388"
       ],
+      "hiany": "1b64a823be,5eb3d21bde",
       "latva": "2026-11-19",
       "ellenorizve": "2026-11-19"
     },
