@@ -27,6 +27,9 @@ export const FOOLDAL_KARTYAK = {
   'forrasok/': [() => 'Minden szabály, amivel számolunk: jogszabályhely, forrás, és mikor ellenőriztük utoljára.', 'Megnézem'],
 };
 
+// A főoldali mintakártya lépéseinek rövid tartalma (a kalkulátorban a teljes leírás látszik)
+const HK_MI = { szerzodes: 'foglaló, ügyvéd, földhivatal', hitel: 'értékbecslés, közjegyző, banki díj', birtok: 'az önerő maradéka', illetek: 'vagyonszerzési illeték', egyeb: 'költözés, felújítás' };
+
 export function fooldal(k) {
   const sz = (kulcs) => S.szabaly(k.adat, kulcs).ertek;
   // A főoldal mintája: ugyanaz a számítás, mint a kalkulátorban, címkézve
@@ -49,7 +52,7 @@ export function fooldal(k) {
 <span class="hk-szam">${M.kozelitoen(p.osszes)}<small> Ft</small></span>
 <span class="hk-sav" aria-hidden="true"><i class="s1" style="--w:${ar(p.onero)}%"></i><i class="s2" style="--w:${ar(ill)}%"></i><i class="s3" style="--w:${ar(dij)}%"></i></span>
 <span class="hk-jel"><span class="j1">önerő ${M.tized(p.onero / 1e6, 1)} M</span><span class="j2">illeték ${M.tized(ill / 1e6, 1)} M</span><span class="j3">díjak ${M.tized(dij / 1e6, 1)} M</span></span>
-<span class="hk-ido">${p.lepesek.slice(0, 4).map((l) => `<span><span>${l.nev}</span><b>${M.fmt(l.ft)} Ft</b></span>`).join('')}</span>
+<span class="hk-ido">${p.lepesek.slice(0, 4).map((l) => `<span><span>${l.nev}<small>${HK_MI[l.kulcs] || ''}</small></span><b>${M.fmt(l.ft)} Ft</b></span>`).join('')}</span>
 <span class="hk-tovabb">Számold ki a sajátodat</span>
 </a>
 </section>

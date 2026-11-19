@@ -1,6 +1,6 @@
 // Az elszámolás (eredmény) HTML-je. Ugyanezt használja az építő (a HTML-ben már benne van a szám)
 // és a böngésző (élő számolás), így a kettő nem térhet el.
-import * as S from './szamitas.js?v=39fab436';
+import * as S from './szamitas.js?v=8f04041b';
 
 const nf = new Intl.NumberFormat('hu-HU', { useGrouping: 'always' });
 export const fmt = (n) => nf.format(Math.round(n));
@@ -547,7 +547,7 @@ export function berlesVetelPanel(adat, r) {
   h += megjegyzes(V.netto < r.berlet ? `Az első évben a saját lakás havonta nagyjából ${ftx(r.berlet - V.netto)}-tal kevesebbe kerül, mint a bérlés.` : `Az első évben a saját lakás havonta nagyjából ${ftx(V.netto - r.berlet)}-tal többe kerül, mint a bérlés. Hosszabb távon a bérleti díj emelkedése és a hitel csökkenő kamata fordíthat ezen.`);
   // Évről évre: a két vagyon az alapesetben
   const max = Math.max(...a.evente.map((x) => Math.max(x.vetel, x.berles)), 1);
-  h += `<p class="panel-cim" id="parok-cim">Évről évre, alapesetben</p><ol class="parok" aria-labelledby="parok-cim">${a.evente.map((x, i) => `<li style="--v:${(Math.max(0, x.vetel) / max * 100).toFixed(1)}%;--b:${(Math.max(0, x.berles) / max * 100).toFixed(1)}%;--i:${i}"><span class="pr-v" aria-hidden="true"></span><span class="pr-b" aria-hidden="true"></span><span class="pr-ev">${x.ev}.</span><span class="sr">${x.ev}. év: vétel ${fmt(x.vetel)} Ft, bérlés ${fmt(x.berles)} Ft</span></li>`).join('')}</ol><p class="parok-jel" aria-hidden="true"><span class="j-v">vétel</span><span class="j-b">bérlés</span></p>`;
+  h += `<p class="panel-cim" id="parok-cim">Évről évre, alapesetben</p><ol class="parok" aria-labelledby="parok-cim">${a.evente.map((x, i) => `<li style="--v:${(Math.max(0, x.vetel) / max * 100).toFixed(1)}%;--b:${(Math.max(0, x.berles) / max * 100).toFixed(1)}%;--i:${i}"><span class="pr-v" aria-hidden="true"></span><span class="pr-b" aria-hidden="true"></span><span class="pr-ev" aria-hidden="true">${x.ev}.</span><span class="sr">${x.ev}. év: vétel ${fmt(x.vetel)} Ft, bérlés ${fmt(x.berles)} Ft</span></li>`).join('')}</ol><p class="parok-jel" aria-hidden="true"><span class="j-v">vétel</span><span class="j-b">bérlés</span></p>`;
   h += `<p class="panel-cim">Három forgatókönyv a lakásárakra</p><div class="tabla-tarto"><table class="tabla"><thead><tr><th scope="col"></th><th scope="col">Lakásár/év</th><th scope="col">Vétel</th><th scope="col">Bérlés</th><th scope="col">Fordul</th></tr></thead><tbody>${r.forgatokonyvek.map((f) => `<tr${f.kulcs === 'alap' ? ' class="kiemelt-sor"' : ''}><th scope="row">${f.nev}</th><td>${tized(f.arNo, 1)}%</td><td>${fmt(f.vetel / 1e6)} M</td><td>${fmt(f.berles / 1e6)} M</td><td>${f.fordul ? `${f.fordul}. év` : 'nincs'}</td></tr>`).join('')}</tbody></table></div><p class="kicsi halk">A „fordul” oszlop az az év, amelytől a vétel több vagyont hagy, mint a bérlés.</p>`;
   h += '<ul class="tetelek">';
   h += tetel('Kezdő pénz a vételhez', ftx(r.kezdo), { al: `önerő ${fmt(r.onero)} Ft, illeték és mellékköltségek; ennyit fektet be a bérlő` });

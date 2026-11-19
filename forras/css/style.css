@@ -407,6 +407,7 @@ a.jel:hover { filter: brightness(1.15); }
 .hk-ido { display: grid; margin-top: 18px; background: rgba(255, 255, 255, .55); border-radius: 18px; padding: 6px 16px; }
 .hk-ido > span { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 14.5px; }
 .hk-ido b { white-space: nowrap; }
+.hk-ido small { display: block; font-size: 12.5px; color: var(--tinta2); margin-top: 1px; }
 .hk-ido > span + span { border-top: 1px solid rgba(20, 22, 27, .1); }
 .hk-tovabb { margin-top: 16px; justify-self: start; font-weight: 650; background: #14161B; color: var(--sarga); padding: 11px 18px; border-radius: 99px; }
 @media (max-width: 960px) { .hero { grid-template-columns: minmax(0, 1fr); padding-top: 36px; gap: 32px; } }

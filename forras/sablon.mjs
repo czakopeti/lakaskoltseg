@@ -127,7 +127,11 @@ ${cfg.eles && !elonezet && !/\.pages\.dev$/.test(new URL(cfg.domain).host) ? `<s
 <meta property="og:title" content="${esc(cim)}">
 <meta property="og:description" content="${esc(leiras)}">
 <meta property="og:url" content="${kanonikus}">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="${cfg.domain}/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="${esc(cfg.marka)}: mennyibe kerül valójában a lakás? Ingyenes kalkulátorok forrással és dátummal.">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#16181D" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="${L.gyoker('favicon.svg')}" type="image/svg+xml">
