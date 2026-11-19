@@ -25,6 +25,7 @@ export const CSOPORTOK = [
     ['lakasvasarlas-menete/', 'A vásárlás menete', 'Lépésről lépésre, díjakkal', 'A lakásvásárlás menete lépésről lépésre'],
     ['lakasarak/', 'Lakásárak térképe', 'Valódi eladási árak településenként', 'Lakásárak településenként'],
     ['mennyit-er-a-lakasom/', 'Mennyit ér a lakásom?', 'Becslés sávval, utcánként', 'Mennyit ér a lakásom?'],
+    ['lakasarak/metro/', 'Metró és HÉV', 'Árak megállónként', 'Lakásárak a metró mentén'],
     ['lakasarak/jelentes/', 'Éves lakásár-jelentés', 'Kvadráns, megfizethetőség, változások', 'Éves lakásár-jelentés'],
   ] },
   { id: 'hitel', cim: 'Lakáshitel', bevezeto: 'Mennyit kaphatsz, mennyi lesz a törlesztő, és megéri-e előtörleszteni.', elemek: [

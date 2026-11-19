@@ -412,3 +412,88 @@ ${tovabb(L, ut)}
 <script type="module" src="${L.a(`js/ertek.js?v=${k.verzio}`)}"></script>`;
   return oldal(k, { cim: 'Mennyit ér a lakásom? Becslés utcánként, valódi eladási árakból', leiras, ut, tartalom, jsonld: [morzsaLd(k.cfg, [{ nev: 'Lakásárak', ut: ARAK_UT }, { nev: 'Mennyit ér a lakásom?', ut }]), gyikLd(kerdesek), { '@context': 'https://schema.org', '@type': 'WebApplication', name: 'Mennyit ér a lakásom?', url: `${k.cfg.domain}/${ut}`, applicationCategory: 'FinanceApplication', operatingSystem: 'Web', inLanguage: 'hu', isAccessibleForFree: true, offers: { '@type': 'Offer', price: 0, priceCurrency: 'HUF' }, isBasedOn: a.forras.url }] });
 }
+
+/* ======================= METRÓ- ÉS HÉV-TÉRKÉP ======================= */
+// A megállók 500 méteres körzetében lévő utcák valódi eladási árai (KSH utcai adat), a megállók az OSM-ből (data/metro.json).
+export const METRO_UT = `${ARAK_UT}metro/`;
+const METRO_MIN_DB = 15;
+// Budapesten az országos skála szinte minden megállót a két legsötétebb színbe tenne, ezért itt saját határok kellenek
+const METRO_HATAR = [650, 750, 850, 950, 1050, 1150, 1250, 1350, 1450];
+const metroSkala = () => `<div class="mini-skala" aria-hidden="true"><span>${M.fmt(METRO_HATAR[0])} ezer Ft/m² alatt</span><i>${M.AR_SZINEK.map((c) => `<b style="background:${c}"></b>`).join('')}</i><span>${M.tized(METRO_HATAR.at(-1) / 1000, 2)} millió felett</span></div>`;
+
+export function metroAdat(adat) {
+  const f = join(GYOKER, 'data/metro.json');
+  if (!existsSync(f)) return null;
+  const mj = JSON.parse(readFileSync(f, 'utf8'));
+  const a = adat.arak, n = a.evek.length - 1;
+  const kerKod = {};
+  for (const [kod, u] of Object.entries(a.egysegek)) { const m = u.n.match(/^Budapest ([IVXL]+)\. kerület$/); if (m) kerKod[m[1]] = kod; }
+  const ut = utcak('01');
+  const utcaAr = new Map();
+  const ar = (ker, nev) => {
+    const kod = kerKod[ker]; if (!kod) return null;
+    const kulcs = `${kod}|${nev}`;
+    if (!utcaAr.has(kulcs)) { const sor = (ut[kod] || []).find((x) => x[0] === nev); utcaAr.set(kulcs, sor ? S.frissAtlag(sor[1], sor[2], a.egysegek[kod].s.o) : null); }
+    return utcaAr.get(kulcs);
+  };
+  const vonalak = mj.vonalak.map((v) => {
+    const allomasok = v.allomasok.map((al, i) => {
+      const sorok = mj.utcak.filter((x) => x[0] === v.ref && x[1] === i).map(([, , ker, nev, tav]) => ({ ker, nev, tav, ...(ar(ker, nev) || {}) })).filter((x) => x.ar);
+      const db = sorok.reduce((s, x) => s + x.db, 0);
+      const kerek = [...new Set(mj.utcak.filter((x) => x[0] === v.ref && x[1] === i).map((x) => x[2]))];
+      const atlag = db ? sorok.reduce((s, x) => s + x.ar * x.db, 0) / db : null;
+      // A kerület(ek) átlagához képest: mennyivel drágább a megálló környéke
+      const kerAtl = kerek.length ? kerek.map((k2) => a.egysegek[kerKod[k2]]?.s.o[n]).filter(Boolean) : [];
+      const ker = kerAtl.length ? kerAtl.reduce((s, x) => s + x, 0) / kerAtl.length : null;
+      return { nev: al.nev, lat: al.lat, lon: al.lon, ar: db >= METRO_MIN_DB ? Math.round(atlag) : null, db, utcaDb: sorok.length, kerek, felar: db >= METRO_MIN_DB && ker ? (atlag / ker - 1) * 100 : null, utcak: sorok.sort((x, y) => y.db - x.db).slice(0, 8) };
+    }).filter((al) => al.kerek.length); // csak a budapesti megállók
+    return { ...v, allomasok };
+  }).filter((v) => v.allomasok.length >= 3).sort((x, y) => (x.ref[0] === y.ref[0] ? x.ref.localeCompare(y.ref) : x.ref[0] === 'M' ? -1 : 1));
+  return { forras: mj.forras, kelt: mj.kelt, sugar: mj.sugar, vonalak, ev: a.evek[n], evTol: a.evek[Math.max(0, n - 2)] };
+}
+
+function vonalAbra(v, i) {
+  const lepes = 46, bal = 30, W = Math.max(520, bal + 150 + (v.allomasok.length - 1) * lepes), H = 185, y = 34;
+  const szin = v.szin || '#14161B';
+  const pontok = v.allomasok.map((al, j) => {
+    const x = bal + j * lepes;
+    const c = al.ar ? M.AR_SZINEK[M.arOsztaly(al.ar, METRO_HATAR)] : 'var(--hatter)';
+    return `<g class="mt-allomas" style="--k:${j}"><circle cx="${x}" cy="${y}" r="11" fill="${c}"${al.ar ? '' : ' class="mt-nincs"'}><title>${esc(al.nev)}: ${al.ar ? `${M.fmt(al.ar * 1000)} Ft/m² (${M.fmt(al.db)} eladás)${al.felar != null ? `, ${szaz(al.felar)} a kerülethez képest` : ''}` : 'kevés eladás a környéken'}</title></circle><text x="${x}" y="${y + 24}" transform="rotate(40 ${x} ${y + 24})">${esc(al.nev)}</text></g>`;
+  }).join('');
+  return `<figure class="mt-vonal" data-mt="${i}"><figcaption><span class="mt-jel" style="background:${szin}">${esc(v.ref)}</span> ${esc(v.nev.replace(/^.*?:\s*/, ''))}</figcaption>
+<div class="mt-gorgo"><svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${esc(v.ref)} vonal megállói ár szerint színezve" xmlns="http://www.w3.org/2000/svg"><line class="mt-sin" x1="${bal}" x2="${bal + (v.allomasok.length - 1) * lepes}" y1="${y}" y2="${y}" stroke="${szin}"/>${pontok}</svg></div></figure>`;
+}
+
+export function metroOldal(k) {
+  const { adat } = k;
+  const md = metroAdat(adat);
+  const ut = METRO_UT;
+  const minden = md.vonalak.flatMap((v) => v.allomasok.filter((al) => al.ar).map((al) => ({ ...al, vonal: v.ref })));
+  // Átszálló megállók: név szerint egyszer
+  const egyedi = [...new Map(minden.map((x) => [x.nev, x])).values()].sort((x, y) => y.ar - x.ar);
+  const legdragabb = egyedi[0], legolcsobb = egyedi.at(-1);
+  const felar = [...egyedi].filter((x) => x.felar != null).sort((x, y) => y.felar - x.felar);
+  const cim = 'Lakásárak a metró és a HÉV mentén';
+  const leiras = `Mennyibe kerül egy négyzetméter a budapesti metró- és HÉV-megállók ${md.sugar} méteres körzetében? Valódi eladási árak (KSH Ingatlanadattár, ${md.evTol}–${md.ev}) megállónként, vonalanként, a kerületi átlaggal összevetve.`;
+  const tabla = (t) => `<div class="tabla-tarto"><table class="tabla kicsi-tabla"><thead><tr><th scope="col">Megálló</th><th scope="col">Vonal</th><th scope="col">Ft/m²</th><th scope="col">A kerülethez képest</th><th scope="col">Eladás</th></tr></thead><tbody>${t.map((x) => `<tr><th scope="row">${esc(x.nev)}</th><td>${esc(x.vonal)}</td><td>${M.fmt(x.ar * 1000)}</td><td>${x.felar == null ? '–' : szaz(x.felar)}</td><td>${M.fmt(x.db)}</td></tr>`).join('')}</tbody></table></div>`;
+  const tartalom = (L) => `
+${oldalfej(L, { morzsa: [['Lakásárak', ARAK_UT], 'Metró és HÉV'], cim, valasz: `A metró- és HÉV-megállók ${md.sugar} méteres körzetében ${esc(legdragabb.nev)} környéke a legdrágább (${ft(legdragabb.ar)}/m²), ${esc(legolcsobb.nev)} környéke a legolcsóbb (${ft(legolcsobb.ar)}/m²). Valódi eladási árak ${md.evTol}–${md.ev} között, ${md.ev}-es árszinten.`, friss: M.datumNapon(adat.arak.ellenorizve || k.ma) })}
+<div class="keret"><article class="cikk metro">
+<p>Minden kör egy megálló, a színe az ${md.sugar} méteren belüli utcák átlagos négyzetméterára. Vidd fölé az egeret, vagy koppints rá. Üres a kör, ahol a környéken ${METRO_MIN_DB}-nél kevesebb lakást adtak el.</p>
+${metroSkala()}
+${md.vonalak.map((v, i) => vonalAbra(v, i)).join('\n')}
+<h2>A legdrágább megállók környéke</h2>
+${tabla(egyedi.slice(0, 12))}
+<h2>A legolcsóbb megállók környéke</h2>
+${tabla(egyedi.slice(-12).reverse())}
+<h2>Ahol a megálló a legtöbbet számít</h2>
+<p>A megálló környékének átlaga a kerület átlagához képest. Pozitív, ha a megálló közelében drágábban kelnek el a lakások, mint a kerületben általában.</p>
+${tabla(felar.slice(0, 12))}
+<h2>Hogyan számolunk?</h2>
+<p>A megállók helyét és az ${md.sugar} méteren belüli utcákat az OpenStreetMapből vesszük (havonta frissül). Minden utcához a KSH Ingatlanadattár utcai átlagárát rendeljük, az utolsó három év eladásaiból, a kerület árindexével ${md.ev}-re hozva, és a megálló átlaga az utcák eladásszámmal súlyozott átlaga. A hosszú utcáknak (például az Andrássy útnak vagy a Bartók Béla útnak) a teljes utcára számolt átlaga szerepel, akkor is, ha csak egy szakaszuk van a megálló közelében.</p>
+<p class="kicsi halk">Megállók és utcák: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>-közreműködők (ODbL), letöltve ${datumHu(md.kelt)}.</p>
+${forrasBlokk(adat, null)}
+${tovabb(L, ut)}
+</article></div>`;
+  return oldal(k, { cim: `Lakásárak a metró és a HÉV mentén: megállónként, valódi eladásokból, ${md.ev}`, leiras, ut, tartalom, jsonld: [morzsaLd(k.cfg, [{ nev: 'Lakásárak', ut: ARAK_UT }, { nev: 'Metró és HÉV', ut }]), { '@context': 'https://schema.org', '@type': 'Dataset', name: `Lakásárak a budapesti metró- és HÉV-megállók környékén, ${md.ev}`, description: leiras, url: `${k.cfg.domain}/${ut}`, inLanguage: 'hu', isAccessibleForFree: true, isBasedOn: [adat.arak.forras.url, 'https://www.openstreetmap.org/'] }] });
+}

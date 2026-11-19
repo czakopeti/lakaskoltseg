@@ -960,7 +960,7 @@ export function arSzoras(arak, utcakMegyenkent) {
 }
 
 /** A legutóbbi legfeljebb 3 év átlaga, adásvételekkel súlyozva, a település összesített árindexével a legutolsó évre hozva. */
-function frissAtlag(ar, db, index, evek = 3) {
+export function frissAtlag(ar, db, index, evek = 3) {
   const n = ar.length - 1; let sum = 0, w = 0; const hasznalt = [];
   for (let i = n; i >= Math.max(0, n - evek + 1); i--) {
     if (ar[i] == null || !db[i]) continue;

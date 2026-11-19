@@ -1,7 +1,7 @@
 // „Mennyit ér a lakásom?”: sávos becslés a KSH Ingatlanadattár utcai és települési átlagaiból.
 // Az adat ugyanaz, mint a lakásár-térképé (/adatok/lakasarak/), a számítás a szamitas.mjs lakasErtek függvénye.
-import { lakasErtek } from './szamitas.js?v=108e96a2';
-import { fmt, tized } from './megjelenites.js?v=108e96a2';
+import { lakasErtek } from './szamitas.js?v=71e52c63';
+import { fmt, tized } from './megjelenites.js?v=71e52c63';
 
 const doboz = document.querySelector('[data-ertek]');
 if (doboz) indit(doboz).catch((e) => {

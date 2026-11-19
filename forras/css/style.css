@@ -732,3 +732,21 @@ body.beagyazott .mini, body.beagyazott .vj, body.beagyazott .kovetkezo { display
 .ev-reszlet summary { cursor: pointer; font-weight: 600; }
 .ev-reszlet p { margin-top: 8px; font-size: 15px; }
 .ertek-link { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 14px 0 6px; font-size: 15px; color: var(--tinta2); }
+
+/* ---------- Metró- és HÉV-ártérkép ---------- */
+.mt-vonal { margin: 18px 0 8px; }
+.mt-vonal figcaption { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.mt-jel { display: inline-grid; place-items: center; min-width: 38px; height: 28px; padding: 0 6px; border-radius: 6px; color: #fff; font: 700 14px var(--szoveg); text-shadow: 0 1px 1px rgba(0,0,0,.35); }
+.mt-gorgo { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+.mt-gorgo svg { display: block; max-width: none; height: auto; font-family: var(--szoveg); }
+.mt-sin { stroke-width: 7; stroke-linecap: round; }
+.mt-allomas circle { stroke: var(--tinta); stroke-width: 2; }
+.mt-allomas circle.mt-nincs { stroke-dasharray: 3 3; }
+.mt-allomas text { font: 500 12px var(--szoveg); fill: var(--tinta); }
+.mt-allomas:hover circle { stroke-width: 3.5; }
+@media (prefers-reduced-motion: no-preference) {
+  .mt-sin { stroke-dasharray: 2400; stroke-dashoffset: 2400; animation: mt-rajz 1.4s ease-out forwards; }
+  .mt-allomas circle { transform-box: fill-box; transform-origin: center; transform: scale(0); animation: mt-pont .35s cubic-bezier(.3,1.6,.6,1) forwards; animation-delay: calc(.25s + var(--k) * 45ms); }
+  @keyframes mt-rajz { to { stroke-dashoffset: 0; } }
+  @keyframes mt-pont { to { transform: scale(1); } }
+}
