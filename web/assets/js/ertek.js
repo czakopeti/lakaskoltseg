@@ -1,7 +1,7 @@
 // „Mennyit ér a lakásom?”: sávos becslés a KSH Ingatlanadattár utcai és települési átlagaiból.
 // Az adat ugyanaz, mint a lakásár-térképé (/adatok/lakasarak/), a számítás a szamitas.mjs lakasErtek függvénye.
-import { lakasErtek } from './szamitas.js?v=71e52c63';
-import { fmt, tized } from './megjelenites.js?v=71e52c63';
+import { lakasErtek } from './szamitas.js?v=4c1fe162';
+import { fmt, tized } from './megjelenites.js?v=4c1fe162';
 
 const doboz = document.querySelector('[data-ertek]');
 if (doboz) indit(doboz).catch((e) => {
@@ -113,8 +113,8 @@ function kimenet(e, A, telepUt, kod) {
   const s = e.sav;
   const oldal = A.oldalak?.[kod];
   const hol = e.hol === 'utca'
-    ? `Az utca ${fmt(e.utca.db)} eladásából (${e.utca.evek[0]}–${e.utca.evek.at(-1)}, átlagosan ${fmt(e.utca.ar * 1000)} Ft/m² ${A.evek.at(-1)}-es áron)${e.utca.suly < 0.9 ? `, a kevés eladás miatt ${Math.round((1 - e.utca.suly) * 100)}%-ban a település átlagával együtt` : ''}.`
-    : `A település ${fmt(e.telepules.db)} ${TIPUS[e.tipus]}-eladásából (${e.telepules.evek[0]}–${e.telepules.evek.at(-1)}, átlagosan ${fmt(e.telepules.ar * 1000)} Ft/m² ${A.evek.at(-1)}-es áron).`;
+    ? `Az utca ${fmt(e.utca.db)} eladásából (${e.utca.evek[0]}–${e.utca.evek.at(-1)}, átlagosan ${fmt(Math.round(e.utca.ar) * 1000)} Ft/m² ${A.evek.at(-1)}-es áron)${e.utca.suly < 0.9 ? `, a kevés eladás miatt ${Math.round((1 - e.utca.suly) * 100)}%-ban a település átlagával együtt` : ''}.`
+    : `A település ${fmt(e.telepules.db)} ${TIPUS[e.tipus]}-eladásából (${e.telepules.evek[0]}–${e.telepules.evek.at(-1)}, átlagosan ${fmt(Math.round(e.telepules.ar) * 1000)} Ft/m² ${A.evek.at(-1)}-es áron).`;
   return `<div class="ev-fo">
 <p class="ev-cim">${esc(e.nev)}${e.hol === 'utca' ? `, ${esc(e.utcaNev)}` : ''}: egy ${fmt(e.m2)} m²-es ${TIPUS[e.tipus]} ma körülbelül</p>
 <p class="ev-szam">${millio(s[0.5])}</p>
@@ -128,7 +128,7 @@ ${sav(e)}
 </ul>
 <details class="ev-reszlet"><summary>Miből számoltuk?</summary>
 <p>${hol}</p>
-<p>${e.szorzo !== 1 ? `A ${A.evek.at(-1)}-es árat a KSH lakásárindexeivel hoztuk ${esc(e.cimke)}-re: ${tized((e.szorzo - 1) * 100, 0)}%-os drágulás.` : `Ez a ${A.evek.at(-1)}-es árszint, frissebb árindex nincs hozzá.`}</p>
+<p>${e.szorzo !== 1 ? `A ${A.evek.at(-1)}-es árat a KSH lakásárindexeivel hoztuk a mai szintre (${esc(e.cimke)}): ${tized((e.szorzo - 1) * 100, 0)}%-os drágulás.` : `Ez a ${A.evek.at(-1)}-es árszint, frissebb árindex nincs hozzá.`}</p>
 ${e.megjegyzes.map((m) => `<p>${esc(m)}</p>`).join('')}
 ${oldal ? `<p><a href="${telepUt.replace(/lakasarak\/$/, '')}${oldal}">${esc(e.nev)}: lakásárak évenként és utcánként</a></p>` : ''}
 </details>`;
