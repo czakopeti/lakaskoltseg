@@ -7,6 +7,7 @@ import { betoltAdat, olvas, maBudapest, GYOKER } from './forras/adat.mjs';
 import { lastmodDontes, CSOPORTOK } from './forras/sablon.mjs';
 import { xlsx, csv } from './forras/xlsx.mjs';
 import * as O from './forras/oldalak.mjs';
+import * as T from './forras/telepulesek.mjs';
 import * as M from './forras/js/megjelenites.mjs';
 
 const elonezet = process.argv.includes('--elonezet');
@@ -56,18 +57,20 @@ const jsOssz = JS.map((f) => jsNyers[f]).join('');
 const jsVerzio = createHash('sha1').update(jsOssz).digest('hex').slice(0, 8);
 for (const f of JS) writeFileSync(join(KI, `assets/js/${f}.js`), jsNyers[f].replace(/from '\.\/(\w+)\.mjs'/g, `from './$1.js?v=${jsVerzio}'`));
 const verzio = createHash('sha1').update(css + jsOssz).digest('hex').slice(0, 8);
+// A település- és vármegyeoldalak listája (melyiknek van saját oldala)
+const arLista = T.oldalLista(adat);
 // A lakásár-térkép adatai: árak, határok, utcák vármegyénként (tömör JSON, a böngésző tölti be)
 {
   const ki = join(KI, O.ARAK_ADAT);
   mkdirSync(join(ki, 'utcak'), { recursive: true });
   const { forras, ellenorizve, evek, megyek, egysegek } = adat.arak;
-  writeFileSync(join(ki, 'arak.json'), JSON.stringify({ forras, ellenorizve, evek, megyek, egysegek }));
+  writeFileSync(join(ki, 'arak.json'), JSON.stringify({ forras, ellenorizve, evek, megyek, egysegek, oldalak: Object.fromEntries(arLista.egysegek) }));
   for (const f of ['orszag', 'budapest']) cpSync(join(GYOKER, `forras/geo/${f}.json`), join(ki, `${f}.json`));
   for (const f of readdirSync(join(GYOKER, 'data/utcak'))) cpSync(join(GYOKER, 'data/utcak', f), join(ki, 'utcak', f));
 }
 if (existsSync(join(GYOKER, 'forras/kepek'))) for (const f of readdirSync(join(GYOKER, 'forras/kepek'))) cpSync(join(GYOKER, 'forras/kepek', f), join(KI, f === 'og.png' ? 'assets/og.png' : f));
 
-const k = { cfg, adat, ma, ev, elonezet, verzio };
+const k = { cfg, adat, ma, ev, elonezet, verzio, arLista };
 const oldalak = [
   ['', O.fooldal(k)],
   [O.INDULO_UT, O.induloOldal(k)],
@@ -79,6 +82,8 @@ const oldalak = [
   [O.TAMOGATAS_UT, O.tamogatasOldal(k)],
   [O.ARAK_UT, O.arakOldal(k)],
   [O.FLIP_UT, O.flipOldal(k)],
+  ...[...arLista.megyek.keys()].map((m) => [arLista.megyek.get(m), T.megyeOldal(k, m, arLista)]),
+  ...[...arLista.egysegek.keys()].map((kod) => [arLista.egysegek.get(kod), T.telepulesOldal(k, kod, arLista)]),
   [O.ELOT_UT, O.elotorlesztesOldal(k)],
   [O.VALTAS_UT, O.lakasvaltasOldal(k)],
   [O.ELADAS_UT, O.eladasOldal(k)],

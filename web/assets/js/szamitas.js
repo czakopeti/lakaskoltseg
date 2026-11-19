@@ -699,7 +699,35 @@ export function lakasarTrend(adat, tipus) {
 
 /** Vármegye → KSH-régió (a STADAT lakásár-táblájának régiói). */
 export const MEGYEK = [['budapest', 'Budapest', 'budapest'], ['bacs', 'Bács-Kiskun', 'del_alfold'], ['baranya', 'Baranya', 'del_dunantul'], ['bekes', 'Békés', 'del_alfold'], ['borsod', 'Borsod-Abaúj-Zemplén', 'eszak_magyarorszag'], ['csongrad', 'Csongrád-Csanád', 'del_alfold'], ['fejer', 'Fejér', 'kozep_dunantul'], ['gyor', 'Győr-Moson-Sopron', 'nyugat_dunantul'], ['hajdu', 'Hajdú-Bihar', 'eszak_alfold'], ['heves', 'Heves', 'eszak_magyarorszag'], ['jasz', 'Jász-Nagykun-Szolnok', 'eszak_alfold'], ['komarom', 'Komárom-Esztergom', 'kozep_dunantul'], ['nograd', 'Nógrád', 'eszak_magyarorszag'], ['pest', 'Pest', 'pest'], ['somogy', 'Somogy', 'del_dunantul'], ['szabolcs', 'Szabolcs-Szatmár-Bereg', 'eszak_alfold'], ['tolna', 'Tolna', 'del_dunantul'], ['vas', 'Vas', 'nyugat_dunantul'], ['veszprem', 'Veszprém', 'kozep_dunantul'], ['zala', 'Zala', 'nyugat_dunantul']];
-const REGIO_NEV = { budapest: 'Budapesten', pest: 'Pest megyében', kozep_dunantul: 'Közép-Dunántúlon', nyugat_dunantul: 'Nyugat-Dunántúlon', del_dunantul: 'Dél-Dunántúlon', eszak_magyarorszag: 'Észak-Magyarországon', eszak_alfold: 'az Észak-Alföldön', del_alfold: 'a Dél-Alföldön' };
+// A KSH „megyeszékhely” településtípusa (Budapest nélkül)
+export const MEGYESZEKHELYEK = ['Békéscsaba', 'Debrecen', 'Eger', 'Győr', 'Kaposvár', 'Kecskemét', 'Miskolc', 'Nyíregyháza', 'Pécs', 'Salgótarján', 'Szeged', 'Szekszárd', 'Székesfehérvár', 'Szolnok', 'Szombathely', 'Tatabánya', 'Veszprém', 'Zalaegerszeg'];
+
+/**
+ * Az Ingatlanadattár utolsó évének ára továbbgörgetve a KSH településtípusos átlagárának (STADAT 18.1.2.9) újabb évére.
+ * u: { n, m (KSH vármegyekód), t (KSH településtípus), s } — az adat.arak.egysegek eleme. ar: ezer Ft/m². null, ha nincs újabb év.
+ */
+export function arBecsles(adat, u, tipus = 'o') {
+  const la = adat.lakasar, ia = adat.arak;
+  if (!la || !ia || !u?.s?.[tipus]) return null;
+  const iaEv = ia.evek[ia.evek.length - 1], i0 = la.evek.indexOf(iaEv), i1 = la.evek.length - 1;
+  const ar = u.s[tipus][ia.evek.length - 1];
+  if (i0 < 0 || i0 === i1 || ar == null) return null;
+  let sor, hol;
+  if (u.m === '01') { sor = la.hasznalt.fovaros; hol = 'Budapesten'; }
+  else if (MEGYESZEKHELYEK.includes(u.n)) { sor = la.hasznalt.megyeszekhely; hol = 'a megyeszékhelyeken'; }
+  else {
+    const megyeNev = (ia.megyek[u.m]?.n || '').replace(/ vármegye$/, '');
+    const reg = MEGYEK.find((x) => x[1] === megyeNev)?.[2];
+    const tip = u.t === 4 ? 'kozseg' : 'varos';
+    sor = la.hasznaltRegio?.[reg]?.[tip] || la.hasznalt[tip];
+    hol = `${tip === 'kozseg' ? 'a községekben' : 'a városokban'}${la.hasznaltRegio?.[reg]?.[tip] && REGIO_NEV[reg] ? ` ${REGIO_NEV[reg]}` : ''}`;
+  }
+  if (!sor?.[i0] || !sor[i1]) return null;
+  const szorzo = sor[i1] / sor[i0];
+  return { ev: la.evek[i1], alapEv: iaEv, ar: Math.round(ar * szorzo), szorzo, hol, forras: la.forras };
+}
+
+const REGIO_NEV = { budapest: 'Budapesten', pest: 'Pest megyében', kozep_dunantul: 'a Közép-Dunántúlon', nyugat_dunantul: 'a Nyugat-Dunántúlon', del_dunantul: 'a Dél-Dunántúlon', eszak_magyarorszag: 'Észak-Magyarországon', eszak_alfold: 'az Észak-Alföldön', del_alfold: 'a Dél-Alföldön' };
 const TIPUS_HOL = { megyeszekhely: 'a megyeszékhelyeken', varos: 'a városokban', kozseg: 'a községekben' };
 
 /**

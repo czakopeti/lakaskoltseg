@@ -628,3 +628,48 @@ body.beagyazott .mini, body.beagyazott .vj, body.beagyazott .kovetkezo { display
 @media (prefers-reduced-motion: reduce) {
   .tk-svg path[data-k], .tk-lap.tk-uj, .tk-uj .tk-grafikon .tk-vonal, .tk-ev.tk-villan { transition: none !important; animation: none !important; }
 }
+
+/* ---------- Település- és vármegyeoldalak ---------- */
+.telepules-fej { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 24px; align-items: start; margin: 8px 0 24px; }
+.mini { margin: 0; background: var(--felulet); border-radius: var(--r-nagy); padding: 18px; display: grid; gap: 10px; }
+.mini-nagy { margin: 8px 0 28px; }
+.mini figcaption { font-size: 14px; color: var(--tinta2); }
+.mini-terkep { width: 100%; height: auto; max-height: 460px; }
+.mini-terkep path { fill: var(--felulet2); stroke: var(--felulet); stroke-width: .25; transition: opacity .2s; }
+.mini-terkep[viewBox^="0 0 600"] path { stroke-width: 1.2; }
+.mini-terkep a:hover path { opacity: .75; }
+.mini-terkep .mt-szomszed { fill: var(--vonal); opacity: .5; }
+.mini-terkep .mt-megye { fill: none; stroke: var(--tinta); stroke-width: .6; stroke-opacity: .6; }
+.mini-terkep .mt-kiemelt { stroke: var(--tinta); stroke-width: 1.2; }
+.mini-terkep[viewBox^="0 0 600"] .mt-kiemelt { stroke-width: 4; }
+.mini-skala { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--tinta2); }
+.mini-skala i { display: grid; grid-template-columns: repeat(10, 1fr); flex: 1; height: 10px; border-radius: 99px; overflow: hidden; }
+.mini-skala b { display: block; }
+.szam-kartyak { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0; }
+.szam-kartyak div { background: var(--felulet); border-radius: var(--r-kozep); padding: 16px 18px; }
+.szam-kartyak dt { font-size: 14px; color: var(--tinta2); }
+.szam-kartyak dd { margin: 4px 0 0; font: 700 clamp(22px, 2.6vw, 30px)/1.1 var(--cim); letter-spacing: -.02em; }
+.szam-kartyak small { font: 500 14px var(--szoveg); color: var(--tinta2); margin-left: 3px; letter-spacing: 0; }
+.szam-kartyak div:first-child { background: var(--sarga); color: #14161B; }
+.szam-kartyak div:first-child dt, .szam-kartyak div:first-child small { color: #3B3000; }
+.becsles-sor { background: var(--sarga2); border-radius: var(--r-kozep); padding: 14px 18px; }
+.ar-grafikon { margin: 8px 0 18px; }
+.ar-grafikon svg { width: 100%; height: auto; overflow: visible; }
+.ar-grafikon .ag-terulet { fill: var(--sarga); opacity: .35; }
+.ar-grafikon .ag-vonal { fill: none; stroke: var(--tinta); stroke-width: 3; stroke-linejoin: round; stroke-dasharray: 1; animation: tk-rajz 1.4s var(--lagy) both; }
+.ar-grafikon circle { fill: var(--hatter); stroke: var(--tinta); stroke-width: 2.5; }
+.ar-grafikon text { font: 600 13px var(--szoveg); fill: var(--tinta); }
+.ar-grafikon .ag-ev { font-weight: 500; fill: var(--tinta2); }
+.ar-grafikon figcaption { font-size: 14px; color: var(--tinta2); }
+.tabla small { color: var(--tinta2); font-size: 12px; }
+.utcak { display: grid; gap: 10px; }
+.utca-szuro input { font: 500 16px var(--szoveg); width: min(100%, 360px); padding: 11px 16px; border-radius: 99px; border: 1px solid var(--vonal2); background: var(--hatter); color: var(--tinta); }
+.utca-tarto { max-height: 520px; overflow: auto; }
+.utca-tarto thead th { position: sticky; top: 0; background: var(--hatter); z-index: 1; }
+.kozeli { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.kozeli li { background: var(--felulet); border-radius: var(--r-kozep); padding: 12px 16px; display: grid; gap: 2px; }
+.kozeli a { font-weight: 600; }
+.kozeli span { font-size: 14px; color: var(--tinta2); }
+.tk-reszletek { justify-self: start; font-weight: 600; }
+@media (max-width: 860px) { .telepules-fej { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .ar-grafikon .ag-vonal { animation: none; } }

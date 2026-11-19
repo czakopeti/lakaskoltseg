@@ -1271,7 +1271,8 @@ export function arakOldal(k) {
   const szaz = (v) => (v == null ? '–' : `${v >= 0 ? '+' : '−'}${M.fmt(Math.abs(Math.round(v)))}%`);
   const nevRovid = (x) => x.n.replace(/^Budapest /, '');
   const az = (nev) => `${/^(I|V)\.|^[AÁEÉIÍOÓÖŐUÚÜŰ]/i.test(nev) ? 'az' : 'a'} ${nev}`; // „az V. kerület”: ötödik
-  const tabla = (sorok, elso = 'Hol?', nev = (x) => x.n) => `<div class="tabla-tarto"><table class="tabla"><thead><tr><th scope="col">${elso}</th><th scope="col">Ft/m², ${ev}</th><th scope="col">Adásvétel</th><th scope="col">Egy év alatt</th><th scope="col">${ev0} óta</th></tr></thead><tbody>${sorok.map((x) => `<tr><th scope="row">${esc(nev(x))}</th><td>${M.fmt(x.ar * 1000)}</td><td>${M.fmt(x.db)}</td><td>${szaz(x.valt1)}</td><td>${szaz(x.valt15)}</td></tr>`).join('')}</tbody></table></div>`;
+  const lista = k.arLista || { egysegek: new Map(), megyek: new Map() };
+  const tabla = (sorok, elso = 'Hol?', nev = (x) => x.n, L = null) => `<div class="tabla-tarto"><table class="tabla"><thead><tr><th scope="col">${elso}</th><th scope="col">Ft/m², ${ev}</th><th scope="col">Adásvétel</th><th scope="col">Egy év alatt</th><th scope="col">${ev0} óta</th></tr></thead><tbody>${sorok.map((x) => { const u2 = lista.egysegek.get(x.k) || lista.megyek.get(x.k); return `<tr><th scope="row">${L && u2 ? `<a href="${L.l(u2)}">${esc(nev(x))}</a>` : esc(nev(x))}</th><td>${M.fmt(x.ar * 1000)}</td><td>${M.fmt(x.db)}</td><td>${szaz(x.valt1)}</td><td>${szaz(x.valt15)}</td></tr>`; }).join('')}</tbody></table></div>`;
   const kDraga = st.kerulet[0], kOlcso = st.kerulet.at(-1), vDraga = st.videk[0];
   const ut = ARAK_UT;
   const forras = adat.arak.forras;
@@ -1285,7 +1286,7 @@ export function arakOldal(k) {
   ];
   const tartalom = (L) => `
 ${oldalfej(L, { morzsa: ['Lakásárak'], cim, valasz: `${M.evBan(ev)} Budapesten átlagosan ${ft(st.bp.ar)} volt egy négyzetméter, a legdrágább ${az(nevRovid(kDraga))} (${ft(kDraga.ar)}), a legolcsóbb ${az(nevRovid(kOlcso))} (${ft(kOlcso.ar)}). Budapesten kívül ${esc(vDraga.n)} a legdrágább, ${ft(vDraga.ar)}. Ezek valódi eladási árak a NAV illetékadataiból, nem hirdetési árak.`, friss: M.datumNapon(adat.arak.ellenorizve || k.ma) })}
-<section class="keret terkep" data-terkep data-alap="${L.gyoker(ARAK_ADAT)}" data-ev="${ev}" aria-label="Lakásárak térképe">
+<section class="keret terkep" data-terkep data-alap="${L.gyoker(ARAK_ADAT)}" data-ut="${L.l(ARAK_UT)}" data-ev="${ev}" aria-label="Lakásárak térképe">
 <div class="tk-vezerlo">
 <div class="tk-csoport" role="group" aria-label="Mit mutasson a térkép?"><button type="button" class="tk-gomb" data-mutato="ar" aria-pressed="true">Átlagár</button><button type="button" class="tk-gomb" data-mutato="valt" aria-pressed="false">Drágulás ${ev0} óta</button></div>
 <label class="tk-tipus"><span class="sr">Ingatlantípus</span><select data-tipus><option value="o">Minden lakóingatlan</option><option value="t">Társasházi lakás</option><option value="p">Panellakás</option><option value="h">Családi ház</option></select></label>
@@ -1309,16 +1310,16 @@ ${oldalfej(L, { morzsa: ['Lakásárak'], cim, valasz: `${M.evBan(ev)} Budapesten
 <div class="keret"><article class="cikk">
 <h2>Budapest kerületei</h2>
 <p>${M.evBan(ev)} a legdrágább és a legolcsóbb kerület között ${M.tized(kDraga.ar / kOlcso.ar, 1)}-szeres volt a különbség. ${ev0} óta a budapesti átlagár ${szaz(st.bp.valt15).replace('+', '')}-kal nőtt.</p>
-${tabla(st.kerulet, 'Kerület', nevRovid)}
+${tabla(st.kerulet, 'Kerület', nevRovid, L)}
 <h2>Vármegyék</h2>
-${tabla(st.megyek, 'Vármegye')}
+${tabla(st.megyek, 'Vármegye', undefined, L)}
 <h2>Megyei jogú városok</h2>
-${tabla(st.mjv, 'Város')}
+${tabla(st.mjv, 'Város', undefined, L)}
 <h2>A legdrágább települések Budapesten kívül</h2>
 <p class="halk">Csak ahol legalább ${ARAK_MIN_DB} adásvétel volt ${M.evBan(ev)}.</p>
-${tabla(st.videk.slice(0, 20), 'Település')}
+${tabla(st.videk.slice(0, 20), 'Település', undefined, L)}
 <h2>A legolcsóbb települések</h2>
-${tabla(st.videk.slice(-20).reverse(), 'Település')}
+${tabla(st.videk.slice(-20).reverse(), 'Település', undefined, L)}
 <h2>Gyakori kérdések</h2>
 ${gyik(kerdesek)}
 <h2>Letöltés</h2>

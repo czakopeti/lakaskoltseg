@@ -1,6 +1,6 @@
 // A lakásár-térkép: valódi eladási árak (KSH Ingatlanadattár) településenként és budapesti kerületenként.
 // SVG-térkép külső könyvtár nélkül; az adat és a határok a /adatok/lakasarak/ alól jönnek.
-import { fmt, tized } from './megjelenites.js?v=e3ce3cf1';
+import { fmt, tized, AR_SZINEK as SZINEK, AR_HATAR as HATAR, arOsztaly as osztaly } from './megjelenites.js?v=1bfa1950';
 
 const doboz = document.querySelector('[data-terkep]');
 if (doboz) indit(doboz).catch((e) => {
@@ -9,12 +9,6 @@ if (doboz) indit(doboz).catch((e) => {
 });
 
 const LASSU = matchMedia('(prefers-reduced-motion: reduce)').matches;
-// Tíz fokozat a villamossárgától a tintabarnáig
-const SZINEK = ['#FFF6CF', '#FFEB99', '#FFDC4F', '#FFC61A', '#F4A60B', '#DC8406', '#B86208', '#8C450E', '#5E2D10', '#33190A'];
-const HATAR = {
-  ar: [150, 250, 350, 450, 550, 700, 850, 1000, 1250], // ezer Ft/m²
-  valt: [25, 50, 75, 100, 125, 150, 200, 250, 300], // % az első év óta
-};
 const TIPUS = { o: 'Minden lakóingatlan', t: 'Társasházi lakás', p: 'Panellakás', h: 'Családi ház' };
 const LEPES_MS = 1100;
 
@@ -22,7 +16,6 @@ function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<
 const ft = (ezer) => `${fmt(ezer * 1000)} Ft`;
 const ftRovid = (ezer) => (ezer >= 1000 ? `${tized(ezer / 1000, 2)} millió` : `${fmt(ezer)} ezer`);
 const szaz = (v) => `${v >= 0 ? '+' : '−'}${fmt(Math.abs(Math.round(v)))}%`;
-const osztaly = (v, h) => { let i = 0; while (i < h.length && v >= h[i]) i++; return i; };
 
 async function json(url) {
   const r = await fetch(url);
@@ -32,6 +25,7 @@ async function json(url) {
 
 async function indit(el) {
   const alap = el.dataset.alap;
+  const alapUt = el.dataset.ut || '/lakasarak/';
   const [A, G, B] = await Promise.all([json(`${alap}arak.json`), json(`${alap}orszag.json`), json(`${alap}budapest.json`)]);
   const evek = A.evek, utolso = evek.length - 1;
   const S = { mutato: 'ar', tipus: 'o', ix: utolso, kijelolt: null, jatszik: null };
@@ -141,6 +135,7 @@ ${ar != null ? `<p class="tk-nagy">${ft(ar)}<small>/m², ${evek[S.ix]}${tip !== 
 <p class="tk-valt">${db ? `${fmt(db)} adásvétel alapján. ` : ''}${elozo != null ? `Egy év alatt ${szaz((ar / elozo - 1) * 100)}` : ''}${kezd != null && S.ix > 0 ? `${elozo != null ? ', ' : ''}${evek[0]} óta ${szaz((ar / kezd - 1) * 100)}.` : elozo != null ? '.' : ''}</p>` : `<p class="tk-valt">${evek[S.ix]}-re nincs adat: az évben háromnál kevesebb adásvétel volt.</p>`}
 ${grafikon(s)}
 ${sorok ? `<table class="tk-tipusok"><tbody>${sorok}</tbody></table>` : ''}
+${A.oldalak?.[k] ? `<a class="tk-reszletek" href="${alapUt}${A.oldalak[k].replace(/^lakasarak\//, '')}">Részletek, utcák, évenkénti táblázat</a>` : ''}
 <div data-utcak></div>
 </div>`;
     adatlap.hidden = false;

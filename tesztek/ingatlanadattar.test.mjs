@@ -46,3 +46,22 @@ test('józansági próba: kevés vármegye, visszalépő év', () => {
 test('évszám ragozása', () => {
   assert.deepEqual([2015, 2016, 2020, 2023, 2024, 2026, 2027, 2028, 2030, 2040].map(evBan), ['2015-ben', '2016-ban', '2020-ban', '2023-ban', '2024-ben', '2026-ban', '2027-ben', '2028-ban', '2030-ban', '2040-ben']);
 });
+
+test('településoldalak: rövid cím, ki kap oldalt, becslés', async () => {
+  const { slug, oldalLista } = await import('../forras/telepulesek.mjs');
+  const { betoltAdat } = await import('../forras/adat.mjs');
+  const S = await import('../forras/js/szamitas.mjs');
+  assert.equal(slug('Budapest XI. kerület'), 'budapest-xi-kerulet');
+  assert.equal(slug('Hajdú-Bihar vármegye'), 'hajdu-bihar-varmegye');
+  assert.equal(slug('Őrbottyán'), 'orbottyan');
+  const adat = betoltAdat();
+  const l = oldalLista(adat);
+  const kerulet = Object.entries(adat.arak.egysegek).filter(([, u]) => u.t === 5).map(([k]) => k);
+  assert.ok(kerulet.every((k) => l.egysegek.has(k)), 'minden kerületnek van oldala');
+  assert.equal(l.megyek.size, 20);
+  assert.equal(new Set(l.egysegek.values()).size, l.egysegek.size, 'nincs két azonos cím');
+  const deb = Object.values(adat.arak.egysegek).find((u) => u.n === 'Debrecen');
+  const b = S.arBecsles(adat, deb);
+  assert.equal(b.hol, 'a megyeszékhelyeken');
+  assert.ok(b.ar > deb.s.o.at(-1));
+});

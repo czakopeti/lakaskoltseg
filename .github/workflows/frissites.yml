@@ -7,6 +7,9 @@ on:
   schedule:
     - cron: '23 4 * * 1'
     - cron: '23 4 1-20 1 *'
+    # A KSH Ingatlanadattár új éve november végén, december elején jelenik meg: addig naponta nézzük
+    - cron: '23 4 15-30 11 *'
+    - cron: '23 4 * 12 *'
   workflow_dispatch:
   push:
     branches: [main]
