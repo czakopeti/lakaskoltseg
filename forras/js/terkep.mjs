@@ -17,8 +17,10 @@ const ft = (ezer) => `${fmt(ezer * 1000)} Ft`;
 const ftRovid = (ezer) => (ezer >= 1000 ? `${tized(ezer / 1000, 2)} millió` : `${fmt(ezer)} ezer`);
 const szaz = (v) => `${v >= 0 ? '+' : '−'}${fmt(Math.abs(Math.round(v)))}%`;
 
+// Az adatfájlok egy napig cache-elhetők, ezért az adat változásakor új ?v= kerül az URL-re
 async function json(url) {
-  const r = await fetch(url);
+  const v = document.querySelector('[data-adat-v]')?.dataset.adatV;
+  const r = await fetch(v ? `${url}?v=${v}` : url);
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.json();
 }

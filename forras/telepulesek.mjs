@@ -391,7 +391,7 @@ ${sor('', szamMezo({ id: 'e-m2', nev: 'm2', cim: 'Alapterület', me: 'm²', plac
 </fieldset>`;
   const tartalom = (L) => `
 ${oldalfej(L, { morzsa: [['Lakásárak', ARAK_UT], 'Mennyit ér a lakásom?'], cim, valasz: `Add meg, hol van és mekkora, és a környéken valóban eladott lakások árából kiszámoljuk, mennyit érhet ma (${esc(cimke)}). Egy szám helyett sávot kapsz, mert egy utcán belül is nagyok a különbségek.`, friss: M.datumNapon(a.ellenorizve || k.ma) })}
-<div class="keret ertek" data-ertek data-alap="${L.gyoker(ARAK_ADAT_JEL)}" data-telep-ut="${L.l(ARAK_UT)}"><div class="asztal">
+<div class="keret ertek" data-ertek data-adat-v="${k.adatV || ''}" data-alap="${L.gyoker(ARAK_ADAT_JEL)}" data-telep-ut="${L.l(ARAK_UT)}"><div class="asztal">
 ${forgalmi({ cim: 'A lakás', al: `KSH Ingatlanadattár, ${a.evek[0]}–${ev}`, tartalom: urlap, osztaly: 'ertek-urlap' })}
 ${elszamolas(k, kezdo, { gombok: false, labjegy: 'Tájékoztató becslés, nem értékbecslés.' })}
 </div></div>

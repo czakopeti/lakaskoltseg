@@ -14,8 +14,10 @@ const norm = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toL
 const millio = (ft) => `${tized(ft / 1e6, ft >= 1e8 ? 0 : 1)} millió Ft`;
 const TIPUS = { t: 'társasházi lakás', p: 'panellakás', h: 'családi ház', o: 'lakóingatlan' };
 
+// Az adatfájlok egy napig cache-elhetők, ezért az adat változásakor új ?v= kerül az URL-re
 async function json(url) {
-  const r = await fetch(url);
+  const v = document.querySelector('[data-adat-v]')?.dataset.adatV;
+  const r = await fetch(v ? `${url}?v=${v}` : url);
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.json();
 }

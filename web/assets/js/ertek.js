@@ -1,7 +1,7 @@
 // „Mennyit ér a lakásom?”: sávos becslés a KSH Ingatlanadattár utcai és települési átlagaiból.
 // Az adat ugyanaz, mint a lakásár-térképé (/adatok/lakasarak/), a számítás a szamitas.mjs lakasErtek függvénye.
-import { lakasErtek } from './szamitas.js?v=f1a4deac';
-import { fmt, tized } from './megjelenites.js?v=f1a4deac';
+import { lakasErtek } from './szamitas.js?v=108e96a2';
+import { fmt, tized } from './megjelenites.js?v=108e96a2';
 
 const doboz = document.querySelector('[data-ertek]');
 if (doboz) indit(doboz).catch((e) => {
@@ -14,8 +14,10 @@ const norm = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toL
 const millio = (ft) => `${tized(ft / 1e6, ft >= 1e8 ? 0 : 1)} millió Ft`;
 const TIPUS = { t: 'társasházi lakás', p: 'panellakás', h: 'családi ház', o: 'lakóingatlan' };
 
+// Az adatfájlok egy napig cache-elhetők, ezért az adat változásakor új ?v= kerül az URL-re
 async function json(url) {
-  const r = await fetch(url);
+  const v = document.querySelector('[data-adat-v]')?.dataset.adatV;
+  const r = await fetch(v ? `${url}?v=${v}` : url);
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.json();
 }

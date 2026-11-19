@@ -1,6 +1,6 @@
 // A lakásár-térkép: valódi eladási árak (KSH Ingatlanadattár) településenként és budapesti kerületenként.
 // SVG-térkép külső könyvtár nélkül; az adat és a határok a /adatok/lakasarak/ alól jönnek.
-import { fmt, tized, evBan, AR_SZINEK as SZINEK, AR_HATAR as HATAR, arOsztaly as osztaly } from './megjelenites.js?v=f1a4deac';
+import { fmt, tized, evBan, AR_SZINEK as SZINEK, AR_HATAR as HATAR, arOsztaly as osztaly } from './megjelenites.js?v=108e96a2';
 
 const doboz = document.querySelector('[data-terkep]');
 if (doboz) indit(doboz).catch((e) => {
@@ -17,8 +17,10 @@ const ft = (ezer) => `${fmt(ezer * 1000)} Ft`;
 const ftRovid = (ezer) => (ezer >= 1000 ? `${tized(ezer / 1000, 2)} millió` : `${fmt(ezer)} ezer`);
 const szaz = (v) => `${v >= 0 ? '+' : '−'}${fmt(Math.abs(Math.round(v)))}%`;
 
+// Az adatfájlok egy napig cache-elhetők, ezért az adat változásakor új ?v= kerül az URL-re
 async function json(url) {
-  const r = await fetch(url);
+  const v = document.querySelector('[data-adat-v]')?.dataset.adatV;
+  const r = await fetch(v ? `${url}?v=${v}` : url);
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.json();
 }

@@ -64,6 +64,7 @@ adat.arSzoras = S.arSzoras(adat.arak, utcakOssz);
 const kerek = (o) => JSON.parse(JSON.stringify(o, (key, v) => (typeof v === 'number' && !Number.isInteger(v) ? Math.round(v * 10000) / 10000 : v)));
 // A település- és vármegyeoldalak listája (melyiknek van saját oldala)
 const arLista = T.oldalLista(adat);
+let adatV = '';
 // A lakásár-térkép adatai: árak, határok, utcák vármegyénként (tömör JSON, a böngésző tölti be)
 {
   const ki = join(KI, O.ARAK_ADAT);
@@ -80,13 +81,15 @@ const arLista = T.oldalLista(adat);
   const jsor = T.jelentesSorok(adat);
   writeFileSync(join(ki, `lakasarak-${evek.at(-1)}.csv`), csv([['Település vagy kerület', 'Vármegye', 'KSH-kód', `Átlagár ${evek.at(-1)} (Ft/m²)`, `Adásvétel ${evek.at(-1)}`, 'Változás egy év alatt (%)', 'Évi átlagos változás 3 év alatt (%)', 'Változás az első év óta (%)', 'Első év', `Nettó átlagkereset ${evek.at(-1)} (Ft/hó)`, `${S.MEGFIZ_M2} m² ára évnyi nettó keresetben`, 'Becsült mai ár (Ft/m²)', 'Becslés időpontja'],
     ...jsor.map((x) => [x.n, x.megye, x.kod, x.ar * 1000, x.db, x.valt1 == null ? null : Math.round(x.valt1 * 10) / 10, x.valt3 == null ? null : Math.round(x.valt3 * 10) / 10, x.valtKezd == null ? null : Math.round(x.valtKezd), x.kezdEv, x.kereset, x.evek == null ? null : Math.round(x.evek * 10) / 10, x.becsles == null ? null : x.becsles * 1000, x.becslesCimke])]));
-  writeFileSync(join(ki, 'arak.json'), JSON.stringify({ forras, ellenorizve, evek, megyek, egysegek, oldalak: Object.fromEntries(arLista.egysegek), becsles, megfiz, szoras: kerek(adat.arSzoras) }));
+  const arakSzoveg = JSON.stringify({ forras, ellenorizve, evek, megyek, egysegek, oldalak: Object.fromEntries(arLista.egysegek), becsles, megfiz, szoras: kerek(adat.arSzoras) });
+  writeFileSync(join(ki, 'arak.json'), arakSzoveg);
+  adatV = createHash('sha1').update(arakSzoveg + JSON.stringify(utcakOssz)).digest('hex').slice(0, 8);
   for (const f of ['orszag', 'budapest']) cpSync(join(GYOKER, `forras/geo/${f}.json`), join(ki, `${f}.json`));
   for (const f of readdirSync(join(GYOKER, 'data/utcak'))) cpSync(join(GYOKER, 'data/utcak', f), join(ki, 'utcak', f));
 }
 if (existsSync(join(GYOKER, 'forras/kepek'))) for (const f of readdirSync(join(GYOKER, 'forras/kepek'))) cpSync(join(GYOKER, 'forras/kepek', f), join(KI, f === 'og.png' ? 'assets/og.png' : f));
 
-const k = { cfg, adat, ma, ev, elonezet, verzio, arLista };
+const k = { cfg, adat, ma, ev, elonezet, verzio, arLista, adatV };
 const oldalak = [
   ['', O.fooldal(k)],
   [O.INDULO_UT, O.induloOldal(k)],
