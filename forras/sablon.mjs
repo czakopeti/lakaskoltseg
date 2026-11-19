@@ -116,7 +116,9 @@ export function oldal(k, { cim, leiras, ut, tartalom, jsonld = [], adatJson = nu
   // ceevio-laborban irányjelző hatású volt az AI-említésre.
   const kiado = { '@type': 'Organization', name: cfg.marka, url: `${cfg.domain}/`, ...(cfg.szlogen ? { slogan: cfg.szlogen } : {}) };
   const lap = { '@context': 'https://schema.org', '@type': 'WebPage', name: cim, description: leiras, url: kanonikus, inLanguage: 'hu', dateModified: adatDatum(k.adat).iso, isPartOf: { '@type': 'WebSite', name: cfg.marka, url: `${cfg.domain}/` }, publisher: kiado };
-  const ld = [lap, ...jsonld].map((o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`).join('\n');
+  // A főoldalon külön WebSite-csomópont: ebből veszi a Google a találatok fölé írt oldalnevet
+  const webhely = !ut ? [{ '@context': 'https://schema.org', '@type': 'WebSite', name: cfg.marka, alternateName: [new URL(cfg.domain).host], url: `${cfg.domain}/`, inLanguage: 'hu' }] : [];
+  const ld = [lap, ...webhely, ...jsonld].map((o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`).join('\n');
   return `<!DOCTYPE html>
 <html lang="hu">
 <head>

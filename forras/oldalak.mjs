@@ -488,8 +488,8 @@ export function wekerleOldal(k) {
   const p = S.wekerle(adat, { vetelar: 40e6, onero: 10e6, allapot: 'hasznalt' }), q = S.wekerle(adat, { vetelar: 40e6, onero: 10e6, allapot: 'uj' });
   return kalkOldal(k, {
     ut: WEKERLE_UT, tipus: 'wekerle', nev: 'Wekerle Plusz', temak: ['wekerle_plusz', 'illetek', 'haszonelvezet'],
-    oldalCim: 'Wekerle Plusz kalkulátor: jogosultság és törlesztő',
-    leiras: `Wekerle Plusz hitel: feltételenként a 298/2026. Korm. rendelet szerint, havi törlesztő ${kam.uj_szazalek}% vagy ${kam.hasznalt_szazalek}% fix kamattal, és mennyit ér a támogatás.`,
+    oldalCim: 'Wekerle Plusz kalkulátor: jogosultság és törlesztő az Otthon Start helyett',
+    leiras: `A Wekerle Plusz váltotta az Otthon Startot. Feltételenként a 298/2026. Korm. rendelet szerint, havi törlesztő ${kam.uj_szazalek}% vagy ${kam.hasznalt_szazalek}% fix kamattal, és mennyit ér a támogatás.`,
     cim: 'Megkaphatod a Wekerle Plusz hitelt? Mennyi lesz a törlesztő?',
     valasz: `${kor.tol} és ${kor.ig} év között, legfeljebb ${M.fmt(ossz.max_ft / 1e6)} millió forintot, ${ossz.max_ev} évre. Egy 30 millió forintos hitel törlesztője használt lakásnál ${kam.hasznalt_szazalek}% kamattal ${M.fmt(p.havi)} Ft, új lakásnál ${kam.uj_szazalek}%-kal ${M.fmt(q.havi)} Ft havonta.`,
     urlapCim: 'A vevő és a lakás', urlapAl: '298/2026. (X. 27.) Korm. rendelet',
