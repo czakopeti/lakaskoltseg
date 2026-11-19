@@ -682,15 +682,19 @@ body.beagyazott .mini, body.beagyazott .vj, body.beagyazott .kovetkezo { display
 /* ---------- Vízesés-ábra ---------- */
 .vizeses { margin: 18px 0 8px; }
 .vizeses svg { width: 100%; height: auto; overflow: visible; }
-.vizeses .vz-cim { font: 500 14px var(--szoveg); fill: var(--tinta); }
-.vizeses .vz-ertek { font: 600 13px var(--szoveg); fill: var(--tinta2); }
-.vizeses .vz-be rect { fill: var(--tinta); }
-.vizeses .vz-ki rect { fill: #E8806A; }
-.vizeses .vz-resz rect { fill: var(--sarga); }
-.vizeses .vz-veg rect { fill: var(--sarga); stroke: var(--tinta); stroke-width: 1.5; }
-.vizeses .vz-veg .vz-cim, .vizeses .vz-resz .vz-cim { font-weight: 700; }
-.vizeses .vz-nulla { stroke: var(--vonal2); stroke-width: 1; }
-.vizeses .vz-osszekoto { stroke: var(--vonal2); stroke-dasharray: 2 3; }
+.vizeses .vz-cim { font: 500 13px var(--szoveg); fill: var(--tinta2); }
+.vizeses .vz-ertek { font: 700 14px var(--szoveg); fill: var(--tinta); }
+.vizeses .vz-osszeg rect { fill: var(--tinta); }
+.vizeses .vz-osszeg .vz-cim { font-weight: 700; fill: var(--tinta); }
+.vizeses .vz-fel rect { fill: #5B9E6E; }
+.vizeses .vz-le rect { fill: #E8806A; }
+.vizeses .vz-kiemelt rect { fill: var(--sarga); stroke: var(--tinta); stroke-width: 1.5; }
+.vizeses .vz-kiemelt .vz-cim { font-weight: 700; fill: var(--tinta); }
+.vizeses .vz-resz0 { fill: var(--tinta); }
+.vizeses .vz-resz1 { fill: #E8806A; }
+.vizeses .vz-resz2 { fill: #F2B8A8; }
+.vizeses .vz-nulla { stroke: var(--vonal2); stroke-width: 1.2; }
+.vizeses .vz-osszekoto { stroke: var(--tinta2); stroke-width: 1; stroke-dasharray: 3 3; }
 .vizeses figcaption { font-size: 13px; color: var(--tinta2); }
 
 /* ---------- Éves jelentés: kvadráns és sávdiagram ---------- */

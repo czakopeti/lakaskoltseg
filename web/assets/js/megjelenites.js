@@ -1,6 +1,6 @@
 // Az elszámolás (eredmény) HTML-je. Ugyanezt használja az építő (a HTML-ben már benne van a szám)
 // és a böngésző (élő számolás), így a kettő nem térhet el.
-import * as S from './szamitas.js?v=4c1fe162';
+import * as S from './szamitas.js?v=11e5a819';
 
 const nf = new Intl.NumberFormat('hu-HU', { useGrouping: 'always' });
 export const fmt = (n) => nf.format(Math.round(n));
@@ -364,42 +364,59 @@ export function kiadasPanel(adat, r) {
  * Vízesés-ábra: hová megy a pénz. lepesek: [{ nev, ft (előjeles), tipus: 'be' | 'ki' | 'resz' | 'veg' }]
  * A 'resz' és a 'veg' sáv nulláról indul (részösszeg, végeredmény), a többi a futó összegtől lép.
  */
+/**
+ * Vízesés-ábra függőleges oszlopokkal. lepesek: { nev, ft, tipus }, ahol
+ * 'osszeg': nulláról induló oszlop (az ft a szintje; reszek: [{ nev, ft }] egymásra rakva),
+ * 'fel' / 'le': az előző szinttől felfelé vagy lefelé lépő, lebegő oszlop; kiemelt: sárga.
+ * A szintek szaggatott vonallal kötődnek össze, így végig követhető, honnan hová jut a pénz.
+ */
 export function vizeses(lepesek) {
-  let fut = 0;
-  const sav = lepesek.map((l) => {
-    if (l.tipus === 'resz' || l.tipus === 'veg') { fut = l.ft; return { ...l, a: 0, b: l.ft }; }
-    const a = fut; fut += l.ft; return { ...l, a, b: fut };
+  let szint = 0;
+  const osz = lepesek.map((l) => {
+    if (l.tipus === 'osszeg') { szint = l.ft; return { ...l, a: 0, b: l.ft }; }
+    const a = szint; szint += l.tipus === 'le' ? -Math.abs(l.ft) : Math.abs(l.ft); return { ...l, a, b: szint };
   });
-  const min = Math.min(0, ...sav.flatMap((s) => [s.a, s.b])), max = Math.max(0, ...sav.flatMap((s) => [s.a, s.b]));
-  const W = 640, cimW = 190, ertW = 112, sorH = 34, H = sav.length * sorH + 8;
-  const x = (v) => cimW + ((v - min) / (max - min || 1)) * (W - cimW - ertW);
-  const mill = (v) => `${v < 0 ? '−' : ''}${tized(Math.abs(v) / 1e6, 1)} M`;
-  return `<figure class="vizeses"><svg viewBox="0 0 ${W} ${H}" aria-hidden="true">
-<line class="vz-nulla" x1="${x(0)}" x2="${x(0)}" y1="0" y2="${H}"/>
-${sav.map((s, i) => {
-    const y = i * sorH + 6, x0 = x(Math.min(s.a, s.b)), w = Math.max(2, Math.abs(x(s.b) - x(s.a)));
-    const kov = sav[i + 1];
-    return `<g class="vz-${s.tipus}"><text class="vz-cim" x="${cimW - 12}" y="${y + 17}" text-anchor="end">${esc(s.nev)}</text><rect x="${x0.toFixed(1)}" y="${y}" width="${w.toFixed(1)}" height="${sorH - 12}" rx="5"/><text class="vz-ertek" x="${(Math.max(x(s.a), x(s.b)) + 8).toFixed(1)}" y="${y + 17}">${s.tipus === 'ki' ? '−' : s.tipus === 'be' && i ? '+' : ''}${mill(Math.abs(s.ft) * (s.tipus === 'resz' || s.tipus === 'veg' ? Math.sign(s.ft) || 1 : 1))}</text>${kov && kov.tipus !== 'resz' && kov.tipus !== 'veg' ? `<line class="vz-osszekoto" x1="${x(s.b).toFixed(1)}" x2="${x(s.b).toFixed(1)}" y1="${y + sorH - 12}" y2="${y + sorH + 6}"/>` : ''}</g>`;
-  }).join('')}
-</svg><figcaption>Hová megy a pénz, millió forintban</figcaption></figure>`;
+  const max = Math.max(...osz.flatMap((o) => [o.a, o.b])) || 1;
+  const W = 600, bal = 8, jobb = 8, fent = 30, cimH = 46, H = 300, n = osz.length;
+  const lep = (W - bal - jobb) / n, sz = Math.min(54, lep * 0.62);
+  const y = (v) => fent + (1 - v / max) * (H - fent - cimH);
+  const xk = (i) => bal + lep * i + lep / 2;
+  const mill = (v) => `${tized(v / 1e6, Math.abs(v) >= 1e8 ? 0 : 1)} M`;
+  const sorok = (t) => { const sz2 = t.split(' '); if (t.length <= 11 || sz2.length < 2) return [t]; const f = Math.ceil(sz2.length / 2); return [sz2.slice(0, f).join(' '), sz2.slice(f).join(' ')]; };
+  const g = osz.map((o, i) => {
+    const x0 = xk(i) - sz / 2, ytop = y(Math.max(o.a, o.b)), h = Math.max(2, Math.abs(y(o.a) - y(o.b)));
+    let test;
+    if (o.tipus === 'osszeg' && o.reszek?.length) {
+      let alj = 0;
+      test = o.reszek.map((r, j) => { const y1 = y(alj + r.ft), hh = Math.max(1.5, y(alj) - y1); alj += r.ft; return `<rect class="vz-resz${j}" x="${x0.toFixed(1)}" y="${y1.toFixed(1)}" width="${sz.toFixed(1)}" height="${hh.toFixed(1)}"><title>${esc(r.nev)}: ${mill(r.ft)}</title></rect>`; }).join('');
+    } else test = `<rect x="${x0.toFixed(1)}" y="${ytop.toFixed(1)}" width="${sz.toFixed(1)}" height="${h.toFixed(1)}" rx="3"><title>${esc(o.nev)}: ${mill(Math.abs(o.ft))}</title></rect>`;
+    const elojel = o.tipus === 'le' ? '−' : o.tipus === 'fel' ? '+' : '';
+    const ertekY = o.tipus === 'le' ? y(o.b) + 16 : ytop - 8;
+    const lenn = o.tipus === 'le' && y(o.b) + 16 > H - cimH - 2;
+    const kov = osz[i + 1];
+    const osszekoto = kov ? `<line class="vz-osszekoto" x1="${(x0 + sz).toFixed(1)}" x2="${(xk(i + 1) - sz / 2).toFixed(1)}" y1="${y(o.b).toFixed(1)}" y2="${y(o.b).toFixed(1)}"/>` : '';
+    return `<g class="vz-${o.tipus}${o.kiemelt ? ' vz-kiemelt' : ''}">${test}<text class="vz-ertek" x="${xk(i).toFixed(1)}" y="${(lenn ? ytop - 8 : ertekY).toFixed(1)}" text-anchor="middle">${elojel}${mill(Math.abs(o.ft))}</text>${osszekoto}<text class="vz-cim" x="${xk(i).toFixed(1)}" y="${H - cimH + 18}" text-anchor="middle">${sorok(o.nev).map((t, j) => `<tspan x="${xk(i).toFixed(1)}" dy="${j ? 15 : 0}">${esc(t)}</tspan>`).join('')}</text></g>`;
+  }).join('');
+  return `<figure class="vizeses"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Vízesés-ábra: honnan jön és hová megy a pénz"><line class="vz-nulla" x1="${bal}" x2="${W - jobb}" y1="${y(0)}" y2="${y(0)}"/>${g}</svg><figcaption>Honnan jön és hová megy a pénz, millió forintban</figcaption></figure>`;
 }
 
 export function lakasvaltasPanel(adat, r) {
   if (r.hiba) return hianyPanel(r.hiba);
   const nincsHiany = r.hiany <= 0;
   let h = vegosszeg(nincsHiany ? 'Ennyi marad a váltás után' : 'Ennyi hitel kell még a váltáshoz', Math.abs(r.hiany), nincsHiany ? 'Az eladásból és a megtakarításodból kifizeted az új lakást és minden költségét.' : 'Az eladásból kapott pénz és a megtakarításod után ennyi hiányzik az új lakás árához és költségeihez.');
-  h += vizeses([
-    { nev: 'Eladási ár', ft: r.elado, tipus: 'be' },
-    ...(r.kozvetito ? [{ nev: 'Közvetítő', ft: -r.kozvetito, tipus: 'ki' }] : []),
-    ...(r.tartozas ? [{ nev: 'Régi hitel', ft: -r.tartozas, tipus: 'ki' }] : []),
-    ...(r.szja.ado ? [{ nev: 'Szja', ft: -r.szja.ado, tipus: 'ki' }] : []),
-    { nev: 'Kézhez kapod', ft: r.kapsz, tipus: 'resz' },
-    ...(r.megtakaritas ? [{ nev: 'Megtakarításod', ft: r.megtakaritas, tipus: 'be' }] : []),
-    { nev: 'Új lakás', ft: -r.vetel, tipus: 'ki' },
-    ...(r.illetek.ado ? [{ nev: 'Illeték', ft: -r.illetek.ado, tipus: 'ki' }] : []),
-    ...(r.vetelKoltseg ? [{ nev: 'Ügyvéd, egyéb', ft: -r.vetelKoltseg, tipus: 'ki' }] : []),
-    { nev: nincsHiany ? 'Marad' : 'Hitel kell még', ft: -r.hiany, tipus: 'veg' },
-  ]);
+  {
+    const koltseg = r.kell;
+    h += vizeses([
+      { nev: 'Eladási ár', ft: r.elado, tipus: 'osszeg' },
+      ...(r.kozvetito ? [{ nev: 'Közvetítő', ft: r.kozvetito, tipus: 'le' }] : []),
+      ...(r.tartozas ? [{ nev: 'Régi hitel', ft: r.tartozas, tipus: 'le' }] : []),
+      ...(r.szja.ado ? [{ nev: 'Szja', ft: r.szja.ado, tipus: 'le' }] : []),
+      { nev: 'Kézhez kapod', ft: r.kapsz, tipus: 'osszeg' },
+      ...(r.megtakaritas ? [{ nev: 'Megtakarításod', ft: r.megtakaritas, tipus: 'fel' }] : []),
+      ...(r.hiany > 0 ? [{ nev: 'Hitel kell', ft: r.hiany, tipus: 'fel', kiemelt: true }] : r.hiany < 0 ? [{ nev: 'Marad neked', ft: -r.hiany, tipus: 'le', kiemelt: true }] : []),
+      { nev: 'Új lakás és költségei', ft: koltseg, tipus: 'osszeg', reszek: [{ nev: 'Új lakás', ft: r.vetel }, ...(r.illetek.ado ? [{ nev: 'Illeték', ft: r.illetek.ado }] : []), ...(r.vetelKoltseg ? [{ nev: 'Ügyvéd, egyéb', ft: r.vetelKoltseg }] : [])] },
+    ]);
+  }
   h += `<div class="valtas"><div class="v-oldal"><p class="m-cim">Eladás</p><ul class="tetelek">`;
   h += tetel('Eladási ár', ftx(r.elado), { forras: 'sajat' });
   if (r.kozvetito) h += tetel('Ingatlanközvetítő', `−${ftx(r.kozvetito)}`, { cls: 'levonas', forras: 'sajat' });
