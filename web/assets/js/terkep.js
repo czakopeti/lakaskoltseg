@@ -1,6 +1,6 @@
 // A lakásár-térkép: valódi eladási árak (KSH Ingatlanadattár) településenként és budapesti kerületenként.
 // SVG-térkép külső könyvtár nélkül; az adat és a határok a /adatok/lakasarak/ alól jönnek.
-import { fmt, tized, AR_SZINEK as SZINEK, AR_HATAR as HATAR, arOsztaly as osztaly } from './megjelenites.js?v=ec0c8f78';
+import { fmt, tized, evBan, AR_SZINEK as SZINEK, AR_HATAR as HATAR, arOsztaly as osztaly } from './megjelenites.js?v=c225949e';
 
 const doboz = document.querySelector('[data-terkep]');
 if (doboz) indit(doboz).catch((e) => {
@@ -149,8 +149,9 @@ ${A.oldalak?.[k] ? `<a class="tk-reszletek" href="${alapUt}${A.oldalak[k].replac
   async function utcakGomb(k, hely) {
     const u = A.egysegek[k];
     const lista = (await utcak(u.m))[k];
-    if (!lista?.length || S.kijelolt !== k) return;
-    hely.innerHTML = `<button type="button" class="tk-utca-gomb" aria-expanded="false">Utcák szerint (${fmt(lista.length)})</button><div class="tk-utcak" hidden></div>`;
+    const ebben = lista?.filter((l) => l[1][S.ix] != null).length || 0;
+    if (!ebben || S.kijelolt !== k) return;
+    hely.innerHTML = `<button type="button" class="tk-utca-gomb" aria-expanded="false">Utcák szerint, ${evek[S.ix]} (${fmt(ebben)})</button><div class="tk-utcak" hidden></div>`;
     const gomb = hely.querySelector('button'), doboz2 = hely.querySelector('.tk-utcak');
     gomb.addEventListener('click', () => {
       const nyit = doboz2.hidden;
@@ -159,13 +160,14 @@ ${A.oldalak?.[k] ? `<a class="tk-reszletek" href="${alapUt}${A.oldalak[k].replac
     });
   }
   function utcaTabla(lista, hova) {
-    const utolsoAr = (l) => { for (let i = Math.min(S.ix, evek.length - 1); i >= 0; i--) if (l[1][i] != null) return [l[1][i], l[2][i], evek[i]]; return null; };
-    const sorok = lista.map((l) => [l[0], utolsoAr(l)]).filter(([, x]) => x).sort((a, b) => b[1][0] - a[1][0]);
-    hova.innerHTML = `<label class="tk-utca-szuro"><span class="sr">Utca keresése</span><input type="search" placeholder="Utca keresése"></label><div class="tk-utca-lista"><table><thead><tr><th scope="col">Utca</th><th scope="col">Ft/m²</th><th scope="col">Év</th></tr></thead><tbody></tbody></table></div><p class="kicsi halk">Az utolsó év, amelyben legalább három adásvétel volt. ${sorok.length} utca.</p>`;
+    // Csak a kiválasztott év árai, hogy a sorrend összevethető legyen
+    const i = S.ix;
+    const sorok = lista.filter((l) => l[1][i] != null).map((l) => [l[0], [l[1][i], l[2][i]]]).sort((a, b) => b[1][0] - a[1][0]);
+    hova.innerHTML = `<label class="tk-utca-szuro"><span class="sr">Utca keresése</span><input type="search" placeholder="Utca keresése"></label><div class="tk-utca-lista"><table><thead><tr><th scope="col">Utca</th><th scope="col">Ft/m², ${evek[i]}</th><th scope="col">Adásvétel</th></tr></thead><tbody></tbody></table></div><p class="kicsi halk">${evBan(evek[i])} ${sorok.length} utcában volt legalább három adásvétel. Másik évhez állítsd át a csúszkát.</p>`;
     const tb = hova.querySelector('tbody'), sz = hova.querySelector('input');
     const rajz = () => {
       const q = sz.value.trim().toLowerCase();
-      tb.innerHTML = sorok.filter(([n]) => !q || n.toLowerCase().includes(q)).slice(0, 300).map(([n, [ar, db, ev]]) => `<tr><th scope="row">${esc(n)}</th><td>${fmt(ar * 1000)}</td><td>${ev}<small> · ${db} db</small></td></tr>`).join('');
+      tb.innerHTML = sorok.filter(([n]) => !q || n.toLowerCase().includes(q)).slice(0, 300).map(([n, [ar, db]]) => `<tr><th scope="row">${esc(n)}</th><td>${fmt(ar * 1000)}</td><td>${fmt(db || 0)}</td></tr>`).join('');
     };
     sz.addEventListener('input', rajz);
     rajz();

@@ -84,14 +84,25 @@ function grafikon(s, evek) {
 }
 
 function utcaTabla(lista, evek, ix) {
-  const sorok = lista.map(([nev, ar, db]) => { for (let i = ix; i >= 0; i--) if (ar[i] != null) return [nev, ar[i], db[i], evek[i]]; return null; }).filter(Boolean).sort((x, y) => y[1] - x[1]);
-  if (!sorok.length) return '';
+  // Évenként: egy listában csak ugyanannak az évnek az árai, különben a sorrend félrevezető
+  const evSzam = evek.map((_, i) => lista.filter((l) => l[1][i] != null).length);
+  const sorok = (i) => lista.filter((l) => l[1][i] != null).sort((x, y) => y[1][i] - x[1][i]);
+  const sor = (l, i) => `<tr><th scope="row">${esc(l[0])}</th><td>${M.fmt(l[1][i] * 1000)}</td><td>${M.fmt(l[2][i] || 0)}</td><td>${i > 0 && l[1][i - 1] != null ? szaz((l[1][i] / l[1][i - 1] - 1) * 100) : '–'}</td></tr>`;
+  let i0 = ix;
+  while (i0 > 0 && !evSzam[i0]) i0--;
+  if (!evSzam[i0]) return '';
+  const adat = lista.map(([n, ar, db]) => [n, ar, db]);
   return `<div class="utcak" data-utcak>
-<label class="utca-szuro"><span class="sr">Utca keresése</span><input type="search" placeholder="Utca keresése" data-utca-szuro></label>
-<div class="tabla-tarto utca-tarto"><table class="tabla kicsi-tabla"><thead><tr><th scope="col">Utca</th><th scope="col">Ft/m²</th><th scope="col">Adásvétel</th><th scope="col">Év</th></tr></thead><tbody>${sorok.map(([n, ar, db, ev]) => `<tr><th scope="row">${esc(n)}</th><td>${M.fmt(ar * 1000)}</td><td>${M.fmt(db)}</td><td>${ev}</td></tr>`).join('')}</tbody></table></div>
-<p class="kicsi halk">${M.fmt(sorok.length)} utca, mindegyiknél az utolsó év, amikor legalább három adásvétel volt.</p>
+<div class="utca-vezerlo"><label class="utca-ev"><span>Év</span><select data-utca-ev>${evek.map((ev, i) => (evSzam[i] ? `<option value="${i}"${i === i0 ? ' selected' : ''}>${ev} (${evSzam[i]} utca)</option>` : '')).reverse().join('')}</select></label>
+<label class="utca-szuro"><span class="sr">Utca keresése</span><input type="search" placeholder="Utca keresése" data-utca-szuro></label></div>
+<div class="tabla-tarto utca-tarto"><table class="tabla kicsi-tabla"><thead><tr><th scope="col">Utca</th><th scope="col">Ft/m², <span data-utca-evcim>${evek[i0]}</span></th><th scope="col">Adásvétel</th><th scope="col">Előző évhez</th></tr></thead><tbody>${sorok(i0).map((l) => sor(l, i0)).join('')}</tbody></table></div>
+<p class="kicsi halk">Csak azok az utcák, ahol az adott évben legalább három adásvétel volt. A sorrend az adott év átlagára szerint.</p>
+<script type="application/json" data-utca-adat>${JSON.stringify(adat).replace(/</g, '\\u003c')}</script>
 </div>
-<script>(function(){var d=document.querySelector('[data-utcak]');if(!d)return;var i=d.querySelector('input'),r=[].slice.call(d.querySelectorAll('tbody tr'));i.addEventListener('input',function(){var q=i.value.trim().toLowerCase();r.forEach(function(t){t.hidden=q&&t.firstChild.textContent.toLowerCase().indexOf(q)<0;});});})();</script>`;
+<script>(function(){var d=document.querySelector('[data-utcak]');if(!d)return;var A=JSON.parse(d.querySelector('[data-utca-adat]').textContent),ev=d.querySelector('[data-utca-ev]'),q=d.querySelector('[data-utca-szuro]'),tb=d.querySelector('tbody'),cim=d.querySelector('[data-utca-evcim]'),E=${JSON.stringify(evek)};
+var f=function(n){return Math.round(n).toLocaleString('hu-HU')},e=function(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+function rajz(){var i=+ev.value,s=q.value.trim().toLowerCase();cim.textContent=E[i];tb.innerHTML=A.filter(function(l){return l[1][i]!=null&&(!s||l[0].toLowerCase().indexOf(s)>=0)}).sort(function(x,y){return y[1][i]-x[1][i]}).map(function(l){var p=i>0&&l[1][i-1]!=null?Math.round((l[1][i]/l[1][i-1]-1)*100):null;return'<tr><th scope="row">'+e(l[0])+'</th><td>'+f(l[1][i]*1000)+'</td><td>'+f(l[2][i]||0)+'</td><td>'+(p==null?'–':(p>=0?'+':'−')+f(Math.abs(p))+'%')+'</td></tr>'}).join('')}
+ev.addEventListener('change',rajz);q.addEventListener('input',rajz);})();</script>`;
 }
 
 function forrasBlokk(adat, becsles) {

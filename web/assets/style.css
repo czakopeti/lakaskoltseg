@@ -673,3 +673,6 @@ body.beagyazott .mini, body.beagyazott .vj, body.beagyazott .kovetkezo { display
 .tk-reszletek { justify-self: start; font-weight: 600; }
 @media (max-width: 860px) { .telepules-fej { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .ar-grafikon .ag-vonal { animation: none; } }
+.utca-vezerlo { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.utca-ev { display: inline-flex; gap: 8px; align-items: center; font-weight: 600; }
+.utca-ev select { font: 500 16px var(--szoveg); padding: 10px 14px; border-radius: 99px; border: 1px solid var(--vonal2); background: var(--hatter); color: var(--tinta); }
