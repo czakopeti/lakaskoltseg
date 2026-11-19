@@ -24,6 +24,7 @@ export const CSOPORTOK = [
     ['alberlet-vagy-lakasvasarlas-kalkulator/', 'Bérlés vagy vétel', 'Melyikkel jársz jobban hosszú távon', 'Albérlet vagy lakásvásárlás'],
     ['lakasvasarlas-menete/', 'A vásárlás menete', 'Lépésről lépésre, díjakkal', 'A lakásvásárlás menete lépésről lépésre'],
     ['lakasarak/', 'Lakásárak térképe', 'Valódi eladási árak településenként', 'Lakásárak településenként'],
+    ['lakasarak/jelentes/', 'Éves lakásár-jelentés', 'Kvadráns, megfizethetőség, változások', 'Éves lakásár-jelentés'],
   ] },
   { id: 'hitel', cim: 'Lakáshitel', bevezeto: 'Mennyit kaphatsz, mennyi lesz a törlesztő, és megéri-e előtörleszteni.', elemek: [
     ['mennyi-lakashitelt-kaphatok/', 'Mennyi hitelt kaphatsz', 'A jövedelmed és a lakás értéke szerint', 'Mennyi lakáshitelt kaphatsz'],

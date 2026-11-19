@@ -72,6 +72,10 @@ const arLista = T.oldalLista(adat);
     const s = evek.map((ev) => { const x = S.megfizethetoseg(adat, kod, u, ev); return x ? Math.round(x.evek * 10) / 10 : null; });
     if (s.some((v) => v != null)) megfiz.ertek[kod] = s;
   }
+  // Az éves jelentés letölthető táblázata
+  const jsor = T.jelentesSorok(adat);
+  writeFileSync(join(ki, `lakasarak-${evek.at(-1)}.csv`), csv([['Település vagy kerület', 'Vármegye', 'KSH-kód', `Átlagár ${evek.at(-1)} (Ft/m²)`, `Adásvétel ${evek.at(-1)}`, 'Változás egy év alatt (%)', 'Évi átlagos változás 3 év alatt (%)', 'Változás az első év óta (%)', 'Első év', `Nettó átlagkereset ${evek.at(-1)} (Ft/hó)`, `${S.MEGFIZ_M2} m² ára évnyi nettó keresetben`, 'Becsült mai ár (Ft/m²)', 'Becslés időpontja'],
+    ...jsor.map((x) => [x.n, x.megye, x.kod, x.ar * 1000, x.db, x.valt1 == null ? null : Math.round(x.valt1 * 10) / 10, x.valt3 == null ? null : Math.round(x.valt3 * 10) / 10, x.valtKezd == null ? null : Math.round(x.valtKezd), x.kezdEv, x.kereset, x.evek == null ? null : Math.round(x.evek * 10) / 10, x.becsles == null ? null : x.becsles * 1000, x.becslesCimke])]));
   writeFileSync(join(ki, 'arak.json'), JSON.stringify({ forras, ellenorizve, evek, megyek, egysegek, oldalak: Object.fromEntries(arLista.egysegek), becsles, megfiz }));
   for (const f of ['orszag', 'budapest']) cpSync(join(GYOKER, `forras/geo/${f}.json`), join(ki, `${f}.json`));
   for (const f of readdirSync(join(GYOKER, 'data/utcak'))) cpSync(join(GYOKER, 'data/utcak', f), join(ki, 'utcak', f));
@@ -90,6 +94,7 @@ const oldalak = [
   [O.TAMOGATAS_UT, O.tamogatasOldal(k)],
   [O.ARAK_UT, O.arakOldal(k)],
   [O.FLIP_UT, O.flipOldal(k)],
+  [T.JELENTES_UT, T.jelentesOldal(k, arLista)],
   ...[...arLista.megyek.keys()].map((m) => [arLista.megyek.get(m), T.megyeOldal(k, m, arLista)]),
   ...[...arLista.egysegek.keys()].map((kod) => [arLista.egysegek.get(kod), T.telepulesOldal(k, kod, arLista)]),
   [O.ELOT_UT, O.elotorlesztesOldal(k)],
@@ -219,6 +224,7 @@ https://:version.:project.pages.dev/*
     'ingatlaneladas-szja-kalkulator/': `az eladott lakás, ház vagy telek személyi jövedelemadója a szerzés és az eladás évéből, az elszámolható költségekkel; mikortól adómentes, és meddig kell bevallani`,
     'lakasvasarlas-menete/': `a lakásvásárlás lépései sorrendben (foglaló és adásvételi szerződés, hitelkérelem, értékbecslés, közjegyző, földhivatal, birtokba adás, illeték), minden lépésnél a díjjal és a határidővel, egy 50 millió forintos minta számaival`,
     'flipping-kalkulator/': `lakás vétele, felújítása és eladása: illeték, ügyvéd, hitel díjai és kamata, rezsi, közvetítő és az ingatlaneladás szja-ja (Szja tv. 62. §, a nyereség adóköteles része évenként), a nullszaldós eladási ár, és mennyi lenne az adó, ha később adnád el`,
+    'lakasarak/jelentes/': `éves jelentés a legutóbbi év valódi lakáseladásaiból: fő megállapítások, kvadráns (árszint és egyéves drágulás) Budapest kerületeiről és a városokról, megfizethetőség (hány évnyi nettó átlagkereset egy 50 m²-es lakás), legnagyobb drágulások és csökkenések, letölthető CSV`,
     'lakasarak/': `valódi lakáseladási árak (KSH Ingatlanadattár, NAV-illetékadatok) településenként, budapesti kerületenként és utcánként, ${adat.arak.evek[0]}–${adat.arak.evek.at(-1)}: átlagos négyzetméterár típusonként (társasház, panel, családi ház), adásvételek száma, drágulás, térképen évenkénti animációval; letölthető JSON`,
     'lakastamogatasok/': `a Wekerle Plusz és a CSOK Plusz egy táblázatban (kinek, mennyi, kamat, árkorlát, önerő, illeték, gyerekek után), és az illetékkedvezmények jogszabályhellyel`,
     'forrasok/': `minden szabály jogszabályhelye, forrása és az ellenőrzés napja`,

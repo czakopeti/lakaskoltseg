@@ -4,10 +4,11 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { CSOPORTOK, OLDALROL, FIOK, csoportja } from '../forras/sablon.mjs';
 import * as O from '../forras/oldalak.mjs';
+import * as T from '../forras/telepulesek.mjs';
 
 const epit = readFileSync(new URL('../epit.mjs', import.meta.url), 'utf8');
 // az epit.mjs oldallistája: ['ut/', O.fv(k)] vagy [O.ALLANDO, O.fv(k)]
-const oldalak = [...epit.matchAll(/^\s*\[(?:'([^']*)'|O\.(\w+)), O\.\w+\(k\)\],/gm)].map((m) => (m[1] ?? O[m[2]]));
+const oldalak = [...epit.matchAll(/^\s*\[(?:'([^']*)'|([OT])\.(\w+)), [OT]\.\w+\(k(?:, arLista)?\)\],/gm)].map((m) => (m[1] ?? (m[2] === 'T' ? T : O)[m[3]]));
 const csoportban = CSOPORTOK.flatMap((cs) => cs.elemek.map(([u]) => u));
 
 test('minden oldal pontosan egyszer szerepel a szerkezetben, és nincs árva oldal', () => {
