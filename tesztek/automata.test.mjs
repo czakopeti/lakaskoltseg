@@ -48,3 +48,34 @@ test('a figyelő gépi frissítésűnek tudja a PMÁP-oldalt, a többi forrást 
   assert.equal(l.filter((x) => x.automata).length, 1);
   assert.ok(Array.isArray(olvas('data/valtozasok.json').bejegyzesek));
 });
+
+// A KSH lak0025 tábla két lehetséges HTML-alakja: régiónként ismételt cella, illetve rowspan (a régió csak az első sorban)
+const evekFej = '<tr><th>Region</th><th>Settlement type</th><th>2023</th><th>2024</th><th>2025</th></tr>';
+const sorok = (reszek, rowspan) => reszek.map(([cim, ertekek]) => `<tr><td colspan="5">${cim}</td></tr>` + ['capital', 'county seats', 'towns', 'villages', 'total'].map((t, i) => `<tr>${!rowspan || i === 0 ? `<th${rowspan ? ' rowspan="5"' : ''}>Country</th>` : ''}<td>${t}</td>${ertekek[i].map((x) => `<td class="${x === '1,194' ? 'elozetes' : ''}">${x}</td>`).join('')}</tr>`).join('')).join('');
+const minta = [['Second-hand dwellings', [['887', '977', '1,194'], ['502', '566', '689'], ['335', '402', '479'], ['152', '194', '245'], ['440', '531', '625']]], ['New dwellings<sup>a</sup>', [['1,267', '1,454', '1,610'], ['748', '879', '1,008'], ['800', '905', '1,049'], ['677', '761', '944'], ['1,004', '1,167', '..']]]];
+const budapestSor = '<tr><td>Budapest</td><td>capital</td><td>1</td><td>2</td><td>3</td></tr>';
+
+test('KSH lakásár-tábla: az országos sorok településtípusonként, mindkét HTML-alakban', async () => {
+  const { kshLakasar } = await import('../frissito/automata.mjs');
+  for (const rowspan of [false, true]) {
+    const r = kshLakasar(`<table>${evekFej}${budapestSor}${sorok(minta, rowspan)}</table>`);
+    assert.deepEqual(r.evek, [2023, 2024, 2025]);
+    assert.deepEqual(r.hasznalt.fovaros, [887, 977, 1194]);
+    assert.deepEqual(r.hasznalt.kozseg, [152, 194, 245]);
+    assert.deepEqual(r.uj.orszag, [1004, 1167, null], 'a „..” hiányzó adat');
+  }
+  assert.equal(kshLakasar('<table><tr><td>Nincs adat</td></tr></table>'), null);
+  assert.equal(kshLakasar(`<table>${evekFej}${sorok(minta.slice(0, 1), false)}</table>`), null, 'ha az új lakások hiányoznak, inkább semmi');
+});
+
+test('KSH lakásár-tábla: hihetőségi őr', async () => {
+  const { kshLakasar, lakasarHiheto } = await import('../frissito/automata.mjs');
+  const regi = { evek: [2023, 2024], hasznalt: { fovaros: [887, 977], megyeszekhely: [502, 566], varos: [335, 402], kozseg: [152, 194], orszag: [440, 531] }, uj: { fovaros: [1267, 1454], megyeszekhely: [748, 879], varos: [800, 905], kozseg: [677, 761], orszag: [1004, 1167] } };
+  const uj = kshLakasar(`<table>${evekFej}${sorok(minta, false)}</table>`);
+  assert.equal(lakasarHiheto(regi, uj), null, 'új év, hihető ugrás');
+  const ugras = structuredClone(uj); ugras.hasznalt.fovaros[2] = 2500;
+  assert.match(lakasarHiheto(regi, ugras), /2025, fovaros: 977 után 2500/);
+  const atiras = structuredClone(uj); atiras.hasznalt.varos[0] = 200;
+  assert.match(lakasarHiheto(regi, atiras), /2023, varos: 335 helyett 200/);
+  assert.match(lakasarHiheto({ ...regi, evek: [2022, 2023, 2024] }, uj), /hiányzik egy korábbi év/);
+});

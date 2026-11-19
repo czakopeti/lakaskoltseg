@@ -9,7 +9,7 @@ import * as M from '../forras/js/megjelenites.mjs';
 const TELE = { eladasiAr: '60000000', szerzesiErtek: '40000000', szerzesEv: '2023', eladasEv: '2026', szerzesKoltseg: '1000000', beruhazas: '1000000', eladasKoltseg: '500000',
   ertek: '50000000', hanyad: '50', kitol: 'vallalkozo', eladottErtek: '30000000', eladasMikor: 'elotte', elso: true, fiatal35: true, csok: false, telek: false, haszonelvezoKor: '70',
   vetelar: '60000000', onero: '10000000', eletkor: '30', alapterulet: '55', tulajdon: 'nincs', allapot: 'hasznalt', ingatlan: 'lakas', futamido: '25', piaciKamat: '6,5',
-  havi: '200000', honap: '12', egyeb: '100000', koltseg: '300000', ertekcsokkenes: '100000', berelt: '0', kozvetito: '1000000', hitelTartozas: '5000000', vetelKoltseg: '500000', megtakaritas: '2000000', sorrend: 'elobb_vesz',
+  havi: '200000', honap: '12', egyeb: '100000', koltseg: '300000', ertekcsokkenes: '100000', berelt: '0', kozvetito: '1000000', hitelTartozas: '5000000', vetelKoltseg: '500000', megtakaritas: '2000000', sorrend: 'elobb_vesz', telepules: 'fovaros',
   jovedelem: '700000', meglevo: '20000', periodus: 'kozep', kamat: '6', zold: true, elsoLakas: true, jogcim: 'ajandek', vagyon: 'lakas', terhek: '1000000', rokonsag: 'egyeb',
   tipus: 'hatarozott', kor: '60', evek: '10', rokon: false, toke: '20000000', ev: '2024', osszeg: '2000000', dij: '1', dij2: '', sajat: '',
   allagmegovas: '3500000', ismeretlen: false, hitel: '40000000', allampapir: '4,5', berlet: '220000', kozos: '25000', arNo: '4', berNo: '4', hozam: '4,5', karbantartas: '1,5',

@@ -1,6 +1,6 @@
 // Az elszámolás (eredmény) HTML-je. Ugyanezt használja az építő (a HTML-ben már benne van a szám)
 // és a böngésző (élő számolás), így a kettő nem térhet el.
-import * as S from './szamitas.js?v=f7018bc9';
+import * as S from './szamitas.js?v=3f09eb99';
 
 const nf = new Intl.NumberFormat('hu-HU', { useGrouping: 'always' });
 export const fmt = (n) => nf.format(Math.round(n));
@@ -514,10 +514,12 @@ export function berlesVetelPanel(adat, r) {
   const a = r.alap;
   const vesz = r.nyero === 'vetel';
   let h = vegosszeg(vesz ? `Ennyivel több vagyonod lesz ${r.evek} év múlva, ha megveszed` : `Ennyivel több vagyonod lesz ${r.evek} év múlva, ha bérelsz`, Math.abs(a.kulonbseg),
-    `Alapeset: a lakásár és a bérleti díj évente ${tized(r.arNo, 1)}%-kal nő, a bérlő a megmaradó pénzét ${tized(r.hozam, 1)}%-on fekteti be. ${a.fordul ? `A vétel a ${a.fordul}. évben kerül előre.` : `A vétel ${r.evek} év alatt nem kerül előre.`}`, { kozelito: true });
+    `Alapeset: ${r.arNo === r.berNo ? `a lakásár és a bérleti díj évente ${tized(r.arNo, 1)}%-kal nő` : `a lakásár évente ${tized(r.arNo, 1)}%-kal, a bérleti díj ${tized(r.berNo, 1)}%-kal nő`}, a bérlő a megmaradó pénzét ${tized(r.hozam, 1)}%-on fekteti be. ${a.fordul ? `A vétel a ${a.fordul}. évben kerül előre.` : `A vétel ${r.evek} év alatt nem kerül előre.`}`, { kozelito: true });
   const [bo, , de] = r.forgatokonyvek;
   const elo = (x) => `${x.kulonbseg >= 0 ? 'a vétel' : 'a bérlés'} ${kozelitoen(Math.abs(x.kulonbseg))} Ft-tal jobb`;
-  h += megjegyzes(`Ez feltevés, nem előrejelzés. A lakásárak alakulását senki sem tudja, az infláció csak kiindulópont. Ha a lakásárak évente ${tized(bo.arNo, 1)}%-kal nőnek, ${elo(bo)}; ha ${tized(de.arNo, 1)}%-kal, ${elo(de)}. Írd át a feltevéseket, és nézd meg, hogyan változik.`, 'figyelem');
+  const T = r.trend && !r.arSajat ? r.trend : null;
+  h += megjegyzes(`Ez feltevés, nem előrejelzés. A lakásárak alakulását senki sem tudja, ${T ? 'a múltbeli átlag' : 'az infláció'} csak kiindulópont. Ha a lakásárak évente ${tized(bo.arNo, 1)}%-kal nőnek, ${elo(bo)}; ha ${tized(de.arNo, 1)}%-kal, ${elo(de)}. Írd át a feltevéseket, és nézd meg, hogyan változik.`, 'figyelem');
+  if (T) h += megjegyzes(`A lakásár alapesete a KSH adatából jön. A használt lakások átlagos négyzetméterára ${T.hol} ${T.tol} és ${T.ig} között évente átlagosan ${tized(T.hosszu, 1)}%-kal nőtt. Az utolsó tíz évben ${tized(T.tiz, 1)}%-kal, de abban csak a fellendülés van benne, ezért nem azzal számolunk.`);
   h += `<div class="ket-modszer"><div class="modszer vagyon${vesz ? ' nyero' : ''}"><p class="m-cim">Ha megveszed</p><p class="m-nagy">${fmt(a.vetel / 1e6)}<small> millió Ft</small></p><p class="m-al">a lakás ${fmt(a.ertek / 1e6)} millió, mínusz ${fmt(a.tartozas / 1e6)} millió tartozás${r.eladod ? `, ${fmt(a.levonas / 1e6)} millió eladási költség` : ''}, plusz a befektetés. Mai értéken ${tized(a.vetelMa / 1e6, 1)} millió.</p></div><div class="modszer vagyon${vesz ? '' : ' nyero'}"><p class="m-cim">Ha bérelsz</p><p class="m-nagy">${fmt(a.berles / 1e6)}<small> millió Ft</small></p><p class="m-al">a kezdő pénz és a havi különbség befektetve. Mai értéken ${tized(a.berlesMa / 1e6, 1)} millió.</p></div></div>`;
   const V = r.valodi;
   h += `<p class="panel-cim">Mennyibe kerül valójában havonta a saját lakás?</p><ul class="tetelek">`;
@@ -537,7 +539,7 @@ export function berlesVetelPanel(adat, r) {
   if (r.hitel) h += tetel(`Hitel: ${fmt(r.hitel)} Ft, ${tized(r.kamat, 2)}%, ${r.futamido} év`, `${ftx(r.havi)}/hó`, { forras: r.kamatSajat ? 'sajat' : 'becsles' });
   h += tetel('Vétel: havi kiadás az első évben', `${ftx(r.elsoHaviVetel)}/hó`, { al: `törlesztő${r.kozos ? ', közös költség' : ''} és karbantartás (évi ${tized(r.karbSz, 1)}%)` });
   h += tetel('Bérlés: havi díj az első évben', `${ftx(r.berlet)}/hó`, { forras: 'sajat' });
-  h += tetel('Lakásár és bérleti díj változása', `${tized(r.arNo, 1)}% / ${tized(r.berNo, 1)}%`, { forras: 'becsles', al: `alapesetben a KSH ${r.infEv}. évi átlagos inflációja` });
+  h += tetel('Lakásár és bérleti díj változása', `${tized(r.arNo, 1)}% / ${tized(r.berNo, 1)}%`, { forras: r.arSajat ? 'sajat' : 'becsles', al: T ? `a lakásár ${T.hol} a KSH ${T.tol}–${T.ig}. évi átlaga, a bérleti díj a KSH ${r.infEv}. évi átlagos inflációja` : `alapesetben a KSH ${r.infEv}. évi átlagos inflációja` });
   h += tetel('A befektetés hozama', `${tized(r.hozam, 1)}%`, { forras: 'becsles', al: 'a Prémium Magyar Állampapír kamata, kamatadómentes' });
   h += '</ul>';
   h += levezetes([
@@ -661,7 +663,9 @@ export const KALKULATOROK = {
   berlesvetel: {
     kulcs: ['vetelar', 'berlet'],
     minta: () => ({ adat: { vetelar: '50000000', onero: '10000000', berlet: '220000', kozos: '25000', evek: '10' }, leiras: 'egy 50 millió forintos lakás 10 millió forint önerővel, vagy egy hasonló lakás bérlése havi 220 000 forintért, 10 évre' }),
-    panel: (adat, e) => { const o = (k) => (e[k] === '' || e[k] == null ? '' : sz(e[k])); return berlesVetelPanel(adat, S.berlesVetel(adat, { vetelar: sz(e.vetelar), onero: o('onero'), berlet: sz(e.berlet), kozos: sz(e.kozos), evek: o('evek'), kamat: o('kamat'), futamido: o('futamido'), arNo: o('arNo'), berNo: o('berNo'), hozam: o('hozam'), karbantartas: o('karbantartas'), eladod: e.eladod === true, kozvetito: o('kozvetito') })); },
+    panel: (adat, e) => { const o = (k) => (e[k] === '' || e[k] == null ? '' : sz(e[k])); return berlesVetelPanel(adat, S.berlesVetel(adat, { vetelar: sz(e.vetelar), onero: o('onero'), berlet: sz(e.berlet), kozos: sz(e.kozos), evek: o('evek'), kamat: o('kamat'), futamido: o('futamido'), arNo: o('arNo'), berNo: o('berNo'), hozam: o('hozam'), karbantartas: o('karbantartas'), eladod: e.eladod === true, kozvetito: o('kozvetito'), telepules: e.telepules || '' })); },
+    // A „Hol van a lakás?” választás után a lakásár mezőjében a KSH szerinti alapeset látszik
+    helyorzo: (adat, e, form) => { const m = form.querySelector('#arNo'); if (!m) return; const t = e.telepules ? S.lakasarTrend(adat, e.telepules) : null; const inf = adat.inflacio?.evek || {}; const u = Object.keys(inf).sort().pop(); m.placeholder = tized(t ? Math.round(t.hosszu * 10) / 10 : u ? inf[u].szazalek : 0, 1); },
   },
   lakasvaltas: {
     kulcs: ['eladasiAr', 'vetelar'],

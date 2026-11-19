@@ -256,7 +256,9 @@ function indit() {
   const szamol = (valtozott) => {
     lathatosag(form);
     mintaMutat = false;
-    const html = KALK[tipus](adat, ertekek(form), form);
+    const e = ertekek(form);
+    M.KALKULATOROK[tipus]?.helyorzo?.(adat, e, form);
+    const html = KALK[tipus](adat, e, form);
     frissit(panel, html + kovetkezo(html), valtozott);
     // Eredményig jutott: valódi (nem minta) összeg látszik, és előtte maga írt be valamit
     if (valtozott && elkuldve.has('indit') && !mintaMutat && panel.querySelector('[data-osszeg]')) meres('kesz');

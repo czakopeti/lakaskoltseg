@@ -535,7 +535,9 @@ export function berlesVetel(adat, b) {
   const bv = (k) => szabaly(adat, `berles_vetel.${k}`).ertek;
   const kamat = megadott(b.kamat) && Number(b.kamat) >= 0 ? Number(b.kamat) : szabaly(adat, 'wekerle_plusz.piaci_kamat').ertek.szazalek;
   const futamido = megadott(b.futamido) && Number(b.futamido) > 0 ? Math.round(Number(b.futamido)) : 20;
-  const arNo = megadott(b.arNo) ? Number(b.arNo) : infSz;
+  // A lakásár alapesete: ha megadod, hol van a lakás, a KSH szerinti hosszú távú átlag azon a településtípuson, különben az infláció
+  const trend = TELEPULESTIPUS[b.telepules] ? lakasarTrend(adat, b.telepules) : null;
+  const arNo = megadott(b.arNo) ? Number(b.arNo) : trend ? Math.round(trend.hosszu * 10) / 10 : infSz;
   const berNo = megadott(b.berNo) ? Number(b.berNo) : infSz;
   const hozam = megadott(b.hozam) ? Number(b.hozam) : bv('allampapir').szazalek;
   const karbSz = megadott(b.karbantartas) ? Number(b.karbantartas) : bv('karbantartas').szazalek;
@@ -572,9 +574,26 @@ export function berlesVetel(adat, b) {
   const valodi = { kamat: Math.round(elsoKamat / 12), kozos, karbantartas: Math.round(ar * karbSz / 1200), elmaradt: Math.round(kezdo * hozam / 1200), ertekNo: Math.round(ar * arNo / 1200) };
   valodi.osszes = valodi.kamat + valodi.kozos + valodi.karbantartas + valodi.elmaradt;
   valodi.netto = valodi.osszes - valodi.ertekNo;
-  return { ar, onero, hitel, eladod, kozvSz, kozvSajat: megadott(b.kozvetito), valodi, defl, kamat, kamatSajat: megadott(b.kamat), futamido, berlet, kozos, evek, arNo, berNo, hozam, karbSz, infSz, infEv: utolso, kezdo, indulo: ind,
+  return { ar, onero, hitel, eladod, kozvSz, kozvSajat: megadott(b.kozvetito), valodi, arSajat: megadott(b.arNo), trend, defl, kamat, kamatSajat: megadott(b.kamat), futamido, berlet, kozos, evek, arNo, berNo, hozam, karbSz, infSz, infEv: utolso, kezdo, indulo: ind,
     havi: a.havi, elsoHaviVetel: Math.round(a.havi + kozos + ar * karbSz / 100 / 12), forgatokonyvek: fk, alap: a, nyero: a.kulonbseg >= 0 ? 'vetel' : 'berles', elteres: el,
     hfmFelett: ind.hfmFelett, hfmSz: ind.hfmSz };
+}
+
+/* ---------------- Lakásárak a KSH szerint ---------------- */
+export const TELEPULESTIPUS = { fovaros: ['Budapest', 'Budapesten'], megyeszekhely: ['Megyeszékhely', 'a megyeszékhelyeken'], varos: ['Más város', 'a többi városban'], kozseg: ['Község', 'a községekben'], orszag: ['Országos átlag', 'országosan'] };
+const atlagNo = (a, b, ev) => (Math.pow(b / a, 1 / ev) - 1) * 100;
+/**
+ * A használt lakások átlagos négyzetméterárának évi átlagos változása egy településtípuson, a KSH idősorából.
+ * hosszu: a teljes idősorra (egy fellendülés és egy visszaesés is benne van), tiz: az utolsó 10 évre.
+ */
+export function lakasarTrend(adat, tipus) {
+  const la = adat.lakasar;
+  const sor = la?.hasznalt?.[tipus];
+  if (!sor || !TELEPULESTIPUS[tipus]) return null;
+  const n = la.evek.length - 1;
+  const tol = la.evek[0], ig = la.evek[n];
+  const t10 = Math.max(0, n - 10);
+  return { tipus, nev: TELEPULESTIPUS[tipus][0], hol: TELEPULESTIPUS[tipus][1], tol, ig, hosszu: atlagNo(sor[0], sor[n], ig - tol), tiz: atlagNo(sor[t10], sor[n], ig - la.evek[t10]), tizTol: la.evek[t10], arM2: sor[n] * 1000, forras: la.forras };
 }
 
 /* ---------------- Rövid vagy hosszú távú kiadás ---------------- */

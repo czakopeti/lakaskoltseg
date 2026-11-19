@@ -1,4 +1,4 @@
-// Önálló frissítők: azok a számok, amelyeket a gép maga is be tud hozni a hivatalos forrásból.
+// Önálló frissítők (KSH éves infláció, PMÁP-kamat, KSH lakás-négyzetméterárak): azok a számok, amelyeket a gép maga is be tud hozni a hivatalos forrásból.
 // Mindegyik ugyanúgy működik: letölti az oldalt, kiolvassa a számot, és csak akkor írja át az adatot,
 // ha a szám hihető. Ha a kiolvasás nem sikerül, vagy a szám valószínűtlenül nagyot ugrik, a régi érték marad,
 // és a jelentésbe kerül (a workflow ebből jegyet nyit). Minden átírás a data/valtozasok.json naplóba is bekerül.
@@ -27,6 +27,50 @@ export const kshUrl = (ev) => `https://www.ksh.hu/en/first-releases/far/efar${St
 export function pmapKamat(html) {
   const m = szovegge(html).match(/KAMAT:?\s*(\d{1,2}(?:[.,]\d{1,2})?)\s*%/);
   return m ? szam(m[1]) : null;
+}
+
+// A KSH STADAT-táblák angol HTML-je: a „Country” sorok településtípusonként, a használt és az új lakásokra külön.
+const TIPUS_EN = [['capital', 'fovaros'], ['county seats', 'megyeszekhely'], ['towns', 'varos'], ['villages', 'kozseg'], ['total', 'orszag']];
+const cellaSzoveg = (c) => c.replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
+
+/** A lak0025 táblából: { evek, hasznalt: {tipus: [..]}, uj: {...} }, vagy null, ha a szerkezet nem a várt. */
+export function kshLakasar(html) {
+  const sorok = [...String(html).matchAll(/<tr[\s\S]*?<\/tr>/gi)].map((m) => [...m[0].matchAll(/<t[hd][^>]*>([\s\S]*?)<\/t[hd]>/gi)].map((c) => cellaSzoveg(c[1])));
+  const fej = sorok.find((s) => s.filter((c) => /^(19|20)\d\d$/.test(c)).length >= 3);
+  if (!fej) return null;
+  const evek = fej.filter((c) => /^(19|20)\d\d$/.test(c)).map(Number);
+  const ki = { evek, hasznalt: {}, uj: {} };
+  let resz = null, regio = '';
+  for (const s of sorok) {
+    const sor = s.join(' ');
+    if (/second-hand/i.test(sor) && s.filter(Boolean).length <= 2) { resz = 'hasznalt'; continue; }
+    if (/new dwellings/i.test(sor) && s.filter(Boolean).length <= 2) { resz = 'uj'; continue; }
+    const i = s.findIndex((c) => TIPUS_EN.some(([en]) => c.toLowerCase() === en));
+    if (i < 0) continue;
+    if (i > 0 && s[i - 1]) regio = s[i - 1];
+    if (!resz || !/^country$/i.test(regio)) continue;
+    const ertekek = s.slice(i + 1).map((c) => (c === '..' || c === '' ? null : Number(c.replace(/[,\s]/g, ''))));
+    if (ertekek.length !== evek.length || ertekek.some((x) => x !== null && !Number.isFinite(x))) return null;
+    ki[resz][TIPUS_EN.find(([en]) => en === s[i].toLowerCase())[1]] = ertekek;
+  }
+  for (const r of ['hasznalt', 'uj']) if (TIPUS_EN.some(([, k]) => !ki[r][k])) return null;
+  return ki;
+}
+
+/** A régi és az új táblázat összevetése: a régi évek legfeljebb 15%-kal módosulhatnak, az új év az előzőhöz képest −30% és +60% között. */
+export function lakasarHiheto(regi, uj) {
+  if (!uj || !regi.evek.every((e) => uj.evek.includes(e))) return 'hiányzik egy korábbi év';
+  for (const r of ['hasznalt', 'uj']) for (const [t, sor] of Object.entries(uj[r])) {
+    if (r === 'hasznalt' && sor.some((x) => x == null || x <= 0)) return `hiányzó érték: használt, ${t}`;
+    for (const [i, e] of uj.evek.entries()) {
+      const j = regi.evek.indexOf(e), x = sor[i];
+      if (x == null) continue;
+      if (j >= 0 && regi[r][t][j] != null && Math.abs(x / regi[r][t][j] - 1) > 0.15) return `${e}, ${t}: ${regi[r][t][j]} helyett ${x}`;
+      const elozo = sor[i - 1];
+      if (j < 0 && elozo != null && (x / elozo < 0.7 || x / elozo > 1.6)) return `${e}, ${t}: ${elozo} után ${x}`;
+    }
+  }
+  return null;
 }
 
 /** Hihetőség: tartományon belül, és a régihez képest legfeljebb ugras százalékponttal tér el (ha van régi). */
@@ -94,6 +138,27 @@ export async function futtat({ leto = letolt, ma = maBudapest() } = {}) {
     } catch (e) { j.gond.push({ nev: 'Államkincstár: a Prémium Magyar Állampapír kamata', url, ok: String(e.message || e) }); }
     ir('data/szabalyok.json', sz);
   }
+
+  // 3. A lakások átlagos négyzetméterára településtípusonként (KSH STADAT, évente egyszer bővül)
+  const la = olvas('data/lakasar.json');
+  try {
+    const html = await leto(la.letoltes);
+    const uj = html == null ? null : kshLakasar(html);
+    const gond = uj ? lakasarHiheto(la, uj) : 'nem találtam a várt táblázatot (az országos sorokat településtípusonként)';
+    if (gond) j.gond.push({ nev: 'KSH: a lakások átlagos négyzetméterára', url: la.forras.url, ok: `${gond}. Nem írtam át.` });
+    else {
+      const ujEv = uj.evek[uj.evek.length - 1], regiEv = la.evek[la.evek.length - 1];
+      const valtozott = JSON.stringify([uj.evek, uj.hasznalt, uj.uj]) !== JSON.stringify([la.evek, la.hasznalt, la.uj]);
+      if (valtozott) {
+        if (ujEv > regiEv) j.atirt.push({ mi: `A lakások ${ujEv}. évi átlagos négyzetméterára, Budapest, használt (KSH, ezer Ft/m²)`, regi: la.hasznalt.fovaros[la.evek.length - 1], uj: uj.hasznalt.fovaros[uj.evek.length - 1], url: la.forras.url });
+        else j.atirt.push({ mi: `A KSH módosította a lakások négyzetméterárát (${regiEv}. évi adat, Budapest, használt, ezer Ft/m²)`, regi: la.hasznalt.fovaros[la.evek.length - 1], uj: uj.hasznalt.fovaros[uj.evek.length - 1], url: la.forras.url });
+        Object.assign(la, { evek: uj.evek, hasznalt: uj.hasznalt, uj: uj.uj });
+        la.forras.kelt = ma;
+      }
+      la.ellenorizve = ma;
+      ir('data/lakasar.json', la);
+    }
+  } catch (e) { j.gond.push({ nev: 'KSH: a lakások átlagos négyzetméterára', url: la.forras.url, ok: String(e.message || e) }); }
 
   for (const a of j.atirt) naplo.bejegyzesek.unshift({ datum: ma, mi: a.mi, regi: a.regi, uj: a.uj, forras: a.url, gepi: true });
   if (j.atirt.length) ir('data/valtozasok.json', naplo);

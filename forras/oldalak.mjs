@@ -2,7 +2,7 @@
 // Most a váz van itt: főoldal (munkaverzió), források, rólunk, jogi oldalak. A kalkulátorok a tartalomterv szerint jönnek.
 import * as M from './js/megjelenites.mjs';
 import * as S from './js/szamitas.mjs';
-import { CSOPORTOK, oldal, oldalfej, ellenorzesKesik, morzsaLd, tovabb, esc, datumHu, forgalmi, elszamolas, sor, szamMezo, reszCim, negyzetek, jelolo, gyik, gyikLd, alkalmazasLd, forrasLista } from './sablon.mjs';
+import { CSOPORTOK, oldal, oldalfej, ellenorzesKesik, morzsaLd, tovabb, esc, datumHu, forgalmi, elszamolas, sor, szamMezo, reszCim, negyzetek, jelolo, valaszto, gyik, gyikLd, alkalmazasLd, forrasLista } from './sablon.mjs';
 
 /* ======================= FŐOLDAL ======================= */
 /**
@@ -776,9 +776,12 @@ export function berlesVetelOldal(k) {
   const bv = (kk) => S.szabaly(adat, `berles_vetel.${kk}`).ertek;
   const p = S.berlesVetel({ ...adat, inflacio: adat.inflacio }, { vetelar: 50e6, onero: 10e6, berlet: 220000, kozos: 25000, evek: 10 });
   const infEv = Object.keys(adat.inflacio.evek).sort().pop();
+  const tr = ['fovaros', 'megyeszekhely', 'varos', 'kozseg', 'orszag'].map((t) => S.lakasarTrend(adat, t));
+  const la = adat.lakasar, mel = (x) => M.tized(x, 1).replace(/^-/, '−');
+  const mely = (t) => { const sor = la.hasznalt[t]; const i = sor.indexOf(Math.min(...sor.slice(0, -5))); return la.evek[i]; };
   return kalkOldal(k, {
     ut: BERLES_UT, tipus: 'berlesvetel', nev: 'Bérlés vagy vétel', temak: ['illetek', 'haszonelvezet', 'hitel', 'vetel_koltsegek', 'wekerle_plusz', 'berles_vetel', 'szja_eladas'],
-    adatExtra: { inflacio: adat.inflacio },
+    adatExtra: { inflacio: adat.inflacio, lakasar: { forras: la.forras, evek: la.evek, hasznalt: la.hasznalt } },
     oldalCim: 'Albérlet vagy lakásvásárlás kalkulátor: melyikkel jársz jobban?',
     leiras: 'Bérlés vagy hitelből vétel: a vagyonod N év múlva három forgatókönyvben, az illetékkel, a mellékköltségekkel, a karbantartással, és ha bérelsz, a pénzed állampapírban.',
     cim: 'Albérlet vagy saját lakás: melyikkel jársz jobban?',
@@ -798,7 +801,8 @@ ${sor('', szamMezo({ id: 'berlet', cim: 'Havi bérleti díj', me: 'Ft', placehol
 <fieldset>${reszCim('', 'Feltevések')}
 <p class="fieldset-megj">Ha üresen hagyod, ezekkel számolunk. Mindegyiket átírhatod.</p>
 ${sor('', szamMezo({ id: 'evek', cim: 'Időtáv', me: 'év', placeholder: '10', min: 1, max: 40 }))}
-${sor('', szamMezo({ id: 'arNo', cim: 'A lakásár változása évente', me: '%', placeholder: M.tized(p.infSz, 1), tized: true, sugo: `Alapesetben a KSH ${infEv}. évi átlagos inflációja. A borúlátó és a derűlátó változat ${bv('forgatokonyv').elteres_szazalekpont} százalékponttal tér el.` }))}
+${sor('', valaszto('telepules', 'Hol van a lakás?', [['', 'Nem adom meg'], ...tr.slice(0, 4).map((t) => [t.tipus, t.nev])], '', `Ha megadod, a lakásár változásának alapesete a KSH szerinti hosszú távú átlag azon a településtípuson (${la.evek[0]}–${la.evek[la.evek.length - 1]}).`))}
+${sor('', szamMezo({ id: 'arNo', cim: 'A lakásár változása évente', me: '%', placeholder: M.tized(p.infSz, 1), tized: true, sugo: `Alapesetben a KSH ${infEv}. évi átlagos inflációja, vagy ha megadod, hol van a lakás, a KSH szerinti hosszú távú átlag. A borúlátó és a derűlátó változat ${bv('forgatokonyv').elteres_szazalekpont} százalékponttal tér el.` }))}
 ${sor('', szamMezo({ id: 'berNo', cim: 'A bérleti díj változása évente', me: '%', placeholder: M.tized(p.infSz, 1), tized: true }))}
 ${sor('', szamMezo({ id: 'hozam', cim: 'A befektetés hozama', me: '%', placeholder: M.tized(bv('allampapir').szazalek, 1), tized: true, sugo: 'Amit a bérlő a megmaradó pénzén keres. Alapesetben a Prémium Magyar Állampapír kamata.' }))}
 ${sor('', jelolo('eladod', 'A végén eladod a lakást', 'Levonjuk a közvetítő díját, és ha öt éven belül adod el, az eladás adóját is.'))}
@@ -807,7 +811,11 @@ ${sor('', szamMezo({ id: 'karbantartas', cim: 'Karbantartás évente', me: '%', 
 </fieldset>`,
     cikk: `<h2>Hogyan számolunk?</h2>
 <p>Mindkét úton ugyanannyi pénz megy ki. A vevő az önerőt, az illetéket és a mellékköltségeket kifizeti, a bérlő ugyanezt az összeget befekteti. Havonta a vevő törlesztőt, közös költséget és karbantartást fizet, a bérlő bérleti díjat. Ami az egyiknél kevesebb, azt befekteti.</p>
-<p>A végén a vevő vagyona a lakás értéke, mínusz a még meglévő tartozás, plusz amit befektetett. A bérlőé a befektetése. A lakásárakat senki sem tudja előre, ezért három változatot mutatunk: alapesetben az árak az inflációval nőnek, a borúlátóban ${bv('forgatokonyv').elteres_szazalekpont} százalékponttal lassabban, a derűlátóban ennyivel gyorsabban.</p>
+<p>A végén a vevő vagyona a lakás értéke, mínusz a még meglévő tartozás, plusz amit befektetett. A bérlőé a befektetése. A lakásárakat senki sem tudja előre, ezért három változatot mutatunk. Alapesetben az árak az inflációval nőnek, vagy ha megadod, hol van a lakás, a KSH szerinti hosszú távú átlaggal. A borúlátóban ${bv('forgatokonyv').elteres_szazalekpont} százalékponttal lassabban, a derűlátóban ennyivel gyorsabban.</p>
+<h2>Mennyit drágultak eddig a lakások?</h2>
+<p>A KSH minden évben közli a lakások átlagos négyzetméterárát településtípusonként. A táblázat a használt lakások ${la.evek[la.evek.length - 1]}. évi négyzetméterárát mutatja, és hogy ${la.evek[0]} óta, illetve ${tr[0].tizTol} óta évente átlagosan hány százalékkal nőtt.</p>
+<div class="tabla-tarto"><table class="tabla"><thead><tr><th scope="col">Hol?</th><th scope="col">Ft/m²</th><th scope="col">${la.evek[0]} óta</th><th scope="col">${tr[0].tizTol} óta</th></tr></thead><tbody>${tr.map((t) => `<tr${t.tipus === 'orszag' ? ' class="kiemelt-sor"' : ''}><th scope="row">${t.nev}</th><td>${M.fmt(t.arM2)}</td><td>${mel(t.hosszu)}%</td><td>${mel(t.tiz)}%</td></tr>`).join('')}</tbody></table></div>
+<p>Az utolsó tíz év a fellendülés évtizede volt. A hosszabb idősorban a visszaesés is benne van, Budapesten ${M.rag(mely('fovaros'), 'ban', 'ben')}, a községekben ${M.rag(mely('kozseg'), 'ban', 'ben')} volt a mélypont. Ha a kalkulátorban megadod, hol van a lakás, a hosszabb idősor átlagával számolunk. Ez átlagár, ezért az is mozgatja, ha egy évben több kisebb vagy jobb helyen lévő lakást adnak el. A legutolsó év a KSH-nál még előzetes adat. A táblázat magától frissül, amikor a KSH új évet közöl.</p>
 <h2>Amit a számok nem mutatnak</h2>
 <p>A bérlés rugalmas: el tudsz költözni, ha munkát vagy várost váltasz. A saját lakás biztonság: nem mondhatják fel, és átalakíthatod. A vételnek eladáskor is van költsége, a közvetítő és ha öt éven belül adod el, az adó.</p>`,
     kerdesek: [
@@ -816,6 +824,7 @@ ${sor('', szamMezo({ id: 'karbantartas', cim: 'Karbantartás évente', me: '%', 
       { k: 'Mennyit hoz a pénz, ha nem veszek lakást?', v: [esc(S.szabaly(adat, 'berles_vetel.allampapir').szoveg)] },
     ],
     forrasKulcsok: ['berles_vetel.allampapir', 'berles_vetel.karbantartas', 'berles_vetel.forgatokonyv', 'berles_vetel.kozvetito', 'wekerle_plusz.piaci_kamat', 'illetek.altalanos_mertek', 'vetel_koltsegek.ugyvedi'],
+    forrasExtra: [{ nev: la.forras.nev, url: la.forras.url, d: datumHu(la.ellenorizve) }],
   });
 }
 
