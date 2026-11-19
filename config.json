@@ -1,9 +1,9 @@
 {
   "marka": "Ingatlanmérleg",
   "domain": "https://ingatlanmerleg.hu",
-  "eles": false,
-  "kapcsolat_email": "",
-  "indexnow_kulcs": "",
+  "eles": true,
+  "kapcsolat_email": "info@ingatlanmerleg.hu",
+  "indexnow_kulcs": "234491aba0d9c8cd80a0cd9357f982c8",
   "uzemelteto": {
     "nev": "Czakó Péter",
     "tipus": "magánszemély",
@@ -17,7 +17,7 @@
     "cim": "101 Townsend St, San Francisco, CA 94107, USA",
     "web": "https://www.cloudflare.com"
   },
-  "megjegyzes": "A név Ingatlanmérleg, a domain ingatlanmerleg.hu (meg kell venni, és a Cloudflare Pages-en hozzá kell rendelni). Az eles: true csak akkor kapcsolható be, ha a domain él, és megvan a kapcsolati e-mail és az IndexNow-kulcs. Amíg eles: false, minden oldal noindex.",
+  "megjegyzes": "Élesítve 2026. november 19-én: ingatlanmerleg.hu, Cloudflare Pages (projekt: ingatlanmerleg, kimenet: web). A www és a pages.dev cím a fő címre visz. Az indexnow_kulcs nyilvános (a kulcsfájl a gyökérben van), nem titok.",
   "szlogen": "Számolj, mielőtt aláírsz.",
   "visszajelzes_repo": "czakopeti/lakaskoltseg-visszajelzes"
 }

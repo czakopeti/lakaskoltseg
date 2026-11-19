@@ -46,4 +46,4 @@ node frissito/figyelo.mjs      # forrásfigyelő (internet kell)
 - Kapcsolati e-mail, IndexNow-kulcs (`config.json`).
 - A saját domain felvétele a `functions/api/*.js` `ENGEDETT` listájába.
 - A `data/szabalyok.json` `nyitott` listájának lezárása, a `masodlagos` szintű tételek összevetése az elsődleges forrással.
-- `eles: true`.
+- `eles: true` (kész: 2026. november 19.)

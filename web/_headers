@@ -5,7 +5,6 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
   X-Frame-Options: SAMEORIGIN
   Cross-Origin-Opener-Policy: same-origin
-  X-Robots-Tag: noindex, nofollow, noarchive
 
 # A beágyazható kalkulátorok bármely oldalon megjelenhetnek iframe-ben
 /beagyaz/*
