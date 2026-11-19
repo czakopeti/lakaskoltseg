@@ -1,4 +1,13 @@
 {
   "leiras": "Változásnapló: minden szám, amely az oldalon megváltozott, a változás napjával, a régi és az új értékkel és a forrással. A gepi bejegyzéseket az önálló frissítő (frissito/automata.mjs) írta, a többit kézzel vagy a heti felülvizsgálat vette fel. A legfrissebb elöl.",
-  "bejegyzesek": []
+  "bejegyzesek": [
+    {
+      "datum": "2026-11-19",
+      "mi": "A KSH módosította a lakások négyzetméterárát (2025. évi adat, Budapest, használt, ezer Ft/m²)",
+      "regi": 1194,
+      "uj": 1207,
+      "forras": "https://www.ksh.hu/stadat_files/lak/hu/lak0025.html",
+      "gepi": true
+    }
+  ]
 }
