@@ -75,7 +75,7 @@
     },
     "https://biztosdontes.hu/cikkek/illetekmentesseg": {
       "v": 6,
-      "hossz": 12187,
+      "hossz": 12202,
       "tenyek": [
         "90f5292209",
         "f3c1011aec",
@@ -571,7 +571,7 @@
     },
     "https://hovege.hu/ugyes-bajos/2026/09/06/ennyi-az-ajandekozasi-illetek-merteke-2026-ban-mutatjuk-min-mulik-mennyit-kell-fizetned/": {
       "v": 6,
-      "hossz": 7000,
+      "hossz": 6877,
       "tenyek": [
         "6a7464d6f0",
         "c746a6a46a",
@@ -674,7 +674,7 @@
     },
     "https://ugyved.ingatlan.hu/2025/10/17/haszonelvezeti-jog-alapitasanak-illetekvonzata/": {
       "v": 6,
-      "hossz": 3114,
+      "hossz": 3050,
       "tenyek": [
         "cee3dc02dd",
         "92f6190dfa",
@@ -684,9 +684,7 @@
       "latva": "2026-11-20",
       "ellenorizve": "2026-11-20",
       "utolsoGond": "letoltes",
-      "utolsoGondNap": "2026-11-20",
-      "gond": "letoltes",
-      "gondOta": "2026-11-20"
+      "utolsoGondNap": "2026-11-20"
     },
     "https://ingatlan5.hu/haszonelvezeti-jog-erteke-es-annak-pontos-kiszamitasa": {
       "v": 6,
@@ -717,16 +715,14 @@
         "07e6de8493",
         "d2fa27dc9d",
         "f6e007ce3b",
-        "a8b5f7f6fe",
         "09062a4269"
       ],
-      "hiany": "a8b5f7f6fe",
-      "latva": "2026-11-19",
+      "latva": "2026-11-20",
       "ellenorizve": "2026-11-20"
     },
     "https://biztosdontes.hu/cikkek/mnb-hitelek-koltsegeinek-csokkentese": {
       "v": 6,
-      "hossz": 9593,
+      "hossz": 9571,
       "tenyek": [
         "82d942f1e0",
         "37b0525bb6",
@@ -839,14 +835,12 @@
         "d7f225af82",
         "c1990551e6",
         "e7017c16f3",
-        "a8b5f7f6fe",
         "bf6c1bdc8d",
         "aa5ab3945a",
         "07a33336e0",
         "c496d820e4"
       ],
-      "hiany": "a8b5f7f6fe",
-      "latva": "2026-11-19",
+      "latva": "2026-11-20",
       "ellenorizve": "2026-11-20"
     },
     "https://tudastar.money.hu/ismerteto/mennyi-ido-alatt-kuldi-a-nav-a-vagyonszerzesi-illeteket-es-hogyan-kell-megfizetni/": {
@@ -912,7 +906,7 @@
     },
     "https://infostart.hu/gazdasag/2026/01/13/megjott-a-friss-inflacios-adat": {
       "v": 6,
-      "hossz": 10668,
+      "hossz": 11710,
       "tenyek": [
         "fbbc5b9544",
         "ef6e9f5dff",
@@ -927,11 +921,10 @@
         "2ba82d04cf",
         "dde97dee25",
         "637063211b",
+        "49e2142f1a",
         "0bf9928c16",
-        "0997d0a45f",
-        "fe3f947711"
+        "0997d0a45f"
       ],
-      "hiany": "fe3f947711",
       "latva": "2026-11-20",
       "ellenorizve": "2026-11-20"
     },
@@ -1001,16 +994,17 @@
     },
     "https://www.penzcentrum.hu/otthon/20260519/vegleges-tiltas-lep-eletbe-a-fovaros-sziveben-rengeteg-ingatlantulajdonos-bukja-el-emiatt-a-biztos-bevetelt-1198922/amp": {
       "v": 6,
-      "hossz": 3806,
+      "hossz": 3705,
       "tenyek": [
         "2d9ffbf48e",
         "603b0bfc49",
         "415ecfb672",
         "1f365e5a3c",
+        "40b1513618",
         "57e6a6a08f",
         "abf1f60388"
       ],
-      "latva": "2026-11-19",
+      "latva": "2026-11-20",
       "ellenorizve": "2026-11-20"
     },
     "https://adozona.hu/illetek/Otthon_Start_ingatlan_illetek_kedvezmeny_WU0M65": {
@@ -1053,7 +1047,9 @@
       "latva": "2026-11-20",
       "ellenorizve": "2026-11-20",
       "utolsoGond": "letoltes",
-      "utolsoGondNap": "2026-11-20"
+      "utolsoGondNap": "2026-11-20",
+      "gond": "letoltes",
+      "gondOta": "2026-11-20"
     },
     "https://adozona.hu/afa/Maganszallashelyszolgaltatas_teteles_atalan_RE2ZGI": {
       "gond": "letoltes",
