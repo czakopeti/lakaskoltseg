@@ -75,7 +75,7 @@
     },
     "https://biztosdontes.hu/cikkek/illetekmentesseg": {
       "v": 6,
-      "hossz": 12202,
+      "hossz": 12187,
       "tenyek": [
         "90f5292209",
         "f3c1011aec",
@@ -114,9 +114,7 @@
       "latva": "2026-11-19",
       "ellenorizve": "2026-11-20",
       "utolsoGond": "az oldal szövege túl rövid",
-      "utolsoGondNap": "2026-11-20",
-      "gond": "az oldal szövege túl rövid",
-      "gondOta": "2026-11-20"
+      "utolsoGondNap": "2026-11-20"
     },
     "https://www.kh.hu/cikkek/allami-tamogatasok": {
       "v": 6,
@@ -310,7 +308,11 @@
         "5326b79513"
       ],
       "latva": "2026-11-20",
-      "ellenorizve": "2026-11-20"
+      "ellenorizve": "2026-11-20",
+      "gond": "a korábbi 6 ténymondatból 4 eltűnt (átszervezett vagy hibás oldal)",
+      "gondOta": "2026-11-20",
+      "utolsoGond": "a korábbi 6 ténymondatból 4 eltűnt (átszervezett vagy hibás oldal)",
+      "utolsoGondNap": "2026-11-20"
     },
     "https://njt.jog.gov.hu/jogszabaly/2026-298-20-22": {
       "v": 6,
@@ -579,11 +581,9 @@
         "e6d71a2268",
         "702783bbc7",
         "b9670f8a89",
-        "b980eef0f2",
         "61fa50719f"
       ],
-      "hiany": "b980eef0f2",
-      "latva": "2026-11-19",
+      "latva": "2026-11-20",
       "ellenorizve": "2026-11-20"
     },
     "https://berkalkulator.com/blog/2026/orokosodesi-illetek-2026-teljes-utmutato": {
@@ -624,7 +624,7 @@
     },
     "https://jogaszvilag.hu/szakma/vagyoni-erteku-jogok-haszonelvezeti-jog-es-illetek/": {
       "v": 6,
-      "hossz": 21909,
+      "hossz": 22046,
       "tenyek": [
         "eaa2afb7b6",
         "a1355780c3",
@@ -779,9 +779,7 @@
       "latva": "2026-11-19",
       "ellenorizve": "2026-11-20",
       "utolsoGond": "az oldal szövege túl rövid",
-      "utolsoGondNap": "2026-11-20",
-      "gond": "az oldal szövege túl rövid",
-      "gondOta": "2026-11-20"
+      "utolsoGondNap": "2026-11-20"
     },
     "https://privatbankar.hu/cikkek/ingatlan/lakas-koltsegek-324176.html": {
       "v": 6,
@@ -871,9 +869,7 @@
       "latva": "2026-11-19",
       "ellenorizve": "2026-11-20",
       "utolsoGond": "az oldal szövege túl rövid",
-      "utolsoGondNap": "2026-11-20",
-      "gond": "az oldal szövege túl rövid",
-      "gondOta": "2026-11-20"
+      "utolsoGondNap": "2026-11-20"
     },
     "https://www.allamkincstar.gov.hu/lakossagi-ugyfelek/allampapir_forgalmazas/Forgalmazott-allampapirok/dematerializalt-allampapirok/PMAP": {
       "v": 6,
@@ -910,7 +906,7 @@
     },
     "https://infostart.hu/gazdasag/2026/01/13/megjott-a-friss-inflacios-adat": {
       "v": 6,
-      "hossz": 12481,
+      "hossz": 12379,
       "tenyek": [
         "fbbc5b9544",
         "ef6e9f5dff",
@@ -918,8 +914,6 @@
         "6242438253",
         "a11c2b905e",
         "ff930fa394",
-        "374bb5ac9b",
-        "ab6ff88f1f",
         "3602e8e2c0",
         "6938684b30",
         "281f1195db",
@@ -929,8 +923,7 @@
         "637063211b",
         "0bf9928c16",
         "0997d0a45f",
-        "8f5ea46e91",
-        "5326b79513"
+        "fe3f947711"
       ],
       "latva": "2026-11-20",
       "ellenorizve": "2026-11-20"
