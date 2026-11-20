@@ -92,6 +92,23 @@ async function indit(el) {
     szamol();
   }
 
+  // PDF: a böngésző nyomtatás/mentés PDF-be funkciója, a nyomtatási stílus csak a becslést és a forrásokat hagyja meg
+  ki.addEventListener('click', async (ev) => {
+    const pdf = ev.target.closest('[data-ev-pdf]'), masol = ev.target.closest('[data-ev-masol]');
+    if (pdf) {
+      ki.querySelectorAll('details').forEach((d) => { d.open = true; });
+      const regi = document.title;
+      const u = A.egysegek[kod];
+      document.title = `Ingatlanmérleg becslés - ${u ? u.n : ''}${utcaNev() ? ` ${utcaNev()}` : ''} ${iM2.value} m2`.replace(/\s+/g, ' ').trim();
+      window.print();
+      setTimeout(() => { document.title = regi; }, 1000);
+    }
+    if (masol) {
+      try { await navigator.clipboard.writeText(location.href); masol.textContent = 'Kimásolva'; } catch { masol.textContent = location.href; }
+      setTimeout(() => { masol.textContent = 'Link másolása'; }, 2500);
+    }
+  });
+
   iTelep.addEventListener('change', async () => { await telepValt(); szamol(); });
   iTelep.addEventListener('input', async () => { if (nevek.has(norm(iTelep.value))) { await telepValt(); szamol(); } });
   for (const i of [iUtca, iTipus, iM2]) { i.addEventListener('input', szamol); i.addEventListener('change', szamol); }
@@ -131,5 +148,7 @@ ${sav(e)}
 <p>${e.szorzo !== 1 ? `A ${A.evek.at(-1)}-es árat a KSH lakásárindexeivel hoztuk a mai szintre (${esc(e.cimke)}): ${tized((e.szorzo - 1) * 100, 0)}%-os drágulás.` : `Ez a ${A.evek.at(-1)}-es árszint, frissebb árindex nincs hozzá.`}</p>
 ${e.megjegyzes.map((m) => `<p>${esc(m)}</p>`).join('')}
 ${oldal ? `<p><a href="${telepUt.replace(/lakasarak\/$/, '')}${oldal}">${esc(e.nev)}: lakásárak évenként és utcánként</a></p>` : ''}
-</details>`;
+</details>
+<div class="ev-gombok csak-kepernyo"><button type="button" class="gomb" data-ev-pdf>Letöltés PDF-ben</button><button type="button" class="szoveg-gomb" data-ev-masol>Link másolása</button></div>
+<p class="csak-nyomtatas ev-labjegy">Készült: ${new Date().toLocaleDateString('hu-HU', { year: 'numeric', month: 'long', day: 'numeric' })}. A becslés újra megnyitható ezen a címen: ${esc(location.origin + location.pathname)}?${esc(new URLSearchParams({ t: kod, ...(e.utcaNev ? { u: e.utcaNev } : {}), tipus: e.tipus, m2: String(e.m2) }).toString())}</p>`;
 }
