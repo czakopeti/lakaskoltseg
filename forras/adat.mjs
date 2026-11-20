@@ -22,6 +22,7 @@ export function betoltAdat() {
     arak: olvas('data/ingatlanadattar.json'),
     arindex: olvas('data/arindex.json'),
     kereset: olvas('data/kereset.json'),
+    arjov: olvas('data/arjovedelem.json'),
   };
 }
 

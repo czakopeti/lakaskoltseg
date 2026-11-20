@@ -116,3 +116,19 @@ test('árszórás: az átlagok évenkénti ugrásából visszaadja a beállítot
   const sz = arSzoras({ egysegek, megyek }, { '02': utcak });
   assert.ok(Math.abs(sz.utca.szigma - 0.3) < 0.05, `utcai szórás ${sz.utca.szigma}`);
 });
+
+test('Eurostat ár/jövedelem: a JSON-stat sorrendjéből a helyes éveket olvassa ki', async () => {
+  const { arJovFeldolgoz, arJovHiheto } = await import('../frissito/eurostat.mjs');
+  const evek = Array.from({ length: 20 }, (_, i) => 2006 + i);
+  const value = {}; evek.forEach((e, i) => { value[i] = 1; value[20 + i] = 80 + i; value[40 + i] = 90 + i; });
+  const j = { updated: '2026-11-03T11:00:00+0100', id: ['freq', 'unit', 'geo', 'time'], size: [1, 3, 1, 20], value, status: { 59: 'p' },
+    dimension: { freq: { category: { index: { A: 0 } } }, unit: { category: { index: { RCH_A_AVG: 0, PTIR_I25: 1, PTIR_LT_AVG: 2 } } }, geo: { category: { index: { HU: 0 } } }, time: { category: { index: Object.fromEntries(evek.map((e, i) => [String(e), i])) } } } };
+  const r = arJovFeldolgoz(j);
+  assert.equal(r.frissitve, '2026-11-03');
+  assert.equal(r.bazisEv, 2025);
+  assert.equal(r.lt[0], 90); assert.equal(r.lt.at(-1), 109);
+  assert.equal(r.ib[0], 80);
+  assert.equal(r.becsult[2025], 'p');
+  assert.equal(arJovHiheto(null, r), null);
+  assert.match(arJovHiheto({ evek: [2030] }, r), /utolsó év/);
+});

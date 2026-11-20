@@ -7,6 +7,7 @@ import { szovegge } from './figyelo.mjs';
 import { mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { IA, nevlista, tomorit, hiheto as iaHiheto, arindex, ARINDEX_URL, ARINDEX_OLDAL, KERESET, keresetFeldolgoz, keresetHiheto } from './ingatlanadattar.mjs';
+import { ARJOV, arJovFeldolgoz, arJovHiheto } from './eurostat.mjs';
 
 const szam = (s) => Number(String(s).replace(',', '.'));
 const hu = (n) => String(n).replace('.', ',');
@@ -241,6 +242,21 @@ export async function futtat({ leto = letolt, ma = maBudapest() } = {}) {
       }
     }
   } catch (e) { j.gond.push({ nev: kNev, url: KERESET.oldal, ok: String(e.message || e) }); }
+
+  // 7. Lakásár és háztartási jövedelem aránya (Eurostat tipsho60): évente frissül
+  const ajNev = 'Eurostat: lakásár és jövedelem aránya';
+  try {
+    const regi = existsSync(join(GYOKER, 'data/arjovedelem.json')) ? olvas('data/arjovedelem.json') : null;
+    const szoveg = await leto(ARJOV.url, 60000);
+    const uj = szoveg == null ? null : arJovFeldolgoz(JSON.parse(szoveg));
+    const gond = !uj ? 'az Eurostat nem válaszolt' : arJovHiheto(regi, uj);
+    if (gond) j.gond.push({ nev: ajNev, url: ARJOV.oldal, ok: `${gond[0].toUpperCase()}${gond.slice(1)}. Nem írtam át.` });
+    else {
+      const valt = !regi || JSON.stringify([uj.evek, uj.lt, uj.ib, uj.becsult]) !== JSON.stringify([regi.evek, regi.lt, regi.ib, regi.becsult]);
+      if (valt && (!regi || regi.evek.at(-1) !== uj.evek.at(-1) || regi.lt.at(-1) !== uj.lt.at(-1))) j.atirt.push({ mi: `Lakásár és jövedelem aránya, ${uj.evek.at(-1)} (Eurostat, hosszú távú átlag = 100)`, regi: regi ? regi.lt.at(-1) : null, uj: uj.lt.at(-1), url: ARJOV.oldal });
+      ir('data/arjovedelem.json', { leiras: regi?.leiras || 'Eurostat tipsho60: lakásár és háztartási jövedelem aránya, Magyarország.', forras: { nev: ARJOV.nev, url: ARJOV.oldal, letoltes: ARJOV.url, kelt: valt ? (uj.frissitve || ma) : regi.forras.kelt }, ellenorizve: ma, frissitve: uj.frissitve, evek: uj.evek, lt: uj.lt, bazisEv: uj.bazisEv, ib: uj.ib, becsult: uj.becsult });
+    }
+  } catch (e) { j.gond.push({ nev: ajNev, url: ARJOV.oldal, ok: String(e.message || e) }); }
 
   for (const a of j.atirt) naplo.bejegyzesek.unshift({ datum: ma, mi: a.mi, regi: a.regi, uj: a.uj, forras: a.url, gepi: true });
   if (j.atirt.length) ir('data/valtozasok.json', naplo);

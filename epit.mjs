@@ -83,6 +83,13 @@ let adatV = '';
     ...jsor.map((x) => [x.n, x.megye, x.kod, x.ar * 1000, x.db, x.valt1 == null ? null : Math.round(x.valt1 * 10) / 10, x.valt3 == null ? null : Math.round(x.valt3 * 10) / 10, x.valtKezd == null ? null : Math.round(x.valtKezd), x.kezdEv, x.kereset, x.evek == null ? null : Math.round(x.evek * 10) / 10, x.becsles == null ? null : x.becsles * 1000, x.becslesCimke])]));
   const arakSzoveg = JSON.stringify({ forras, ellenorizve, evek, megyek, egysegek, oldalak: Object.fromEntries(arLista.egysegek), becsles, megfiz, szoras: kerek(adat.arSzoras) });
   writeFileSync(join(ki, 'arak.json'), arakSzoveg);
+  // Lakásár és jövedelem: az országos sor és a vármegyei megfizethetőség egy fájlban
+  if (adat.arjov) {
+    const aj = adat.arjov, mm = T.megyeMegfiz(adat);
+    writeFileSync(join(ki, 'ar-jovedelem.csv'), csv([['Terület', 'Mutató', ...aj.evek.map(String)],
+      ['Magyarország', 'Lakásár és háztartási jövedelem aránya (Eurostat tipsho60, hosszú távú átlag = 100)', ...aj.lt],
+      ...(mm ? mm.sorok.map((s) => [s.nev, `Hány év nettó átlagkereset egy ${S.MEGFIZ_M2} m²-es lakás (KSH)`, ...aj.evek.map((e) => { const i = mm.evek.indexOf(e); return i < 0 || s.ertek[i] == null ? null : Math.round(s.ertek[i] * 10) / 10; })]) : [])]));
+  }
   adatV = createHash('sha1').update(arakSzoveg + JSON.stringify(utcakOssz)).digest('hex').slice(0, 8);
   for (const f of ['orszag', 'budapest']) cpSync(join(GYOKER, `forras/geo/${f}.json`), join(ki, `${f}.json`));
   for (const f of readdirSync(join(GYOKER, 'data/utcak'))) cpSync(join(GYOKER, 'data/utcak', f), join(ki, 'utcak', f));
@@ -104,6 +111,7 @@ const oldalak = [
   [T.JELENTES_UT, T.jelentesOldal(k, arLista)],
   [T.ERTEK_UT, T.ertekOldal(k)],
   [T.METRO_UT, T.metroOldal(k)],
+  [T.ARJOV_UT, T.arJovOldal(k)],
   ...[...arLista.megyek.keys()].map((m) => [arLista.megyek.get(m), T.megyeOldal(k, m, arLista)]),
   ...[...arLista.egysegek.keys()].map((kod) => [arLista.egysegek.get(kod), T.telepulesOldal(k, kod, arLista)]),
   [O.ELOT_UT, O.elotorlesztesOldal(k)],
@@ -234,6 +242,7 @@ https://:version.:project.pages.dev/*
     'lakasvasarlas-menete/': `a lakásvásárlás lépései sorrendben (foglaló és adásvételi szerződés, hitelkérelem, értékbecslés, közjegyző, földhivatal, birtokba adás, illeték), minden lépésnél a díjjal és a határidővel, egy 50 millió forintos minta számaival`,
     'flipping-kalkulator/': `lakás vétele, felújítása és eladása: illeték, ügyvéd, hitel díjai és kamata, rezsi, közvetítő és az ingatlaneladás szja-ja (Szja tv. 62. §, a nyereség adóköteles része évenként), a nullszaldós eladási ár, és mennyi lenne az adó, ha később adnád el`,
     'mennyit-er-a-lakasom/': `becsült mai érték egy lakásra vagy házra sávval (a hasonló lakások fele és tízből nyolc milyen áron kel el), az utca vagy a település valódi eladási áraiból (KSH Ingatlanadattár), a KSH negyedéves árindexével a legfrissebb negyedévre hozva`,
+    'lakasarak/ar-jovedelem/': `a lakásárak és a háztartási jövedelmek aránya Magyarországon 2000-től (Eurostat, hosszú távú átlag = 100), magyarázattal, és hány év nettó átlagkereset egy 50 m²-es lakás vármegyénként és Budapesten évenként és ma (KSH)`,
     'lakasarak/metro/': `a budapesti metró- és HÉV-megállók 500 méteres körzetének átlagos négyzetméterára megállónként, vonalanként ábrán, a kerületi átlaghoz mért különbséggel (KSH utcai eladási árak, OpenStreetMap megállók)`,
     'lakasarak/jelentes/': `éves jelentés a legutóbbi év valódi lakáseladásaiból: fő megállapítások, kvadráns (árszint és egyéves drágulás) Budapest kerületeiről és a városokról, megfizethetőség (hány évnyi nettó átlagkereset egy 50 m²-es lakás), legnagyobb drágulások és csökkenések, letölthető CSV`,
     'lakasarak/': `valódi lakáseladási árak (KSH Ingatlanadattár, NAV-illetékadatok) településenként, budapesti kerületenként és utcánként, ${adat.arak.evek[0]}–${adat.arak.evek.at(-1)}: átlagos négyzetméterár típusonként (társasház, panel, családi ház), adásvételek száma, drágulás, térképen évenkénti animációval; letölthető JSON`,

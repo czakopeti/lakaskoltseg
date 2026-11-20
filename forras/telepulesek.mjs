@@ -353,7 +353,7 @@ ${kvadrans(ker, { cim: `Budapest kerületei, ${ev}: árszint és drágulás`, ci
 <h2>A piac négy negyede: a városok</h2>
 ${kvadrans(varos, { cim: `Városok legalább 100 adásvétellel, ${ev}: árszint és drágulás`, cimkek: 'valogatott', id: 'kvadrans-varos' })}
 <h2>Hány évnyi fizetésbe kerül egy lakás?</h2>
-<p>Egy ${S.MEGFIZ_M2} m²-es lakás ára, osztva a helyben lakók nettó átlagkeresetével (KSH, lakóhely szerint, ${ev}). A „ma kb.” érték a becsült mai árral és a legfrissebb, ${adat.kereset?.evek.at(-1)}-es (előzetes) keresettel számol. Budapest kerületeinél a budapesti átlagkeresettel számolunk. <a href="${L.l(ARAK_UT)}?mutato=evek">Térképen az egész ország</a>.</p>
+<p>Egy ${S.MEGFIZ_M2} m²-es lakás ára, osztva a helyben lakók nettó átlagkeresetével (KSH, lakóhely szerint, ${ev}). A „ma kb.” érték a becsült mai árral és a legfrissebb, ${adat.kereset?.evek.at(-1)}-es (előzetes) keresettel számol. Budapest kerületeinél a budapesti átlagkeresettel számolunk. <a href="${L.l(ARAK_UT)}?mutato=evek">Térképen az egész ország</a>, az országos idősor 2000 óta pedig <a href="${L.l(ARJOV_UT)}">a lakásár és jövedelem oldalon</a>.</p>
 ${savDiagram(kerMf, { cim: `Budapest kerületei: hány év fizetés egy ${S.MEGFIZ_M2} m²-es lakás, ${ev}`, ertek: (s) => s.evek, felirat: evFelirat, id: 'megfiz-kerulet' })}
 ${savDiagram(mfEleg.slice(0, 15), { cim: `A legkevésbé megfizethető települések, ${ev}`, ertek: (s) => s.evek, felirat: evFelirat, id: 'megfiz-felso', max: mfEleg[0]?.evek })}
 ${savDiagram(mfEleg.slice(-15).reverse(), { cim: `A legjobban megfizethető települések, ${ev}`, ertek: (s) => s.evek, felirat: evFelirat, id: 'megfiz-also', max: mfEleg[0]?.evek })}
@@ -508,4 +508,100 @@ ${forrasBlokk(adat, null)}
 ${tovabb(L, ut)}
 </article></div>`;
   return oldal(k, { cim: `Lakásárak a metró és a HÉV mentén: megállónként, valódi eladásokból, ${md.ev}`, leiras, ut, tartalom, jsonld: [morzsaLd(k.cfg, [{ nev: 'Lakásárak', ut: ARAK_UT }, { nev: 'Metró és HÉV', ut }]), { '@context': 'https://schema.org', '@type': 'Dataset', name: `Lakásárak a budapesti metró- és HÉV-megállók környékén, ${md.ev}`, description: leiras, url: `${k.cfg.domain}/${ut}`, inLanguage: 'hu', isAccessibleForFree: true, isBasedOn: [adat.arak.forras.url, 'https://www.openstreetmap.org/'] }] });
+}
+
+/* ======================= LAKÁSÁR ÉS JÖVEDELEM ======================= */
+// Országosan: Eurostat tipsho60 (2000-től, évente). Helyben: hány év nettó kereset egy 50 m²-es lakás, vármegyénként.
+export const ARJOV_UT = `${ARAK_UT}ar-jovedelem/`;
+const tiz1 = (v) => (v == null ? '–' : v.toFixed(1).replace('.', ','));
+const elojel = (v) => (v == null ? '–' : `${v >= 0 ? '+' : '−'}${tiz1(Math.abs(v))}%`);
+
+/** Vármegyék és Budapest: évenként hány év nettó átlagkereset egy MEGFIZ_M2-es lakás (ár és kereset ugyanarra az évre), plusz mára. */
+export function megyeMegfiz(adat) {
+  const a = adat.arak, ke = adat.kereset;
+  if (!ke) return null;
+  const evek = a.evek.filter((e) => ke.evek.includes(e));
+  const sorok = Object.entries(a.megyek).map(([m, mu]) => {
+    const nev = mu.n.replace(/ vármegye$/, '');
+    const k = ke.megye[nev];
+    const ertek = evek.map((e) => { const ar = mu.s.o?.[a.evek.indexOf(e)]; const kk = k?.[ke.evek.indexOf(e)]; return ar && kk ? (ar * 1000 * S.MEGFIZ_M2) / (kk * 12) : null; });
+    const be = S.arBecsles(adat, { ...mu, m });
+    const kMa = k?.at(-1);
+    return { m, nev, ertek, ma: be && kMa ? (be.ar * 1000 * S.MEGFIZ_M2) / (kMa * 12) : null, maCimke: be?.cimke };
+  }).filter((x) => x.ertek.some((v) => v != null)).sort((x, y) => (y.ertek.at(-1) ?? 0) - (x.ertek.at(-1) ?? 0));
+  return { evek, sorok, keresetEv: ke.evek.at(-1), keresetNev: ke.megnevezes };
+}
+
+function arJovAbra(aj) {
+  const W = 760, H = 360, bal = 46, jobb = 70, fent = 24, lent = 38;
+  const v = aj.lt, ev = aj.evek, n = ev.length;
+  const min = Math.floor(Math.min(...v.filter((x) => x != null)) / 10) * 10 - 5, max = Math.ceil(Math.max(...v.filter((x) => x != null)) / 10) * 10 + 5;
+  const x = (i) => bal + (i / (n - 1)) * (W - bal - jobb), y = (val) => fent + ((max - val) / (max - min)) * (H - fent - lent);
+  const pontok = v.map((val, i) => (val == null ? null : [x(i), y(val)]));
+  const ut = pontok.filter(Boolean).map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' ');
+  const iMax = v.indexOf(Math.max(...v)), iMin = v.indexOf(Math.min(...v.filter((q) => q != null))), iUt = n - 1;
+  const racs = []; for (let t = Math.ceil(min / 10) * 10; t <= max; t += 10) racs.push(t);
+  const cimke = (i, szoveg, lent2) => `<g class="aj-cimke"><circle cx="${pontok[i][0].toFixed(1)}" cy="${pontok[i][1].toFixed(1)}" r="5"/><text x="${pontok[i][0].toFixed(1)}" y="${(pontok[i][1] + (lent2 ? 22 : -12)).toFixed(1)}" text-anchor="${i === iUt ? 'end' : 'middle'}">${esc(szoveg)}</text></g>`;
+  const elo = aj.becsult?.[ev[iUt]] === 'p';
+  return `<figure class="aj-abra" data-abra="ar-jovedelem"><figcaption><b>Lakásár a háztartási jövedelemhez képest, Magyarország, ${ev[0]}–${ev.at(-1)}</b><span class="halk"> (100 = a ${ev[0]} óta mért átlag)</span></figcaption>
+<svg class="aj-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Vonaldiagram: a lakásárak és a jövedelmek aránya ${ev[0]} és ${ev.at(-1)} között" xmlns="http://www.w3.org/2000/svg">
+<rect class="aj-felso" x="${bal}" y="${fent}" width="${W - bal - jobb}" height="${(y(100) - fent).toFixed(1)}"/>
+${racs.map((t) => `<line class="aj-racs${t === 100 ? ' aj-atlag' : ''}" x1="${bal}" x2="${W - jobb}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}"/><text class="aj-tengely" x="${bal - 8}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">${t}</text>`).join('')}
+<text class="aj-atlagnev" x="${W - jobb + 6}" y="${(y(100) + 4).toFixed(1)}">átlag</text>
+<text class="aj-zona" x="${bal + 8}" y="${fent + 16}">nehezebben megfizethető</text>
+<text class="aj-zona" x="${bal + 8}" y="${H - lent - 8}">könnyebben megfizethető</text>
+${ev.map((e, i) => (e % 5 === 0 || i === n - 1 ? `<text class="aj-tengely" x="${x(i).toFixed(1)}" y="${H - lent + 20}" text-anchor="middle">${e}</text>` : '')).join('')}
+<path class="aj-vonal" d="${ut}"/>
+${cimke(iMax, `${ev[iMax]}: ${tiz1(v[iMax])}`)}${cimke(iMin, `${ev[iMin]}: ${tiz1(v[iMin])}`, true)}${cimke(iUt, `${ev[iUt]}: ${tiz1(v[iUt])}${elo ? ' (előzetes)' : ''}`)}
+</svg></figure>`;
+}
+
+export function arJovOldal(k) {
+  const { adat } = k;
+  const aj = adat.arjov;
+  const ut = ARJOV_UT;
+  const ev = aj.evek, v = aj.lt, n = ev.length - 1, utEv = ev[n];
+  const iEv = (e) => ev.indexOf(e);
+  const valtEv = (e0) => (iEv(e0) >= 0 && v[iEv(e0)] ? (v[n] / v[iEv(e0)] - 1) * 100 : null);
+  const iMax = v.indexOf(Math.max(...v)), iMin = v.indexOf(Math.min(...v.filter((q) => q != null)));
+  const tiz = valtEv(utEv - 10), ot = valtEv(utEv - 5), egy = valtEv(utEv - 1);
+  const elo = aj.becsult?.[utEv] === 'p';
+  const atlTav = v[n] - 100;
+  const allapot = Math.abs(atlTav) < 3 ? 'nagyjából a hosszú távú átlagán áll' : atlTav > 0 ? `${tiz1(atlTav)}%-kal a hosszú távú átlaga fölött van` : `${tiz1(-atlTav)}%-kal a hosszú távú átlaga alatt van`;
+  const mm = megyeMegfiz(adat);
+  const cim = 'Lakásár és jövedelem: mennyivel nehezebb ma lakást venni?';
+  const valasz = `${M.evBan(utEv)} a lakásárak és a háztartási jövedelmek aránya ${allapot}${elo ? ' (előzetes adat)' : ''}. Tíz év alatt ${tiz1(Math.abs(tiz))}%-kal ${tiz >= 0 ? 'romlott' : 'javult'}, de ${M.evBan(ev[iMax])} még rosszabb volt a helyzet, mint ma.`;
+  const leiras = `Hogyan változott a lakásárak és a jövedelmek aránya Magyarországon ${ev[0]} óta (Eurostat), és hány év nettó keresetbe kerül egy ${S.MEGFIZ_M2} m²-es lakás vármegyénként és Budapesten (KSH).`;
+  const kerdesek = [
+    { k: 'Mit mutat ez a szám?', v: [`Azt, hogy a lakásárak a háztartások egy főre jutó, rendelkezésre álló jövedelméhez képest drágábbak vagy olcsóbbak-e, mint általában. A 100 a ${ev[0]} óta mért átlag. 110 azt jelenti, hogy a lakás a jövedelemhez képest 10%-kal drágább, mint átlagosan. Nem azt mutatja, hány év fizetésébe kerül egy lakás, arra lent a vármegyei táblázat felel.`] },
+    { k: 'Mennyit romlott a helyzet tíz év alatt?', v: [`A ${utEv - 10}-es évhez mérve ${elojel(tiz)} a változás. Ez igaz, de a kiinduló év erősen befolyásolja: ${ev[iMin]} körül volt a legjobb a helyzet az egész időszakban (${tiz1(v[iMin])}), így onnan nézve minden emelkedés nagynak látszik. A ${ev[0]} óta mért átlaghoz képest most ${allapot}.`] },
+    { k: 'Miért javult 2023-ban?', v: ['Mert a magas infláció idején a bérek és a jövedelmek gyorsabban nőttek, mint a lakásárak. Így a lakás a jövedelemhez képest olcsóbb lett.'] },
+    { k: 'Miért nem egyezik a vármegyei táblával?', v: [`Mert mást mér. Az Eurostat a háztartások egy főre jutó jövedelmével számol, a vármegyei tábla a teljes munkaidős alkalmazottak nettó átlagkeresetével (KSH), és egy konkrét, ${S.MEGFIZ_M2} m²-es lakás árával. Az irányuk általában ugyanaz.`] },
+  ];
+  const tabla = `<div class="tabla-tarto"><table class="tabla kicsi-tabla"><thead><tr><th scope="col">Év</th><th scope="col">Arány (átlag = 100)</th><th scope="col">Előző évhez</th></tr></thead><tbody>${ev.map((e, i) => [e, i]).reverse().map(([e, i]) => `<tr><th scope="row">${e}${aj.becsult?.[e] === 'p' ? ' <span class="halk">(előzetes)</span>' : aj.becsult?.[e] === 'e' ? ' <span class="halk">(becsült)</span>' : ''}</th><td>${tiz1(v[i])}</td><td>${i ? szaz((v[i] / v[i - 1] - 1) * 100) : '–'}</td></tr>`).join('')}</tbody></table></div>`;
+  const megyeTabla = mm ? `<div class="tabla-tarto"><table class="tabla kicsi-tabla"><thead><tr><th scope="col">Hol?</th>${mm.evek.map((e) => `<th scope="col">${e}</th>`).join('')}<th scope="col">Ma kb.</th></tr></thead><tbody>${mm.sorok.map((s) => `<tr><th scope="row">${esc(s.nev)}</th>${s.ertek.map((q) => `<td>${tiz1(q)}</td>`).join('')}<td><b>${tiz1(s.ma)}</b></td></tr>`).join('')}</tbody></table></div>` : '';
+  const bp = mm?.sorok.find((s) => s.m === '01');
+  const tartalom = (L) => `
+${oldalfej(L, { morzsa: [['Lakásárak', ARAK_UT], 'Lakásár és jövedelem'], cim, valasz, friss: M.datumNapon(aj.ellenorizve || k.ma) })}
+<div class="keret"><article class="cikk ar-jov">
+${arJovAbra(aj)}
+<ul class="allitasok">
+<li>${M.evBan(utEv)} a mutató ${tiz1(v[n])}, vagyis a lakásár a jövedelemhez képest ${allapot}.</li>
+<li>Egy év alatt ${elojel(egy)}, öt év alatt ${elojel(ot)}, tíz év alatt ${elojel(tiz)} a változás.</li>
+<li>A legrosszabb év ${ev[iMax]} volt (${tiz1(v[iMax])}), a legjobb ${ev[iMin]} (${tiz1(v[iMin])}).</li>
+</ul>
+<p class="kicsi halk">Forrás: Eurostat (tipsho60), frissítve ${datumHu(aj.frissitve || aj.forras.kelt)} A jövedelem a háztartások egy főre jutó, korrigált bruttó rendelkezésre álló jövedelme. Az Eurostat évente frissíti, és az oldal ilyenkor magától átáll.${elo ? ` A ${utEv}-es érték előzetes, később még módosulhat.` : ''}</p>
+${mm ? `<h2>Helyben: hány év fizetés egy ${S.MEGFIZ_M2} m²-es lakás?</h2>
+<p>Egy ${S.MEGFIZ_M2} m²-es lakás átlagos ára, osztva a helyben lakók éves nettó átlagkeresetével (KSH), ugyanarra az évre. A „ma kb.” oszlop a becsült mai árral (${esc(mm.sorok[0]?.maCimke || '')}) és a legfrissebb, ${mm.keresetEv}-es${/előzetes/i.test(mm.keresetNev || '') ? ' előzetes' : ''} keresettel számol.${bp ? ` Budapesten ${M.evBan(mm.evek[0])} ${tiz1(bp.ertek[0])} év volt, ${M.evBan(mm.evek.at(-1))} ${tiz1(bp.ertek.at(-1))}, ma kb. ${tiz1(bp.ma)}.` : ''} Településenként <a href="${L.l(ARAK_UT)}?mutato=evek">a térképen</a> nézheted meg.</p>
+${megyeTabla}` : ''}
+<h2>Az országos mutató évenként</h2>
+${tabla}
+<p>Letöltés: <a href="${L.gyoker(`${ARAK_ADAT_JEL}ar-jovedelem.csv`)}" download>ar-jovedelem.csv</a></p>
+<h2>Gyakori kérdések</h2>
+${gyik(kerdesek)}
+<h2>Források</h2>
+${forrasLista([{ nev: esc(aj.forras.nev), url: aj.forras.url, d: `frissítve: ${datumHu(aj.frissitve || aj.forras.kelt)}` }, { nev: esc(adat.arak.forras.nev), url: adat.arak.forras.url, d: 'a vármegyei árakhoz' }, ...(adat.kereset ? [{ nev: esc(adat.kereset.forras.nev), url: adat.kereset.forras.url, d: 'a keresetekhez' }] : [])])}
+${tovabb(L, ut)}
+</article></div>`;
+  return oldal(k, { cim: `Lakásár és jövedelem aránya ${ev[0]}–${utEv}: mennyivel nehezebb ma lakást venni?`, leiras, ut, tartalom, jsonld: [morzsaLd(k.cfg, [{ nev: 'Lakásárak', ut: ARAK_UT }, { nev: 'Lakásár és jövedelem', ut }]), gyikLd(kerdesek), { '@context': 'https://schema.org', '@type': 'Dataset', name: `Lakásár és jövedelem aránya Magyarországon, ${ev[0]}–${utEv}`, description: leiras, url: `${k.cfg.domain}/${ut}`, inLanguage: 'hu', isAccessibleForFree: true, temporalCoverage: `${ev[0]}/${utEv}`, isBasedOn: [aj.forras.url, adat.arak.forras.url], distribution: [{ '@type': 'DataDownload', encodingFormat: 'text/csv', contentUrl: `${k.cfg.domain}/${ARAK_ADAT_JEL}ar-jovedelem.csv` }] }] });
 }
