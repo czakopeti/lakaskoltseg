@@ -123,7 +123,7 @@ export function oldal(k, { cim, leiras, ut, tartalom, jsonld = [], adatJson = nu
   const teljesCim = ut ? `${cim} | ${cfg.marka}` : cim;
   // Minden oldalhoz: WebPage a frissítés dátumával és a kiadóval (szervezet, logóval). A frissességi jelzés a
   // ceevio-laborban irányjelző hatású volt az AI-említésre.
-  const kiado = { '@type': 'Organization', name: cfg.marka, url: `${cfg.domain}/`, ...(cfg.szlogen ? { slogan: cfg.szlogen } : {}) };
+  const kiado = { '@type': 'Organization', name: cfg.marka, url: `${cfg.domain}/`, logo: `${cfg.domain}/favicon-512.png`, ...(cfg.szlogen ? { slogan: cfg.szlogen } : {}) };
   const lap = { '@context': 'https://schema.org', '@type': 'WebPage', name: cim, description: leiras, url: kanonikus, inLanguage: 'hu', dateModified: adatDatum(k.adat).iso, isPartOf: { '@type': 'WebSite', name: cfg.marka, url: `${cfg.domain}/` }, publisher: kiado };
   // A főoldalon külön WebSite-csomópont: ebből veszi a Google a találatok fölé írt oldalnevet
   const webhely = !ut ? [{ '@context': 'https://schema.org', '@type': 'WebSite', name: cfg.marka, alternateName: [new URL(cfg.domain).host], url: `${cfg.domain}/`, inLanguage: 'hu' }] : [];
@@ -151,7 +151,11 @@ ${cfg.eles && !elonezet && !/\.pages\.dev$/.test(new URL(cfg.domain).host) ? `<s
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#16181D" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="${L.gyoker('favicon.ico')}" sizes="48x48">
+<link rel="icon" href="${L.gyoker('favicon-96.png')}" type="image/png" sizes="96x96">
 <link rel="icon" href="${L.gyoker('favicon.svg')}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="${L.gyoker('apple-touch-icon.png')}">
+<link rel="manifest" href="${L.gyoker('site.webmanifest')}">
 ${elonezet ? '' : `<link rel="preload" href="${L.a('fonts/bricolage-grotesque-latin-opsz-normal.woff2')}" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="${L.a('fonts/onest-latin-wght-normal.woff2')}" as="font" type="font/woff2" crossorigin>`}
 <link rel="stylesheet" href="${L.a(`style.css?v=${verzio}`)}">
@@ -200,7 +204,11 @@ export function beagyazottLap(k, { cim, ut, foUt, tartalom, adatJson }) {
 <meta name="robots" content="noindex, follow">
 <link rel="canonical" href="${cfg.domain}/${foUt}">
 <base target="_blank">
+<link rel="icon" href="${L.gyoker('favicon.ico')}" sizes="48x48">
+<link rel="icon" href="${L.gyoker('favicon-96.png')}" type="image/png" sizes="96x96">
 <link rel="icon" href="${L.gyoker('favicon.svg')}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="${L.gyoker('apple-touch-icon.png')}">
+<link rel="manifest" href="${L.gyoker('site.webmanifest')}">
 <link rel="stylesheet" href="${L.a(`style.css?v=${verzio}`)}">
 </head>
 <body class="beagyazott">
