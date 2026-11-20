@@ -1,7 +1,7 @@
 // „Mennyit ér a lakásom?”: sávos becslés a KSH Ingatlanadattár utcai és települési átlagaiból.
 // Az adat ugyanaz, mint a lakásár-térképé (/adatok/lakasarak/), a számítás a szamitas.mjs lakasErtek függvénye.
-import { lakasErtek } from './szamitas.js?v=c8b5798d';
-import { fmt, tized } from './megjelenites.js?v=c8b5798d';
+import { lakasErtek } from './szamitas.js?v=c1708575';
+import { fmt, tized } from './megjelenites.js?v=c1708575';
 
 const doboz = document.querySelector('[data-ertek]');
 if (doboz) indit(doboz).catch((e) => {
@@ -150,5 +150,5 @@ ${e.megjegyzes.map((m) => `<p>${esc(m)}</p>`).join('')}
 ${oldal ? `<p><a href="${telepUt.replace(/lakasarak\/$/, '')}${oldal}">${esc(e.nev)}: lakásárak évenként és utcánként</a></p>` : ''}
 </details>
 <div class="ev-gombok csak-kepernyo"><button type="button" class="gomb" data-ev-pdf>Letöltés PDF-ben</button><button type="button" class="szoveg-gomb" data-ev-masol>Link másolása</button></div>
-<p class="csak-nyomtatas ev-labjegy">Készült: ${new Date().toLocaleDateString('hu-HU', { year: 'numeric', month: 'long', day: 'numeric' })}. A becslés újra megnyitható ezen a címen: ${esc(location.origin + location.pathname)}?${esc(new URLSearchParams({ t: kod, ...(e.utcaNev ? { u: e.utcaNev } : {}), tipus: e.tipus, m2: String(e.m2) }).toString())}</p>`;
+<p class="csak-nyomtatas ev-labjegy">Készült: ${new Date().toLocaleDateString('hu-HU', { year: 'numeric', month: 'long', day: 'numeric' })} A becslés újra megnyitható ezen a címen: ${esc(location.origin + location.pathname)}?${esc(decodeURIComponent(new URLSearchParams({ t: kod, ...(e.utcaNev ? { u: e.utcaNev } : {}), tipus: e.tipus, m2: String(e.m2) }).toString()).replace(/\+/g, ' '))}</p>`;
 }
