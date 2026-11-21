@@ -1,7 +1,7 @@
 // „Mennyit ér a lakásom?”: sávos becslés a KSH Ingatlanadattár utcai és települési átlagaiból.
 // Az adat ugyanaz, mint a lakásár-térképé (/adatok/lakasarak/), a számítás a szamitas.mjs lakasErtek függvénye.
-import { lakasErtek } from './szamitas.js?v=c1708575';
-import { fmt, tized } from './megjelenites.js?v=c1708575';
+import { lakasErtek } from './szamitas.js?v=329a160b';
+import { fmt, tized, meres } from './megjelenites.js?v=329a160b';
 
 const doboz = document.querySelector('[data-ertek]');
 if (doboz) indit(doboz).catch((e) => {
@@ -65,6 +65,7 @@ async function indit(el) {
 
   function szamol() {
     const m2 = Number(String(iM2.value).replace(',', '.'));
+    if (iTelep.value || iM2.value) meres('indit');
     if (!kod || !(m2 >= 10)) {
       ki.innerHTML = iTelep.value && !kod
         ? '<p class="elsz-ures">Ezt a települést nem találjuk. Válassz a listából. Ahol egy évben sem volt legalább három adásvétel, ott a KSH nem közöl árat.</p>'
@@ -77,6 +78,7 @@ async function indit(el) {
     if (un === false) e.megjegyzes.unshift('Ezt az utcát nem találjuk a listában, ezért a település átlagával számoltunk.');
     e.utcaNev = un;
     ki.innerHTML = kimenet(e, A, telepUt, kod);
+    meres('kesz');
     const q = new URLSearchParams({ t: kod, ...(un ? { u: un } : {}), tipus: iTipus.value, m2: String(m2) });
     history.replaceState(null, '', `?${q}`);
   }
@@ -96,6 +98,7 @@ async function indit(el) {
   ki.addEventListener('click', async (ev) => {
     const pdf = ev.target.closest('[data-ev-pdf]'), masol = ev.target.closest('[data-ev-masol]');
     if (pdf) {
+      meres('nyomtat');
       ki.querySelectorAll('details').forEach((d) => { d.open = true; });
       const regi = document.title;
       const u = A.egysegek[kod];
@@ -104,6 +107,7 @@ async function indit(el) {
       setTimeout(() => { document.title = regi; }, 1000);
     }
     if (masol) {
+      meres('megosztas');
       try { await navigator.clipboard.writeText(location.href); masol.textContent = 'Kimásolva'; } catch { masol.textContent = location.href; }
       setTimeout(() => { masol.textContent = 'Link másolása'; }, 2500);
     }

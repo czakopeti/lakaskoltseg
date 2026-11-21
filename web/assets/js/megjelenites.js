@@ -1,6 +1,6 @@
 // Az elszámolás (eredmény) HTML-je. Ugyanezt használja az építő (a HTML-ben már benne van a szám)
 // és a böngésző (élő számolás), így a kettő nem térhet el.
-import * as S from './szamitas.js?v=c1708575';
+import * as S from './szamitas.js?v=329a160b';
 
 const nf = new Intl.NumberFormat('hu-HU', { useGrouping: 'always' });
 export const fmt = (n) => nf.format(Math.round(n));
@@ -842,4 +842,14 @@ export function kalkHtml(tipus, adat, e = {}) {
   const be = { ...e };
   for (const [kk, v] of Object.entries(m.adat)) if (be[kk] === '' || be[kk] == null || be[kk] === false) be[kk] = v;
   return { html: mintaJelzes(m.leiras, 'Írd be a saját adataidat, és a minta helyett azokkal számolunk.') + k.panel(adat, be), minta: true };
+}
+
+/* ---------- Névtelen mérés ---------- */
+// Csak darabszámok oldalanként és havonta (lásd functions/api/meres.js). Se süti, se azonosító, se a beírt adatok.
+// Oldalbetöltésenként egy esemény egyszer; a modul közös, így az app, a térkép és a becslő sem számol kétszer.
+const elkuldve = new Set();
+export function meres(esemeny) {
+  if (typeof location === 'undefined' || elkuldve.has(esemeny) || location.protocol !== 'https:') return;
+  elkuldve.add(esemeny);
+  try { fetch('/api/meres', { method: 'POST', keepalive: true, headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ut: location.pathname, esemeny }) }).catch(() => {}); } catch { /* */ }
 }

@@ -1,6 +1,6 @@
 // A lakásár-térkép: valódi eladási árak (KSH Ingatlanadattár) településenként és budapesti kerületenként.
 // SVG-térkép külső könyvtár nélkül; az adat és a határok a /adatok/lakasarak/ alól jönnek.
-import { fmt, tized, evBan, AR_SZINEK as SZINEK, AR_HATAR as HATAR, arOsztaly as osztaly } from './megjelenites.mjs';
+import { fmt, tized, evBan, AR_SZINEK as SZINEK, AR_HATAR as HATAR, arOsztaly as osztaly, meres } from './megjelenites.mjs';
 
 const doboz = document.querySelector('[data-terkep]');
 if (doboz) indit(doboz).catch((e) => {
@@ -102,6 +102,10 @@ async function indit(el) {
     tippMutat(p.dataset.k, e);
   });
   vaszon.addEventListener('pointerleave', () => { tipp.hidden = true; });
+  // Mérés: „indit” = bármilyen kattintás vagy beállítás a térképen, „kesz” = valaki megnyitott egy település adatlapját,
+  // „kovetkezo” = továbblépett a település saját oldalára
+  el.addEventListener('click', (e) => { meres('indit'); if (e.target.closest('.tk-reszletek')) meres('kovetkezo'); });
+  el.addEventListener('input', () => meres('indit'));
   vaszon.addEventListener('click', (e) => {
     const p = e.target.closest('path[data-k]');
     if (p && A.egysegek[p.dataset.k]) valaszt(p.dataset.k, true);
@@ -113,7 +117,7 @@ async function indit(el) {
     for (const p of utak) p.classList.toggle('tk-kijelolt', p.dataset.k === k);
     lapRajz(k, true);
     history.replaceState(null, '', `#${encodeURIComponent(A.egysegek[k].n)}`);
-    if (gorget) adatlap.scrollIntoView({ behavior: LASSU ? 'auto' : 'smooth', block: 'nearest' });
+    if (gorget) { meres('kesz'); adatlap.scrollIntoView({ behavior: LASSU ? 'auto' : 'smooth', block: 'nearest' }); }
   }
   function grafikon(s) {
     const pontok = s.map((v, i) => [i, v]).filter(([, v]) => v != null);

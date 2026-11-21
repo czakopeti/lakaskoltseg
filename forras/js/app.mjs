@@ -15,13 +15,13 @@ const tarolo = {
 /* ---------- Névtelen mérés ---------- */
 // Csak darabszámok: melyik oldalon hányan kezdtek bele és jutottak eredményig, mentettek, osztottak meg.
 // Se süti, se azonosító, se a beírt adatok; a böngészőben sem tárolunk hozzá semmit. Oldalbetöltésenként egy esemény egyszer.
-const elkuldve = new Set();
-function meres(esemeny) {
-  if (elkuldve.has(esemeny) || location.protocol !== 'https:') return;
-  elkuldve.add(esemeny);
-  try { fetch('/api/meres', { method: 'POST', keepalive: true, headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ut: location.pathname, esemeny }) }).catch(() => {}); } catch { /* */ }
-}
-document.addEventListener('click', (ev) => { if (ev.target.closest?.('nav.tovabb a')) meres('tovabb'); });
+// A számláló maga a megjelenites.mjs-ben van, hogy a térkép és a lakásérték-becslő is ugyanazt használja.
+const meres = M.meres;
+document.addEventListener('click', (ev) => {
+  if (ev.target.closest?.('nav.tovabb a')) meres('tovabb');
+  // Letöltések (CSV, ábra PNG-ként) a jelentésen és az adatoldalakon
+  if (ev.target.closest?.('a[download], .abra-letolt')) meres('mentes');
+});
 
 /* ---------- Menü ---------- */
 // Balról beúszó panel. A <dialog> kezeli a fókuszt és az Esc-et; a háttérre kattintva is bezárul.
