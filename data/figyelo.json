@@ -571,7 +571,7 @@
     },
     "https://hovege.hu/ugyes-bajos/2026/09/06/ennyi-az-ajandekozasi-illetek-merteke-2026-ban-mutatjuk-min-mulik-mennyit-kell-fizetned/": {
       "v": 6,
-      "hossz": 6642,
+      "hossz": 6719,
       "tenyek": [
         "61be8be69f",
         "6a7464d6f0",
@@ -585,6 +585,7 @@
         "702783bbc7",
         "61fa50719f"
       ],
+      "hiany": "61be8be69f",
       "latva": "2026-11-21",
       "ellenorizve": "2026-11-21"
     },
@@ -684,9 +685,7 @@
       "latva": "2026-11-20",
       "ellenorizve": "2026-11-21",
       "utolsoGond": "letoltes",
-      "utolsoGondNap": "2026-11-21",
-      "gond": "letoltes",
-      "gondOta": "2026-11-21"
+      "utolsoGondNap": "2026-11-21"
     },
     "https://ingatlan5.hu/haszonelvezeti-jog-erteke-es-annak-pontos-kiszamitasa": {
       "v": 6,
@@ -724,7 +723,7 @@
     },
     "https://biztosdontes.hu/cikkek/mnb-hitelek-koltsegeinek-csokkentese": {
       "v": 6,
-      "hossz": 9593,
+      "hossz": 9608,
       "tenyek": [
         "82d942f1e0",
         "37b0525bb6",
@@ -908,7 +907,7 @@
     },
     "https://infostart.hu/gazdasag/2026/01/13/megjott-a-friss-inflacios-adat": {
       "v": 6,
-      "hossz": 10113,
+      "hossz": 10698,
       "tenyek": [
         "fbbc5b9544",
         "ef6e9f5dff",
@@ -923,12 +922,12 @@
         "2ba82d04cf",
         "dde97dee25",
         "637063211b",
-        "49e2142f1a",
+        "cd7595ed83",
         "0bf9928c16",
-        "0997d0a45f"
+        "0997d0a45f",
+        "742255191b"
       ],
-      "hiany": "49e2142f1a",
-      "latva": "2026-11-20",
+      "latva": "2026-11-21",
       "ellenorizve": "2026-11-21"
     },
     "https://www.economx.hu/ingatlan/2026/07/20/ingatlankozvetites-jutalekok-korkep/": {
@@ -1003,12 +1002,10 @@
         "603b0bfc49",
         "415ecfb672",
         "1f365e5a3c",
-        "40b1513618",
         "57e6a6a08f",
         "abf1f60388"
       ],
-      "hiany": "40b1513618",
-      "latva": "2026-11-20",
+      "latva": "2026-11-21",
       "ellenorizve": "2026-11-21"
     },
     "https://adozona.hu/illetek/Otthon_Start_ingatlan_illetek_kedvezmeny_WU0M65": {
