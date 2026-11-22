@@ -1337,7 +1337,7 @@
             "kelt": ""
           },
           "szint": "elsodleges",
-          "ellenorizve": "2026-11-21",
+          "ellenorizve": "2026-11-22",
           "megjegyzes": "A kamat minden évben változik, a KSH januári inflációs adata után. Az önálló frissítő hetente kiolvassa az Államkincstár oldaláról, és ha a szám hihető, magától átírja.",
           "automata": true
         },
