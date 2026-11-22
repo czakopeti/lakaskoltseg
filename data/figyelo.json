@@ -571,7 +571,7 @@
     },
     "https://hovege.hu/ugyes-bajos/2026/09/06/ennyi-az-ajandekozasi-illetek-merteke-2026-ban-mutatjuk-min-mulik-mennyit-kell-fizetned/": {
       "v": 6,
-      "hossz": 6841,
+      "hossz": 6781,
       "tenyek": [
         "6a7464d6f0",
         "c746a6a46a",
@@ -723,7 +723,7 @@
     },
     "https://biztosdontes.hu/cikkek/mnb-hitelek-koltsegeinek-csokkentese": {
       "v": 6,
-      "hossz": 9593,
+      "hossz": 9608,
       "tenyek": [
         "82d942f1e0",
         "37b0525bb6",
@@ -907,7 +907,7 @@
     },
     "https://infostart.hu/gazdasag/2026/01/13/megjott-a-friss-inflacios-adat": {
       "v": 6,
-      "hossz": 10192,
+      "hossz": 10059,
       "tenyek": [
         "fbbc5b9544",
         "ef6e9f5dff",
@@ -926,6 +926,7 @@
         "0997d0a45f",
         "3b9fd82c7d"
       ],
+      "hiany": "3b9fd82c7d",
       "latva": "2026-11-22",
       "ellenorizve": "2026-11-22"
     },
@@ -995,7 +996,7 @@
     },
     "https://www.penzcentrum.hu/otthon/20260519/vegleges-tiltas-lep-eletbe-a-fovaros-sziveben-rengeteg-ingatlantulajdonos-bukja-el-emiatt-a-biztos-bevetelt-1198922/amp": {
       "v": 6,
-      "hossz": 3722,
+      "hossz": 3806,
       "tenyek": [
         "2d9ffbf48e",
         "603b0bfc49",
