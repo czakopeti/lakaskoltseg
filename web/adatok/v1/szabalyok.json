@@ -334,7 +334,7 @@
             "kelt": ""
           },
           "szint": "masodlagos",
-          "ellenorizve": "2026-11-18",
+          "ellenorizve": "2026-11-23",
           "megjegyzes": "Az ajándékra vonatkozó rész a money.hu ingatlanadó-kalkulátorának leírásából."
         },
         {
@@ -408,7 +408,7 @@
             "kelt": "2022-08-21"
           },
           "szint": "masodlagos",
-          "ellenorizve": "2026-11-18",
+          "ellenorizve": "2026-11-23",
           "megjegyzes": "A NAV lakáskiadási oldala csak az szja-t említi."
         },
         {
@@ -1003,7 +1003,7 @@
             "kelt": "2026-09-06"
           },
           "szint": "masodlagos",
-          "ellenorizve": "2026-11-18"
+          "ellenorizve": "2026-11-23"
         },
         {
           "kulcs": "elettars",
@@ -1193,7 +1193,7 @@
           },
           "szint": "masodlagos",
           "becsles": true,
-          "ellenorizve": "2026-11-18",
+          "ellenorizve": "2026-11-23",
           "megjegyzes": "A money.hu és a Pénzcentrum is 0,5–1%-ot ír. Mi a felső értékkel számolunk, hogy ne érjen meglepetés."
         },
         {
@@ -1373,7 +1373,7 @@
           },
           "szint": "masodlagos",
           "becsles": true,
-          "ellenorizve": "2026-11-18"
+          "ellenorizve": "2026-11-23"
         },
         {
           "kulcs": "kozvetito",
@@ -1535,7 +1535,7 @@
             "kelt": "2026-05-19"
           },
           "szint": "masodlagos",
-          "ellenorizve": "2026-11-18",
+          "ellenorizve": "2026-11-23",
           "megjegyzes": "Az I. kerületi szavazás eredménye az Economx cikkéből. A kerületi szabályok sűrűn változnak: kezdés előtt mindig kérdezd meg az önkormányzatot."
         }
       ]
