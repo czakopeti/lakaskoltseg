@@ -5,7 +5,7 @@
     "kelt": "2026-11-19"
   },
   "licenc": "CC BY 4.0",
-  "ellenorizve": "2026-11-22",
+  "ellenorizve": "2026-11-23",
   "leiras": "A lakások átlagos négyzetméterára településtípusonként, évente (KSH STADAT 18.1.2.9., ezer Ft/m²): az országos sorok, és a használt lakásoké régiónként is. Az önálló frissítő (frissito/automata.mjs) hetente letölti, és ha hihető, magától átírja. A legutolsó év a KSH-nál előzetes adat. Ez átlagár, nem tiszta árindex: ha egy évben több kisebb vagy jobb helyen lévő lakást adnak el, az is mozgatja.",
   "letoltes": "https://www.ksh.hu/stadat_files/lak/en/lak0025.html",
   "egyseg": "ezer Ft/m²",
