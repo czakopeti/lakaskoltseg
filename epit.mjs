@@ -76,6 +76,9 @@ let adatV = '';
   for (const [kod, u] of Object.entries(egysegek)) {
     const s = evek.map((ev) => { const x = S.megfizethetoseg(adat, kod, u, ev); return x ? Math.round(x.evek * 10) / 10 : null; });
     if (s.some((v) => v != null)) megfiz.ertek[kod] = s;
+    // mára: a becsült mai ár a legfrissebb (akár előzetes) keresettel
+    const ma = S.megfizethetosegMa(adat, kod, u);
+    if (ma) (megfiz.ma ??= {})[kod] = Math.round(ma.evek * 10) / 10;
   }
   // Az éves jelentés letölthető táblázata
   const jsor = T.jelentesSorok(adat);
@@ -245,7 +248,7 @@ https://:version.:project.pages.dev/*
     'lakasarak/ar-jovedelem/': `a lakásárak és a háztartási jövedelmek aránya Magyarországon 2000-től (Eurostat, hosszú távú átlag = 100), magyarázattal, és hány év nettó átlagkereset egy 50 m²-es lakás vármegyénként és Budapesten évenként és ma (KSH)`,
     'lakasarak/metro/': `a budapesti metró- és HÉV-megállók 500 méteres körzetének átlagos négyzetméterára megállónként, vonalanként ábrán, a kerületi átlaghoz mért különbséggel (KSH utcai eladási árak, OpenStreetMap megállók)`,
     'lakasarak/jelentes/': `éves jelentés a legutóbbi év valódi lakáseladásaiból: fő megállapítások, kvadráns (árszint és egyéves drágulás) Budapest kerületeiről és a városokról, megfizethetőség (hány évnyi nettó átlagkereset egy 50 m²-es lakás), legnagyobb drágulások és csökkenések, letölthető CSV`,
-    'lakasarak/': `valódi lakáseladási árak (KSH Ingatlanadattár, NAV-illetékadatok) településenként, budapesti kerületenként és utcánként, ${adat.arak.evek[0]}–${adat.arak.evek.at(-1)}: átlagos négyzetméterár típusonként (társasház, panel, családi ház), adásvételek száma, drágulás, térképen évenkénti animációval; letölthető JSON`,
+    'lakasarak/': `mai lakásárak becsléssel (a legutóbbi valódi eladási árak a KSH lakásárindexeivel a legfrissebb negyedévre hozva) és valódi lakáseladási árak (KSH Ingatlanadattár, NAV-illetékadatok) településenként, budapesti kerületenként és utcánként, ${adat.arak.evek[0]}–${adat.arak.evek.at(-1)}: átlagos négyzetméterár típusonként (társasház, panel, családi ház), adásvételek száma, drágulás, térképen évenkénti animációval; letölthető JSON`,
     'lakastamogatasok/': `a Wekerle Plusz és a CSOK Plusz egy táblázatban (kinek, mennyi, kamat, árkorlát, önerő, illeték, gyerekek után), és az illetékkedvezmények jogszabályhellyel`,
     'forrasok/': `minden szabály jogszabályhelye, forrása és az ellenőrzés napja`,
     'adatok/': `a KSH lakásárai településtípusonként és régiónként, az éves infláció és a szabályok Excelben, CSV-ben és JSON-ban, CC BY 4.0`,

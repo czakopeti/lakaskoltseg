@@ -28,7 +28,7 @@ export const FOOLDAL_KARTYAK = {
   'lakasarak/ar-jovedelem/': [() => 'Mennyivel nehezebb ma lakást venni, mint régen? A lakásárak és a jövedelmek aránya 2000 óta.', 'Megnézem'],
   'lakasarak/metro/': [() => 'Mennyibe kerül egy négyzetméter a metró- és HÉV-megállók 500 méteres körzetében, megállónként.', 'Megnézem'],
   'lakasarak/jelentes/': [() => 'Hol drágult és hol olcsóbbodott a lakás, és hány évnyi fizetés egy 50 m²-es lakás, a legújabb valódi eladásokból.', 'Elolvasom'],
-  'lakasarak/': [() => 'Valódi eladási árak a NAV illetékadataiból, településenként, kerületenként és utcánként, térképen.', 'Megnézem'],
+  'lakasarak/': [() => 'Mai lakásárak településenként és kerületenként, valódi eladásokból becsülve, térképen és utcánként.', 'Megnézem'],
   'lakastamogatasok/': [() => 'A Wekerle Plusz és a CSOK Plusz egy táblázatban, és az illetékkedvezmények: melyik jár neked.', 'Megnézem'],
   'lakasvaltas-kalkulator/': [() => 'Mennyit kapsz kézhez a régiért, mennyibe kerül az új, és mennyi hitel kell még.', 'Kiszámolom'],
   'lakaskiadas-ado-kalkulator/': [() => 'Mennyi adót fizetsz a bérleti díj után, és melyik a jobb: a 10% költséghányad vagy a tételes elszámolás.', 'Kiszámolom'],
@@ -1256,18 +1256,23 @@ const ARAK_MIN_DB = 10; // a rangsorokban csak ennyi adásvétel fölött
 export function arakStat(adat) {
   const a = adat.arak, n = a.evek.length - 1, ev = a.evek[n];
   const elso = (s) => s.findIndex((v) => v != null);
-  const sor = (k, e) => {
+  let cimke = null;
+  const sor = (k, e, megye) => {
     const o = e.s.o || [], d = e.s.od || [];
     const i0 = elso(o);
-    return { k, n: e.n, m: e.m, t: e.t, ar: o[n], db: d[n], elozo: o[n - 1], valt15: o[n] != null && i0 === 0 ? (o[n] / o[0] - 1) * 100 : null, valt1: o[n] != null && o[n - 1] != null ? (o[n] / o[n - 1] - 1) * 100 : null };
+    // A mai becslés (a KSH árindexeivel mára hozva); ha nincs, a legutóbbi valódi ár
+    const be = S.arBecsles(adat, megye ? { ...e, m: k } : e);
+    if (be) cimke = be.cimke;
+    const ma = be ? Math.round(be.ar) : o[n];
+    return { k, n: e.n, m: megye ? k : e.m, t: e.t, ar: o[n], ma, db: d[n], elozo: o[n - 1], valt15: ma != null && i0 === 0 ? (ma / o[0] - 1) * 100 : null, valt1: o[n] != null && o[n - 1] != null ? (o[n] / o[n - 1] - 1) * 100 : null };
   };
   const egysegek = Object.entries(a.egysegek).map(([k, e]) => sor(k, e));
-  const megyek = Object.entries(a.megyek).map(([k, e]) => sor(k, e));
+  const megyek = Object.entries(a.megyek).map(([k, e]) => sor(k, e, true));
   const van = (x) => x.ar != null;
-  const kerulet = egysegek.filter((x) => x.t === 5 && van(x)).sort((x, y) => y.ar - x.ar);
-  const mjv = egysegek.filter((x) => x.t === 2 && van(x)).sort((x, y) => y.ar - x.ar);
-  const videk = egysegek.filter((x) => x.m !== '01' && van(x) && x.db >= ARAK_MIN_DB).sort((x, y) => y.ar - x.ar);
-  return { ev, evek: a.evek, egysegek, megyek: megyek.filter(van).sort((x, y) => y.ar - x.ar), kerulet, mjv, videk, bp: megyek.find((x) => x.k === '01') };
+  const kerulet = egysegek.filter((x) => x.t === 5 && van(x)).sort((x, y) => y.ma - x.ma);
+  const mjv = egysegek.filter((x) => x.t === 2 && van(x)).sort((x, y) => y.ma - x.ma);
+  const videk = egysegek.filter((x) => x.m !== '01' && van(x) && x.db >= ARAK_MIN_DB).sort((x, y) => y.ma - x.ma);
+  return { ev, cimke: cimke || String(ev), becsult: !!cimke, evek: a.evek, egysegek, megyek: megyek.filter(van).sort((x, y) => y.ma - x.ma), kerulet, mjv, videk, bp: megyek.find((x) => x.k === '01') };
 }
 
 export function arakOldal(k) {
@@ -1278,20 +1283,20 @@ export function arakOldal(k) {
   const nevRovid = (x) => x.n.replace(/^Budapest /, '');
   const az = (nev) => `${/^(I|V)\.|^[AÁEÉIÍOÓÖŐUÚÜŰ]/i.test(nev) ? 'az' : 'a'} ${nev}`; // „az V. kerület”: ötödik
   const lista = k.arLista || { egysegek: new Map(), megyek: new Map() };
-  const tabla = (sorok, elso = 'Hol?', nev = (x) => x.n, L = null) => `<div class="tabla-tarto"><table class="tabla"><thead><tr><th scope="col">${elso}</th><th scope="col">Ft/m², ${ev}</th><th scope="col">Adásvétel</th><th scope="col">Egy év alatt</th><th scope="col">${ev0} óta</th></tr></thead><tbody>${sorok.map((x) => { const u2 = lista.egysegek.get(x.k) || lista.megyek.get(x.k); return `<tr><th scope="row">${L && u2 ? `<a href="${L.l(u2)}">${esc(nev(x))}</a>` : esc(nev(x))}</th><td>${M.fmt(x.ar * 1000)}</td><td>${M.fmt(x.db)}</td><td>${szaz(x.valt1)}</td><td>${szaz(x.valt15)}</td></tr>`; }).join('')}</tbody></table></div>`;
+  const tabla = (sorok, elso = 'Hol?', nev = (x) => x.n, L = null) => `<div class="tabla-tarto"><table class="tabla"><thead><tr><th scope="col">${elso}</th><th scope="col">Ma kb., Ft/m²<br><span class="halk">${esc(st.cimke)}, becslés</span></th><th scope="col">Valódi eladási ár<br><span class="halk">${ev}, Ft/m²</span></th><th scope="col">Adásvétel<br><span class="halk">${ev}</span></th><th scope="col">${ev0} óta<br><span class="halk">mára</span></th></tr></thead><tbody>${sorok.map((x) => { const u2 = lista.egysegek.get(x.k) || lista.megyek.get(x.k); return `<tr><th scope="row">${L && u2 ? `<a href="${L.l(u2)}">${esc(nev(x))}</a>` : esc(nev(x))}</th><td><b>${M.fmt(x.ma * 1000)}</b></td><td>${M.fmt(x.ar * 1000)}</td><td>${M.fmt(x.db)}</td><td>${szaz(x.valt15)}</td></tr>`; }).join('')}</tbody></table></div>`;
   const kDraga = st.kerulet[0], kOlcso = st.kerulet.at(-1), vDraga = st.videk[0];
   const ut = ARAK_UT;
   const forras = adat.arak.forras;
   const cim = 'Mennyiért kelnek el a lakások a környékeden?';
-  const leiras = `Lakásárak ${M.evBan(ev)} településenként és budapesti kerületenként, valódi adásvételekből (KSH Ingatlanadattár, NAV-illetékadatok): átlagos négyzetméterár, adásvételek száma, drágulás ${ev0} óta, térképen és utcánként.`;
+  const leiras = `Mai lakásárak (${st.cimke}, becslés) településenként és budapesti kerületenként, a valódi adásvételekből (KSH Ingatlanadattár, NAV-illetékadatok, ${ev0}–${ev}) a KSH lakásárindexével mára hozva: négyzetméterár, drágulás ${ev0} óta, térképen és utcánként.`;
   const kerdesek = [
     { k: 'Honnan vannak az árak?', v: [`A KSH Ingatlanadattárából. A KSH a NAV illetékhivatali adatbázisából számolja, vagyis a magánszemélyek közötti valódi lakásadásvételekből, ezért ezek eladási árak, nem hirdetési árak. Csak ott közöl adatot, ahol az évben legalább három adásvétel volt.`] },
-    { k: `Miért ${ev} a legfrissebb év?`, v: ['Az illetékkiszabás az adásvétel után hónapokkal zárul le, ezért a KSH egy évvel később közli az adatokat. Amint megjelenik az újabb év, a térkép és a táblázatok maguktól frissülnek.'] },
+    { k: 'Honnan tudjuk a mai árat?', v: [`A valódi eladási árak ${ev}-ig érhetők el, mert az illetékkiszabás az adásvétel után hónapokkal zárul le, és a KSH egy évvel később közli az adatokat. A mai árat ezért becsüljük: a ${ev}-es valódi árat a KSH lakásárindexeivel (régiónként és településtípusonként, majd a legfrissebb negyedéves indexszel) hozzuk mára, ez most ${st.cimke}. Amint megjelenik az újabb év, a valódi árak és a becslés is maguktól frissülnek.`] },
     { k: 'Miért drágább a hirdetésekben ugyanaz a lakás?', v: ['A hirdetési ár a kért ár, és sok lakás alku után, olcsóbban kel el. A régi, rossz állapotú lakások is benne vannak az átlagban, az újépítésű lakások vállalkozótól vett első eladása viszont nem, mert azt nem magánszemély adja el.'] },
     { k: 'Mire jó ez lakásvásárlásnál?', v: [`Megmutatja, mennyi a reális ár a környéken. A NAV is hasonló adatokkal ellenőrzi az illeték alapjául szolgáló forgalmi értéket. <a href="../${ILLETEK_UT}">Az illetékkalkulátorban</a> azt is megnézheted, mennyi illetékre számíthatsz.`] },
   ];
   const tartalom = (L) => `
-${oldalfej(L, { morzsa: ['Lakásárak'], cim, valasz: `${M.evBan(ev)} Budapesten átlagosan ${ft(st.bp.ar)} volt egy négyzetméter, a legdrágább ${az(nevRovid(kDraga))} (${ft(kDraga.ar)}), a legolcsóbb ${az(nevRovid(kOlcso))} (${ft(kOlcso.ar)}). Budapesten kívül ${esc(vDraga.n)} a legdrágább, ${ft(vDraga.ar)}. Ezek valódi eladási árak a NAV illetékadataiból, nem hirdetési árak.`, friss: M.datumNapon(adat.arak.ellenorizve || k.ma) })}
+${oldalfej(L, { morzsa: ['Lakásárak'], cim, valasz: `Ma (${st.cimke}, becslés) Budapesten átlagosan kb. ${ft(st.bp.ma)} egy négyzetméter, a legdrágább ${az(nevRovid(kDraga))} (kb. ${ft(kDraga.ma)}), a legolcsóbb ${az(nevRovid(kOlcso))} (kb. ${ft(kOlcso.ma)}). Budapesten kívül ${esc(vDraga.n)} a legdrágább, kb. ${ft(vDraga.ma)}. A becslés valódi eladási árakból indul (NAV-illetékadatok, legutóbb ${ev}), nem hirdetési árakból, és a KSH lakásárindexével hozzuk mára.`, friss: M.datumNapon(adat.arak.ellenorizve || k.ma) })}
 <section class="keret terkep" data-terkep data-adat-v="${k.adatV || ''}" data-alap="${L.gyoker(ARAK_ADAT)}" data-ut="${L.l(ARAK_UT)}" data-ev="${ev}" aria-label="Lakásárak térképe">
 <div class="tk-vezerlo">
 <div class="tk-csoport" role="group" aria-label="Mit mutasson a térkép?"><button type="button" class="tk-gomb" data-mutato="ar" aria-pressed="true">Átlagár</button><button type="button" class="tk-gomb" data-mutato="valt" aria-pressed="false">Drágulás ${ev0} óta</button><button type="button" class="tk-gomb" data-mutato="evek" aria-pressed="false">Hány évnyi fizetés?</button></div>
@@ -1301,7 +1306,7 @@ ${oldalfej(L, { morzsa: ['Lakásárak'], cim, valasz: `${M.evBan(ev)} Budapesten
 <div class="tk-vaszon">
 <div class="tk-orszag" data-orszag aria-hidden="true"><p class="tk-tolt">A térkép betöltése…</p></div>
 <figure class="tk-bp"><figcaption>Budapest kerületei</figcaption><div data-budapest aria-hidden="true"></div></figure>
-<p class="tk-ev" data-ev-cimke aria-hidden="true">${ev}</p>
+<p class="tk-ev" data-ev-cimke aria-hidden="true">${st.becsult ? "ma" : ev}</p>
 <div class="tk-tipp" data-tipp hidden></div>
 </div>
 <div class="tk-ido">
@@ -1315,14 +1320,14 @@ ${oldalfej(L, { morzsa: ['Lakásárak'], cim, valasz: `${M.evBan(ev)} Budapesten
 </section>
 <div class="keret"><article class="cikk">
 <h2>Budapest kerületei</h2>
-<p>${M.evBan(ev)} a legdrágább és a legolcsóbb kerület között ${M.tized(kDraga.ar / kOlcso.ar, 1)}-szeres volt a különbség. ${ev0} óta a budapesti átlagár ${szaz(st.bp.valt15).replace('+', '')}-kal nőtt.</p>
+<p>Ma a legdrágább és a legolcsóbb kerület között kb. ${M.tized(kDraga.ma / kOlcso.ma, 1)}-szeres a különbség. ${ev0} óta a budapesti átlagár mára kb. ${szaz(st.bp.valt15).replace('+', '')}-kal nőtt.</p>
 ${tabla(st.kerulet, 'Kerület', nevRovid, L)}
 <h2>Vármegyék</h2>
 ${tabla(st.megyek, 'Vármegye', undefined, L)}
 <h2>Megyei jogú városok</h2>
 ${tabla(st.mjv, 'Város', undefined, L)}
 <h2>A legdrágább települések Budapesten kívül</h2>
-<p class="halk">Csak ahol legalább ${ARAK_MIN_DB} adásvétel volt ${M.evBan(ev)}.</p>
+<p class="halk">Csak ahol legalább ${ARAK_MIN_DB} adásvétel volt ${M.evBan(ev)}, mert kevés eladásból a becslés is bizonytalan.</p>
 ${tabla(st.videk.slice(0, 20), 'Település', undefined, L)}
 <h2>A legolcsóbb települések</h2>
 ${tabla(st.videk.slice(-20).reverse(), 'Település', undefined, L)}
@@ -1333,5 +1338,5 @@ ${gyik(kerdesek)}
 ${tovabb(L, ut)}
 </article></div>
 <script type="module" src="${L.a(`js/terkep.js?v=${k.verzio}`)}"></script>`;
-  return oldal(k, { cim: `Lakásárak térképe ${ev}: településenként és kerületenként, valódi eladási árakból`, leiras, ut, tartalom, jsonld: [morzsaLd(k.cfg, [{ nev: 'Lakásárak', ut }]), gyikLd(kerdesek), { '@context': 'https://schema.org', '@type': 'Dataset', name: `Lakásárak településenként, ${ev0}–${ev}`, description: leiras, url: `${k.cfg.domain}/${ut}`, inLanguage: 'hu', isAccessibleForFree: true, temporalCoverage: `${ev0}/${ev}`, spatialCoverage: 'Magyarország', creator: { '@type': 'Organization', name: 'Központi Statisztikai Hivatal', url: 'https://www.ksh.hu/' }, isBasedOn: forras.url, distribution: [{ '@type': 'DataDownload', encodingFormat: 'application/json', contentUrl: `${k.cfg.domain}/${ARAK_ADAT}arak.json` }] }] });
+  return oldal(k, { cim: `Lakásárak ${st.becsult ? st.cimke.slice(0, 4) : ev}: mai négyzetméterárak településenként és kerületenként, valódi eladásokból`, leiras, ut, tartalom, jsonld: [morzsaLd(k.cfg, [{ nev: 'Lakásárak', ut }]), gyikLd(kerdesek), { '@context': 'https://schema.org', '@type': 'Dataset', name: `Lakásárak településenként, ${ev0}–${ev}`, description: leiras, url: `${k.cfg.domain}/${ut}`, inLanguage: 'hu', isAccessibleForFree: true, temporalCoverage: `${ev0}/${ev}`, spatialCoverage: 'Magyarország', creator: { '@type': 'Organization', name: 'Központi Statisztikai Hivatal', url: 'https://www.ksh.hu/' }, isBasedOn: forras.url, distribution: [{ '@type': 'DataDownload', encodingFormat: 'application/json', contentUrl: `${k.cfg.domain}/${ARAK_ADAT}arak.json` }] }] });
 }

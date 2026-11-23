@@ -29,7 +29,23 @@ async function indit(el) {
   const alap = el.dataset.alap;
   const alapUt = el.dataset.ut || '/lakasarak/';
   const [A, G, B] = await Promise.all([json(`${alap}arak.json`), json(`${alap}orszag.json`), json(`${alap}budapest.json`)]);
-  const evek = A.evek, utolso = evek.length - 1;
+  // A legutóbbi valódi év után egy „ma” lépés: a becsült mai ár (a KSH árindexeivel mára hozva). Ez az alapnézet.
+  const valodi = A.evek.length - 1;
+  const MA = A.becsles?.cimke ? valodi + 1 : null;
+  const evek = MA ? [...A.evek, A.evek[valodi] + 1] : A.evek; // a csúszkához; a felirat mindig evNev()
+  if (MA) {
+    for (const [k, u] of Object.entries(A.egysegek)) {
+      const sz = A.becsles.szorzok[k];
+      for (const t of ['o', 't', 'p', 'h']) {
+        if (u.s[t]) { const v = u.s[t][valodi]; u.s[t].push(v != null && sz ? Math.round(v * sz) : null); }
+        if (u.s[`${t}d`]) u.s[`${t}d`].push(null);
+      }
+      if (A.megfiz?.ertek?.[k]) A.megfiz.ertek[k].push(A.megfiz.ma?.[k] ?? null);
+    }
+  }
+  const utolso = evek.length - 1;
+  const evNev = (ix) => (ix === MA ? `ma (${A.becsles.cimke}, becslés)` : String(evek[ix]));
+  const evRovid = (ix) => (ix === MA ? 'ma' : String(evek[ix]));
   const S = { mutato: 'ar', tipus: 'o', ix: utolso, kijelolt: null, jatszik: null };
   const utcaCache = new Map();
 
@@ -60,15 +76,17 @@ async function indit(el) {
       p.style.fill = c || '';
       p.classList.toggle('tk-nincs', !c);
     }
-    cimke.textContent = evek[S.ix];
+    cimke.textContent = evRovid(S.ix);
+    csuszka.max = evek[utolso];
     csuszka.value = evek[S.ix];
+    csuszka.setAttribute('aria-valuetext', evNev(S.ix));
     skalaRajz();
     if (S.kijelolt) lapRajz(S.kijelolt, false);
   }
   function skalaRajz() {
     const h = HATAR[S.mutato];
     const cimkek = S.mutato === 'ar' ? h.map((x) => ftRovid(x)) : S.mutato === 'evek' ? h.map((x) => `${x} év`) : h.map((x) => `${x}%`);
-    skala.innerHTML = `<p class="tk-skala-cim">${S.mutato === 'ar' ? `Átlagár, Ft/m², ${evek[S.ix]}` : S.mutato === 'evek' ? `Hány évnyi helyi nettó átlagkereset egy ${A.megfiz?.m2 || 50} m²-es lakás, ${evek[S.ix]}` : `Drágulás ${evek[0]} óta, ${evek[S.ix]}-ig`}${S.tipus !== 'o' && S.mutato !== 'evek' ? `, ${TIPUS[S.tipus].toLowerCase()}` : ''}</p>
+    skala.innerHTML = `<p class="tk-skala-cim">${S.mutato === 'ar' ? `Átlagár, Ft/m², ${evNev(S.ix)}` : S.mutato === 'evek' ? `Hány évnyi helyi nettó átlagkereset egy ${A.megfiz?.m2 || 50} m²-es lakás, ${evNev(S.ix)}` : `Drágulás ${evek[0]} óta, ${S.ix === MA ? 'mára (becslés)' : `${evek[S.ix]}-ig`}`}${S.tipus !== 'o' && S.mutato !== 'evek' ? `, ${TIPUS[S.tipus].toLowerCase()}` : ''}</p>
 <div class="tk-sav">${SZINEK.map((c, i) => `<i style="background:${c}" title="${i === 0 ? `${cimkek[0]} alatt` : i === SZINEK.length - 1 ? `${cimkek.at(-1)} felett` : `${cimkek[i - 1]} – ${cimkek[i]}`}"></i>`).join('')}</div>
 <div class="tk-sav-cimkek">${cimkek.map((c, i) => `<span style="left:${((i + 1) / SZINEK.length) * 100}%">${i % 2 === 0 || cimkek.length < 6 ? c : ''}</span>`).join('')}</div>
 <p class="tk-skala-nincs"><i></i>${S.mutato === 'evek' ? 'Nincs adat: kevés adásvétel, vagy erre az évre még nincs kereseti adat' : 'Nincs adat: az évben háromnál kevesebb adásvétel volt'}</p>${S.mutato === 'evek' && A.megfiz?.forras ? `<p class="tk-skala-nincs">Kereset: <a href="${esc(A.megfiz.forras.url)}" target="_blank" rel="noopener">KSH, nettó átlagkereset lakóhely szerint</a>; Budapest kerületeinél a budapesti átlag.</p>` : ''}`;
@@ -88,7 +106,7 @@ async function indit(el) {
     const nev = u?.n || 'Nincs adat';
     const v = ertek(k);
     const ar = u?.s[S.tipus]?.[S.ix], db = u?.s[`${S.tipus}d`]?.[S.ix];
-    tipp.innerHTML = `<b>${esc(nev)}</b>${ar != null ? `<span>${ft(ar)}/m²${db ? ` · ${fmt(db)} adásvétel` : ''}</span>${S.mutato === 'valt' && v != null ? `<span>${szaz(v)} ${evek[0]} óta</span>` : ''}${S.mutato === 'evek' && v != null ? `<span>${tized(v, 1)} évnyi nettó átlagkereset egy ${A.megfiz.m2} m²-es lakás</span>` : ''}` : `<span>${evek[S.ix]}: nincs adat${S.tipus !== 'o' ? ' ennél a típusnál' : ''}</span>`}`;
+    tipp.innerHTML = `<b>${esc(nev)}</b>${ar != null ? `<span>${S.ix === MA ? 'kb. ' : ''}${ft(ar)}/m²${S.ix === MA ? ', becsült mai ár' : db ? `, ${fmt(db)} adásvétel` : ''}</span>${S.mutato === 'valt' && v != null ? `<span>${szaz(v)} ${evek[0]} óta</span>` : ''}${S.mutato === 'evek' && v != null ? `<span>${tized(v, 1)} évnyi nettó átlagkereset egy ${A.megfiz.m2} m²-es lakás</span>` : ''}` : `<span>${evNev(S.ix)}: nincs adat${S.tipus !== 'o' ? ' ennél a típusnál' : ''}</span>`}`;
     tipp.hidden = false;
     const r = el.querySelector('.tk-vaszon').getBoundingClientRect();
     const x = e.clientX - r.left, y = e.clientY - r.top;
@@ -125,7 +143,7 @@ async function indit(el) {
     const max = Math.max(...pontok.map(([, v]) => v)), min = Math.min(...pontok.map(([, v]) => v));
     const W2 = 320, H2 = 96, px = (i) => 8 + (i / (evek.length - 1)) * (W2 - 16), py = (v) => H2 - 14 - ((v - min) / (max - min || 1)) * (H2 - 30);
     const d = pontok.map(([i, v], j) => `${j ? 'L' : 'M'}${px(i).toFixed(1)} ${py(v).toFixed(1)}`).join('');
-    return `<svg class="tk-grafikon" viewBox="0 0 ${W2} ${H2}" role="img" aria-label="Az átlagár alakulása ${evek[0]} és ${evek.at(-1)} között"><path class="tk-vonal" d="${d}" pathLength="1"/>${pontok.map(([i, v]) => `<circle cx="${px(i).toFixed(1)}" cy="${py(v).toFixed(1)}" r="${i === S.ix ? 4.5 : 2.5}"${i === S.ix ? ' class="most"' : ''}><title>${evek[i]}: ${ft(v)}/m²</title></circle>`).join('')}<text x="8" y="${H2 - 1}">${evek[0]}</text><text x="${W2 - 8}" y="${H2 - 1}" text-anchor="end">${evek.at(-1)}</text></svg>`;
+    return `<svg class="tk-grafikon" viewBox="0 0 ${W2} ${H2}" role="img" aria-label="Az átlagár alakulása ${evek[0]} és ${evRovid(utolso)} között"><path class="tk-vonal" d="${d}" pathLength="1"/>${pontok.map(([i, v]) => `<circle cx="${px(i).toFixed(1)}" cy="${py(v).toFixed(1)}" r="${i === S.ix ? 4.5 : 2.5}"${i === S.ix ? ' class="most"' : ''}><title>${evek[i]}: ${ft(v)}/m²</title></circle>`).join('')}<text x="8" y="${H2 - 1}">${evek[0]}</text><text x="${W2 - 8}" y="${H2 - 1}" text-anchor="end">${evRovid(utolso)}</text></svg>`;
   }
   function lapRajz(k, uj) {
     const u = A.egysegek[k];
@@ -134,13 +152,13 @@ async function indit(el) {
     const s = u.s[tip] || [], ar = s[S.ix], db = u.s[`${tip}d`]?.[S.ix];
     const elozo = s[S.ix - 1], kezd = s[0];
     const hol = u.t === 5 ? 'Budapest' : u.t === 1 ? '' : `${A.megyek[u.m]?.n || ''}${/vármegye$/.test(A.megyek[u.m]?.n || '') ? '' : ' vármegye'}`;
-    const sorok = ['t', 'p', 'h'].filter((t) => u.s[t]?.[S.ix] != null).map((t) => `<tr><th scope="row">${TIPUS[t]}</th><td>${ft(u.s[t][S.ix])}/m²</td><td>${fmt(u.s[`${t}d`]?.[S.ix] || 0)} db</td></tr>`).join('');
+    const sorok = ['t', 'p', 'h'].filter((t) => u.s[t]?.[S.ix] != null).map((t) => `<tr><th scope="row">${TIPUS[t]}</th><td>${ft(u.s[t][S.ix])}/m²</td><td>${S.ix === MA ? 'becslés' : `${fmt(u.s[`${t}d`]?.[S.ix] || 0)} db`}</td></tr>`).join('');
     adatlap.innerHTML = `<div class="tk-lap${uj && !LASSU ? ' tk-uj' : ''}">
 <button type="button" class="tk-bezar" data-bezar aria-label="Bezárás">×</button>
 <p class="tk-hol">${esc(hol)}</p><h3>${esc(u.n)}</h3>
-${ar != null ? `<p class="tk-nagy">${ft(ar)}<small>/m², ${evek[S.ix]}${tip !== 'o' ? `, ${TIPUS[tip].toLowerCase()}` : ''}</small></p>
-${S.ix === utolso && A.becsles?.szorzok?.[k] && ar != null ? `<p class="tk-becsles">Becsült mai ár, ${A.becsles.cimke}: <b>kb. ${ft(Math.round(ar * A.becsles.szorzok[k]))}/m²</b></p>` : ''}
-<p class="tk-valt">${db ? `${fmt(db)} adásvétel alapján. ` : ''}${elozo != null ? `Egy év alatt ${szaz((ar / elozo - 1) * 100)}` : ''}${kezd != null && S.ix > 0 ? `${elozo != null ? ', ' : ''}${evek[0]} óta ${szaz((ar / kezd - 1) * 100)}.` : elozo != null ? '.' : ''}</p>` : `<p class="tk-valt">${evek[S.ix]}-re nincs adat: az évben háromnál kevesebb adásvétel volt.</p>`}
+${ar != null ? `<p class="tk-nagy">${S.ix === MA ? 'kb. ' : ''}${ft(ar)}<small>/m², ${evNev(S.ix)}${tip !== 'o' ? `, ${TIPUS[tip].toLowerCase()}` : ''}</small></p>
+${S.ix === MA && elozo != null ? `<p class="tk-becsles">Valódi eladási ár ${evBan(evek[valodi])}: <b>${ft(elozo)}/m²</b>${u.s[`${tip}d`]?.[valodi] ? ` (${fmt(u.s[`${tip}d`][valodi])} adásvétel)` : ''}. A becslés ebből indul, a KSH lakásárindexeivel mára hozva.</p>` : ''}${S.ix === valodi && MA && A.becsles?.szorzok?.[k] ? `<p class="tk-becsles">Becsült mai ár, ${A.becsles.cimke}: <b>kb. ${ft(Math.round(ar * A.becsles.szorzok[k]))}/m²</b></p>` : ''}
+<p class="tk-valt">${S.ix === MA ? `${kezd != null ? `${evek[0]} óta ${szaz((ar / kezd - 1) * 100)}.` : ''}` : `${db ? `${fmt(db)} adásvétel alapján. ` : ''}${elozo != null ? `Egy év alatt ${szaz((ar / elozo - 1) * 100)}` : ''}${kezd != null && S.ix > 0 ? `${elozo != null ? ', ' : ''}${evek[0]} óta ${szaz((ar / kezd - 1) * 100)}.` : elozo != null ? '.' : ''}`}</p>` : `<p class="tk-valt">${S.ix === MA ? 'Mára nincs becslés: a legutóbbi évben háromnál kevesebb adásvétel volt.' : `${evek[S.ix]}-re nincs adat: az évben háromnál kevesebb adásvétel volt.`}</p>`}
 ${grafikon(s)}
 ${sorok ? `<table class="tk-tipusok"><tbody>${sorok}</tbody></table>` : ''}
 ${A.oldalak?.[k] ? `<a class="tk-reszletek" href="${alapUt}${A.oldalak[k].replace(/^lakasarak\//, '')}">Részletek, utcák, évenkénti táblázat</a>` : ''}
@@ -157,9 +175,10 @@ ${A.oldalak?.[k] ? `<a class="tk-reszletek" href="${alapUt}${A.oldalak[k].replac
   async function utcakGomb(k, hely) {
     const u = A.egysegek[k];
     const lista = (await utcak(u.m))[k];
-    const ebben = lista?.filter((l) => l[1][S.ix] != null).length || 0;
+    const iU = Math.min(S.ix, valodi); // utcánként nincs becslés: a legutóbbi valódi év
+    const ebben = lista?.filter((l) => l[1][iU] != null).length || 0;
     if (!ebben || S.kijelolt !== k) return;
-    hely.innerHTML = `<button type="button" class="tk-utca-gomb" aria-expanded="false">Utcák szerint, ${evek[S.ix]} (${fmt(ebben)})</button><div class="tk-utcak" hidden></div>`;
+    hely.innerHTML = `<button type="button" class="tk-utca-gomb" aria-expanded="false">Utcák szerint, ${evek[iU]} (${fmt(ebben)})</button><div class="tk-utcak" hidden></div>`;
     const gomb = hely.querySelector('button'), doboz2 = hely.querySelector('.tk-utcak');
     gomb.addEventListener('click', () => {
       const nyit = doboz2.hidden;
@@ -169,9 +188,9 @@ ${A.oldalak?.[k] ? `<a class="tk-reszletek" href="${alapUt}${A.oldalak[k].replac
   }
   function utcaTabla(lista, hova) {
     // Csak a kiválasztott év árai, hogy a sorrend összevethető legyen
-    const i = S.ix;
+    const i = Math.min(S.ix, valodi);
     const sorok = lista.filter((l) => l[1][i] != null).map((l) => [l[0], [l[1][i], l[2][i]]]).sort((a, b) => b[1][0] - a[1][0]);
-    hova.innerHTML = `<label class="tk-utca-szuro"><span class="sr">Utca keresése</span><input type="search" placeholder="Utca keresése"></label><div class="tk-utca-lista"><table><thead><tr><th scope="col">Utca</th><th scope="col">Ft/m², ${evek[i]}</th><th scope="col">Adásvétel</th></tr></thead><tbody></tbody></table></div><p class="kicsi halk">${evBan(evek[i])} ${sorok.length} utcában volt legalább három adásvétel. Másik évhez állítsd át a csúszkát.</p>`;
+    hova.innerHTML = `<label class="tk-utca-szuro"><span class="sr">Utca keresése</span><input type="search" placeholder="Utca keresése"></label><div class="tk-utca-lista"><table><thead><tr><th scope="col">Utca</th><th scope="col">Ft/m², ${evek[i]}</th><th scope="col">Adásvétel</th></tr></thead><tbody></tbody></table></div><p class="kicsi halk">${evBan(evek[i])} ${sorok.length} utcában volt legalább három adásvétel.${S.ix === MA ? ' Utcánként nincs mai becslés, ezek a legutóbbi valódi eladási árak.' : ''} Másik évhez állítsd át a csúszkát.</p>`;
     const tb = hova.querySelector('tbody'), sz = hova.querySelector('input');
     const rajz = () => {
       const q = sz.value.trim().toLowerCase();

@@ -221,8 +221,9 @@ export function forgalmiBlokk(adat, f) {
   h += tetel('A vételár négyzetméterenként', `${fmt(f.m2)} Ft/m²`, { forras: 'sajat' });
   if (f.helyi) {
     const ia = adat.arakForras;
+    // Elöl a mai becslés (ehhez hasonlítunk), alatta a valódi eladási átlag, amiből indul
+    if (f.becsles) h += tetel(`Mai átlagár (becslés, ${f.becsEv}): ${esc(f.nev)}${f.tipNev ? `, ${f.tipNev}` : ''}`, `${fmt(f.atlag)} Ft/m²`, { forras: 'becsles', forrasUrl: adat.lakasar?.forras?.url, al: `a ${f.ev}-es valódi eladási átlagból, a KSH árindexeivel mára hozva` });
     h += tetel(`Valódi eladások átlaga: ${esc(f.nev)}${f.tipNev ? `, ${f.tipNev}` : ''}, ${f.ev}`, `${fmt(f.alapAtlag)} Ft/m²`, { forras: 'hivatalos', forrasUrl: ia?.url, al: f.oldal ? `<a href="${esc((adat.oldalAlap || '/') + f.oldal)}">Utcánként is megnézheted</a>` : '' });
-    if (f.becsles) h += tetel(`Mai becslés, ${f.becsEv}`, `${fmt(f.atlag)} Ft/m²`, { forras: 'becsles', forrasUrl: adat.lakasar?.forras?.url, al: 'a KSH éves átlagárainak és negyedéves árindexének változásával' });
     h += tetel('A te lakásod ehhez képest', `${fmt(Math.round(f.arany))}%`, { cls: 'vegso' });
   } else h += tetel(`A KSH szerint ${f.uj ? 'az új' : 'a használt'} lakások átlaga ${f.hol}, ${f.ev}`, `${fmt(f.atlag)} Ft/m²`, { al: `a te lakásod ennek ${fmt(Math.round(f.arany))}%-a` });
   h += '</ul>';
