@@ -1,7 +1,7 @@
 // „Mennyit ér a lakásom?”: sávos becslés a KSH Ingatlanadattár utcai és települési átlagaiból.
 // Az adat ugyanaz, mint a lakásár-térképé (/adatok/lakasarak/), a számítás a szamitas.mjs lakasErtek függvénye.
-import { lakasErtek } from './szamitas.js?v=329a160b';
-import { fmt, tized, meres } from './megjelenites.js?v=329a160b';
+import { lakasErtek } from './szamitas.js?v=f6164941';
+import { fmt, tized, meres } from './megjelenites.js?v=f6164941';
 
 const doboz = document.querySelector('[data-ertek]');
 if (doboz) indit(doboz).catch((e) => {
@@ -10,7 +10,20 @@ if (doboz) indit(doboz).catch((e) => {
 });
 
 function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]); }
-const norm = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/^budapest\s+/, '').replace(/\s+/g, ' ').trim();
+const norm = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/^(budapest|bp\.?)[\s,]+/, '').replace(/\s+/g, ' ').trim();
+const ROMAI = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI', 'XXII', 'XXIII'];
+// A kerületek közismert nevei, hogy „Újbuda” vagy „Zugló” is működjön
+const KERNEV = { I: 'Várkerület', III: 'Óbuda-Békásmegyer', IV: 'Újpest', V: 'Belváros-Lipótváros', VI: 'Terézváros', VII: 'Erzsébetváros', VIII: 'Józsefváros', IX: 'Ferencváros', X: 'Kőbánya', XI: 'Újbuda', XII: 'Hegyvidék', XIII: 'Angyalföld, Újlipótváros', XIV: 'Zugló', XV: 'Rákospalota, Pestújhely, Újpalota', XVII: 'Rákosmente', XVIII: 'Pestszentlőrinc-Pestszentimre', XIX: 'Kispest', XX: 'Pesterzsébet', XXI: 'Csepel', XXII: 'Budafok-Tétény', XXIII: 'Soroksár' };
+const MAS_NEV = { obuda: 'III', bekasmegyer: 'III', ujlipotvaros: 'XIII', angyalfold: 'XIII', rakospalota: 'XV', ujpalota: 'XV', pestszentlorinc: 'XVIII', pestszentimre: 'XVIII', lipotvaros: 'V', belvaros: 'V', budafok: 'XXII', varnegyed: 'I' };
+for (const [r, n] of Object.entries(KERNEV)) for (const x of n.split(/,\s*/)) MAS_NEV[norm(x)] = r;
+/** „11”, „11. ker”, „XI”, „xi. kerület”, „Újbuda” → „XI”; különben null. */
+export function kerulet(v) {
+  const s = norm(v).replace(/\s*(\.|\bker\b\.?|\bkerulet\b)\s*/g, ' ').trim();
+  if (MAS_NEV[s]) return MAS_NEV[s];
+  if (/^\d{1,2}$/.test(s) && +s >= 1 && +s <= 23) return ROMAI[+s - 1];
+  const r = s.toUpperCase();
+  return ROMAI.includes(r) ? r : null;
+}
 const millio = (ft) => `${tized(ft / 1e6, ft >= 1e8 ? 0 : 1)} millió Ft`;
 const TIPUS = { t: 'társasházi lakás', p: 'panellakás', h: 'családi ház', o: 'lakóingatlan' };
 
@@ -41,9 +54,26 @@ async function indit(el) {
   const utcaCache = new Map();
   const utcakMegye = (m) => { if (!utcaCache.has(m)) utcaCache.set(m, json(`${alap}utcak/${m}.json`).catch(() => ({}))); return utcaCache.get(m); };
 
+  // Név (vagy kerületszám, kerületnév) → kód
+  function keres(v) {
+    const n = norm(v);
+    if (nevek.has(n)) return nevek.get(n);
+    const r = kerulet(v);
+    return r ? nevek.get(norm(`${r}. kerület`)) || null : null;
+  }
+  const csakBudapest = (v) => /^(budapest|bp\.?)$/.test(String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim());
+  // Javaslatok, ha a beírt név nem pontos: ami ezzel kezdődik, utána ami tartalmazza
+  function javaslatok(v) {
+    const n = norm(v);
+    if (n.length < 2) return [];
+    const kezd = opciok.filter((o) => norm(o).startsWith(n)), benne = opciok.filter((o) => !norm(o).startsWith(n) && norm(o).includes(n));
+    return [...kezd, ...benne].slice(0, 8);
+  }
+
   let kod = null, utcak = [];
   async function telepValt() {
-    const uj = nevek.get(norm(iTelep.value)) || null;
+    const uj = keres(iTelep.value);
+    if (uj && norm(iTelep.value) !== norm(A.egysegek[uj].n)) iTelep.value = A.egysegek[uj].n;
     if (uj === kod) return;
     kod = uj; utcak = [];
     iUtca.value = ''; lUtca.innerHTML = '';
@@ -63,13 +93,28 @@ async function indit(el) {
     return utcak.find((x) => norm(x[0]) === v)?.[0] || false;
   }
 
-  function szamol() {
+  const valaszto = (cim, nevekL) => `<div class="ev-valaszto"><p>${cim}</p><div class="ev-gombsor">${nevekL.map(([ertek, felirat]) => `<button type="button" class="ev-valaszt" data-telep="${esc(ertek)}">${felirat}</button>`).join('')}</div></div>`;
+  const kerValaszto = () => valaszto('Budapesten kerületenként nagyon mások az árak. Melyik kerületben van a lakás?', ROMAI.map((r) => [`Budapest ${r}. kerület`, `<b>${r}.</b>${KERNEV[r] ? ` <span>${esc(KERNEV[r])}</span>` : ''}`]).filter(([n]) => nevek.has(norm(n))));
+
+  // Mobilon az eredmény az űrlap alatt van: a választót oda kell görgetni, különben észre sem veszi
+  const mutat = () => { if (window.matchMedia('(max-width: 900px)').matches) ki.scrollIntoView({ block: 'nearest', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
+  // kerdez: a gombra kattintva (vagy Enterre) a hiányzó mezőre ugrunk és megmondjuk, mi kell még
+  function szamol(kerdez = false) {
     const m2 = Number(String(iM2.value).replace(',', '.'));
     if (iTelep.value || iM2.value) meres('indit');
-    if (!kod || !(m2 >= 10)) {
-      ki.innerHTML = iTelep.value && !kod
-        ? '<p class="elsz-ures">Ezt a települést nem találjuk. Válassz a listából. Ahol egy évben sem volt legalább három adásvétel, ott a KSH nem közöl árat.</p>'
-        : '<p class="elsz-ures">Add meg a települést vagy kerületet és az alapterületet. Ha tudod az utcát is, pontosabb lesz.</p>';
+    if (!kod) {
+      if (csakBudapest(iTelep.value)) { ki.innerHTML = kerValaszto(); mutat(); return; }
+      if (iTelep.value) {
+        const j = javaslatok(iTelep.value);
+        ki.innerHTML = j.length ? valaszto('Erre gondoltál?', j.map((n) => [n, esc(n)])) : '<p class="elsz-ures">Ezt a települést nem találjuk. Ellenőrizd a nevét. Ahol egy évben sem volt legalább három adásvétel, ott a KSH nem közöl árat.</p>';
+        mutat();
+      } else ki.innerHTML = '<p class="elsz-ures">Kezdd a településsel vagy a budapesti kerülettel (például „Debrecen” vagy „XI. kerület”).</p>';
+      if (kerdez) iTelep.focus();
+      return;
+    }
+    if (!(m2 >= 10)) {
+      ki.innerHTML = `<p class="elsz-ures">${iM2.value ? 'Az alapterület legalább 10 m² legyen.' : `${esc(A.egysegek[kod].n)} megvan. Már csak az alapterület hiányzik: hány négyzetméteres a lakás?`}</p>`;
+      if (kerdez) iM2.focus();
       return;
     }
     const un = utcaNev();
@@ -116,7 +161,16 @@ async function indit(el) {
   iTelep.addEventListener('change', async () => { await telepValt(); szamol(); });
   iTelep.addEventListener('input', async () => { if (nevek.has(norm(iTelep.value))) { await telepValt(); szamol(); } });
   for (const i of [iUtca, iTipus, iM2]) { i.addEventListener('input', szamol); i.addEventListener('change', szamol); }
-  form.addEventListener('submit', (ev) => { ev.preventDefault(); szamol(); });
+  form.addEventListener('submit', (ev) => { ev.preventDefault(); szamol(true); });
+  // Kerület- vagy településválasztó gombok az eredmény helyén
+  ki.addEventListener('click', async (ev) => {
+    const g = ev.target.closest('[data-telep]');
+    if (!g) return;
+    iTelep.value = g.dataset.telep;
+    await telepValt();
+    szamol();
+    if (!(Number(String(iM2.value).replace(',', '.')) >= 10)) iM2.focus();
+  });
 }
 
 function sav(e) {

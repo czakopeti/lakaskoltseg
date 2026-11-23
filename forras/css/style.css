@@ -780,3 +780,11 @@ body.beagyazott .mini, body.beagyazott .vj, body.beagyazott .kovetkezo { display
   .ertek .ev-labjegy { display: block !important; font-size: 9pt; color: #444; margin-top: 6mm; word-break: break-all; }
   .ertek .elsz-fej time { display: inline; }
 }
+.ev-inditas { margin-top: 14px; }
+.ev-inditas .gomb { width: 100%; justify-content: center; }
+.ev-valaszto { display: grid; gap: 10px; }
+.ev-valaszto p { font-weight: 600; }
+.ev-gombsor { display: flex; flex-wrap: wrap; gap: 8px; }
+.ev-valaszt { font: 500 14px var(--szoveg); border: 1px solid var(--tinta); background: var(--hatter); color: var(--tinta); border-radius: 99px; padding: 7px 12px; cursor: pointer; text-align: left; }
+.ev-valaszt span { color: var(--tinta2); }
+.ev-valaszt:hover, .ev-valaszt:focus-visible { background: var(--sarga); }
