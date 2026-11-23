@@ -788,3 +788,8 @@ body.beagyazott .mini, body.beagyazott .vj, body.beagyazott .kovetkezo { display
 .ev-valaszt { font: 500 14px var(--szoveg); border: 1px solid var(--tinta); background: var(--hatter); color: var(--tinta); border-radius: 99px; padding: 7px 12px; cursor: pointer; text-align: left; }
 .ev-valaszt span { color: var(--tinta2); }
 .ev-valaszt:hover, .ev-valaszt:focus-visible { background: var(--sarga); }
+.aj-valaszto { display: flex; flex-wrap: wrap; gap: 12px 24px; margin: 6px 0 14px; }
+.aj-valaszto [role=group] { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.aj-valaszto span { font-size: 14px; color: var(--tinta2); margin-right: 4px; }
+.aj-valaszto button { font: 600 14px var(--szoveg); border: 1px solid var(--tinta); background: var(--hatter); color: var(--tinta); border-radius: 99px; padding: 7px 14px; cursor: pointer; }
+.aj-valaszto button[aria-pressed=true] { background: var(--tinta); color: var(--hatter); }
