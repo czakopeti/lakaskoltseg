@@ -11,7 +11,10 @@
 // Csak ismert oldalra és ismert eseményre számolunk, hogy idegen kulcsokkal ne lehessen teleírni a tárolót.
 import { UTAK } from '../../kozos/utak.js';
 
-export const ESEMENYEK = ['indit', 'kesz', 'mentes', 'megosztas', 'nyomtat', 'kovetkezo', 'tovabb', 'naptar'];
+export const HASZNALAT = ['indit', 'kesz', 'mentes', 'megosztas', 'nyomtat', 'kovetkezo', 'tovabb', 'naptar'];
+// Érkezés kívülről, a forrás fajtája szerint (lásd megjelenites.mjs, erkezesForras)
+export const ERKEZES = ['erk_chatgpt', 'erk_perplexity', 'erk_claude', 'erk_gemini', 'erk_copilot', 'erk_google', 'erk_bing', 'erk_facebook', 'erk_mas', 'erk_kozvetlen'];
+export const ESEMENYEK = [...HASZNALAT, ...ERKEZES];
 // A saját domain bekötésekor ide kell felvenni (például lakasom\.hu|www\.lakasom\.hu).
 const ENGEDETT = /^(ingatlanmerleg\.hu|www\.ingatlanmerleg\.hu|[a-z0-9-]+\.pages\.dev|localhost|127\.0\.0\.1)$/;
 const ISMERT = new Set(UTAK.map((u) => `/${u}`));
@@ -51,7 +54,7 @@ export function osszesit(kulcsok, honap) {
   const ures = () => Object.fromEntries(ESEMENYEK.map((e) => [e, 0]));
   const oldalak = {}, osszesen = ures(), napok = {};
   for (const { name, metadata } of kulcsok) {
-    const m = name.match(/^(?:n:(\d{4}-\d{2})-(\d{2})|m:(\d{4}-\d{2})):(\/[^:]*):([a-z]+)$/);
+    const m = name.match(/^(?:n:(\d{4}-\d{2})-(\d{2})|m:(\d{4}-\d{2})):(\/[^:]*):([a-z_]+)$/);
     if (!m || (m[1] || m[3]) !== honap || !ESEMENYEK.includes(m[5])) continue;
     const n = Number(metadata?.n) || 0, ut = m[4], e = m[5];
     const nap = m[1] ? `${m[1]}-${m[2]}` : 'napra nem bontott';
@@ -86,15 +89,20 @@ export async function onRequestGet({ request, env }) {
 }
 
 /** Emberi nézet (?nezet=tabla): napok soronként, oldalak lenyitva. Csak darabszámok, ezért nyilvános lehet. */
-const NEVEK = { indit: 'Elkezdte', kesz: 'Eredmény', mentes: 'Letöltés', megosztas: 'Megosztás', nyomtat: 'Nyomtatás', kovetkezo: 'Következő lépés', tovabb: 'Továbblépés', naptar: 'Naptár' };
+const NEVEK = { indit: 'Elkezdte', kesz: 'Eredmény', mentes: 'Letöltés', megosztas: 'Megosztás', nyomtat: 'Nyomtatás', kovetkezo: 'Következő lépés', tovabb: 'Továbblépés', naptar: 'Naptár', erk_chatgpt: 'ChatGPT', erk_perplexity: 'Perplexity', erk_claude: 'Claude', erk_gemini: 'Gemini', erk_copilot: 'Copilot', erk_google: 'Google', erk_bing: 'Bing, DuckDuckGo', erk_facebook: 'Facebook', erk_mas: 'Más oldal', erk_kozvetlen: 'Közvetlen' };
 const e = (x) => String(x).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 export function tabla(o) {
-  const fej = `<tr><th></th>${ESEMENYEK.map((x) => `<th>${NEVEK[x]}</th>`).join('')}</tr>`;
-  const sor = (cim, d, cls = '') => `<tr class="${cls}"><th>${e(cim)}</th>${ESEMENYEK.map((x) => `<td>${d[x] || ''}</td>`).join('')}</tr>`;
-  const napok = Object.entries(o.napok).reverse().map(([nap, d]) => sor(nap, d.osszesen, 'nap') + Object.entries(d.oldalak).sort((a, b) => (b[1].indit || 0) - (a[1].indit || 0)).map(([ut, x]) => sor(`   ${ut}`, x, 'oldal')).join('')).join('');
+  const resz = (cim, oszlopok) => {
+    const fej = `<tr><th></th>${oszlopok.map((x) => `<th>${NEVEK[x]}</th>`).join('')}</tr>`;
+    const sor = (c, d, cls = '') => `<tr class="${cls}"><th>${e(c)}</th>${oszlopok.map((x) => `<td>${d[x] || ''}</td>`).join('')}</tr>`;
+    const van = (d) => oszlopok.some((x) => d[x]);
+    const napok = Object.entries(o.napok).reverse().filter(([, d]) => van(d.osszesen)).map(([nap, d]) => sor(nap, d.osszesen, 'nap') + Object.entries(d.oldalak).filter(([, x]) => van(x)).sort((a, b) => oszlopok.reduce((s, k) => s + (b[1][k] || 0) - (a[1][k] || 0), 0)).map(([ut, x]) => sor(`   ${ut}`, x, 'oldal')).join('')).join('');
+    return `<h2>${cim}</h2>${napok ? `<table>${fej}${napok}</table>` : '<p>Még nincs adat.</p>'}`;
+  };
+  const erk = ERKEZES.reduce((s, x) => s + (o.osszesen[x] || 0), 0);
   const html = `<!doctype html><html lang="hu"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Mérés, ${e(o.honap)}</title>
-<style>body{font:15px/1.4 system-ui,sans-serif;margin:24px;color:#14161B}table{border-collapse:collapse}th,td{padding:4px 10px;text-align:right;border-bottom:1px solid #e5e5e5}th:first-child{text-align:left;white-space:pre}tr.nap th,tr.nap td{font-weight:700;background:#FFF3C2}tr.oldal{color:#555;font-size:13px}</style>
-<h1>Használat, ${e(o.honap)}</h1><p>Összesen ${o.osszesen.indit} kezdés, ${o.osszesen.kesz} eredmény${o.osszesen.befejezesi_arany != null ? ` (${o.osszesen.befejezesi_arany}%)` : ''}. A legfrissebb nap van felül.</p>
-<table>${fej}${napok}</table></html>`;
+<style>body{font:15px/1.4 system-ui,sans-serif;margin:24px;color:#14161B}table{border-collapse:collapse;margin-bottom:28px}th,td{padding:4px 10px;text-align:right;border-bottom:1px solid #e5e5e5}th:first-child{text-align:left;white-space:pre}tr.nap th,tr.nap td{font-weight:700;background:#FFF3C2}tr.oldal{color:#555;font-size:13px}h2{font-size:18px;margin-top:28px}</style>
+<h1>Használat, ${e(o.honap)}</h1><p>Összesen ${erk} érkezés kívülről, ${o.osszesen.indit} kezdés, ${o.osszesen.kesz} eredmény${o.osszesen.befejezesi_arany != null ? ` (${o.osszesen.befejezesi_arany}%)` : ''}. A legfrissebb nap van felül. Az érkezéseket 2026. november 24-től számoljuk.</p>
+${resz('Honnan jöttek', ERKEZES)}${resz('Mit csináltak', HASZNALAT)}</html>`;
   return new Response(html, { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' } });
 }

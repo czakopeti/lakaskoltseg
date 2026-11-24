@@ -17,6 +17,8 @@ const tarolo = {
 // Se süti, se azonosító, se a beírt adatok; a böngészőben sem tárolunk hozzá semmit. Oldalbetöltésenként egy esemény egyszer.
 // A számláló maga a megjelenites.mjs-ben van, hogy a térkép és a lakásérték-becslő is ugyanazt használja.
 const meres = M.meres;
+// A beágyazott változatot (iframe) nem számoljuk érkezésnek
+if (window.top === window) M.erkezes();
 document.addEventListener('click', (ev) => {
   if (ev.target.closest?.('nav.tovabb a')) meres('tovabb');
   // Letöltések (CSV, ábra PNG-ként) a jelentésen és az adatoldalakon

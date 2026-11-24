@@ -377,6 +377,7 @@ a.jel:hover { filter: brightness(1.15); }
 /* ---------- Főoldal ---------- */
 .hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 48px; align-items: center; padding: 64px 0 40px; }
 .hero h1 { font-size: clamp(42px, 6.4vw, 84px); line-height: .96; letter-spacing: -.045em; font-weight: 780; }
+.hero h1 .h1-mi { display: block; font: 650 clamp(15px, 1.6vw, 18px)/1.35 var(--szoveg, inherit); letter-spacing: 0; color: var(--tinta2); margin-bottom: 14px; }
 .hero .valasz { margin-top: 22px; font-size: 20px; line-height: 1.5; color: var(--tinta2); max-width: 32em; }
 .kezdo { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin-top: 30px; }
 .fo-gomb { text-decoration: none; font: 700 18px/1.2 var(--cim); letter-spacing: -.01em; background: var(--tinta); color: var(--hatter); padding: 18px 26px; border-radius: 99px; box-shadow: 0 0 0 0 var(--sarga); transition: transform .2s var(--lagy), box-shadow .2s; }

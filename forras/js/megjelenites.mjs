@@ -891,6 +891,31 @@ export function kalkHtml(tipus, adat, e = {}) {
 const elkuldve = new Set();
 /** Elküldtük-e már ezt az eseményt ezen az oldalbetöltésen (például: kezdett-e beírni valamit, mielőtt eredményig jutott). */
 export const meresVolt = (esemeny) => elkuldve.has(esemeny);
+/**
+ * Honnan érkezett a látogató erre az oldalra (csak kívülről jövő érkezést számolunk, az oldalon belüli kattintást nem).
+ * Csak a forrás fajtáját küldjük el (például chatgpt vagy google), a hivatkozó címet nem.
+ */
+export function erkezesForras(referrer, utm, sajatHost) {
+  let host = '';
+  try { host = referrer ? new URL(referrer).hostname : ''; } catch { /* */ }
+  if (host && host === sajatHost && !utm) return null;
+  const s = `${utm || ''} ${host}`.toLowerCase();
+  if (/chatgpt|openai/.test(s)) return 'chatgpt';
+  if (/perplexity/.test(s)) return 'perplexity';
+  if (/claude\.ai|anthropic/.test(s)) return 'claude';
+  if (/gemini/.test(s)) return 'gemini';
+  if (/copilot/.test(s)) return 'copilot';
+  if (/(^|\.)google\./.test(s) || /\bgoogle\b/.test(s)) return 'google';
+  if (/bing\.com|\bbing\b|duckduckgo/.test(s)) return 'bing';
+  if (/facebook|instagram|messenger|fb\.com|\bfb\b/.test(s)) return 'facebook';
+  return host || utm ? 'mas' : 'kozvetlen';
+}
+export function erkezes() {
+  if (typeof location === 'undefined' || typeof document === 'undefined') return;
+  const f = erkezesForras(document.referrer, new URLSearchParams(location.search).get('utm_source'), location.hostname);
+  if (f) meres(`erk_${f}`);
+}
+
 export function meres(esemeny) {
   if (typeof location === 'undefined' || elkuldve.has(esemeny) || location.protocol !== 'https:') return;
   elkuldve.add(esemeny);

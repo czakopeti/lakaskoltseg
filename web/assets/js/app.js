@@ -1,7 +1,7 @@
 // Böngészős réteg: menü, űrlapok, élő elszámolás, megosztható link.
 // Szerverre csak az megy, amit a látogató a visszajelzés-dobozban maga elküld.
-import * as S from './szamitas.js?v=9f04fa14';
-import * as M from './megjelenites.js?v=9f04fa14';
+import * as S from './szamitas.js?v=1c97a2ca';
+import * as M from './megjelenites.js?v=1c97a2ca';
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -17,6 +17,8 @@ const tarolo = {
 // Se süti, se azonosító, se a beírt adatok; a böngészőben sem tárolunk hozzá semmit. Oldalbetöltésenként egy esemény egyszer.
 // A számláló maga a megjelenites.mjs-ben van, hogy a térkép és a lakásérték-becslő is ugyanazt használja.
 const meres = M.meres;
+// A beágyazott változatot (iframe) nem számoljuk érkezésnek
+if (window.top === window) M.erkezes();
 document.addEventListener('click', (ev) => {
   if (ev.target.closest?.('nav.tovabb a')) meres('tovabb');
   // Letöltések (CSV, ábra PNG-ként) a jelentésen és az adatoldalakon

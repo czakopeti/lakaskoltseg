@@ -98,3 +98,23 @@ test('mérés: táblázatos nézet', async () => {
   assert.match(h, /2026-11-25/);
   assert.match(h, /\/lakasarak\//);
 });
+
+test('mérés: érkezés forrása', async () => {
+  const { erkezesForras } = await import('../forras/js/megjelenites.mjs');
+  const h = 'ingatlanmerleg.hu';
+  assert.equal(erkezesForras('https://chatgpt.com/', null, h), 'chatgpt');
+  assert.equal(erkezesForras('', 'chatgpt.com', h), 'chatgpt');
+  assert.equal(erkezesForras('https://www.google.hu/', null, h), 'google');
+  assert.equal(erkezesForras('https://gemini.google.com/', null, h), 'gemini');
+  assert.equal(erkezesForras('https://www.bing.com/', null, h), 'bing');
+  assert.equal(erkezesForras('https://www.perplexity.ai/', null, h), 'perplexity');
+  assert.equal(erkezesForras('https://l.facebook.com/', null, h), 'facebook');
+  assert.equal(erkezesForras('https://telex.hu/cikk', null, h), 'mas');
+  assert.equal(erkezesForras('', null, h), 'kozvetlen');
+  assert.equal(erkezesForras('https://ingatlanmerleg.hu/lakasarak/', null, h), null);
+  const env = { SZAVAZAT: kv() };
+  assert.equal((await onRequestPost({ request: keres({ ut: '/', esemeny: 'erk_chatgpt' }), env })).status, 200);
+  const o = await (await onRequestGet({ request: new Request(`https://ingatlanmerleg.pages.dev/api/meres?honap=${honap}`), env })).json();
+  assert.equal(o.osszesen.erk_chatgpt, 1);
+  assert.equal(o.osszesen.befejezesi_arany, null);
+});

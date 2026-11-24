@@ -48,15 +48,16 @@ export function fooldal(k) {
   const p = S.indulo(k.adat, { vetelar: 50e6, hitel: 40e6 });
   const ill = p.illetek.ado, dij = p.vetelarFelett - ill;
   const ar = (x) => (x / p.osszes * 100).toFixed(1);
-  const GYORS = [[INDULO_UT, 'A lakásvásárlás költségei'], [ILLETEK_UT, 'Illeték'], [ELADAS_UT, 'Eladás adója'], [ROVID_UT, 'Airbnb vagy hosszú táv'], [WEKERLE_UT, 'Wekerle Plusz'], [KIADAS_UT, 'Kiadás adója']];
+  const GYORS = [[INDULO_UT, 'A lakásvásárlás költségei'], [ARAK_UT, 'Mai lakásárak'], ['mennyit-er-a-lakasom/', 'Mennyit ér a lakásom?'], [ILLETEK_UT, 'Illeték'], [ELADAS_UT, 'Eladás adója'], [WEKERLE_UT, 'Wekerle Plusz'], [KIADAS_UT, 'Kiadás adója']];
+  const st = arakStat(k.adat);
   const tartalom = (L) => `
 <section class="hero keret">
 <div class="hero-szoveg">
-<h1>${esc(k.cfg.szlogen)}</h1>
-<p class="valasz">Mennyi illetéket, adót és díjat fizetsz, ha lakást veszel, eladsz vagy kiadsz, és mennyi hitelt kaphatsz hozzá. Forintra pontosan, minden szám mellett a jogszabállyal, és hogy mikor néztük meg utoljára.</p>
+<h1><span class="h1-mi">Ingyenes ingatlankalkulátorok és mai lakásárak</span>${esc(k.cfg.szlogen)}</h1>
+<p class="valasz">Mennyi illetéket, adót és díjat fizetsz, ha lakást veszel, eladsz vagy kiadsz, mennyi hitelt kaphatsz hozzá, és mennyit ér ma egy lakás a környékeden. Forintra pontosan, minden szám mellett a forrással, és hogy mikor néztük meg utoljára.</p>
 <div class="kezdo"><a class="fo-gomb" href="${L.l(INDULO_UT)}">Kiszámolom a lakásvásárlás költségeit</a><span>Önerő, illeték és minden díj egy lapon, időrendben.</span></div>
 <nav class="gyors" aria-label="Más kalkulátorok"><span class="gyors-cim">Vagy válassz:</span>${GYORS.slice(1).map(([u, n]) => `<a href="${L.l(u)}">${n}</a>`).join('')}</nav>
-<p class="hero-tenyek"><span><b>${sz('illetek.altalanos_mertek').szazalek}%</b> illeték</span><span><b>${sz('szja_eladas.ado_mertek').szazalek}%</b> szja eladáskor</span><span><b>${sz('wekerle_plusz.kamat').uj_szazalek}% és ${sz('wekerle_plusz.kamat').hasznalt_szazalek}%</b> Wekerle Plusz</span></p>
+<p class="hero-tenyek">${st.bp?.ma ? `<span><b>${M.tized(Math.round(st.bp.ma / 10) / 100, 2)} M Ft/m²</b> Budapest ma kb.</span>` : ''}<span><b>${sz('illetek.altalanos_mertek').szazalek}%</b> illeték</span><span><b>${sz('szja_eladas.ado_mertek').szazalek}%</b> szja eladáskor</span><span><b>${sz('wekerle_plusz.kamat').uj_szazalek}% és ${sz('wekerle_plusz.kamat').hasznalt_szazalek}%</b> Wekerle Plusz</span></p>
 </div>
 <a class="hero-kartya" href="${L.l(INDULO_UT)}">
 <span class="hk-minta">Minta: 50 millió forintos lakás, 40 millió forint hitellel</span>
@@ -73,7 +74,9 @@ ${CSOPORTOK.map((cs) => `<section class="szakasz" id="${cs.id}"><div class="kere
 <ul class="lista">
 ${cs.elemek.map(([u, n, , teljes]) => { const [szoveg, ugrik] = FOOLDAL_KARTYAK[u]; return `<li><a href="${L.l(u)}"><h3>${teljes || n}</h3><p>${szoveg(k)}</p><span class="ugrik">${ugrik}</span></a></li>`; }).join('\n')}
 </ul></div></section>`).join('\n')}`;
-  return oldal(k, { cim: `${k.cfg.marka}: lakásvásárlás, -eladás és -kiadás költségei`, leiras: 'Vagyonszerzési illeték, ingatlaneladás adója, lakáskiadás adója, Airbnb és kamattámogatott hitel, forrással és dátummal.', ut: '', tartalom });
+  // A kalkulátorok és adatoldalak listája gépi formában, hogy a keresők és az AI-asszisztensek egyben lássák a kínálatot
+  const lista = { '@context': 'https://schema.org', '@type': 'ItemList', name: `${k.cfg.marka}: kalkulátorok és lakáspiaci adatok`, itemListElement: CSOPORTOK.flatMap((cs) => cs.elemek).map(([u, n, , teljes], i) => ({ '@type': 'ListItem', position: i + 1, name: teljes || n, url: `${k.cfg.domain}/${u}` })) };
+  return oldal(k, { cim: `${k.cfg.marka}: ingyenes ingatlankalkulátorok és mai lakásárak`, leiras: 'Ingyenes magyar ingatlankalkulátorok lakásvásárláshoz, eladáshoz, kiadáshoz és hitelhez, mai lakásárak településenként és utcánként. NAV-, KSH- és jogszabályi forrással, dátummal.', ut: '', tartalom, jsonld: [lista] });
 }
 
 /* ======================= FORRÁSOK ======================= */
@@ -302,7 +305,7 @@ ${oldalfej(L, { morzsa: ['Adatvédelem'], cim: 'Adatvédelem', bevezeto: 'Nem gy
 <h2>Sütik és követés</h2>
 <p>Nem használunk sütit, nem azonosítunk, és hirdetés sincs az oldalon. A betűtípusokat magunk szolgáljuk ki. Ha ezen valaha változtatunk, előbb itt jelezzük, és csak a hozzájárulásoddal kapcsolunk be bármit.</p>
 <h2>Mit mérünk a kalkulátorokban?</h2>
-<p>Hogy lássuk, melyik kalkulátor működik jól, oldalanként és naponta néhány darabszámot gyűjtünk: hányan kezdtek el adatot beírni, hányan jutottak eredményig, hányan osztották meg, nyomtatták ki vagy mentették PDF-be a számítást, hányan töltöttek le egy táblázatot vagy ábrát, a térképen hányan nyitották meg egy település adatlapját, és hányan kattintottak tovább egy másik oldalra. Egy számláló nő eggyel, más nem történik. A beírt adataidat, az eredményt, az IP-címedet nem küldjük és nem tároljuk, sütit vagy más azonosítót nem teszünk a gépedre. Mivel ezekből a számokból senki sem azonosítható, ez nem személyes adat.</p>
+<p>Hogy lássuk, melyik kalkulátor működik jól, oldalanként és naponta néhány darabszámot gyűjtünk: hányan kezdtek el adatot beírni, hányan jutottak eredményig, hányan osztották meg, nyomtatták ki vagy mentették PDF-be a számítást, hányan töltöttek le egy táblázatot vagy ábrát, a térképen hányan nyitották meg egy település adatlapját, és hányan kattintottak tovább egy másik oldalra. Azt is számoljuk, honnan érkeznek a látogatók: keresőből (például Google), AI-asszisztensből (például ChatGPT), más oldalról vagy közvetlenül. Ehhez csak a forrás fajtáját küldjük el, a pontos címet nem. Egy számláló nő eggyel, más nem történik. A beírt adataidat, az eredményt, az IP-címedet nem küldjük és nem tároljuk, sütit vagy más azonosítót nem teszünk a gépedre. Mivel ezekből a számokból senki sem azonosítható, ez nem személyes adat.</p>
 <h2>Visszajelzés</h2>
 <p>Az oldalak alján megkérdezzük, hasznos volt-e az oldal. Az Igen vagy Nem gombnyomásból csak egy számláló nő az adott oldalnál. Nem tároljuk, ki nyomta meg, és az IP-címét sem. A böngésződ megjegyzi a választásodat, hogy ugyanazt a szavazatot ne számoljuk kétszer.</p>
 <p>Ha a Nem után pár szót is írsz és elküldöd, a szöveget és az oldal címét kapjuk meg. Kalkulátornál, ha a négyzetet bejelölve hagyod, a beírt számokat (például vételár, szerzés éve) és a kapott eredményt is. Név és e-mail-cím nem kell hozzá. Ha mégis beleírsz e-mail-címet, telefonszámot vagy bankszámlaszámot, azt eltárolás előtt kitakarjuk. A visszajelzéseket a fejlesztéshez használt GitHub (GitHub, Inc., USA, a Microsoft-csoport tagja, csatlakozott az EU–USA adatvédelmi keretrendszerhez) feladatkezelőjében tároljuk. Arra használjuk, hogy kijavítsuk a hibát, és a lezárása után legfeljebb egy évig őrizzük meg. A jogalap a szolgáltatás javításához fűződő jogos érdekünk.</p>
