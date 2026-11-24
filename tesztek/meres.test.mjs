@@ -36,7 +36,12 @@ test('mérés: események számlálása oldalanként, havi összesítő és befe
   assert.equal(o.osszesen.mentes, 1);
   assert.equal(o.osszesen.befejezesi_arany, 60);
   // a kulcsban nincs semmi a látogatóról: hónap, oldal, esemény
-  for (const k of env.SZAVAZAT.m.keys()) assert.match(k, /^m:\d{4}-\d{2}:\/[a-z0-9\-/]*:[a-z]+$/);
+  for (const k of env.SZAVAZAT.m.keys()) assert.match(k, /^n:\d{4}-\d{2}-\d{2}:\/[a-z0-9\-/]*:[a-z]+$/);
+  // napi bontás: ma minden esemény
+  const ma = Object.keys(o.napok);
+  assert.equal(ma.length, 1);
+  assert.equal(o.napok[ma[0]].osszesen.indit, 5);
+  assert.equal(o.napok[ma[0]].oldalak['/forrasok/'].kesz, 3);
 });
 
 test('mérés: csak ismert oldalra és eseményre, idegen oldalról semmit', async () => {
@@ -69,4 +74,27 @@ test('mérés: az oldallista egyezik a megépített oldalakkal', () => {
   for (const u of UTAK) assert.ok(existsSync(`${web}${u}index.html`), `hiányzik: ${u}`);
   const konyvtarak = readdirSync(web, { withFileTypes: true }).filter((d) => d.isDirectory() && existsSync(`${web}${d.name}/index.html`)).map((d) => `${d.name}/`);
   for (const d of konyvtarak) assert.ok(UTAK.includes(d), `nincs a mérés listáján: ${d}`);
+});
+
+test('mérés: a régi havi és az új napi kulcsok együtt adják a hónapot, napra bontva', () => {
+  const o = osszesit([
+    { name: 'm:2026-11:/lakasarak/:indit', metadata: { n: 10 } },
+    { name: 'n:2026-11-24:/lakasarak/:indit', metadata: { n: 2 } },
+    { name: 'n:2026-11-25:/lakasarak/:indit', metadata: { n: 3 } },
+    { name: 'n:2026-11-25:/lakasarak/:kesz', metadata: { n: 1 } },
+    { name: 'n:2026-12-01:/lakasarak/:indit', metadata: { n: 9 } },
+  ], '2026-11');
+  assert.equal(o.oldalak['/lakasarak/'].indit, 15);
+  assert.equal(o.osszesen.kesz, 1);
+  assert.deepEqual(Object.keys(o.napok), ['napra nem bontott', '2026-11-24', '2026-11-25']);
+  assert.equal(o.napok['2026-11-25'].osszesen.indit, 3);
+  assert.equal(o.napok['2026-11-25'].oldalak['/lakasarak/'].kesz, 1);
+});
+
+test('mérés: táblázatos nézet', async () => {
+  const { tabla } = await import('../functions/api/meres.js');
+  const o = osszesit([{ name: 'n:2026-11-25:/lakasarak/:indit', metadata: { n: 3 } }], '2026-11');
+  const h = await tabla(o).text();
+  assert.match(h, /2026-11-25/);
+  assert.match(h, /\/lakasarak\//);
 });
