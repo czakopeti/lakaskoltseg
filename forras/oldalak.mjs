@@ -53,7 +53,7 @@ export function fooldal(k) {
   const tartalom = (L) => `
 <section class="hero keret">
 <div class="hero-szoveg">
-<h1><span class="h1-mi">Ingyenes ingatlankalkulátorok és mai lakásárak</span>${esc(k.cfg.szlogen)}</h1>
+<h1><span class="h1-mi">Ingyenes ingatlankalkulátorok és mai lakásárak.</span> ${esc(k.cfg.szlogen)}</h1>
 <p class="valasz">Mennyi illetéket, adót és díjat fizetsz, ha lakást veszel, eladsz vagy kiadsz, mennyi hitelt kaphatsz hozzá, és mennyit ér ma egy lakás a környékeden. Forintra pontosan, minden szám mellett a forrással, és hogy mikor néztük meg utoljára.</p>
 <div class="kezdo"><a class="fo-gomb" href="${L.l(INDULO_UT)}">Kiszámolom a lakásvásárlás költségeit</a><span>Önerő, illeték és minden díj egy lapon, időrendben.</span></div>
 <nav class="gyors" aria-label="Más kalkulátorok"><span class="gyors-cim">Vagy válassz:</span>${GYORS.slice(1).map(([u, n]) => `<a href="${L.l(u)}">${n}</a>`).join('')}</nav>
