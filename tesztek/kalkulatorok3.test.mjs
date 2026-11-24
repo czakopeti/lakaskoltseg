@@ -204,3 +204,22 @@ test('bérlés vagy vétel: eladás a végén, mai érték, valódi havi költs�
   assert.equal(v.elmaradt, Math.round(S.indulo(adat, { vetelar: 40e6 }).osszes * 6 / 1200));
   assert.equal(v.karbantartas, Math.round(40e6 * 1 / 1200));
 });
+
+test('Wekerle Plusz lakástakarék: támogatás, plafon, öt év', async () => {
+  const { betoltAdat } = await import('../forras/adat.mjs');
+  const S = await import('../forras/js/szamitas.mjs');
+  const adat = betoltAdat();
+  const r = S.lakastakarek(adat, { havi: 100000, evek: 10 });
+  assert.equal(r.befizetes, 12000000);
+  assert.equal(r.tamogatas, 5 * 120000 + 5 * 240000);
+  assert.ok(r.kamat > 0 && Math.abs(r.osszesen - (r.befizetes + r.tamogatas + r.kamat)) <= 2);
+  // havi 150 000 Ft-nál nem jár több támogatás, és a többlet nem kamatozik garantáltan
+  const f = S.lakastakarek(adat, { havi: 150000, evek: 10 });
+  assert.equal(f.tamogatas, 1800000);
+  assert.equal(f.felett, 6000000);
+  // kis befizetésnél a támogatás arányos: 10%, majd 20%
+  const k = S.lakastakarek(adat, { havi: 10000, evek: 6 });
+  assert.equal(k.tamogatas, 5 * 12000 + 24000);
+  assert.match(S.lakastakarek(adat, { havi: 50000, evek: 4 }).hiba, /Legalább 5 évig/);
+  assert.equal(S.lakastakarek(adat, { havi: 50000, evek: 15 }).evek, 10);
+});

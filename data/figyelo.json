@@ -45,6 +45,18 @@
       "szabalyok": [
         "rovid_tav.onallo"
       ]
+    },
+    {
+      "url": "https://njt.jog.gov.hu/jogszabaly/1996-113-00-00",
+      "nev": "1996. évi CXIII. törvény a lakástakarékpénztárakról (Ltp.), hatályos szöveg",
+      "szabalyok": [
+        "lakastakarek.tamogatas",
+        "lakastakarek.kamat",
+        "lakastakarek.ido",
+        "lakastakarek.celok",
+        "lakastakarek.szerzodo",
+        "lakastakarek.tartam"
+      ]
     }
   ],
   "allapot": {

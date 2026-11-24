@@ -425,6 +425,50 @@ export function elotorlesztes(adat, b) {
     jobb: mA >= mB ? 'futamido' : 'torleszto' };
 }
 
+/* ---------------- Wekerle Plusz lakástakarék ---------------- */
+/**
+ * Havi befizetés, évenkénti elszámolás. A garantált (legalább 3%-os) kamat a megtakarítási évenként legfeljebb 1,2 millió forint befizetésre
+ * és a jóváírt állami támogatásra jár; a fölötte befizetett rész kamatával nem számolunk (a pénztár hirdetménye szerinti, változó).
+ * A kamat havonta gyűlik, évente íródik jóvá; az állami támogatás a megtakarítási év végén íródik jóvá, és onnantól kamatozik.
+ */
+function ltpGorget(havi, evek, kamatSz, plafon, tam) {
+  const r = kamatSz / 100 / 12;
+  let G = 0, X = 0, befOssz = 0, tamOssz = 0, kamatOssz = 0;
+  const sorok = [];
+  for (let ev = 1; ev <= evek; ev++) {
+    let bef = 0, kamat = 0;
+    for (let h = 0; h < 12; h++) {
+      const ide = Math.max(0, Math.min(havi, plafon - bef));
+      G += ide; X += havi - ide; bef += havi;
+      kamat += G * r;
+    }
+    const t = tam ? tam(ev, bef) : 0;
+    G += kamat + t; befOssz += bef; tamOssz += t; kamatOssz += kamat;
+    sorok.push({ ev, befizetes: bef, tamogatas: t, kamat: Math.round(kamat), egyenleg: Math.round(G + X) });
+  }
+  return { osszesen: Math.round(G + X), befizetes: befOssz, tamogatas: tamOssz, kamat: Math.round(kamatOssz), felett: Math.round(X), sorok };
+}
+/** b: { havi (Ft), evek (5–10) }. A PMÁP-os összevetés ugyanazzal a havi befizetéssel és évenkénti kamatjóváírással számol. */
+export function lakastakarek(adat, b) {
+  const t = szabaly(adat, 'lakastakarek.tamogatas').ertek, k = szabaly(adat, 'lakastakarek.kamat').ertek, ido = szabaly(adat, 'lakastakarek.tartam').ertek;
+  const havi = Math.round(Number(b.havi));
+  if (!(havi > 0)) return { hiba: 'Add meg, havonta mennyit raknál félre.' };
+  if (b.evek === '' || b.evek == null || !(Number(b.evek) > 0)) return { hiba: 'Add meg, hány évig gyűjtenél.' };
+  const kert = Math.round(Number(b.evek));
+  if (kert < ido.min_ev) return { hiba: `Legalább ${ido.min_ev} évig kell gyűjtened. Ha előbb veszed fel a pénzt, elveszted az állami támogatást és a 3%-os kamatot, és csak a befizetéseidet kapod vissza a pénztár hirdetményi kamatával.` };
+  const evek = Math.min(kert, ido.max_ev);
+  const tam = (ev, bef) => ev <= t.elso_evek ? Math.min(bef * t.elso_szazalek / 100, t.elso_max_ft) : Math.min(bef * t.kesobb_szazalek / 100, t.kesobb_max_ft);
+  const L = ltpGorget(havi, evek, k.min_szazalek, k.max_evi_betet_ft, tam);
+  const pmapSz = szabaly(adat, 'berles_vetel.allampapir').ertek.szazalek;
+  const P = ltpGorget(havi, evek, pmapSz, Infinity, null);
+  // Melyik éves kamattal hozna ugyanennyit egy sima, kamatos megtakarítás? (felezéses keresés)
+  let lo = 0, hi = 40;
+  for (let i = 0; i < 60; i++) { const m = (lo + hi) / 2; if (ltpGorget(havi, evek, m, Infinity, null).osszesen < L.osszesen) lo = m; else hi = m; }
+  const maxTam = Array.from({ length: evek }, (_, i) => (i < t.elso_evek ? t.elso_max_ft : t.kesobb_max_ft)).reduce((a, x) => a + x, 0);
+  return { havi, evek, levagva: kert > evek, ...L, kamatSz: k.min_szazalek, plafon: k.max_evi_betet_ft, plafonHavi: Math.round(k.max_evi_betet_ft / 12),
+    pmap: { szazalek: pmapSz, osszesen: P.osszesen }, kulonbseg: L.osszesen - P.osszesen, egyenerteku: (lo + hi) / 2, maxTam, t };
+}
+
 /* ---------------- Bérleti díj emelése az inflációval ---------------- */
 /** b: { dij, ev (melyik év átlagos inflációjával), sajat (%) } */
 export function berletiEmeles(adat, b) {
@@ -904,6 +948,7 @@ export function kovetkezoLepesek(kalk, e) {
     case 'wekerle': return [{ cel: 'indulo', cim: 'Mennyi saját pénz kell összesen?', szoveg: 'Önerő, illeték és mellékköltségek, támogatott hitel díjaival.', q: { vetelar: e.vetelar, tamogatott: true } }, { cel: 'illetek', cim: 'Mennyi lesz az illeték, és jár-e kedvezmény?', szoveg: 'A Wekerle Plusz nem ad mentességet, de más kedvezmény járhat.', q: { ertek: e.vetelar } }];
     case 'lakasvaltas': return [{ cel: 'illetek', cim: 'Az illeték részletesen, minden kedvezménnyel', szoveg: 'Tulajdoni hányad, új lakás, 35 év alatti első lakás, rokontól vétel.', q: { ertek: e.vetelar, eladottErtek: e.eladasiAr, eladasMikor: e.sorrend === 'elobb_vesz' ? 'utana' : 'elotte' } }];
     case 'hitelkepesseg': return [{ cel: 'indulo', cim: 'Mennyi saját pénz kell a vételhez?', szoveg: 'Önerő, illeték és minden mellékköltség, időrendben.', q: { vetelar: e.ertek, elso: e.elsoLakas } }, { cel: 'wekerle', cim: 'Megkapod a Wekerle Plusz hitelt?', szoveg: 'Pontról pontra a rendelet szerint, 3 vagy 5%-os fix kamattal.', q: { vetelar: e.ertek } }];
+    case 'lakastakarek': return [{ cel: 'hitelkepesseg', cim: 'Mennyi hitelt kaphatsz mellé?', szoveg: 'A jövedelmedből és a lakás értékéből, az MNB adósságfék-szabályai szerint.', q: {} }, { cel: 'indulo', cim: 'Elég lesz az önerőnek?', szoveg: 'Önerő, illeték és minden mellékköltség, időrendben.', q: {} }];
     case 'hozam': return [{ cel: 'kiadas', cim: 'Az adó részletesen: 10% vagy tételes?', szoveg: 'A döntési pont és a negyedéves adóelőleg határidői.', q: { havi: e.havi, honap: e.honap, koltseg: e.koltseg } }];
     case 'emeles': return [{ cel: 'kiadas', cim: 'Mennyi adót fizetsz az új díj után?', szoveg: '10% költséghányaddal vagy tételesen.', q: { havi: e.dij } }];
     case 'ingyenes': return [{ cel: 'haszonelvezet', cim: 'Mennyit ér a haszonélvezet?', szoveg: 'A haszonélvező életkora szerint, és mi történik, ha lemond róla.', q: { ertek: e.ertek } }];

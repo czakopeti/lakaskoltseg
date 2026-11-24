@@ -186,7 +186,7 @@ p { margin: 0; text-wrap: pretty; }
 .tetelek { list-style: none; margin: 12px 0 0; padding: 0; }
 .tetelek li { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 11px 0; border-bottom: 1px solid var(--vonal); font-size: 15.5px; }
 .tetelek li > span:first-child { min-width: 0; }
-.tetelek li .ossz-ertek { font-weight: 650; white-space: normal; overflow-wrap: anywhere; text-align: right; font-variant-numeric: tabular-nums lining-nums; }
+.tetelek li .ossz-ertek { font-weight: 650; white-space: normal; overflow-wrap: break-word; text-align: right; flex-shrink: 0; max-width: 55%; font-variant-numeric: tabular-nums lining-nums; }
 .tetelek li.levonas .ossz-ertek { color: var(--tinta2); font-weight: 550; }
 .tetelek li.vegso { border-bottom: 0; padding-top: 14px; font-weight: 650; }
 .tetelek li.vegso .ossz-ertek { font: 750 22px/1.2 var(--cim); letter-spacing: -.02em; }

@@ -1,7 +1,7 @@
 // Böngészős réteg: menü, űrlapok, élő elszámolás, megosztható link.
 // Szerverre csak az megy, amit a látogató a visszajelzés-dobozban maga elküld.
-import * as S from './szamitas.js?v=57223355';
-import * as M from './megjelenites.js?v=57223355';
+import * as S from './szamitas.js?v=9f04fa14';
+import * as M from './megjelenites.js?v=9f04fa14';
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -264,7 +264,7 @@ function indit() {
     const html = KALK[tipus](adat, e, form);
     frissit(panel, html + kovetkezo(html), valtozott);
     // Eredményig jutott: valódi (nem minta) összeg látszik, és előtte maga írt be valamit
-    if (valtozott && elkuldve.has('indit') && !mintaMutat && panel.querySelector('[data-osszeg]')) meres('kesz');
+    if (valtozott && M.meresVolt('indit') && !mintaMutat && panel.querySelector('[data-osszeg]')) meres('kesz');
     if (valtozott && !NEM_KULDHETO.includes(tipus)) urlbe(form);
   };
   form.addEventListener('input', (ev) => { if (ev.isTrusted) meres('indit'); szamol(true); });

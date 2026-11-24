@@ -29,6 +29,7 @@ export const FOOLDAL_KARTYAK = {
   'lakasarak/metro/': [() => 'Mennyibe kerül egy négyzetméter a metró- és HÉV-megállók 500 méteres körzetében, megállónként.', 'Megnézem'],
   'lakasarak/jelentes/': [() => 'Hol drágult és hol olcsóbbodott a lakás, és hány évnyi fizetés egy 50 m²-es lakás, a legújabb valódi eladásokból.', 'Elolvasom'],
   'lakasarak/': [() => 'Mai lakásárak településenként és kerületenként, valódi eladásokból becsülve, térképen és utcánként.', 'Megnézem'],
+  'wekerle-plusz-lakastakarek-kalkulator/': [() => 'Mennyi állami támogatást kapsz a lakástakarékra, mennyi lesz a végén, és megéri-e állampapír helyett. Törvényjavaslat, 2027-től.', 'Kiszámolom'],
   'lakastamogatasok/': [() => 'A Wekerle Plusz és a CSOK Plusz egy táblázatban, és az illetékkedvezmények: melyik jár neked.', 'Megnézem'],
   'lakasvaltas-kalkulator/': [() => 'Mennyit kapsz kézhez a régiért, mennyibe kerül az új, és mennyi hitel kell még.', 'Kiszámolom'],
   'lakaskiadas-ado-kalkulator/': [() => 'Mennyi adót fizetsz a bérleti díj után, és melyik a jobb: a 10% költséghányad vagy a tételes elszámolás.', 'Kiszámolom'],
@@ -847,6 +848,50 @@ ${sor('', szamMezo({ id: 'dij', cim: 'Előtörlesztési díj', me: '%', placehol
   });
 }
 
+/* ======================= WEKERLE PLUSZ LAKÁSTAKARÉK ======================= */
+export const LTP_UT = 'wekerle-plusz-lakastakarek-kalkulator/';
+export function lakastakarekOldal(k) {
+  const { adat } = k;
+  const sz = (kk) => S.szabaly(adat, `lakastakarek.${kk}`);
+  const t = sz('tamogatas').ertek, ka = sz('kamat').ertek;
+  const p = S.lakastakarek(adat, { havi: 100000, evek: 10 });
+  const mill = (x) => M.tized(Math.round(x / 1e5) / 10, 1);
+  return kalkOldal(k, {
+    ut: LTP_UT, tipus: 'lakastakarek', nev: 'Wekerle Plusz lakástakarék', temak: ['lakastakarek', 'berles_vetel'],
+    oldalCim: 'Wekerle Plusz lakástakarék kalkulátor 2027: mennyi állami támogatás jár?',
+    leiras: `Wekerle Plusz lakástakarék: ${t.elso_szazalek}%, majd ${t.kesobb_szazalek}% állami támogatás, évente legfeljebb ${M.fmt(t.elso_max_ft)}, illetve ${M.fmt(t.kesobb_max_ft)} Ft, legalább ${ka.min_szazalek}% kamat. Mennyi lesz a végén, és megéri-e állampapír helyett.`,
+    cim: 'Mennyi állami támogatást kapsz a Wekerle Plusz lakástakarékra?',
+    valasz: `Az első öt évben a befizetéseid ${t.elso_szazalek}%-át, évente legfeljebb ${M.fmt(t.elso_max_ft)} forintot, a hatodik évtől ${t.kesobb_szazalek}%-át, legfeljebb ${M.fmt(t.kesobb_max_ft)} forintot adja hozzá az állam, ha legalább öt évig gyűjtesz, és lakáscélra költöd. Havi 100 000 forinttal 10 év alatt kb. ${mill(p.osszesen)} millió forint gyűlik össze, ebből ${mill(p.tamogatas)} millió az állami támogatás. Ez még törvényjavaslat (T/1114.), 2027. január 1-jétől indulna.`,
+    urlapCim: 'A megtakarításod', urlapAl: 'Legalább 5, legfeljebb 10 év',
+    urlap: `
+<fieldset>${reszCim('', 'Befizetés')}
+${sor('', szamMezo({ id: 'havi', cim: 'Havonta ennyit raknál félre', me: 'Ft', placeholder: 'pl. 50 000', min: 0, szeles: true, sugo: `A teljes támogatáshoz havi ${M.fmt(Math.round(ka.max_evi_betet_ft / 12))} Ft kell, efölött nem jár több.` }))}
+${sor('', szamMezo({ id: 'evek', cim: 'Ennyi évig gyűjtenél', me: 'év', placeholder: 'pl. 10', min: 5, sugo: 'Öt év előtt elveszted a támogatást.' }))}
+</fieldset>`,
+    cikk: `<p class="megjegyzes figyelem"><strong>Törvényjavaslat.</strong> A szabályok a T/1114. számú törvényjavaslatból vannak, amelyet a kormány 2026. november 17-én nyújtott be. Az Országgyűlés még nem fogadta el, a vitában változhat. A jogszabálytárat figyeljük, és ha a végleges szöveg más, átírjuk a számokat.</p>
+<h2>Mire költheted a pénzt?</h2>
+<p>${esc(sz('celok').szoveg)}</p>
+<p>A régi lakástakarékokhoz képest ez szűkebb. Fürdőszoba- vagy konyhafelújításra, burkolásra, festésre nem használhatod, ahogy telekvásárlásra és a lakáshitel előtörlesztésére sem.</p>
+<h2>Mikor veszted el a támogatást?</h2>
+<p>${esc(sz('ido').szoveg)}</p>
+<h2>Ki köthet szerződést?</h2>
+<p>${esc(sz('szerzodo').szoveg)}</p>
+<h2>Megéri állampapír helyett?</h2>
+<p>A legalább ${ka.min_szazalek}%-os kamat és az állami támogatás együtt havi 100 000 forintos befizetésnél, 10 év alatt annyit hoz, mint egy évi kb. ${M.tized(p.egyenerteku, 1)}%-os megtakarítás. A Prémium Magyar Állampapír kamata most ${M.tized(p.pmap.szazalek, 1)}%, de az inflációval évről évre változik, és a pénzt bármikor, bármire felveheted. A lakástakarékban a pénz öt évig kötve van, és csak lakáscélra költheted. Ha biztosan lakásra gyűjtesz, és öt évig nem kell hozzányúlnod, a lakástakarék az erősebb. Ha nem tudod, mikor és mire kell majd a pénz, az állampapír rugalmasabb.</p>
+<p>Ha a gyűjtött pénzt önerőnek szánod, <a href="../${HITEL_UT}">nézd meg, mennyi hitelt kaphatsz mellé</a>, és <a href="../${ARAK_UT}">mennyibe kerül ma egy négyzetméter</a> ott, ahol venni szeretnél.</p>`,
+    kerdesek: [
+      { k: 'Mikor indul a Wekerle Plusz lakástakarék?', v: [`A javaslat szerint a 2027. január 1-jétől kötött Wekerle Plusz szerződésekre jár a támogatás. A pénztáraknak új terméket kell indítaniuk, a régi szerződések nem alakulnak át. ${esc(sz('tamogatas').megjegyzes)}`] },
+      { k: 'Mennyit érdemes befizetni?', v: [`Évente ${M.fmt(ka.max_evi_betet_ft)} forintot, havonta átlagosan ${M.fmt(Math.round(ka.max_evi_betet_ft / 12))} forintot. Ennyire jár a legtöbb támogatás és a garantált ${ka.min_szazalek}% kamat. Efölött nem kapsz több támogatást, és a többletre a pénztár változó kamatát kapod.`] },
+      { k: 'Felújításra is felhasználhatom?', v: ['Csak energiahatékony korszerűsítésre (például hőszigetelés, nyílászárócsere, fűtés, napelem, hőszivattyú) és akadálymentesítésre. Általános felújításra, burkolásra, festésre nem.'] },
+      { k: 'Mi történik, ha öt év előtt kell a pénz?', v: ['Felveheted, de elveszted az állami támogatást és a garantált 3%-os kamatot. A pénztár a már jóváírt támogatást a kamatával együtt levonja, és visszautalja a költségvetésnek.'] },
+      { k: 'Köthetek a gyerekem javára?', v: ['Igen. A szerződést a saját nevedre kötöd, és kedvezményezettként megnevezheted a gyerekedet vagy más közeli hozzátartozódat. A pénzt ekkor az ő lakáscéljára lehet felhasználni.'] },
+      { k: 'Kaphatok mellé hitelt a pénztártól?', v: ['Pénztári lakáskölcsönt csak öt év megtakarítás után, és csak a megengedett lakáscélra. Áthidaló kölcsön a Wekerle Plusz szerződéshez nem jár.'] },
+      { k: 'Köthet lakástakarékot a társasház?', v: ['Wekerle Plusz szerződést nem. Állami támogatás nélküli lakástakarékot továbbra is köthet.'] },
+    ],
+    forrasKulcsok: ['lakastakarek.tamogatas', 'berles_vetel.allampapir'],
+  });
+}
+
 /* ======================= BÉRLETI DÍJ EMELÉSE ======================= */
 export const EMELES_UT = 'berleti-dij-emeles-inflacio/';
 export function emelesOldal(k) {
@@ -1190,6 +1235,8 @@ ${oldalfej(L, { morzsa: [['Lakáshitel', HITEL_UT], 'Lakástámogatások'], cim,
 <li><strong>Rokontól:</strong> ${esc(S.szabaly(adat, 'illetek.egyenesagi').szoveg)}</li>
 </ul>
 <p><a href="${L.l(ILLETEK_UT)}">Az illetékkalkulátor</a> kiválasztja, melyik a legkedvezőbb neked.</p>
+<h2>Gyűjtés az önerőre: Wekerle Plusz lakástakarék</h2>
+<p>2027-től újra állami támogatás jár a lakástakarékra: az első öt évben a befizetések ${S.szabaly(adat, 'lakastakarek.tamogatas').ertek.elso_szazalek}%-a, utána ${S.szabaly(adat, 'lakastakarek.tamogatas').ertek.kesobb_szazalek}%-a. Ez még törvényjavaslat. <a href="${L.l(LTP_UT)}">A lakástakarék-kalkulátor</a> kiszámolja, mennyi gyűlik össze.</p>
 <p class="halk">A falusi CSOK-kal és a babaváró kölcsönnel ezen az oldalon még nem számolunk.</p>
 ${gyikHtml(kerdesek)}
 ${utmutatoForrasok(adat, ['wekerle_plusz.kamat', 'csok_plusz.osszeg', 'illetek.altalanos_mertek', 'illetek.csok_plusz', 'illetek.elso_lakas_35'])}

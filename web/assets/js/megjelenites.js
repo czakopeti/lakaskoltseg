@@ -1,6 +1,6 @@
 // Az elszámolás (eredmény) HTML-je. Ugyanezt használja az építő (a HTML-ben már benne van a szám)
 // és a böngésző (élő számolás), így a kettő nem térhet el.
-import * as S from './szamitas.js?v=57223355';
+import * as S from './szamitas.js?v=9f04fa14';
 
 const nf = new Intl.NumberFormat('hu-HU', { useGrouping: 'always' });
 export const fmt = (n) => nf.format(Math.round(n));
@@ -547,6 +547,41 @@ export function elotorlesztesPanel(adat, r) {
   return h;
 }
 
+/* ---------- Wekerle Plusz lakástakarék ---------- */
+export function lakastakarekPanel(adat, r) {
+  if (r.hiba) return hianyPanel(r.hiba);
+  const src = S.szabaly(adat, 'lakastakarek.tamogatas').forras.url, t = r.t;
+  const M_ = (n) => tized(Math.round(n / 1e5) / 10, 1);
+  let h = vegosszeg(`Ennyi lesz a számládon ${r.evek} év múlva`, r.osszesen, `Ha legalább 5 évig gyűjtesz, és lakáscélra költöd. Ebből ${ftx(r.tamogatas)} az állami támogatás.`);
+  h += '<ul class="tetelek">';
+  h += tetel(`Befizetéseid: ${ftx(r.havi)} havonta, ${r.evek} évig`, ftx(r.befizetes), { forras: 'sajat' });
+  h += tetel(`Állami támogatás`, `+${ftx(r.tamogatas)}`, { forras: 'hivatalos', forrasUrl: src, al: `az első ${t.elso_evek} évben ${t.elso_szazalek}%, évente legfeljebb ${ftx(t.elso_max_ft)}${r.evek > t.elso_evek ? `, utána ${t.kesobb_szazalek}%, legfeljebb ${ftx(t.kesobb_max_ft)}` : ''}` });
+  h += tetel(`Kamat, legalább ${tized(r.kamatSz, 0)}%`, `+${ftx(r.kamat)}`, { forras: 'hivatalos', forrasUrl: src, al: r.felett ? `a havi ${ftx(r.plafonHavi)} fölötti befizetés kamatával nem számoltunk` : 'a befizetéseidre és a jóváírt támogatásra' });
+  h += tetel('Összesen', ftx(r.osszesen), { cls: 'vegso' });
+  h += '</ul>';
+  if (r.felett) h += megjegyzes(`Havi ${ftx(r.plafonHavi)} fölött nem jár több támogatás, és a garantált ${tized(r.kamatSz, 0)}% sem. A fölötte befizetett ${ftx(r.felett)}-ra a pénztár hirdetményi, változó kamatát kapod, ezzel nem számoltunk.`);
+  if (!r.felett && r.tamogatas < r.maxTam) h += megjegyzes(`A teljes támogatás ${r.evek} év alatt ${ftx(r.maxTam)} lenne, ehhez havi ${ftx(r.plafonHavi)} befizetés kell.`, 'halk');
+  if (r.levagva) h += megjegyzes(`${r.evek} évvel számoltunk: a javaslat indokolása legfeljebb 10 éves programról szól, és a 3%-os kamat is csak az első 10 évre garantált.`, 'halk');
+  const max = Math.max(...r.sorok.map((x) => x.egyenleg));
+  h += `<p class="panel-cim">Az egyenleged évről évre, millió forint</p><ol class="lepcso" style="grid-template-columns:repeat(${r.sorok.length}, minmax(0, 1fr))">${r.sorok.map((x, i) => `<li class="${i === r.sorok.length - 1 ? 'most' : ''}" style="--p:${(x.egyenleg / max * 100).toFixed(0)};--i:${i}" title="${x.ev}. év végén ${fmt(x.egyenleg)} Ft, ebből állami támogatás ebben az évben ${fmt(x.tamogatas)} Ft"><span class="lp-szazalek">${M_(x.egyenleg)}</span><span class="lp-oszlop"></span><span class="lp-ev">${x.ev}. év</span></li>`).join('')}</ol>`;
+  const nyer = r.kulonbseg >= 0;
+  h += `<p class="panel-cim">Összevetés állampapírral</p><ul class="tetelek">`;
+  h += tetel(`Ugyanez Prémium Magyar Állampapírban, ${tized(r.pmap.szazalek, 1)}%-kal`, ftx(r.pmap.osszesen), { forras: 'becsles', forrasUrl: S.szabaly(adat, 'berles_vetel.allampapir').forras.url, al: 'a mostani kamattal végig; a valódi kamat minden évben az inflációval változik, és bármikor, bármire felveheted' });
+  h += tetel(nyer ? 'A lakástakarékkal többed lesz' : 'Az állampapírral többed lesz', ftx(Math.abs(r.kulonbseg)), { cls: 'vegso' });
+  h += '</ul>';
+  h += megjegyzes(`A lakástakarék ${r.evek} év alatt annyit hoz, mint egy évi kb. ${tized(r.egyenerteku, 1)}%-os megtakarítás.`);
+  h += levezetes([
+    ['Befizetés', `${F(r.havi)} × 12 × ${r.evek} = ${F(r.befizetes)}`, ''],
+    ['Állami támogatás', r.sorok.map((x) => `${x.ev}. év: ${F(x.tamogatas)}`).join(', ') + ` = ${F(r.tamogatas)}`, 'Ltp. 22. § (1a), T/1114. 7. §'],
+    ['Kamat', `évi ${tized(r.kamatSz, 0)}%, havonta gyűlik, évente íródik jóvá; az állami támogatás az év végén íródik jóvá, és onnantól kamatozik: ${F(r.kamat)}`, 'Ltp. 7. § (3a), T/1114. 2. §'],
+    ['Összesen', `${F(r.befizetes)} + ${F(r.tamogatas)} + ${F(r.kamat)} = ${F(r.osszesen)}`, ''],
+    ['Állampapírban', `ugyanezek a befizetések évi ${tized(r.pmap.szazalek, 1)}%-kal: ${F(r.pmap.osszesen)}`, ''],
+  ]);
+  h = jelekkel(h);
+  h += megjegyzes('A szabályok a T/1114. számú törvényjavaslatból vannak, az Országgyűlés még nem fogadta el, 2027. január 1-jétől indulna. A pénztárak díjait (szerződéskötési díj, számlavezetés) még nem ismerjük, ezek csökkentik az összeget. Ha 5 év előtt veszed fel a pénzt, vagy nem lakáscélra költöd, a támogatás és a 3%-os kamat elvész.', 'halk');
+  return h;
+}
+
 /* ---------- Bérleti díj emelése ---------- */
 export function emelesPanel(adat, r) {
   if (r.hiba) return hianyPanel(r.hiba);
@@ -796,6 +831,11 @@ export const KALKULATOROK = {
     minta: () => ({ adat: { toke: '20000000', kamat: '6', ev: '20', osszeg: '3000000' }, leiras: '20 millió forint tartozás 6% kamattal, még 20 év, és 3 millió forint előtörlesztés' }),
     panel: (adat, e) => elotorlesztesPanel(adat, S.elotorlesztes(adat, { toke: sz(e.toke), kamat: e.kamat === '' || e.kamat == null ? '' : sz(e.kamat), honap: sz(e.ev) * 12, osszeg: sz(e.osszeg), dij: e.dij === '' || e.dij == null ? '' : sz(e.dij) })),
   },
+  lakastakarek: {
+    kulcs: ['havi', 'evek'],
+    minta: () => ({ adat: { havi: '50000', evek: '10' }, leiras: 'havi 50 000 forint befizetés 10 évig' }),
+    panel: (adat, e) => lakastakarekPanel(adat, S.lakastakarek(adat, { havi: sz(e.havi), evek: e.evek === '' || e.evek == null ? '' : sz(e.evek) })),
+  },
   emeles: {
     kulcs: ['dij'],
     minta: () => ({ adat: { dij: '240000' }, leiras: 'havi 240 000 forintos bérleti díj' }),
@@ -849,6 +889,8 @@ export function kalkHtml(tipus, adat, e = {}) {
 // Csak darabszámok oldalanként és havonta (lásd functions/api/meres.js). Se süti, se azonosító, se a beírt adatok.
 // Oldalbetöltésenként egy esemény egyszer; a modul közös, így az app, a térkép és a becslő sem számol kétszer.
 const elkuldve = new Set();
+/** Elküldtük-e már ezt az eseményt ezen az oldalbetöltésen (például: kezdett-e beírni valamit, mielőtt eredményig jutott). */
+export const meresVolt = (esemeny) => elkuldve.has(esemeny);
 export function meres(esemeny) {
   if (typeof location === 'undefined' || elkuldve.has(esemeny) || location.protocol !== 'https:') return;
   elkuldve.add(esemeny);
