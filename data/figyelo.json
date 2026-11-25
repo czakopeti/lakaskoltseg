@@ -171,7 +171,7 @@
     },
     "https://bank360.hu/ingatlan-eladas-adozas": {
       "v": 6,
-      "hossz": 15686,
+      "hossz": 15651,
       "tenyek": [
         "b99c8d2f34",
         "5ee0453207",
@@ -188,6 +188,7 @@
         "ede86171a1",
         "f6b86c677a"
       ],
+      "hiany": "d2050031cf",
       "latva": "2026-11-24",
       "ellenorizve": "2026-11-25"
     },
@@ -587,8 +588,9 @@
     },
     "https://hovege.hu/ugyes-bajos/2026/09/06/ennyi-az-ajandekozasi-illetek-merteke-2026-ban-mutatjuk-min-mulik-mennyit-kell-fizetned/": {
       "v": 6,
-      "hossz": 6932,
+      "hossz": 7125,
       "tenyek": [
+        "49bde2e3fa",
         "6a7464d6f0",
         "c746a6a46a",
         "f5983ec751",
@@ -598,10 +600,10 @@
         "52284d8fb8",
         "e6d71a2268",
         "702783bbc7",
-        "e3f99ff5fa",
+        "cc205eaad0",
         "61fa50719f"
       ],
-      "latva": "2026-11-24",
+      "latva": "2026-11-25",
       "ellenorizve": "2026-11-25"
     },
     "https://berkalkulator.com/blog/2026/orokosodesi-illetek-2026-teljes-utmutato": {
@@ -642,7 +644,7 @@
     },
     "https://jogaszvilag.hu/szakma/vagyoni-erteku-jogok-haszonelvezeti-jog-es-illetek/": {
       "v": 6,
-      "hossz": 21749,
+      "hossz": 22008,
       "tenyek": [
         "eaa2afb7b6",
         "a1355780c3",
@@ -922,10 +924,12 @@
     },
     "https://infostart.hu/gazdasag/2026/01/13/megjott-a-friss-inflacios-adat": {
       "v": 6,
-      "hossz": 12176,
+      "hossz": 11190,
       "tenyek": [
         "fbbc5b9544",
         "ef6e9f5dff",
+        "9e503fee69",
+        "0e98f09969",
         "84c085639a",
         "6242438253",
         "a11c2b905e",
@@ -937,7 +941,6 @@
         "2ba82d04cf",
         "dde97dee25",
         "637063211b",
-        "74145075d3",
         "0bf9928c16",
         "0997d0a45f"
       ],
@@ -1010,7 +1013,7 @@
     },
     "https://www.penzcentrum.hu/otthon/20260519/vegleges-tiltas-lep-eletbe-a-fovaros-sziveben-rengeteg-ingatlantulajdonos-bukja-el-emiatt-a-biztos-bevetelt-1198922/amp": {
       "v": 6,
-      "hossz": 3774,
+      "hossz": 3722,
       "tenyek": [
         "2d9ffbf48e",
         "603b0bfc49",
