@@ -5,26 +5,32 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
   X-Frame-Options: SAMEORIGIN
   Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-site
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
 
 # A beágyazható kalkulátorok bármely oldalon megjelenhetnek iframe-ben
 /beagyaz/*
   ! X-Frame-Options
+  ! Cross-Origin-Resource-Policy
   Content-Security-Policy: frame-ancestors *
 
 # A letölthető CSV-k bármely oldalról és táblázatkezelőből lekérhetők (Google Táblázat, Excel), egy óráig gyorsítótárazhatók
 /adatok/*.csv
+  ! Cross-Origin-Resource-Policy
   Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=3600
   Content-Type: text/csv; charset=utf-8
 
 # Az adatcsatorna (JSON) bármely oldalról lekérhető; egy óráig gyorsítótárazható
 /adatok/v1/*
+  ! Cross-Origin-Resource-Policy
   Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=3600
   Content-Type: application/json; charset=utf-8
 
 # A lakásár-térkép adatai: bárhonnan lekérhetők, egy napig gyorsítótárazhatók
 /adatok/lakasarak/*
+  ! Cross-Origin-Resource-Policy
   Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=86400
   Content-Type: application/json; charset=utf-8

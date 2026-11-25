@@ -188,26 +188,32 @@ if (!elonezet) {
   Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
   X-Frame-Options: SAMEORIGIN
   Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-site
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
 ${cfg.eles ? '' : '  X-Robots-Tag: noindex, nofollow, noarchive\n'}
 # A beágyazható kalkulátorok bármely oldalon megjelenhetnek iframe-ben
 /beagyaz/*
   ! X-Frame-Options
+  ! Cross-Origin-Resource-Policy
   Content-Security-Policy: frame-ancestors *
 
 # A letölthető CSV-k bármely oldalról és táblázatkezelőből lekérhetők (Google Táblázat, Excel), egy óráig gyorsítótárazhatók
 /adatok/*.csv
+  ! Cross-Origin-Resource-Policy
   Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=3600
   Content-Type: text/csv; charset=utf-8
 
 # Az adatcsatorna (JSON) bármely oldalról lekérhető; egy óráig gyorsítótárazható
 /adatok/v1/*
+  ! Cross-Origin-Resource-Policy
   Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=3600
   Content-Type: application/json; charset=utf-8
 
 # A lakásár-térkép adatai: bárhonnan lekérhetők, egy napig gyorsítótárazhatók
 /adatok/lakasarak/*
+  ! Cross-Origin-Resource-Policy
   Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=86400
   Content-Type: application/json; charset=utf-8
@@ -226,6 +232,12 @@ https://:project.pages.dev/*
 https://:version.:project.pages.dev/*
   X-Robots-Tag: noindex
 `}`);
+  // Biztonsági kapcsolat (RFC 9116). A lejárat minden építéskor egy évvel későbbre tolódik, a heti frissítés miatt sosem jár le.
+  if (cfg.eles && cfg.kapcsolat_email) {
+    mkdirSync(join(KI, '.well-known'), { recursive: true });
+    const lejar = new Date(Date.parse(`${ma}T00:00:00Z`) + 365 * 864e5).toISOString().replace(/\.\d+Z$/, 'Z');
+    writeFileSync(join(KI, '.well-known/security.txt'), `Contact: mailto:${cfg.kapcsolat_email}\nExpires: ${lejar}\nPreferred-Languages: hu, en\nCanonical: ${cfg.domain}/.well-known/security.txt\n`);
+  }
   // A szöveges térkép az AI-asszisztenseknek: ugyanazok a csoportok és ugyanaz a sorrend, mint a főoldalon.
   const LLMS = {
     'mennyi-lakashitelt-kaphatok/': `felvehető lakáshitel az MNB 2026-os szabályai szerint: JTM 25–60% a jövedelemtől (800 000 Ft-os küszöb) és a kamatperiódustól függően, HFM 80% (első lakásnál 90%), összevetve a Wekerle Plusszal`,
