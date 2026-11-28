@@ -1,5 +1,5 @@
 // Az adatfájlok betöltése és összefésülése egy objektumba (az építő, a frissítők és a tesztek közös belépője).
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -23,6 +23,8 @@ export function betoltAdat() {
     arindex: olvas('data/arindex.json'),
     kereset: olvas('data/kereset.json'),
     arjov: olvas('data/arjovedelem.json'),
+    jarasKereset: existsSync(join(GYOKER, 'data/jaras_kereset.json')) ? olvas('data/jaras_kereset.json') : null,
+    hnt: existsSync(join(GYOKER, 'data/hnt.json')) ? olvas('data/hnt.json').telepulesek : null,
   };
 }
 

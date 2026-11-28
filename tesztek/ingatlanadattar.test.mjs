@@ -142,3 +142,15 @@ test('Helységnévtár: feldolgozás és hihetőség', async () => {
   assert.equal(t['13578'], undefined);
   assert.match(hntHiheto(null, t), /csak 1 település/);
 });
+
+test('KSH-monitor: járási keresetek kiolvasása a szkriptből', async () => {
+  const { jarasKeresetFeldolgoz, jarasKeresetHiheto } = await import('../frissito/kshmonitor.mjs');
+  const js = `Highcharts.maps["hu_districts_2019"] = [{"id":"di001","path":"M1,1z","name":"Budapest 01. kerület"},{"id":"di123","middleX":0.5,"path":"M2,2z","name":"Budakeszi járás"}];
+if (x) {Highcharts.mapChart("keresetek-6",{ title: { text:'Járási szintű bruttó átlagkeresetek, 2026. január–szeptember*'} , subtitle: { text:'(lakóhely szerinti adatok)'}, series: [{ data: [{"id":"di001","value":1133.7},{"id":"di123","value":1063.2}] }] });}
+if (y) {Highcharts.mapChart("masik",{ title: { text:'Valami más'} });}`;
+  const x = jarasKeresetFeldolgoz(js);
+  assert.equal(x.idoszak, '2026. január–szeptember');
+  assert.equal(x.lakohely, true);
+  assert.deepEqual(x.ertek, { 'Budapest 01. kerület': 1133.7, 'Budakeszi járás': 1063.2 });
+  assert.match(jarasKeresetHiheto(x), /csak 2 járás/);
+});

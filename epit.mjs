@@ -119,6 +119,9 @@ let adatV = '';
   // Lakásár és jövedelem: az országos sor és a vármegyei megfizethetőség egy fájlban
   if (adat.arjov) {
     const aj = adat.arjov, mm = T.megyeMegfiz(adat);
+    const jm = T.jarasMegfiz(adat);
+    if (jm) writeFileSync(join(ki, 'jarasok-ar-jovedelem.csv'), csv([['Járás, kerület', 'Vármegye', `Becsült mai ár, ezer Ft/m² (${jm.cimke})`, `Bruttó átlagkereset, ezer Ft/hó (KSH-monitor, ${jm.idoszak}, lakóhely szerint)`, 'Nettó, Ft/hó (15% szja és 18,5% járulék levonása után, kedvezmények nélkül)', `Hány év nettó kereset egy ${S.MEGFIZ_M2} m²-es lakás`],
+      ...jm.sorok.map((x) => [x.nev, (x.varmegye || '').replace(/ vármegye$/, ''), x.ar, x.brutto, x.netto, Math.round(x.evek * 10) / 10])]));
     writeFileSync(join(ki, 'ar-jovedelem.csv'), csv([['Terület', 'Mutató', ...aj.evek.map(String)],
       ['Magyarország', 'Lakásár és háztartási jövedelem aránya (Eurostat tipsho60, hosszú távú átlag = 100)', ...aj.lt],
       ...(mm ? mm.sorok.map((s) => [s.nev, `Hány év nettó átlagkereset egy ${S.MEGFIZ_M2} m²-es lakás (KSH)`, ...aj.evek.map((e) => { const i = mm.evek.indexOf(e); return i < 0 || s.ertek[i] == null ? null : Math.round(s.ertek[i] * 10) / 10; })]) : [])]));

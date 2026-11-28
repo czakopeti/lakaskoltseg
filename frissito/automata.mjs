@@ -9,6 +9,7 @@ import { join } from 'node:path';
 import { IA, nevlista, tomorit, hiheto as iaHiheto, arindex, ARINDEX_URL, ARINDEX_OLDAL, KERESET, keresetFeldolgoz, keresetHiheto } from './ingatlanadattar.mjs';
 import { ARJOV, arJovFeldolgoz, arJovHiheto } from './eurostat.mjs';
 import { HNT, xlsxLap, hntFeldolgoz, hntHiheto } from './hnt.mjs';
+import { KSHMON, jarasKeresetFeldolgoz, jarasKeresetHiheto } from './kshmonitor.mjs';
 
 const szam = (s) => Number(String(s).replace(',', '.'));
 const hu = (n) => String(n).replace('.', ',');
@@ -285,6 +286,24 @@ export async function futtat({ leto = letolt, binLeto = binLetolt, ma = maBudape
       } // 404: még nem jelent meg
     } catch (e) { j.gond.push({ nev: hNev, url: HNT.url(hEv), ok: String(e.message || e) }); }
   }
+
+  // 9. KSH-monitor: járási bruttó átlagkereset lakóhely szerint (negyedévente frissül, az ár/jövedelem oldal járási táblája használja)
+  const jkNev = 'KSH-monitor, járási keresetek';
+  try {
+    const js = await leto(KSHMON.url);
+    const uj = jarasKeresetFeldolgoz(js);
+    const gond = jarasKeresetHiheto(uj);
+    if (gond) j.gond.push({ nev: jkNev, url: KSHMON.oldal, ok: `${gond[0].toUpperCase()}${gond.slice(1)}. A régi adat marad.` });
+    else {
+      const regi = existsSync(join(GYOKER, 'data/jaras_kereset.json')) ? olvas('data/jaras_kereset.json') : null;
+      // A frissítés dátuma az oldalon, a járási térkép alatt
+      let kelt = ma;
+      try { const html = await leto(KSHMON.oldal); const m = /keresetek-6[\s\S]*?Frissítve:\s*<span>\s*(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})/.exec(html); if (m) kelt = `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`; } catch { /* marad a mai */ }
+      const valtozott = !regi || regi.idoszak !== uj.idoszak || JSON.stringify(regi.ertek) !== JSON.stringify(uj.ertek);
+      ir('data/jaras_kereset.json', { ...(regi || {}), forras: { ...(regi?.forras || {}), nev: KSHMON.nev, url: KSHMON.oldal, kelt: valtozott ? kelt : regi.forras.kelt }, ellenorizve: ma, idoszak: uj.idoszak, ertek: uj.ertek });
+      if (valtozott) j.atirt.push({ mi: `Járási bruttó átlagkereset, ${uj.idoszak} (Budakeszi járás, ezer Ft)`, regi: regi?.ertek?.['Budakeszi járás'] ?? null, uj: uj.ertek['Budakeszi járás'] ?? null, url: KSHMON.oldal });
+    }
+  } catch (e) { j.gond.push({ nev: jkNev, url: KSHMON.oldal, ok: String(e.message || e) }); }
 
   for (const a of j.atirt) naplo.bejegyzesek.unshift({ datum: ma, mi: a.mi, regi: a.regi, uj: a.uj, forras: a.url, gepi: true });
   if (j.atirt.length) ir('data/valtozasok.json', naplo);

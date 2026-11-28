@@ -530,6 +530,47 @@ const tiz1 = (v) => (v == null ? '–' : v.toFixed(1).replace('.', ','));
 const elojel = (v) => (v == null ? '–' : `${v >= 0 ? '+' : '−'}${tiz1(Math.abs(v))}%`);
 
 /** Vármegyék és Budapest: évenként hány év nettó átlagkereset egy MEGFIZ_M2-es lakás (ár és kereset ugyanarra az évre), plusz mára. */
+/** Bruttóból nettó: 15% szja és 18,5% társadalombiztosítási járulék, kedvezmények nélkül. */
+export const NETTO_ARANY = 0.665;
+const ROMAI_KER = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI', 'XXII', 'XXIII'];
+/**
+ * Járásonként (és budapesti kerületenként): a mai becsült négyzetméterár a járás településeinek becsléséből,
+ * az adásvételek számával súlyozva, és hány évnyi helyi nettó átlagkereset (KSH-monitor, idei, lakóhely szerint) egy 50 m²-es lakás.
+ */
+export function jarasMegfiz(adat) {
+  const jk = adat.jarasKereset, hnt = adat.hnt, a = adat.arak;
+  if (!jk || !hnt) return null;
+  const gyujt = new Map();
+  for (const [kod, u] of Object.entries(a.egysegek)) {
+    let jaras;
+    if (u.m === '01') {
+      const r = /^Budapest ([IVX]+)\. kerület$/.exec(u.n)?.[1];
+      if (!r) continue;
+      jaras = `Budapest ${String(ROMAI_KER.indexOf(r) + 1).padStart(2, '0')}. kerület`;
+    } else {
+      const j = hnt[kod]?.[2];
+      if (!j) continue;
+      jaras = `${j} járás`;
+    }
+    const be = S.arBecsles(adat, u, 'o', { visszaEv: 2 });
+    if (!be) continue;
+    const db = u.s.od?.[be.alapIx] || 1;
+    const g = gyujt.get(jaras) || { osszeg: 0, db: 0, telep: 0, cimke: be.cimke, varmegye: a.megyek[u.m]?.n };
+    g.osszeg += be.ar * db; g.db += db; g.telep++;
+    gyujt.set(jaras, g);
+  }
+  const sorok = [];
+  for (const [nev, g] of gyujt) {
+    const brutto = jk.ertek[nev];
+    if (!brutto || g.db < 10) continue;
+    const ar = g.osszeg / g.db, netto = brutto * 1000 * NETTO_ARANY;
+    const bpK = /^Budapest (\d\d)\. kerület$/.exec(nev);
+    sorok.push({ nev: bpK ? `Budapest ${ROMAI_KER[Number(bpK[1]) - 1]}. kerület` : nev, varmegye: g.varmegye, ar: Math.round(ar), brutto, netto: Math.round(netto), evek: (ar * 1000 * S.MEGFIZ_M2) / (netto * 12), db: g.db, cimke: g.cimke });
+  }
+  sorok.sort((x, y) => y.evek - x.evek);
+  return { sorok, idoszak: jk.idoszak, forras: jk.forras, cimke: sorok[0]?.cimke };
+}
+
 export function megyeMegfiz(adat) {
   const a = adat.arak, ke = adat.kereset;
   if (!ke) return null;
@@ -594,6 +635,19 @@ export function arJovOldal(k) {
   const tabla = `<div class="tabla-tarto"><table class="tabla kicsi-tabla"><thead><tr><th scope="col">Év</th><th scope="col">Arány (átlag = 100)</th><th scope="col">Előző évhez</th></tr></thead><tbody>${ev.map((e, i) => [e, i]).reverse().map(([e, i]) => `<tr><th scope="row">${e}${aj.becsult?.[e] === 'p' ? ' <span class="halk">(előzetes)</span>' : aj.becsult?.[e] === 'e' ? ' <span class="halk">(becsült)</span>' : ''}</th><td>${tiz1(v[i])}</td><td>${i ? szaz((v[i] / v[i - 1] - 1) * 100) : '–'}</td></tr>`).join('')}</tbody></table></div>`;
   const megyeTabla = mm ? `<div class="tabla-tarto"><table class="tabla kicsi-tabla"><thead><tr><th scope="col">Hol?</th>${mm.evek.map((e) => `<th scope="col">${e}</th>`).join('')}<th scope="col">Ma kb.</th></tr></thead><tbody>${mm.sorok.map((s) => `<tr><th scope="row">${esc(s.nev)}</th>${s.ertek.map((q) => `<td${q == null ? '' : ` data-ev="${q.toFixed(4)}"`}>${tiz1(q)}</td>`).join('')}<td><b${s.ma == null ? '' : ` data-ev="${s.ma.toFixed(4)}"`}>${tiz1(s.ma)}</b></td></tr>`).join('')}</tbody></table></div>` : '';
   const bp = mm?.sorok.find((s) => s.m === '01');
+  // Járásonként, az idei KSH-monitor bérekkel
+  const jm = jarasMegfiz(adat);
+  const jSor = (x, i) => `<tr><td>${i + 1}.</td><th scope="row">${esc(x.nev)}</th><td>${esc((x.varmegye || '').replace(/ vármegye$/, ''))}</td><td>${M.fmt(Math.round(x.ar))} ezer</td><td>${M.fmt(Math.round(x.netto / 1000))} ezer</td><td><b data-ev="${x.evek.toFixed(4)}">${tiz1(x.evek)}</b></td></tr>`;
+  const jFej = `<thead><tr><th scope="col">#</th><th scope="col">Járás, kerület</th><th scope="col">Vármegye</th><th scope="col">Ma kb., Ft/m²</th><th scope="col">Nettó kereset/hó</th><th scope="col">Hány év</th></tr></thead>`;
+  const jarasResz = (L) => jm?.sorok.length ? `<h2>Járásonként és kerületenként, ${esc(jm.idoszak || '')}</h2>
+<p>A KSH már az idei, ${esc(jm.idoszak || '')}i béreket is közli járásonként, a munkavállalók lakóhelye szerint. Ezekkel és a mai becsült lakásárakkal (${esc(jm.cimke || '')}) a ${jm.sorok.length} járás és budapesti kerület közül egy <span data-aj-m2>${S.MEGFIZ_M2}</span> m²-es lakás:</p>
+<ul class="allitasok">
+<li>a legtöbb évnyi fizetésbe itt kerül: ${jm.sorok.slice(0, 3).map((x) => `${esc(x.nev)} (kb. <b data-ev="${x.evek.toFixed(4)}">${tiz1(x.evek)}</b> év)`).join(', ')};</li>
+<li>a legkevesebbe itt: ${jm.sorok.slice(-3).reverse().map((x) => `${esc(x.nev)} (kb. <b data-ev="${x.evek.toFixed(4)}">${tiz1(x.evek)}</b> év)`).join(', ')}.</li>
+</ul>
+<div class="tabla-tarto"><table class="tabla kicsi-tabla">${jFej}<tbody>${jm.sorok.slice(0, 15).map(jSor).join('')}</tbody></table></div>
+<details class="jaras-mind"><summary>Mind a ${jm.sorok.length} járás és kerület</summary><div class="tabla-tarto"><table class="tabla kicsi-tabla">${jFej}<tbody>${jm.sorok.map(jSor).join('')}</tbody></table></div></details>
+<p class="kicsi halk">A bér a <a href="${esc(jm.forras.url)}" target="_blank" rel="noopener">KSH-monitor</a> járási bruttó átlagkeresete lakóhely szerint (${esc(jm.idoszak || '')}, előzetes, frissítve ${M.datumNapon(jm.forras.kelt)}), nettóra számolva 15% szja és 18,5% járulék levonásával, kedvezmények nélkül. A mai ár a járás településeinek becsült mai átlagára, az eladások számával súlyozva. Ahol az utóbbi években tíznél kevesebb adásvétel volt (például a Cigándi és a Sellyei járásban), azt kihagytuk. A KSH negyedévente frissíti a béreket, és az oldal ilyenkor magától átáll. Letöltés: <a href="${L.gyoker(`${ARAK_ADAT_JEL}jarasok-ar-jovedelem.csv`)}" download>jarasok-ar-jovedelem.csv</a></p>` : '';
   const tartalom = (L) => `
 ${oldalfej(L, { morzsa: [['Lakásárak', ARAK_UT], 'Lakásár és jövedelem'], cim, valasz, friss: M.datumNapon(aj.ellenorizve || k.ma) })}
 <div class="keret"><article class="cikk ar-jov">
@@ -613,6 +667,7 @@ ${mm ? `<h2>Helyben: hány év fizetés egy lakás?</h2>
 ${megyeTabla}
 <p class="kicsi halk">Két keresőnél két nettó átlagkereset összegével számolunk. Ez egy kétkeresős háztartás teljes jövedelme, amiből a lakbért, a rezsit és a megélhetést is fizetni kell, ezért a valóságban a megtakarításhoz ennél jóval több év kell.</p>
 <script>(function(){var d=document.querySelector('[data-aj-valaszto]');if(!d)return;var m2=${S.MEGFIZ_M2},k=1;function rajz(){document.querySelectorAll('.ar-jov [data-ev]').forEach(function(e){var v=parseFloat(e.dataset.ev)*m2/${S.MEGFIZ_M2}/k;e.textContent=v.toFixed(1).replace('.',',');});document.querySelector('[data-aj-m2]').textContent=m2;document.querySelector('[data-aj-kereso]').textContent=k===1?'a helyben lakók éves nettó átlagkeresetével':'két kereső éves nettó átlagkeresetének összegével';d.querySelectorAll('[data-m2]').forEach(function(b){b.setAttribute('aria-pressed',+b.dataset.m2===m2);});d.querySelectorAll('[data-kereso]').forEach(function(b){b.setAttribute('aria-pressed',+b.dataset.kereso===k);});}d.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.dataset.m2)m2=+b.dataset.m2;if(b.dataset.kereso)k=+b.dataset.kereso;rajz();});})();</script>` : ''}
+${jarasResz(L)}
 <h2>Az országos mutató évenként</h2>
 ${tabla}
 <p>Letöltés: <a href="${L.gyoker(`${ARAK_ADAT_JEL}ar-jovedelem.csv`)}" download>ar-jovedelem.csv</a></p>
