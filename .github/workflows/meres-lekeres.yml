@@ -1,0 +1,17 @@
+# Kézzel indítható: kiírja a havi használati számokat (az /api/meres végpontról), hogy a fejlesztői gépről is látszódjanak.
+name: Mérés lekérése
+on:
+  workflow_dispatch:
+    inputs:
+      honap:
+        description: 'Hónap (ÉÉÉÉ-HH), üresen az aktuális'
+        required: false
+jobs:
+  leker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - run: |
+          H="${{ github.event.inputs.honap }}"
+          [ -z "$H" ] && H=$(TZ=Europe/Budapest date +%Y-%m)
+          curl -sS --retry 2 "https://ingatlanmerleg.hu/api/meres?honap=$H" | python3 -m json.tool
