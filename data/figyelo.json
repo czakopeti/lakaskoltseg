@@ -83,13 +83,13 @@
         "28caa01fda"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25",
+      "ellenorizve": "2026-11-28",
       "utolsoGond": "letoltes",
       "utolsoGondNap": "2026-11-24"
     },
     "https://biztosdontes.hu/cikkek/illetekmentesseg": {
       "v": 6,
-      "hossz": 12202,
+      "hossz": 12165,
       "tenyek": [
         "90f5292209",
         "f3c1011aec",
@@ -112,7 +112,7 @@
         "80cb6b0121"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://tudastar.ingatlan.com/hirek/valtozott-2026-ban-a-lakasvasarlas-illeteke-trukkos-hataridok-a-cseret-potlo-vetelnel/": {
       "v": 6,
@@ -126,9 +126,11 @@
         "b972654ba9"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25",
+      "ellenorizve": "2026-11-28",
       "utolsoGond": "az oldal szövege túl rövid",
-      "utolsoGondNap": "2026-11-20"
+      "utolsoGondNap": "2026-11-28",
+      "gond": "az oldal szövege túl rövid",
+      "gondOta": "2026-11-28"
     },
     "https://www.kh.hu/cikkek/allami-tamogatasok": {
       "v": 6,
@@ -167,18 +169,17 @@
         "0545046710"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://bank360.hu/ingatlan-eladas-adozas": {
       "v": 6,
-      "hossz": 15651,
+      "hossz": 15286,
       "tenyek": [
-        "b99c8d2f34",
         "5ee0453207",
-        "d2050031cf",
         "0b99005f94",
         "581e15cda7",
         "95e8e12545",
+        "354f152e37",
         "8260fe1797",
         "e7bc3f440a",
         "61382377cc",
@@ -188,9 +189,8 @@
         "ede86171a1",
         "f6b86c677a"
       ],
-      "hiany": "d2050031cf",
-      "latva": "2026-11-24",
-      "ellenorizve": "2026-11-25"
+      "latva": "2026-11-28",
+      "ellenorizve": "2026-11-28"
     },
     "https://mkogy.jogtar.hu/jogszabaly?docid=99500117.TV": {
       "v": 6,
@@ -297,7 +297,7 @@
         "cc50fe1993"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://nav.gov.hu/Elethelyzetek-adozasa/vagyonugyek/Lakaskiadas": {
       "v": 6,
@@ -311,7 +311,7 @@
         "adcb1b3a3c"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25",
+      "ellenorizve": "2026-11-28",
       "utolsoGond": "letoltes",
       "utolsoGondNap": "2026-11-24"
     },
@@ -327,11 +327,11 @@
         "5326b79513"
       ],
       "latva": "2026-11-20",
-      "ellenorizve": "2026-11-25",
+      "ellenorizve": "2026-11-28",
       "gond": "a korábbi 6 ténymondatból 4 eltűnt (átszervezett vagy hibás oldal)",
       "gondOta": "2026-11-20",
       "utolsoGond": "a korábbi 6 ténymondatból 4 eltűnt (átszervezett vagy hibás oldal)",
-      "utolsoGondNap": "2026-11-25"
+      "utolsoGondNap": "2026-11-28"
     },
     "https://njt.jog.gov.hu/jogszabaly/2026-298-20-22": {
       "v": 6,
@@ -474,11 +474,11 @@
         "e6b20de313"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://www.kh.hu/hitel/lakashitel/wekerle-plusz": {
       "v": 6,
-      "hossz": 27208,
+      "hossz": 28748,
       "tenyek": [
         "89603e2d91",
         "5a610423ed",
@@ -497,7 +497,7 @@
         "b27dc3adf4"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://bankmonitor.hu/wekerle-plusz-hitel/": {
       "v": 6,
@@ -545,14 +545,14 @@
         "75887e6296"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://fundamenta.hu/documents/tajekoztato-a-tulzott-eladosodottsag-kockazatairol/": {
       "v": 6,
       "hossz": 28829,
       "tenyek": [],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://www.bdo.hu/hu-hu/aktualitasok-blog/blog/ingatlan-es-vagyonszerzes-adozasa-2026-illetekmentesseg-es-az-ingatlaneladas-szja-ja": {
       "v": 6,
@@ -584,13 +584,13 @@
         "5f1dac6b16"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://hovege.hu/ugyes-bajos/2026/09/06/ennyi-az-ajandekozasi-illetek-merteke-2026-ban-mutatjuk-min-mulik-mennyit-kell-fizetned/": {
       "v": 6,
-      "hossz": 7125,
+      "hossz": 7196,
       "tenyek": [
-        "49bde2e3fa",
+        "3181a8e369",
         "6a7464d6f0",
         "c746a6a46a",
         "f5983ec751",
@@ -598,17 +598,16 @@
         "605451f42d",
         "741a544a37",
         "52284d8fb8",
-        "e6d71a2268",
         "702783bbc7",
-        "cc205eaad0",
+        "3d5b0bd2aa",
         "61fa50719f"
       ],
-      "latva": "2026-11-25",
-      "ellenorizve": "2026-11-25"
+      "latva": "2026-11-28",
+      "ellenorizve": "2026-11-28"
     },
     "https://berkalkulator.com/blog/2026/orokosodesi-illetek-2026-teljes-utmutato": {
       "v": 6,
-      "hossz": 11184,
+      "hossz": 11192,
       "tenyek": [
         "f285ba1330",
         "9419622637",
@@ -640,11 +639,11 @@
         "974a10c799"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://jogaszvilag.hu/szakma/vagyoni-erteku-jogok-haszonelvezeti-jog-es-illetek/": {
       "v": 6,
-      "hossz": 22008,
+      "hossz": 22226,
       "tenyek": [
         "eaa2afb7b6",
         "a1355780c3",
@@ -678,8 +677,10 @@
         "83498db78c",
         "a908c3be57",
         "a27281e425",
+        "16bf25d3ad",
         "267e92b0eb",
         "6c224d48c4",
+        "bbab90dcc5",
         "49fe4e7c1f",
         "0eb22e36fc",
         "88e901288d",
@@ -687,8 +688,8 @@
         "8ad10ff73e",
         "09f20e4dec"
       ],
-      "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "latva": "2026-11-28",
+      "ellenorizve": "2026-11-28"
     },
     "https://ugyved.ingatlan.hu/2025/10/17/haszonelvezeti-jog-alapitasanak-illetekvonzata/": {
       "v": 6,
@@ -700,9 +701,11 @@
         "2aad8e95b1"
       ],
       "latva": "2026-11-20",
-      "ellenorizve": "2026-11-25",
+      "ellenorizve": "2026-11-28",
       "utolsoGond": "letoltes",
-      "utolsoGondNap": "2026-11-23"
+      "utolsoGondNap": "2026-11-28",
+      "gond": "letoltes",
+      "gondOta": "2026-11-28"
     },
     "https://ingatlan5.hu/haszonelvezeti-jog-erteke-es-annak-pontos-kiszamitasa": {
       "v": 6,
@@ -718,11 +721,11 @@
         "b071304449"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://e-ingatlanugyvedek.hu/blog/haszonelvezeti-jog-torlese-illetek-ado": {
       "v": 6,
-      "hossz": 12402,
+      "hossz": 12462,
       "tenyek": [
         "da6618599e",
         "704c628341",
@@ -736,7 +739,7 @@
         "09062a4269"
       ],
       "latva": "2026-11-20",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://biztosdontes.hu/cikkek/mnb-hitelek-koltsegeinek-csokkentese": {
       "v": 6,
@@ -771,7 +774,7 @@
         "03b041b248"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://tudastar.ingatlan.com/tippek/foldhivatali-dijak-valtozasa-2024/": {
       "v": 6,
@@ -796,9 +799,11 @@
         "47ca9cd467"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25",
+      "ellenorizve": "2026-11-28",
       "utolsoGond": "az oldal szövege túl rövid",
-      "utolsoGondNap": "2026-11-20"
+      "utolsoGondNap": "2026-11-28",
+      "gond": "az oldal szövege túl rövid",
+      "gondOta": "2026-11-28"
     },
     "https://privatbankar.hu/cikkek/ingatlan/lakas-koltsegek-324176.html": {
       "v": 6,
@@ -816,7 +821,7 @@
         "490abaa447"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://www.economx.hu/gazdasag/lakashitel-kamatok-jelzalog-bankok.810266.html": {
       "v": 6,
@@ -833,11 +838,11 @@
         "d01175fa5b"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://e-ingatlanugyvedek.hu/az-adasveteli-szerzodeshez-kapcsolodo-koltsegek": {
       "v": 6,
-      "hossz": 18188,
+      "hossz": 18172,
       "tenyek": [
         "da6618599e",
         "643e455eed",
@@ -859,7 +864,7 @@
         "c496d820e4"
       ],
       "latva": "2026-11-20",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://tudastar.money.hu/ismerteto/mennyi-ido-alatt-kuldi-a-nav-a-vagyonszerzesi-illeteket-es-hogyan-kell-megfizetni/": {
       "v": 6,
@@ -885,9 +890,11 @@
         "a563302fa6"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25",
+      "ellenorizve": "2026-11-28",
       "utolsoGond": "az oldal szövege túl rövid",
-      "utolsoGondNap": "2026-11-20"
+      "utolsoGondNap": "2026-11-28",
+      "gond": "az oldal szövege túl rövid",
+      "gondOta": "2026-11-28"
     },
     "https://www.allamkincstar.gov.hu/lakossagi-ugyfelek/allampapir_forgalmazas/Forgalmazott-allampapirok/dematerializalt-allampapirok/PMAP": {
       "v": 6,
@@ -902,7 +909,7 @@
         "67d05b97d3"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://bankmonitor.hu/cikk/az-orszag-fele-osregi-lakasokban-el-hogyan-ujitsd-fel-a-lakasod": {
       "v": 6,
@@ -920,16 +927,14 @@
         "998ce59f4c"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://infostart.hu/gazdasag/2026/01/13/megjott-a-friss-inflacios-adat": {
       "v": 6,
-      "hossz": 11190,
+      "hossz": 10862,
       "tenyek": [
         "fbbc5b9544",
         "ef6e9f5dff",
-        "9e503fee69",
-        "0e98f09969",
         "84c085639a",
         "6242438253",
         "a11c2b905e",
@@ -941,11 +946,12 @@
         "2ba82d04cf",
         "dde97dee25",
         "637063211b",
+        "2e48132a90",
         "0bf9928c16",
         "0997d0a45f"
       ],
-      "latva": "2026-11-25",
-      "ellenorizve": "2026-11-25"
+      "latva": "2026-11-28",
+      "ellenorizve": "2026-11-28"
     },
     "https://www.economx.hu/ingatlan/2026/07/20/ingatlankozvetites-jutalekok-korkep/": {
       "v": 6,
@@ -971,7 +977,7 @@
         "a8ee4c18f8"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://nav.gov.hu/ado/vendegejszakak-szama": {
       "v": 6,
@@ -983,7 +989,7 @@
         "5ed8fecaa6"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://nav.gov.hu/print/ado/afa/Emelkedik_az_alanyi_adomentesseg_ertekhatara": {
       "v": 6,
@@ -997,7 +1003,7 @@
         "b34c1d25bc"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://nav.gov.hu/sajtoszoba/hirek/kozeleg-a-hatarido-de-segit-a-nav": {
       "v": 6,
@@ -1009,49 +1015,50 @@
         "6d4e893bde"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://www.penzcentrum.hu/otthon/20260519/vegleges-tiltas-lep-eletbe-a-fovaros-sziveben-rengeteg-ingatlantulajdonos-bukja-el-emiatt-a-biztos-bevetelt-1198922/amp": {
       "v": 6,
-      "hossz": 3722,
+      "hossz": 3705,
       "tenyek": [
         "2d9ffbf48e",
         "603b0bfc49",
         "415ecfb672",
         "1f365e5a3c",
+        "40b1513618",
         "57e6a6a08f",
         "abf1f60388"
       ],
-      "latva": "2026-11-21",
-      "ellenorizve": "2026-11-25"
+      "latva": "2026-11-28",
+      "ellenorizve": "2026-11-28"
     },
     "https://adozona.hu/illetek/Otthon_Start_ingatlan_illetek_kedvezmeny_WU0M65": {
       "gond": "letoltes",
       "gondOta": "2026-11-18",
-      "ellenorizve": "2026-11-25",
+      "ellenorizve": "2026-11-28",
       "utolsoGond": "letoltes",
-      "utolsoGondNap": "2026-11-25"
+      "utolsoGondNap": "2026-11-28"
     },
     "https://adozona.hu/illetek/Uj_epitesu_lakas_vasarlasa_az_illetekmentes_9VA9X1": {
       "gond": "letoltes",
       "gondOta": "2026-11-18",
-      "ellenorizve": "2026-11-25",
+      "ellenorizve": "2026-11-28",
       "utolsoGond": "letoltes",
-      "utolsoGondNap": "2026-11-25"
+      "utolsoGondNap": "2026-11-28"
     },
     "https://adozona.hu/szja_ekho_kulonado/Ingatlan_eladasabol_szarmazo_jovedelem_es_a_637TLR": {
       "gond": "letoltes",
       "gondOta": "2026-11-18",
-      "ellenorizve": "2026-11-25",
+      "ellenorizve": "2026-11-28",
       "utolsoGond": "letoltes",
-      "utolsoGondNap": "2026-11-25"
+      "utolsoGondNap": "2026-11-28"
     },
     "https://tudastar.money.hu/fogalom/hitelezhetosegi-limit/": {
       "gond": "letoltes",
       "gondOta": "2026-11-18",
-      "ellenorizve": "2026-11-25",
+      "ellenorizve": "2026-11-28",
       "utolsoGond": "letoltes",
-      "utolsoGondNap": "2026-11-25"
+      "utolsoGondNap": "2026-11-28"
     },
     "https://tudastar.money.hu/hir/20260522/mit-hozhat-a-kozjegyzoi-rendszer-atalakitasa-a-hitelfelvevoknek/": {
       "v": 6,
@@ -1063,39 +1070,39 @@
         "d8eb4fe7ed"
       ],
       "latva": "2026-11-20",
-      "ellenorizve": "2026-11-25",
-      "utolsoGond": "letoltes",
-      "utolsoGondNap": "2026-11-25",
-      "gond": "letoltes",
-      "gondOta": "2026-11-20"
+      "ellenorizve": "2026-11-28",
+      "utolsoGond": "az oldal szövege túl rövid",
+      "utolsoGondNap": "2026-11-28",
+      "gond": "az oldal szövege túl rövid",
+      "gondOta": "2026-11-28"
     },
     "https://adozona.hu/afa/Maganszallashelyszolgaltatas_teteles_atalan_RE2ZGI": {
       "gond": "letoltes",
       "gondOta": "2026-11-18",
-      "ellenorizve": "2026-11-25",
+      "ellenorizve": "2026-11-28",
       "utolsoGond": "letoltes",
-      "utolsoGondNap": "2026-11-25"
+      "utolsoGondNap": "2026-11-28"
     },
     "https://adozona.hu/szja_ekho_kulonado/szallashelyszolgaltatas_AFA_idegenforgalmi__44U47U": {
       "gond": "letoltes",
       "gondOta": "2026-11-18",
-      "ellenorizve": "2026-11-25",
+      "ellenorizve": "2026-11-28",
       "utolsoGond": "letoltes",
-      "utolsoGondNap": "2026-11-25"
+      "utolsoGondNap": "2026-11-28"
     },
     "https://tudatosadozo.hu/airbnb-adozas-2026-igy-adozz-maganszemelykent-okosan/": {
       "gond": "letoltes",
       "gondOta": "2026-11-18",
-      "ellenorizve": "2026-11-25",
+      "ellenorizve": "2026-11-28",
       "utolsoGond": "letoltes",
-      "utolsoGondNap": "2026-11-25"
+      "utolsoGondNap": "2026-11-28"
     },
     "https://www.airbnb.com/help/article/1857": {
       "gond": "az oldal szövege túl rövid",
       "gondOta": "2026-11-18",
-      "ellenorizve": "2026-11-25",
+      "ellenorizve": "2026-11-28",
       "utolsoGond": "az oldal szövege túl rövid",
-      "utolsoGondNap": "2026-11-25"
+      "utolsoGondNap": "2026-11-28"
     },
     "https://njt.jog.gov.hu/jogszabaly/1990-93-00-00": {
       "v": 6,
@@ -2149,7 +2156,7 @@
         "5460014dae"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://njt.jog.gov.hu/jogszabaly/2014-32-20-2C": {
       "v": 6,
@@ -2288,7 +2295,7 @@
         "63a31892c2"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://njt.jog.gov.hu/jogszabaly/2007-127-00-00": {
       "v": 6,
@@ -3546,7 +3553,7 @@
         "8251145992"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://njt.jog.gov.hu/jogszabaly/1990-100-00-00": {
       "v": 6,
@@ -4135,7 +4142,7 @@
         "b7c944d76a"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://njt.jog.gov.hu/jogszabaly/2018-52-00-00": {
       "v": 6,
@@ -4402,7 +4409,7 @@
         "3703be5bef"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://njt.jog.gov.hu/jogszabaly/2007-33-20-53": {
       "v": 6,
@@ -4483,7 +4490,7 @@
         "2e29c80473"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://njt.jog.gov.hu/jogszabaly/2023-518-20-22": {
       "v": 6,
@@ -4972,14 +4979,14 @@
         "cdad70a464"
       ],
       "latva": "2026-11-19",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://www.parlament.hu/irom43/01114/01114.pdf": {
       "v": 6,
       "hossz": 428,
       "tenyek": [],
       "latva": "2026-11-24",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     },
     "https://njt.jog.gov.hu/jogszabaly/1996-113-00-00": {
       "v": 6,
@@ -5155,7 +5162,7 @@
         "b2b2d523ac"
       ],
       "latva": "2026-11-24",
-      "ellenorizve": "2026-11-25"
+      "ellenorizve": "2026-11-28"
     }
   }
 }

@@ -1,196 +1,198 @@
 ﻿Járás, kerület;Vármegye;Becsült mai ár, ezer Ft/m² (2026. II. negyedév);Bruttó átlagkereset, ezer Ft/hó (KSH-monitor, 2026. január–szeptember, lakóhely szerint);Nettó, Ft/hó (15% szja és 18,5% járulék levonása után, kedvezmények nélkül);Hány év nettó kereset egy 50 m²-es lakás
-Balatonfüredi járás;Veszprém;1495;785;522025;11,9
-Siófoki járás;Somogy;1360;730,8;485982;11,7
-Fonyódi járás;Somogy;1213;652;433580;11,7
-Budapest V. kerület;Budapest;1919;1114;740810;10,8
-Budapest I. kerület;Budapest;1684;1133,7;753911;9,3
-Budapest VI. kerület;Budapest;1496;1013,8;674177;9,2
-Budapest VII. kerület;Budapest;1350;923,2;613928;9,2
-Budapest VIII. kerület;Budapest;1244;906,1;602557;8,6
-Budapest XI. kerület;Budapest;1494;1095;728175;8,5
-Budapest IX. kerület;Budapest;1384;1026,4;682556;8,4
-Budapest XII. kerület;Budapest;1652;1240,3;824800;8,3
-Budapest II. kerület;Budapest;1687;1272,2;846013;8,3
-Budapest XIII. kerület;Budapest;1440;1090,5;725183;8,3
-Soproni járás;Győr-Moson-Sopron;941;719,3;478335;8,2
-Balatonalmádi járás;Veszprém;1046;805,8;535857;8,1
-Keszthelyi járás;Zala;859;671,3;446415;8
-Budapest III. kerület;Budapest;1298;1019,8;678167;8
-Budapest XV. kerület;Budapest;1043;827,2;550088;7,9
-Debreceni járás;Hajdú-Bihar;1025;817,6;543704;7,9
-Budapest X. kerület;Budapest;1056;845,1;561992;7,8
-Budapest IV. kerület;Budapest;1134;923,7;614261;7,7
-Budapest XIX. kerület;Budapest;1023;847,2;563388;7,6
-Budapest XIV. kerület;Budapest;1243;1030,7;685416;7,6
-Pilisvörösvári járás;Pest;1141;950,2;631883;7,5
-Hajdúszoboszlói járás;Hajdú-Bihar;831;692;460180;7,5
-Budapest XXII. kerület;Budapest;1166;990,4;658616;7,4
-Budapest XVI. kerület;Budapest;1159;997,8;663537;7,3
-Monori járás;Pest;913;787,1;523422;7,3
-Budakeszi járás;Pest;1229;1063,2;707028;7,2
-Budapest XX. kerület;Budapest;956;828,8;551152;7,2
-Budapest XVII. kerület;Budapest;1032;896,8;596372;7,2
-Vecsési járás;Pest;966;842,4;560196;7,2
+Budapest V. kerület;Budapest;1779;1114;740810;10
+Balatonfüredi járás;Veszprém;1234;785;522025;9,9
+Siófoki járás;Somogy;1127;730,8;485982;9,7
+Budapest VII. kerület;Budapest;1323;923,2;613928;9
+Budapest I. kerület;Budapest;1589;1133,7;753911;8,8
+Fonyódi járás;Somogy;909;652;433580;8,7
+Budapest VIII. kerület;Budapest;1250;906,1;602557;8,6
+Budapest VI. kerület;Budapest;1397;1013,8;674177;8,6
+Budapest XI. kerület;Budapest;1485;1095;728175;8,5
+Budapest XV. kerület;Budapest;1115;827,2;550088;8,4
+Budapest X. kerület;Budapest;1120;845,1;561992;8,3
+Budapest IX. kerület;Budapest;1351;1026,4;682556;8,2
+Budapest XIII. kerület;Budapest;1435;1090,5;725183;8,2
+Budapest II. kerület;Budapest;1669;1272,2;846013;8,2
+Budapest III. kerület;Budapest;1329;1019,8;678167;8,2
+Budapest XII. kerület;Budapest;1588;1240,3;824800;8
+Budapest XIX. kerület;Budapest;1081;847,2;563388;8
+Budapest IV. kerület;Budapest;1171;923,7;614261;7,9
+Debreceni járás;Hajdú-Bihar;1026;817,6;543704;7,9
+Budapest XIV. kerület;Budapest;1271;1030,7;685416;7,7
+Budapest XXII. kerület;Budapest;1203;990,4;658616;7,6
+Soproni járás;Győr-Moson-Sopron;866;719,3;478335;7,5
+Budapest XXI. kerület;Budapest;988;820,9;545899;7,5
+Budapest XX. kerület;Budapest;969;828,8;551152;7,3
+Balatonalmádi járás;Veszprém;938;805,8;535857;7,3
+Budapest XVII. kerület;Budapest;1030;896,8;596372;7,2
+Keszthelyi járás;Zala;768;671,3;446415;7,2
 Budapest XVIII. kerület;Budapest;1024;895,3;595375;7,2
-Dunakeszi járás;Pest;1101;969,7;644851;7,1
-Budapest XXI. kerület;Budapest;932;820,9;545899;7,1
-Mosonmagyaróvári járás;Győr-Moson-Sopron;807;717,4;477071;7
-Veszprémi járás;Veszprém;905;807,9;537254;7
-Szegedi járás;Csongrád-Csanád;852;788,6;524419;6,8
-Szentendrei járás;Pest;1008;938,9;624369;6,7
-Hajdúböszörményi járás;Hajdú-Bihar;695;648,3;431120;6,7
-Győri járás;Győr-Moson-Sopron;926;865,3;575425;6,7
-Szigetszentmiklósi járás;Pest;890;840,3;558800;6,6
-Zalaszentgróti járás;Zala;630;595,4;395941;6,6
-Váci járás;Pest;871;830,7;552416;6,6
-Érdi járás;Pest;963;935,5;622108;6,5
-Gödöllői járás;Pest;939;914,1;607877;6,4
-Székesfehérvári járás;Fejér;838;824,9;548559;6,4
-Budapest XXIII. kerület;Budapest;853;842,5;560263;6,3
-Gyáli járás;Pest;764;761,5;506398;6,3
-Gárdonyi járás;Fejér;890;902,8;600362;6,2
-Pécsi járás;Baranya;763;775,5;515708;6,2
-Szombathelyi járás;Vas;751;767,8;510587;6,1
-Kecskeméti járás;Bács-Kiskun;743;780,6;519099;6
-Tatai járás;Komárom-Esztergom;801;846,9;563189;5,9
-Egri járás;Heves;703;753,8;501277;5,8
-Zalaegerszegi járás;Zala;641;694;461510;5,8
-Nyíregyházi járás;Szabolcs-Szatmár-Bereg;651;720,3;479000;5,7
-Marcali járás;Somogy;549;609,2;405118;5,6
-Tapolcai járás;Veszprém;606;674,7;448676;5,6
-Hajdúhadházi járás;Hajdú-Bihar;580;647,9;430854;5,6
-Ráckevei járás;Pest;626;703,1;467562;5,6
-Balmazújvárosi járás;Hajdú-Bihar;527;593;394345;5,6
-Tatabányai járás;Komárom-Esztergom;675;776,5;516373;5,4
-Várpalotai járás;Veszprém;617;715,8;476007;5,4
-Ajkai járás;Veszprém;575;677,3;450405;5,3
-Kőszegi járás;Vas;608;720,3;479000;5,3
-Szentlőrinci járás;Baranya;516;613,2;407778;5,3
-Bicskei járás;Fejér;649;784,3;521560;5,2
-Kiskunfélegyházi járás;Bács-Kiskun;563;688,2;457653;5,1
-Martonvásári járás;Fejér;640;782,8;520562;5,1
-Kaposvári járás;Somogy;564;695;462175;5,1
-Sárvári járás;Vas;570;704,3;468360;5,1
-Ceglédi járás;Pest;568;711;472815;5
-Komáromi járás;Komárom-Esztergom;618;777,8;517237;5
-Móri járás;Fejér;592;748,4;497686;5
-Tiszafüredi járás;Jász-Nagykun-Szolnok;483;614,5;408643;4,9
-Aszódi járás;Pest;583;749,8;498617;4,9
-Dabasi járás;Pest;540;702,2;466963;4,8
-Kapuvári járás;Győr-Moson-Sopron;500;650;432250;4,8
-Esztergomi járás;Komárom-Esztergom;581;755,3;502275;4,8
-Téti járás;Győr-Moson-Sopron;584;760,3;505600;4,8
-Siklósi járás;Baranya;465;607,5;403988;4,8
-Hajdúnánási járás;Hajdú-Bihar;473;628,9;418219;4,7
-Hódmezővásárhelyi járás;Csongrád-Csanád;520;695,4;462441;4,7
-Szekszárdi járás;Tolna;539;723,3;480995;4,7
-Nagykanizsai járás;Zala;495;667,3;443755;4,6
-Bonyhádi járás;Tolna;476;643,2;427728;4,6
-Paksi járás;Tolna;642;874,8;581742;4,6
-Tiszaújvárosi járás;Borsod-Abaúj-Zemplén;549;748,6;497819;4,6
-Zirci járás;Veszprém;485;666,5;443223;4,6
-Szentgotthárdi járás;Vas;529;730,2;485583;4,5
-Körmendi járás;Vas;509;704,9;468759;4,5
-Jászberényi járás;Jász-Nagykun-Szolnok;506;704,6;468559;4,5
-Oroszlányi járás;Komárom-Esztergom;527;737,1;490172;4,5
-Derecskei járás;Hajdú-Bihar;439;620,6;412699;4,4
-Miskolci járás;Borsod-Abaúj-Zemplén;516;736,5;489773;4,4
-Mórahalmi járás;Csongrád-Csanád;450;642,6;427329;4,4
-Szigetvári járás;Baranya;399;576,1;383107;4,3
-Gyulai járás;Békés;479;697,1;463572;4,3
-Szobi járás;Pest;540;786,8;523222;4,3
-Nagyatádi járás;Somogy;414;602,8;400862;4,3
-Dunaújvárosi járás;Fejér;515;750,7;499216;4,3
-Békéscsabai járás;Békés;464;685,4;455791;4,2
-Lenti járás;Zala;418;617,6;410704;4,2
-Szolnoki járás;Jász-Nagykun-Szolnok;525;778,5;517703;4,2
-Kiskőrösi járás;Bács-Kiskun;418;619,6;412034;4,2
-Mohácsi járás;Baranya;445;660,6;439299;4,2
-Csornai járás;Győr-Moson-Sopron;483;725,1;482192;4,2
-Szentesi járás;Csongrád-Csanád;441;666,7;443356;4,1
-Bajai járás;Bács-Kiskun;440;668,2;444353;4,1
-Berettyóújfalui járás;Hajdú-Bihar;406;623,3;414495;4,1
-Pannonhalmi járás;Győr-Moson-Sopron;481;743,3;494295;4,1
-Pápai járás;Veszprém;456;711,6;473214;4
-Nagykőrösi járás;Pest;440;687,5;457188;4
-Tiszakécskei járás;Bács-Kiskun;431;672,8;447412;4
-Mátészalkai járás;Szabolcs-Szatmár-Bereg;378;591,8;393547;4
-Kiskunhalasi járás;Bács-Kiskun;432;682,6;453929;4
-Sárospataki járás;Borsod-Abaúj-Zemplén;399;632,5;420613;4
-Kisvárdai járás;Szabolcs-Szatmár-Bereg;405;641,8;426797;4
-Nagykátai járás;Pest;434;691,4;459781;3,9
-Hatvani járás;Heves;464;750,1;498817;3,9
-Kisbéri járás;Komárom-Esztergom;425;698,5;464503;3,8
-Kalocsai járás;Bács-Kiskun;399;658,4;437836;3,8
-Sümegi járás;Veszprém;357;594,2;395143;3,8
-Tolnai járás;Tolna;427;729,3;484985;3,7
-Gyöngyösi járás;Heves;440;751,5;499748;3,7
-Rétsági járás;Nógrád;411;705,4;469091;3,7
-Mezőkövesdi járás;Borsod-Abaúj-Zemplén;385;664,6;441959;3,6
-Dombóvári járás;Tolna;374;647,3;430455;3,6
-Nyíradonyi járás;Hajdú-Bihar;334;582;387030;3,6
-Fehérgyarmati járás;Szabolcs-Szatmár-Bereg;300;526,4;350056;3,6
-Bélapátfalvai járás;Heves;356;626,5;416623;3,6
-Kunszentmiklósi járás;Bács-Kiskun;363;641,8;426797;3,5
-Kisteleki járás;Csongrád-Csanád;340;603,4;401261;3,5
-Bólyi járás;Baranya;371;657,3;437105;3,5
-Pécsváradi járás;Baranya;367;651,5;433248;3,5
-Püspökladányi járás;Hajdú-Bihar;341;609,1;405052;3,5
-Vasvári járás;Vas;347;634,6;422009;3,4
-Celldömölki járás;Vas;367;675,7;449341;3,4
-Kiskunmajsai járás;Bács-Kiskun;343;633,5;421278;3,4
-Nagykállói járás;Szabolcs-Szatmár-Bereg;305;569,2;378518;3,4
-Tabi járás;Somogy;311;581,5;386698;3,4
-Karcagi járás;Jász-Nagykun-Szolnok;333;626,5;416623;3,3
-Szarvasi járás;Békés;338;637,7;424071;3,3
-Törökszentmiklósi járás;Jász-Nagykun-Szolnok;323;614,2;408443;3,3
-Csongrádi járás;Csongrád-Csanád;354;672,9;447479;3,3
-Orosházi járás;Békés;341;649,5;431918;3,3
-Nyírbátori járás;Szabolcs-Szatmár-Bereg;308;587,4;390621;3,3
-Komlói járás;Baranya;327;625,1;415692;3,3
-Hegyháti járás;Baranya;302;577,6;384104;3,3
-Békési járás;Békés;312;599,5;398668;3,3
-Gyomaendrődi járás;Békés;293;569,9;378984;3,2
-Kazincbarcikai járás;Borsod-Abaúj-Zemplén;355;696,4;463106;3,2
-Tokaji járás;Borsod-Abaúj-Zemplén;308;610,8;406182;3,2
-Gönci járás;Borsod-Abaúj-Zemplén;252;509,1;338552;3,1
-Szeghalmi járás;Békés;282;569,7;378851;3,1
-Barcsi járás;Somogy;296;598,1;397737;3,1
-Mezőtúri járás;Jász-Nagykun-Szolnok;296;600,5;399333;3,1
-Encsi járás;Borsod-Abaúj-Zemplén;265;540,9;359699;3,1
-Enyingi járás;Fejér;309;635,3;422475;3,1
-Balassagyarmati járás;Nógrád;336;691,6;459914;3
-Vásárosnaményi járás;Szabolcs-Szatmár-Bereg;276;568,1;377787;3
-Szikszói járás;Borsod-Abaúj-Zemplén;257;540,9;359699;3
-Makói járás;Csongrád-Csanád;310;658,9;438169;2,9
-Kemecsei járás;Szabolcs-Szatmár-Bereg;253;557,8;370937;2,8
-Sátoraljaújhelyi járás;Borsod-Abaúj-Zemplén;285;640,3;425800;2,8
-Letenyei járás;Zala;262;604,1;401727;2,7
-Pétervásárai járás;Heves;261;613,5;407978;2,7
-Edelényi járás;Borsod-Abaúj-Zemplén;233;548,2;364553;2,7
-Szerencsi járás;Borsod-Abaúj-Zemplén;248;587,8;390887;2,6
-Kunszentmártoni járás;Jász-Nagykun-Szolnok;260;618,5;411303;2,6
-Tiszavasvári járás;Szabolcs-Szatmár-Bereg;251;597,1;397072;2,6
-Záhonyi járás;Szabolcs-Szatmár-Bereg;241;580,3;385900;2,6
-Tamási járás;Tolna;248;597,1;397072;2,6
-Pásztói járás;Nógrád;272;658,1;437637;2,6
-Sárbogárdi járás;Fejér;273;664;441560;2,6
-Ibrányi járás;Szabolcs-Szatmár-Bereg;226;560,3;372600;2,5
-Kunhegyesi járás;Jász-Nagykun-Szolnok;209;530;352450;2,5
-Baktalórántházai járás;Szabolcs-Szatmár-Bereg;210;548,5;364753;2,4
-Füzesabonyi járás;Heves;236;621;412965;2,4
-Jászapáti járás;Jász-Nagykun-Szolnok;227;606,1;403057;2,3
-Csurgói járás;Somogy;223;598,3;397870;2,3
-Csengeri járás;Szabolcs-Szatmár-Bereg;201;543,9;361694;2,3
-Salgótarjáni járás;Nógrád;234;653,4;434511;2,2
-Szécsényi járás;Nógrád;206;583;387695;2,2
-Hevesi járás;Heves;186;575,6;382774;2
-Devecseri járás;Veszprém;182;590,4;392616;1,9
-Sarkadi járás;Békés;167;542,7;360896;1,9
-Ózdi járás;Borsod-Abaúj-Zemplén;169;573,2;381178;1,9
-Mezőcsáti járás;Borsod-Abaúj-Zemplén;164;562,1;373797;1,8
+Dunakeszi járás;Pest;1104;969,7;644851;7,1
+Budapest XVI. kerület;Budapest;1132;997,8;663537;7,1
+Szegedi járás;Csongrád-Csanád;874;788,6;524419;6,9
+Budakeszi járás;Pest;1161;1063,2;707028;6,8
+Pilisvörösvári járás;Pest;1026;950,2;631883;6,8
+Veszprémi járás;Veszprém;870;807,9;537254;6,7
+Váci járás;Pest;866;830,7;552416;6,5
+Vecsési járás;Pest;875;842,4;560196;6,5
+Pécsi járás;Baranya;804;775,5;515708;6,5
+Zalaszentgróti járás;Zala;616;595,4;395941;6,5
+Győri járás;Győr-Moson-Sopron;892;865,3;575425;6,5
+Érdi járás;Pest;954;935,5;622108;6,4
+Szentendrei járás;Pest;955;938,9;624369;6,4
+Budapest XXIII. kerület;Budapest;855;842,5;560263;6,4
+Hajdúszoboszlói járás;Hajdú-Bihar;700;692;460180;6,3
+Mosonmagyaróvári járás;Győr-Moson-Sopron;715;717,4;477071;6,2
+Szigetszentmiklósi járás;Pest;830;840,3;558800;6,2
+Gödöllői járás;Pest;894;914,1;607877;6,1
+Székesfehérvári járás;Fejér;799;824,9;548559;6,1
+Monori járás;Pest;749;787,1;523422;6
+Kecskeméti járás;Bács-Kiskun;721;780,6;519099;5,8
+Hajdúböszörményi járás;Hajdú-Bihar;596;648,3;431120;5,8
+Gyáli járás;Pest;698;761,5;506398;5,7
+Gárdonyi járás;Fejér;823;902,8;600362;5,7
+Szombathelyi járás;Vas;697;767,8;510587;5,7
+Tatai járás;Komárom-Esztergom;766;846,9;563189;5,7
+Tatabányai járás;Komárom-Esztergom;691;776,5;516373;5,6
+Nyíregyházi járás;Szabolcs-Szatmár-Bereg;617;720,3;479000;5,4
+Egri járás;Heves;638;753,8;501277;5,3
+Várpalotai járás;Veszprém;602;715,8;476007;5,3
+Ajkai járás;Veszprém;556;677,3;450405;5,1
+Tapolcai járás;Veszprém;543;674,7;448676;5
+Zalaegerszegi járás;Zala;556;694;461510;5
+Zirci járás;Veszprém;518;666,5;443223;4,9
+Dabasi járás;Pest;543;702,2;466963;4,8
+Hajdúhadházi járás;Hajdú-Bihar;500;647,9;430854;4,8
+Kőszegi járás;Vas;555;720,3;479000;4,8
+Ráckevei járás;Pest;541;703,1;467562;4,8
+Esztergomi járás;Komárom-Esztergom;579;755,3;502275;4,8
+Szentlőrinci járás;Baranya;469;613,2;407778;4,8
+Bicskei járás;Fejér;597;784,3;521560;4,8
+Kiskunfélegyházi járás;Bács-Kiskun;518;688,2;457653;4,7
+Szekszárdi járás;Tolna;535;723,3;480995;4,6
+Aszódi járás;Pest;539;749,8;498617;4,5
+Kapuvári járás;Győr-Moson-Sopron;467;650;432250;4,5
+Marcali járás;Somogy;434;609,2;405118;4,5
+Oroszlányi járás;Komárom-Esztergom;524;737,1;490172;4,5
+Kaposvári járás;Somogy;493;695;462175;4,4
+Ceglédi járás;Pest;504;711;472815;4,4
+Komáromi járás;Komárom-Esztergom;550;777,8;517237;4,4
+Balmazújvárosi járás;Hajdú-Bihar;419;593;394345;4,4
+Siklósi járás;Baranya;421;607,5;403988;4,3
+Dunaújvárosi járás;Fejér;513;750,7;499216;4,3
+Hódmezővásárhelyi járás;Csongrád-Csanád;473;695,4;462441;4,3
+Martonvásári járás;Fejér;532;782,8;520562;4,3
+Miskolci járás;Borsod-Abaúj-Zemplén;501;736,5;489773;4,3
+Nagykanizsai járás;Zala;453;667,3;443755;4,3
+Móri járás;Fejér;507;748,4;497686;4,2
+Szigetvári járás;Baranya;390;576,1;383107;4,2
+Gyulai járás;Békés;464;697,1;463572;4,2
+Pannonhalmi járás;Győr-Moson-Sopron;490;743,3;494295;4,1
+Nagykőrösi járás;Pest;449;687,5;457188;4,1
+Nagykátai járás;Pest;451;691,4;459781;4,1
+Tiszaújvárosi járás;Borsod-Abaúj-Zemplén;487;748,6;497819;4,1
+Békéscsabai járás;Békés;445;685,4;455791;4,1
+Bajai járás;Bács-Kiskun;431;668,2;444353;4
+Körmendi járás;Vas;451;704,9;468759;4
+Szentgotthárdi járás;Vas;467;730,2;485583;4
+Téti járás;Győr-Moson-Sopron;483;760,3;505600;4
+Szolnoki járás;Jász-Nagykun-Szolnok;489;778,5;517703;3,9
+Hajdúnánási járás;Hajdú-Bihar;390;628,9;418219;3,9
+Sárvári járás;Vas;435;704,3;468360;3,9
+Paksi járás;Tolna;539;874,8;581742;3,9
+Bólyi járás;Baranya;402;657,3;437105;3,8
+Pécsváradi járás;Baranya;396;651,5;433248;3,8
+Pápai járás;Veszprém;431;711,6;473214;3,8
+Bonyhádi járás;Tolna;388;643,2;427728;3,8
+Csornai járás;Győr-Moson-Sopron;437;725,1;482192;3,8
+Tiszafüredi járás;Jász-Nagykun-Szolnok;368;614,5;408643;3,8
+Szobi járás;Pest;468;786,8;523222;3,7
+Mohácsi járás;Baranya;386;660,6;439299;3,7
+Jászberényi járás;Jász-Nagykun-Szolnok;403;704,6;468559;3,6
+Kiskőrösi járás;Bács-Kiskun;351;619,6;412034;3,5
+Hatvani járás;Heves;408;750,1;498817;3,4
+Tolnai járás;Tolna;394;729,3;484985;3,4
+Dombóvári járás;Tolna;349;647,3;430455;3,4
+Gyöngyösi járás;Heves;399;751,5;499748;3,3
+Kiskunhalasi járás;Bács-Kiskun;360;682,6;453929;3,3
+Rétsági járás;Nógrád;372;705,4;469091;3,3
+Komlói járás;Baranya;328;625,1;415692;3,3
+Tabi járás;Somogy;303;581,5;386698;3,3
+Kisvárdai járás;Szabolcs-Szatmár-Bereg;332;641,8;426797;3,2
+Szarvasi járás;Békés;326;637,7;424071;3,2
+Mátészalkai járás;Szabolcs-Szatmár-Bereg;303;591,8;393547;3,2
+Berettyóújfalui járás;Hajdú-Bihar;319;623,3;414495;3,2
+Mórahalmi járás;Csongrád-Csanád;325;642,6;427329;3,2
+Szentesi járás;Csongrád-Csanád;337;666,7;443356;3,2
+Kunszentmiklósi járás;Bács-Kiskun;323;641,8;426797;3,2
+Derecskei járás;Hajdú-Bihar;310;620,6;412699;3,1
+Hegyháti járás;Baranya;284;577,6;384104;3,1
+Sümegi járás;Veszprém;290;594,2;395143;3,1
+Kazincbarcikai járás;Borsod-Abaúj-Zemplén;338;696,4;463106;3
+Lenti járás;Zala;293;617,6;410704;3
+Kiskunmajsai járás;Bács-Kiskun;300;633,5;421278;3
+Kalocsai járás;Bács-Kiskun;310;658,4;437836;3
+Tiszakécskei járás;Bács-Kiskun;317;672,8;447412;2,9
+Enyingi járás;Fejér;294;635,3;422475;2,9
+Fehérgyarmati járás;Szabolcs-Szatmár-Bereg;244;526,4;350056;2,9
+Kisbéri járás;Komárom-Esztergom;322;698,5;464503;2,9
+Balassagyarmati járás;Nógrád;318;691,6;459914;2,9
+Mezőkövesdi járás;Borsod-Abaúj-Zemplén;304;664,6;441959;2,9
+Sárospataki járás;Borsod-Abaúj-Zemplén;288;632,5;420613;2,9
+Püspökladányi járás;Hajdú-Bihar;277;609,1;405052;2,8
+Karcagi járás;Jász-Nagykun-Szolnok;284;626,5;416623;2,8
+Törökszentmiklósi járás;Jász-Nagykun-Szolnok;276;614,2;408443;2,8
+Sátoraljaújhelyi járás;Borsod-Abaúj-Zemplén;284;640,3;425800;2,8
+Nagyatádi járás;Somogy;267;602,8;400862;2,8
+Edelényi járás;Borsod-Abaúj-Zemplén;243;548,2;364553;2,8
+Tokaji járás;Borsod-Abaúj-Zemplén;267;610,8;406182;2,7
+Celldömölki járás;Vas;295;675,7;449341;2,7
+Mezőtúri járás;Jász-Nagykun-Szolnok;261;600,5;399333;2,7
+Békési járás;Békés;260;599,5;398668;2,7
+Kisteleki járás;Csongrád-Csanád;262;603,4;401261;2,7
+Tamási járás;Tolna;259;597,1;397072;2,7
+Encsi járás;Borsod-Abaúj-Zemplén;233;540,9;359699;2,7
+Vasvári járás;Vas;273;634,6;422009;2,7
+Szikszói járás;Borsod-Abaúj-Zemplén;229;540,9;359699;2,7
+Gönci járás;Borsod-Abaúj-Zemplén;216;509,1;338552;2,7
+Nyíradonyi járás;Hajdú-Bihar;243;582;387030;2,6
+Nagykállói járás;Szabolcs-Szatmár-Bereg;234;569,2;378518;2,6
+Gyomaendrődi járás;Békés;234;569,9;378984;2,6
+Nyírbátori járás;Szabolcs-Szatmár-Bereg;240;587,4;390621;2,6
+Makói járás;Csongrád-Csanád;266;658,9;438169;2,5
+Csongrádi járás;Csongrád-Csanád;271;672,9;447479;2,5
+Orosházi járás;Békés;260;649,5;431918;2,5
+Kunszentmártoni járás;Jász-Nagykun-Szolnok;243;618,5;411303;2,5
+Szerencsi járás;Borsod-Abaúj-Zemplén;227;587,8;390887;2,4
+Barcsi járás;Somogy;229;598,1;397737;2,4
+Kunhegyesi járás;Jász-Nagykun-Szolnok;193;530;352450;2,3
+Pásztói járás;Nógrád;237;658,1;437637;2,3
+Szeghalmi járás;Békés;204;569,7;378851;2,2
+Szécsényi járás;Nógrád;205;583;387695;2,2
+Záhonyi járás;Szabolcs-Szatmár-Bereg;204;580,3;385900;2,2
+Sárbogárdi járás;Fejér;231;664;441560;2,2
+Salgótarjáni járás;Nógrád;226;653,4;434511;2,2
+Pétervásárai járás;Heves;207;613,5;407978;2,1
+Letenyei járás;Zala;202;604,1;401727;2,1
+Füzesabonyi járás;Heves;207;621;412965;2,1
+Bélapátfalvai járás;Heves;205;626,5;416623;2,1
+Vásárosnaményi járás;Szabolcs-Szatmár-Bereg;176;568,1;377787;1,9
+Ibrányi járás;Szabolcs-Szatmár-Bereg;171;560,3;372600;1,9
+Kemecsei járás;Szabolcs-Szatmár-Bereg;166;557,8;370937;1,9
+Tiszavasvári járás;Szabolcs-Szatmár-Bereg;177;597,1;397072;1,9
+Csurgói járás;Somogy;177;598,3;397870;1,9
+Baktalórántházai járás;Szabolcs-Szatmár-Bereg;159;548,5;364753;1,8
 Bátonyterenyei járás;Nógrád;186;643,1;427662;1,8
-Mezőkovácsházai járás;Békés;155;579,5;385368;1,7
-Putnoki járás;Borsod-Abaúj-Zemplén;150;572,9;380979;1,6
-Jánoshalmai járás;Bács-Kiskun;134;605,2;402458;1,4
-Bácsalmási járás;Bács-Kiskun;124;589,6;392084;1,3
+Devecseri járás;Veszprém;164;590,4;392616;1,7
+Csengeri járás;Szabolcs-Szatmár-Bereg;149;543,9;361694;1,7
+Mezőcsáti járás;Borsod-Abaúj-Zemplén;151;562,1;373797;1,7
+Hevesi járás;Heves;153;575,6;382774;1,7
+Ózdi járás;Borsod-Abaúj-Zemplén;152;573,2;381178;1,7
+Jászapáti járás;Jász-Nagykun-Szolnok;156;606,1;403057;1,6
+Putnoki járás;Borsod-Abaúj-Zemplén;142;572,9;380979;1,6
+Jánoshalmai járás;Bács-Kiskun;148;605,2;402458;1,5
+Cigándi járás;Borsod-Abaúj-Zemplén;106;470,2;312683;1,4
+Sarkadi járás;Békés;122;542,7;360896;1,4
+Mezőkovácsházai járás;Békés;126;579,5;385368;1,4
+Sellyei járás;Baranya;111;516,9;343739;1,4
+Bácsalmási járás;Bács-Kiskun;127;589,6;392084;1,3
