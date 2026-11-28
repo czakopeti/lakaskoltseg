@@ -561,6 +561,16 @@ body.beagyazott .mini, body.beagyazott .vj, body.beagyazott .kovetkezo { display
 .tk-svg-bp path[data-k] { stroke-width: 1.4; }
 .tk-kesz .tk-svg path[data-k] { transition: fill .7s var(--lagy); }
 .tk-svg path.tk-nincs { fill: var(--tk-ures); }
+/* Környékbeli becslés: halványabb szín, fölötte csíkozás egy külön, át nem kattintható rétegben */
+.tk-svg path.tk-kornyekes { fill-opacity: .6; }
+.tk-svg .tk-csikok { display: none; pointer-events: none; }
+.tk-kornyek-mod .tk-svg .tk-csikok { display: inline; }
+.tk-svg .tk-csikok path { fill: url(#tk-csik); stroke: none; }
+.tk-csik-vonal { fill: var(--tinta); opacity: .2; }
+.tk-skala-csik i { background: repeating-linear-gradient(45deg, rgba(222, 150, 40, .6) 0 3px, rgba(20, 22, 27, .25) 3px 4px) !important; }
+.tk-szomszedok { list-style: none; padding: 0; margin: 6px 0 0; display: grid; gap: 6px; }
+.tk-szomszedok button { font: inherit; font-weight: 650; background: none; border: 0; padding: 0; color: var(--tinta); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.tk-szomszedok span { color: var(--tinta2); }
 .tk-svg path[data-k]:hover { stroke: var(--tinta); stroke-width: .5; }
 .tk-svg-bp path[data-k]:hover { stroke-width: 2.5; }
 .tk-svg path.tk-kijelolt { stroke: var(--tinta); stroke-width: .8; }

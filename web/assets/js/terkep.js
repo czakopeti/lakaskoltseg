@@ -1,6 +1,6 @@
 // A lakásár-térkép: valódi eladási árak (KSH Ingatlanadattár) településenként és budapesti kerületenként.
 // SVG-térkép külső könyvtár nélkül; az adat és a határok a /adatok/lakasarak/ alól jönnek.
-import { fmt, tized, evBan, AR_SZINEK as SZINEK, AR_HATAR as HATAR, arOsztaly as osztaly, meres } from './megjelenites.js?v=199af62d';
+import { fmt, tized, evBan, AR_SZINEK as SZINEK, AR_HATAR as HATAR, arOsztaly as osztaly, meres } from './megjelenites.js?v=4f6e442c';
 
 const doboz = document.querySelector('[data-terkep]');
 if (doboz) indit(doboz).catch((e) => {
@@ -59,7 +59,12 @@ async function indit(el) {
 
   // ---- rajz
   const [, , W] = G.vb.split(' ').map(Number);
-  orszag.innerHTML = `<svg viewBox="${G.vb}" class="tk-svg" role="presentation">${G.u.map(([k, d, bb]) => `<path data-k="${k}" d="${d}" style="--d:${Math.round(((bb[0] + bb[2]) / 2 / W) * 1200)}ms"/>`).join('')}${G.m.map(([, d]) => `<path class="tk-megye" d="${d}"/>`).join('')}</svg>`;
+  // Környékbeli becslés (csak a „ma” nézetben, átlagárnál): ahol az utóbbi három évben nem volt elég adásvétel.
+  // Ezeket a településeket halványabban és csíkozva rajzoljuk: egy külön, át nem kattintható réteg teszi rájuk a csíkot.
+  const KR = A.becsles?.kornyek || {};
+  const kornyekAktiv = () => S.ix === MA && S.mutato === 'ar' && S.tipus === 'o';
+  const nevOf = (k) => A.egysegek[k]?.n || KR[k]?.[1] || '';
+  orszag.innerHTML = `<svg viewBox="${G.vb}" class="tk-svg" role="presentation"><defs><pattern id="tk-csik" width="2.6" height="2.6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width=".7" height="2.6" class="tk-csik-vonal"/></pattern></defs>${G.u.map(([k, d, bb]) => `<path data-k="${k}" d="${d}" style="--d:${Math.round(((bb[0] + bb[2]) / 2 / W) * 1200)}ms"/>`).join('')}<g class="tk-csikok" aria-hidden="true">${G.u.filter(([k]) => KR[k]).map(([, d]) => `<path d="${d}"/>`).join('')}</g>${G.m.map(([, d]) => `<path class="tk-megye" d="${d}"/>`).join('')}</svg>`;
   bp.innerHTML = `<svg viewBox="${B.vb}" class="tk-svg tk-svg-bp" role="presentation">${B.u.map(([k, d]) => `<path data-k="${k}" d="${d}"/>`).join('')}</svg>`;
   const utak = [...el.querySelectorAll('path[data-k]')];
 
@@ -67,7 +72,7 @@ async function indit(el) {
   function ertek(k, ix = S.ix, tipus = S.tipus) {
     const s = A.egysegek[k]?.s[tipus];
     const v = s?.[ix];
-    if (v == null) return null;
+    if (v == null) return ix === MA && S.mutato === 'ar' && tipus === 'o' && KR[k] ? KR[k][0] : null;
     if (S.mutato === 'ar') return v;
     if (S.mutato === 'evek') return A.megfiz?.ertek?.[k]?.[ix] ?? null;
     return s[0] ? (v / s[0] - 1) * 100 : null;
@@ -78,7 +83,9 @@ async function indit(el) {
       const c = szin(ertek(p.dataset.k));
       p.style.fill = c || '';
       p.classList.toggle('tk-nincs', !c);
+      p.classList.toggle('tk-kornyekes', !!c && kornyekAktiv() && KR[p.dataset.k] != null && A.egysegek[p.dataset.k]?.s.o?.[S.ix] == null);
     }
+    el.classList.toggle('tk-kornyek-mod', kornyekAktiv());
     cimke.textContent = evRovid(S.ix);
     csuszka.max = evek[utolso];
     csuszka.value = evek[S.ix];
@@ -92,7 +99,7 @@ async function indit(el) {
     skala.innerHTML = `<p class="tk-skala-cim">${S.mutato === 'ar' ? `Átlagár, Ft/m², ${evNev(S.ix)}` : S.mutato === 'evek' ? `Hány évnyi helyi nettó átlagkereset egy ${A.megfiz?.m2 || 50} m²-es lakás, ${evNev(S.ix)}` : `Drágulás ${evek[0]} óta, ${S.ix === MA ? 'mára (becslés)' : `${evek[S.ix]}-ig`}`}${S.tipus !== 'o' && S.mutato !== 'evek' ? `, ${TIPUS[S.tipus].toLowerCase()}` : ''}</p>
 <div class="tk-sav">${SZINEK.map((c, i) => `<i style="background:${c}" title="${i === 0 ? `${cimkek[0]} alatt` : i === SZINEK.length - 1 ? `${cimkek.at(-1)} felett` : `${cimkek[i - 1]} – ${cimkek[i]}`}"></i>`).join('')}</div>
 <div class="tk-sav-cimkek">${cimkek.map((c, i) => `<span style="left:${((i + 1) / SZINEK.length) * 100}%">${i % 2 === 0 || cimkek.length < 6 ? c : ''}</span>`).join('')}</div>
-<p class="tk-skala-nincs"><i></i>${S.mutato === 'evek' ? 'Nincs adat: kevés adásvétel, vagy erre az évre még nincs kereseti adat' : (S.ix === MA ? 'Nincs adat: az utóbbi három évben egyszer sem volt legalább három adásvétel' : 'Nincs adat: az évben háromnál kevesebb adásvétel volt')}</p>${S.mutato === 'evek' && A.megfiz?.forras ? `<p class="tk-skala-nincs">Kereset: <a href="${esc(A.megfiz.forras.url)}" target="_blank" rel="noopener">KSH, nettó átlagkereset lakóhely szerint</a>; Budapest kerületeinél a budapesti átlag.</p>` : ''}`;
+${kornyekAktiv() ? '<p class="tk-skala-nincs tk-skala-csik"><i></i>Csíkozva: környékbeli becslés. Itt az utóbbi három évben nem volt elég adásvétel, ezért a legközelebbi négy település becsült mai árából számolunk. Ez nem az ott eladott lakások ára.</p>' : ''}<p class="tk-skala-nincs"><i></i>${S.mutato === 'evek' ? 'Nincs adat: kevés adásvétel, vagy erre az évre még nincs kereseti adat' : (S.ix === MA ? 'Nincs adat: az utóbbi három évben egyszer sem volt legalább három adásvétel' : 'Nincs adat: az évben háromnál kevesebb adásvétel volt')}</p>${S.mutato === 'evek' && A.megfiz?.forras ? `<p class="tk-skala-nincs">Kereset: <a href="${esc(A.megfiz.forras.url)}" target="_blank" rel="noopener">KSH, nettó átlagkereset lakóhely szerint</a>; Budapest kerületeinél a budapesti átlag.</p>` : ''}`;
   }
 
   // ---- első megjelenés: nyugatról keletre töltődik ki
@@ -106,9 +113,17 @@ async function indit(el) {
   // ---- buborék
   function tippMutat(k, e) {
     const u = A.egysegek[k];
-    const nev = u?.n || 'Nincs adat';
+    const nev = nevOf(k) || 'Nincs adat';
     const v = ertek(k);
     const ar = u?.s[S.tipus]?.[S.ix], db = u?.s[`${S.tipus}d`]?.[S.ix];
+    if (ar == null && kornyekAktiv() && KR[k]) {
+      tipp.innerHTML = `<b>${esc(nev)}</b><span>kb. ${ft(KR[k][0])}/m², környékbeli becslés</span>`;
+      tipp.hidden = false;
+      const r0 = el.querySelector('.tk-vaszon').getBoundingClientRect();
+      tipp.style.left = `${Math.min(e.clientX - r0.left + 14, r0.width - tipp.offsetWidth - 8)}px`;
+      tipp.style.top = `${Math.max(e.clientY - r0.top - tipp.offsetHeight - 12, 8)}px`;
+      return;
+    }
     tipp.innerHTML = `<b>${esc(nev)}</b>${ar != null ? `<span>${S.ix === MA ? 'kb. ' : ''}${ft(ar)}/m²${S.ix === MA ? ', becsült mai ár' : db ? `, ${fmt(db)} adásvétel` : ''}</span>${S.mutato === 'valt' && v != null ? `<span>${szaz(v)} ${evek[0]} óta</span>` : ''}${S.mutato === 'evek' && v != null ? `<span>${tized(v, 1)} évnyi nettó átlagkereset egy ${A.megfiz.m2} m²-es lakás</span>` : ''}` : `<span>${evNev(S.ix)}: nincs adat${S.tipus !== 'o' ? ' ennél a típusnál' : ''}</span>`}`;
     tipp.hidden = false;
     const r = el.querySelector('.tk-vaszon').getBoundingClientRect();
@@ -129,7 +144,7 @@ async function indit(el) {
   el.addEventListener('input', () => meres('indit'));
   vaszon.addEventListener('click', (e) => {
     const p = e.target.closest('path[data-k]');
-    if (p && A.egysegek[p.dataset.k]) valaszt(p.dataset.k, true);
+    if (p && (A.egysegek[p.dataset.k] || (kornyekAktiv() && KR[p.dataset.k]))) valaszt(p.dataset.k, true);
   });
 
   // ---- adatlap
@@ -137,7 +152,7 @@ async function indit(el) {
     S.kijelolt = k;
     for (const p of utak) p.classList.toggle('tk-kijelolt', p.dataset.k === k);
     lapRajz(k, true);
-    history.replaceState(null, '', `#${encodeURIComponent(A.egysegek[k].n)}`);
+    history.replaceState(null, '', `#${encodeURIComponent(nevOf(k))}`);
     if (gorget) { meres('kesz'); adatlap.scrollIntoView({ behavior: LASSU ? 'auto' : 'smooth', block: 'nearest' }); }
   }
   function grafikon(s) {
@@ -148,8 +163,28 @@ async function indit(el) {
     const d = pontok.map(([i, v], j) => `${j ? 'L' : 'M'}${px(i).toFixed(1)} ${py(v).toFixed(1)}`).join('');
     return `<svg class="tk-grafikon" viewBox="0 0 ${W2} ${H2}" role="img" aria-label="Az átlagár alakulása ${evek[0]} és ${evRovid(utolso)} között"><path class="tk-vonal" d="${d}" pathLength="1"/>${pontok.map(([i, v]) => `<circle cx="${px(i).toFixed(1)}" cy="${py(v).toFixed(1)}" r="${i === S.ix ? 4.5 : 2.5}"${i === S.ix ? ' class="most"' : ''}><title>${evek[i]}: ${ft(v)}/m²</title></circle>`).join('')}<text x="8" y="${H2 - 1}">${evek[0]}</text><text x="${W2 - 8}" y="${H2 - 1}" text-anchor="end">${evRovid(utolso)}</text></svg>`;
   }
+  // Adatlap a környékbeli becsléshez: a szám, a magyarázat és a négy szomszéd, amelyekből számoltunk
+  function kornyekLap(k, uj) {
+    const [ar, nev, szomszedok] = KR[k];
+    const u = A.egysegek[k];
+    const hol = u ? `${A.megyek[u.m]?.n || ''}${/vármegye$/.test(A.megyek[u.m]?.n || '') ? '' : ' vármegye'}` : '';
+    const maAr = (j) => { const x = ertek(j); return x == null ? '' : `kb. ${ft(x)}/m²`; };
+    adatlap.innerHTML = `<div class="tk-lap${uj && !LASSU ? ' tk-uj' : ''}">
+<button type="button" class="tk-bezar" data-bezar aria-label="Bezárás">×</button>
+${hol ? `<p class="tk-hol">${esc(hol)}</p>` : ''}<h3>${esc(nev)}</h3>
+<p class="tk-nagy">kb. ${ft(ar)}<small>/m², ma (${A.becsles.cimke}), környékbeli becslés</small></p>
+<p class="tk-becsles">Itt az utóbbi három évben egyszer sem adtak el legalább három lakóingatlant, ezért a NAV nem közöl árat. Ez a szám a legközelebbi négy település becsült mai árából jön, a közelebbiek nagyobb súllyal. Ez nem az itt eladott lakások ára: egy kis település lehet olcsóbb vagy drágább a környékénél.</p>
+${u?.s.o?.some((x) => x != null) ? `<p class="tk-valt">Régebbi valódi adat: ${u.s.o.map((x, i) => (x != null && i < evek.length - 1 ? `${evek[i]}: ${ft(x)}/m²` : null)).filter(Boolean).slice(-2).join(', ')}.</p>` : ''}
+<p class="tk-hol">A szomszédok, amelyekből számoltunk</p>
+<ul class="tk-szomszedok">${szomszedok.filter((j) => A.egysegek[j]).map((j) => `<li><button type="button" data-szomszed="${j}">${esc(A.egysegek[j].n)}</button> <span>${maAr(j)}</span></li>`).join('')}</ul>
+</div>`;
+    adatlap.hidden = false;
+    adatlap.querySelector('[data-bezar]').addEventListener('click', () => { S.kijelolt = null; adatlap.hidden = true; for (const p of utak) p.classList.remove('tk-kijelolt'); history.replaceState(null, '', location.pathname); });
+    adatlap.querySelectorAll('[data-szomszed]').forEach((b) => b.addEventListener('click', () => valaszt(b.dataset.szomszed, true)));
+  }
   function lapRajz(k, uj) {
     const u = A.egysegek[k];
+    if (kornyekAktiv() && KR[k] && u?.s.o?.[S.ix] == null) { kornyekLap(k, uj); return; }
     if (!u) return;
     const tip = u.s[S.tipus] ? S.tipus : 'o';
     const s = u.s[tip] || [], ar = s[S.ix], db = u.s[`${tip}d`]?.[S.ix];
@@ -231,7 +266,7 @@ ${A.oldalak?.[k] ? `<a class="tk-reszletek" href="${alapUt}${A.oldalak[k].replac
   });
 
   // ---- kereső
-  const nevek = Object.entries(A.egysegek).map(([k, u]) => [u.n, k]).sort((a, b) => a[0].localeCompare(b[0], 'hu'));
+  const nevek = [...Object.entries(A.egysegek).map(([k, u]) => [u.n, k]), ...Object.entries(KR).filter(([k]) => !A.egysegek[k]).map(([k, x]) => [x[1], k])].sort((a, b) => a[0].localeCompare(b[0], 'hu'));
   el.querySelector('#tk-nevek').innerHTML = nevek.map(([n]) => `<option value="${esc(n)}">`).join('');
   const kereso = el.querySelector('[data-kereso]');
   const keres = () => {

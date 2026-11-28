@@ -76,6 +76,32 @@ let adatV = '';
     const b = S.arBecsles(adat, u, 'o', { visszaEv: 2 });
     if (b) { becsles.cimke = b.cimke; const sz = Math.round(b.szorzo * 1000) / 1000; becsles.szorzok[kod] = b.regebbi ? [sz, b.alapIx] : sz; }
   }
+  // Környékbeli becslés a térkép „ma” nézetéhez: ahol az utóbbi három évben egyszer sem volt elég adásvétel,
+  // a legközelebbi négy olyan település becsült mai árából, ahol van (távolság szerint súlyozva, Budapest nélkül).
+  // Formátum: kód → [ár ezer Ft/m², név, [a négy szomszéd kódja]]. A térképen csíkozva, külön jelölve jelenik meg.
+  {
+    const geo = JSON.parse(readFileSync(join(GYOKER, 'forras/geo/orszag.json'), 'utf8'));
+    const hntF = join(GYOKER, 'data/hnt.json');
+    const hntNev = existsSync(hntF) ? JSON.parse(readFileSync(hntF, 'utf8')).telepulesek : {};
+    const kozep = new Map(geo.u.map(([k, , b]) => [k, [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2]]));
+    const maAr = (k) => {
+      const sz = becsles.szorzok[k], u = egysegek[k];
+      if (sz == null || !u) return null;
+      const [x, ix] = Array.isArray(sz) ? sz : [sz, evek.length - 1];
+      return u.s.o?.[ix] != null ? u.s.o[ix] * x : null;
+    };
+    const forrasok = [...kozep.keys()].filter((k) => egysegek[k]?.m !== '01' && maAr(k) != null).map((k) => [k, kozep.get(k), maAr(k)]);
+    becsles.kornyek = {};
+    for (const [k, c] of kozep) {
+      if (maAr(k) != null || egysegek[k]?.m === '01') continue;
+      const nev = egysegek[k]?.n || hntNev[k]?.[0];
+      if (!nev) continue;
+      const kozel = forrasok.map(([j, cj, ar]) => [j, Math.hypot(cj[0] - c[0], cj[1] - c[1]), ar]).sort((x, y) => x[1] - y[1]).slice(0, 4);
+      const w = kozel.map(([, d]) => 1 / Math.max(d, 1));
+      const ar = kozel.reduce((t, [, , a], i) => t + a * w[i], 0) / w.reduce((t, x) => t + x, 0);
+      becsles.kornyek[k] = [Math.round(ar), nev, kozel.map(([j]) => j)];
+    }
+  }
   const megfiz = { m2: S.MEGFIZ_M2, forras: adat.kereset.forras, ertek: {} };
   for (const [kod, u] of Object.entries(egysegek)) {
     const s = evek.map((ev) => { const x = S.megfizethetoseg(adat, kod, u, ev); return x ? Math.round(x.evek * 10) / 10 : null; });
