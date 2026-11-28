@@ -62,7 +62,9 @@ test('településoldalak: rövid cím, ki kap oldalt, becslés', async () => {
   assert.equal(new Set(l.egysegek.values()).size, l.egysegek.size, 'nincs két azonos cím');
   const deb = Object.values(adat.arak.egysegek).find((u) => u.n === 'Debrecen');
   const b = S.arBecsles(adat, deb);
-  assert.equal(b.lepes1.hol, 'a megyeszékhelyeken');
+  // Az első lépés (KSH településtípusos átlagár) csak akkor kell, ha a KSH-nál már újabb év van, mint az Ingatlanadattárban
+  if (adat.lakasar.evek.at(-1) > adat.arak.evek.at(-1)) assert.equal(b.lepes1.hol, 'a megyeszékhelyeken');
+  else assert.equal(b.lepes1, null);
   assert.ok(b.ar > deb.s.o.at(-1));
   assert.match(b.cimke, /negyedév|^\d{4}$/);
   assert.equal(Math.round(b.ar), Math.round(deb.s.o.at(-1) * b.szorzo));
