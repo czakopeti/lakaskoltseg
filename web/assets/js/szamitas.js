@@ -785,11 +785,14 @@ export const negyedevNev = (k) => `${k.slice(0, 4)}. ${ROMAI_NEGYED[Number(k.sli
  *     a lépés évének negyedéves átlagához képest.
  * u: az adat.arak.egysegek eleme. ar: ezer Ft/m². null, ha egyik lépés sem tehető meg.
  */
-export function arBecsles(adat, u, tipus = 'o') {
+export function arBecsles(adat, u, tipus = 'o', { visszaEv = 0 } = {}) {
   const la = adat.lakasar, ia = adat.arak, ai = adat.arindex;
   if (!la || !ia || !u?.s?.[tipus]) return null;
-  const iaEv = ia.evek[ia.evek.length - 1], i0 = la.evek.indexOf(iaEv), i1 = la.evek.length - 1;
-  const alap = u.s[tipus][ia.evek.length - 1];
+  // Ha a legutóbbi évben kevés volt az adásvétel, visszaEv évig visszamehetünk a legutóbbi valódi árig (a térképen 2 év)
+  let j = ia.evek.length - 1;
+  while (u.s[tipus][j] == null && j > ia.evek.length - 1 - visszaEv) j--;
+  const iaEv = ia.evek[j], i0 = la.evek.indexOf(iaEv), i1 = la.evek.length - 1;
+  const alap = u.s[tipus][j];
   if (alap == null || i0 < 0) return null;
   let szorzo1 = 1, hol = null, ev1 = iaEv;
   if (i0 < i1) {
@@ -815,7 +818,7 @@ export function arBecsles(adat, u, tipus = 'o') {
   }
   if (szorzo1 === 1 && !negyedev) return null;
   const szorzo = szorzo1 * szorzo2;
-  return { alapEv: iaEv, ev: negyedev ? Number(negyedev.slice(0, 4)) : ev1, cimke: negyedev ? negyedevNev(negyedev) : String(ev1),
+  return { alapEv: iaEv, alapIx: j, regebbi: j < ia.evek.length - 1, ev: negyedev ? Number(negyedev.slice(0, 4)) : ev1, cimke: negyedev ? negyedevNev(negyedev) : String(ev1),
     lepes1: szorzo1 !== 1 ? { ev: ev1, szorzo: szorzo1, hol } : null, lepes2: negyedev ? { negyedev, szorzo: szorzo2 } : null,
     ar: Math.round(alap * szorzo), szorzo, forras: la.forras, indexForras: ai?.forras };
 }

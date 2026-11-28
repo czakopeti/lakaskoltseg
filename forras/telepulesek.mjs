@@ -404,7 +404,7 @@ export function ertekOldal(k) {
   const kezdo = `<p class="elsz-ures">Add meg a települést vagy kerületet és az alapterületet. Ha tudod az utcát is, pontosabb lesz.</p>`;
   const urlap = `
 <fieldset>
-${sor('', `<label for="e-telep">Település vagy budapesti kerület</label><div class="beir szeles"><input id="e-telep" name="telep" type="text" list="e-telep-lista" autocomplete="off" placeholder="pl. Debrecen, XI. kerület vagy Újbuda"><datalist id="e-telep-lista"></datalist></div>`)}
+${sor('', `<label for="e-telep">Település vagy budapesti kerület</label><div class="beir szeles"><input id="e-telep" name="telep" type="text" list="e-telep-lista" autocomplete="off" placeholder="pl. Debrecen, XI. kerület vagy irányítószám"><datalist id="e-telep-lista"></datalist></div>`)}
 ${sor('', `<label for="e-utca">Utca <span class="halk">(nem kötelező)</span></label><div class="beir szeles"><input id="e-utca" name="utca" type="text" list="e-utca-lista" autocomplete="off" placeholder="előbb a települést add meg" disabled><datalist id="e-utca-lista"></datalist></div><span class="sugo" data-utca-sugo>Csak azok az utcák szerepelnek, ahol a KSH közölt árat.</span>`)}
 ${sor('', `<label for="e-tipus">Milyen ingatlan?</label><div class="beir szeles"><select id="e-tipus" name="tipus"><option value="t">Társasházi lakás</option><option value="p">Panellakás</option><option value="h">Családi ház</option><option value="o">Nem tudom, vagy más</option></select></div>`)}
 ${sor('', szamMezo({ id: 'e-m2', nev: 'm2', cim: 'Alapterület', me: 'm²', placeholder: 'pl. 60', min: 10, max: 1000 }))}

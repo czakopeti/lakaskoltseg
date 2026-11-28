@@ -12,9 +12,11 @@
 import { UTAK } from '../../kozos/utak.js';
 
 export const HASZNALAT = ['indit', 'kesz', 'mentes', 'megosztas', 'nyomtat', 'kovetkezo', 'tovabb', 'naptar'];
+// A lakásérték-becslő lépései: felismerte a települést, nem találta a nevet, vagy nincs elég adat a becsléshez
+export const BECSLO = ['telep_ok', 'elakad_nev', 'elakad_adat'];
 // Érkezés kívülről, a forrás fajtája szerint (lásd megjelenites.mjs, erkezesForras)
 export const ERKEZES = ['erk_chatgpt', 'erk_perplexity', 'erk_claude', 'erk_gemini', 'erk_copilot', 'erk_google', 'erk_bing', 'erk_facebook', 'erk_mas', 'erk_kozvetlen'];
-export const ESEMENYEK = [...HASZNALAT, ...ERKEZES];
+export const ESEMENYEK = [...HASZNALAT, ...BECSLO, ...ERKEZES];
 // A saját domain bekötésekor ide kell felvenni (például lakasom\.hu|www\.lakasom\.hu).
 const ENGEDETT = /^(ingatlanmerleg\.hu|www\.ingatlanmerleg\.hu|[a-z0-9-]+\.pages\.dev|localhost|127\.0\.0\.1)$/;
 const ISMERT = new Set(UTAK.map((u) => `/${u}`));
@@ -89,7 +91,7 @@ export async function onRequestGet({ request, env }) {
 }
 
 /** Emberi nézet (?nezet=tabla): napok soronként, oldalak lenyitva. Csak darabszámok, ezért nyilvános lehet. */
-const NEVEK = { indit: 'Elkezdte', kesz: 'Eredmény', mentes: 'Letöltés', megosztas: 'Megosztás', nyomtat: 'Nyomtatás', kovetkezo: 'Következő lépés', tovabb: 'Továbblépés', naptar: 'Naptár', erk_chatgpt: 'ChatGPT', erk_perplexity: 'Perplexity', erk_claude: 'Claude', erk_gemini: 'Gemini', erk_copilot: 'Copilot', erk_google: 'Google', erk_bing: 'Bing, DuckDuckGo', erk_facebook: 'Facebook', erk_mas: 'Más oldal', erk_kozvetlen: 'Közvetlen' };
+const NEVEK = { indit: 'Elkezdte', kesz: 'Eredmény', mentes: 'Letöltés', megosztas: 'Megosztás', nyomtat: 'Nyomtatás', kovetkezo: 'Következő lépés', tovabb: 'Továbblépés', naptar: 'Naptár', telep_ok: 'Település megvan', elakad_nev: 'Nem találta', elakad_adat: 'Nincs adat', erk_chatgpt: 'ChatGPT', erk_perplexity: 'Perplexity', erk_claude: 'Claude', erk_gemini: 'Gemini', erk_copilot: 'Copilot', erk_google: 'Google', erk_bing: 'Bing, DuckDuckGo', erk_facebook: 'Facebook', erk_mas: 'Más oldal', erk_kozvetlen: 'Közvetlen' };
 const e = (x) => String(x).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 export function tabla(o) {
   const resz = (cim, oszlopok) => {
@@ -103,6 +105,6 @@ export function tabla(o) {
   const html = `<!doctype html><html lang="hu"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Mérés, ${e(o.honap)}</title>
 <style>body{font:15px/1.4 system-ui,sans-serif;margin:24px;color:#14161B}table{border-collapse:collapse;margin-bottom:28px}th,td{padding:4px 10px;text-align:right;border-bottom:1px solid #e5e5e5}th:first-child{text-align:left;white-space:pre}tr.nap th,tr.nap td{font-weight:700;background:#FFF3C2}tr.oldal{color:#555;font-size:13px}h2{font-size:18px;margin-top:28px}</style>
 <h1>Használat, ${e(o.honap)}</h1><p>Összesen ${erk} érkezés kívülről, ${o.osszesen.indit} kezdés, ${o.osszesen.kesz} eredmény${o.osszesen.befejezesi_arany != null ? ` (${o.osszesen.befejezesi_arany}%)` : ''}. A legfrissebb nap van felül. Az érkezéseket 2026. november 24-től számoljuk.</p>
-${resz('Honnan jöttek', ERKEZES)}${resz('Mit csináltak', HASZNALAT)}</html>`;
+${resz('Honnan jöttek', ERKEZES)}${resz('Mit csináltak', HASZNALAT)}${resz('Lakásérték-becslő: hol akadtak el', ['indit', ...BECSLO, 'kesz'])}</html>`;
   return new Response(html, { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' } });
 }

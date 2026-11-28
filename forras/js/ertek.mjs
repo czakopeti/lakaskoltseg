@@ -58,9 +58,27 @@ async function indit(el) {
   function keres(v) {
     const n = norm(v);
     if (nevek.has(n)) return nevek.get(n);
-    const r = kerulet(v);
-    return r ? nevek.get(norm(`${r}. kerület`)) || null : null;
+    // Budapesti irányítószám: a 2–3. jegy a kerület (1112 → XI.)
+    const bp = /^\s*1(\d\d)\d\s*$/.exec(v || '');
+    const r = bp && +bp[1] >= 1 && +bp[1] <= 23 ? ROMAI[+bp[1] - 1] : kerulet(v);
+    if (r) return nevek.get(norm(`${r}. kerület`)) || null;
+    // Vidéki irányítószám (KSH Helységnévtár): ha csak egy olyan település van rajta, ahol van adat, az
+    if (TL && /^\s*\d{4}\s*$/.test(v || '')) {
+      const jok = (TL.irsz[v.trim()] || []).filter((k) => A.egysegek[k] && !TL.nincs[k]);
+      if (jok.length === 1) return jok[0];
+    }
+    return null;
   }
+  // Minden település (a becsléshez kevés adatúak is) és az irányítószámok: csak akkor töltjük be, ha kell
+  let TL = null, tlIgeret = null;
+  const tlBetolt = () => (tlIgeret ??= json(`${alap}telepulesek.json`).then((d) => { TL = d; TL.nevek = new Map(Object.entries(d.nincs).map(([k, x]) => [norm(x[0]), k])); return d; }).catch(() => null));
+  iTelep.addEventListener('input', () => { tlBetolt(); }, { once: true });
+  // Kevés adatú település: a legközelebbi három, ahol van becslés
+  const szomszedValaszto = (k) => {
+    const x = TL?.nincs[k];
+    const sz = (x?.[2] || []).filter((j) => A.egysegek[j]);
+    return valaszto(`<strong>${esc(x?.[0] || A.egysegek[k]?.n || '')}:</strong> az utóbbi három évben kevés lakást adtak el, ezért a KSH nem közöl árat, és becsülni sem tudunk. ${sz.length ? 'A legközelebbi települések, ahol van adat:' : ''}`, sz.map((j) => [A.egysegek[j].n, esc(A.egysegek[j].n)]));
+  };
   const csakBudapest = (v) => /^(budapest|bp\.?)$/.test(String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim());
   // Javaslatok, ha a beírt név nem pontos: ami ezzel kezdődik, utána ami tartalmazza
   function javaslatok(v) {
@@ -76,6 +94,7 @@ async function indit(el) {
     if (uj && norm(iTelep.value) !== norm(A.egysegek[uj].n)) iTelep.value = A.egysegek[uj].n;
     if (uj === kod) return;
     kod = uj; utcak = [];
+    if (kod) meres('telep_ok');
     iUtca.value = ''; lUtca.innerHTML = '';
     iUtca.disabled = !kod;
     iUtca.placeholder = kod ? 'pl. Kossuth Lajos utca' : 'előbb a települést add meg';
@@ -99,30 +118,70 @@ async function indit(el) {
   // Mobilon az eredmény az űrlap alatt van: a választót oda kell görgetni, különben észre sem veszi
   const mutat = () => { if (window.matchMedia('(max-width: 900px)').matches) ki.scrollIntoView({ block: 'nearest', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
   // kerdez: a gombra kattintva (vagy Enterre) a hiányzó mezőre ugrunk és megmondjuk, mi kell még
+  // Ugyanazt az eredményt nem rajzoljuk újra. Különben ha a négyzetméter mezőből egy gombra kattint, a mező elhagyása
+  // (change) újrarajzolná a gombokat a kattintás közben, és a kattintás elveszne.
+  let utolsoHtml = '';
+  const tesz = (h) => { if (h !== utolsoHtml) { ki.innerHTML = h; utolsoHtml = h; } };
   function szamol(kerdez = false) {
     const m2 = Number(String(iM2.value).replace(',', '.'));
     if (iTelep.value || iM2.value) meres('indit');
     if (!kod) {
-      if (csakBudapest(iTelep.value)) { ki.innerHTML = kerValaszto(); mutat(); return; }
+      if (csakBudapest(iTelep.value)) { tesz(kerValaszto()); mutat(); return; }
       if (iTelep.value) {
-        const j = javaslatok(iTelep.value);
-        ki.innerHTML = j.length ? valaszto('Erre gondoltál?', j.map((n) => [n, esc(n)])) : '<p class="elsz-ures">Ezt a települést nem találjuk. Ellenőrizd a nevét. Ahol egy évben sem volt legalább három adásvétel, ott a KSH nem közöl árat.</p>';
+        // A teljes településlista kell hozzá: ha még nincs meg, betöltjük, és újraszámolunk
+        if (!TL && tlIgeret !== null) { tlIgeret.then((d) => { if (d) szamol(kerdez); }); }
+        else if (!TL) { tlBetolt().then((d) => { if (d) szamol(kerdez); }); }
+        const v = iTelep.value.trim();
+        // Irányítószám: ha pontosan nincs a listában (a nagyvárosoknak sok van), az első három, majd két jegy alapján
+        let irsz = null;
+        if (TL && /^\d{4}$/.test(v)) {
+          irsz = TL.irsz[v] || [];
+          for (const h of [3, 2]) {
+            if (irsz.length) break;
+            const halmaz = new Set(Object.entries(TL.irsz).filter(([z]) => z.startsWith(v.slice(0, h))).flatMap(([, ks]) => ks));
+            // A legtöbb adásvétellel rendelkezők elöl (egy kétjegyű körzetben a város lesz az első)
+            const db = (k) => (A.egysegek[k].s.od || []).reduce((t, x) => t + (x || 0), 0);
+            const jo = [...halmaz].filter((k) => A.egysegek[k] && !TL.nincs[k]).sort((x, y) => db(y) - db(x));
+            if (jo.length) irsz = h === 3 ? jo.slice(0, 8) : jo.slice(0, 6);
+          }
+        }
+        const kevesKod = TL?.nevek.get(norm(v));
+        if (irsz && irsz.length) {
+          // Több település egy irányítószámon: válasszon; ahol nincs adat, ott a szomszédok
+          const jok = irsz.filter((k) => A.egysegek[k] && !TL.nincs[k]);
+          if (jok.length === 1) { iTelep.value = A.egysegek[jok[0]].n; telepValt().then(() => szamol(kerdez)); return; }
+          if (!jok.length && irsz[0]) { tesz(szomszedValaszto(irsz[0])); meres('elakad_adat'); }
+          else tesz(valaszto(`A ${esc(v)} irányítószámhoz ${jok.length > 1 ? 'több település tartozik' : 'ez a település tartozik'}:`, jok.map((k) => [A.egysegek[k].n, esc(A.egysegek[k].n)])));
+        } else if (kevesKod) {
+          tesz(szomszedValaszto(kevesKod));
+          meres('elakad_adat');
+        } else {
+          const j = javaslatok(iTelep.value);
+          tesz(j.length ? valaszto('Erre gondoltál?', j.map((n) => [n, esc(n)])) : '<p class="elsz-ures">Ezt a települést nem találjuk. Ellenőrizd a nevét, vagy írd be az irányítószámot.</p>');
+          if (!j.length && TL) meres('elakad_nev');
+        }
         mutat();
-      } else ki.innerHTML = '<p class="elsz-ures">Kezdd a településsel vagy a budapesti kerülettel (például „Debrecen” vagy „XI. kerület”).</p>';
+      } else tesz('<p class="elsz-ures">Kezdd a településsel vagy a budapesti kerülettel (például „Debrecen” vagy „XI. kerület”).</p>');
       if (kerdez) iTelep.focus();
       return;
     }
     if (!(m2 >= 10)) {
-      ki.innerHTML = `<p class="elsz-ures">${iM2.value ? 'Az alapterület legalább 10 m² legyen.' : `${esc(A.egysegek[kod].n)} megvan. Már csak az alapterület hiányzik: hány négyzetméteres a lakás?`}</p>`;
+      tesz(`<p class="elsz-ures">${iM2.value ? 'Az alapterület legalább 10 m² legyen.' : `${esc(A.egysegek[kod].n)} megvan. Már csak az alapterület hiányzik: hány négyzetméteres a lakás?`}</p>`);
       if (kerdez) iM2.focus();
       return;
     }
     const un = utcaNev();
     const e = lakasErtek(A, utcak, { kod, utca: un || null, tipus: iTipus.value, m2 });
-    if (!e) { ki.innerHTML = '<p class="elsz-ures">Ehhez a településhez az elmúlt három évből nincs elég adat a becsléshez.</p>'; return; }
+    if (!e) {
+      // Régebben volt adat, az utóbbi három évben nem: a legközelebbi települések
+      tesz(TL?.nincs[kod] ? szomszedValaszto(kod) : '<p class="elsz-ures">Ehhez a településhez az elmúlt három évből nincs elég adat a becsléshez.</p>');
+      meres('elakad_adat');
+      tlBetolt().then((d) => { if (d?.nincs[kod]) { tesz(szomszedValaszto(kod)); mutat(); } });
+      return;
+    }
     if (un === false) e.megjegyzes.unshift('Ezt az utcát nem találjuk a listában, ezért a település átlagával számoltunk.');
     e.utcaNev = un;
-    ki.innerHTML = kimenet(e, A, telepUt, kod);
+    tesz(kimenet(e, A, telepUt, kod));
     meres('kesz');
     const q = new URLSearchParams({ t: kod, ...(un ? { u: un } : {}), tipus: iTipus.value, m2: String(m2) });
     history.replaceState(null, '', `?${q}`);

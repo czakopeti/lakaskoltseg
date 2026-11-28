@@ -132,3 +132,13 @@ test('Eurostat ár/jövedelem: a JSON-stat sorrendjéből a helyes éveket olvas
   assert.equal(arJovHiheto(null, r), null);
   assert.match(arJovHiheto({ evek: [2030] }, r), /utolsó év/);
 });
+
+test('Helységnévtár: feldolgozás és hihetőség', async () => {
+  const { hntFeldolgoz, hntHiheto } = await import('../frissito/hnt.mjs');
+  const h = [['cím'], [], ['Helység megnevezése', 'Helység KSH kódja', 'Helység jogállása', 'Megye megnevezése', 'Járás kódja', 'Járás neve'], ['Aba', '17376', 'város', 'Fejér', '085 0', 'Székesfehérvári'], ['Budapest', '13578', 'főváros', 'Budapest', '', '']];
+  const r = [['cím'], [], ['Helység KSH kód', 'Helység hivatalos megnevezése', 'Megye megnevezése', 'Településrész megnevezése', 'jelleg', 'Postai irányító-szám'], ['17376', 'Aba', 'Fejér', 'Belsőbáránd', '01', 8128], ['17376', 'Aba', 'Fejér', 'Aba', '00', 8127]];
+  const t = hntFeldolgoz(h, r);
+  assert.deepEqual(t['17376'], ['Aba', 'Fejér', 'Székesfehérvári', ['8127', '8128']]);
+  assert.equal(t['13578'], undefined);
+  assert.match(hntHiheto(null, t), /csak 1 település/);
+});

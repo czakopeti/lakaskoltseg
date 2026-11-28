@@ -1,6 +1,6 @@
 // A lakásár-térkép: valódi eladási árak (KSH Ingatlanadattár) településenként és budapesti kerületenként.
 // SVG-térkép külső könyvtár nélkül; az adat és a határok a /adatok/lakasarak/ alól jönnek.
-import { fmt, tized, evBan, AR_SZINEK as SZINEK, AR_HATAR as HATAR, arOsztaly as osztaly, meres } from './megjelenites.js?v=1c97a2ca';
+import { fmt, tized, evBan, AR_SZINEK as SZINEK, AR_HATAR as HATAR, arOsztaly as osztaly, meres } from './megjelenites.js?v=199af62d';
 
 const doboz = document.querySelector('[data-terkep]');
 if (doboz) indit(doboz).catch((e) => {
@@ -35,9 +35,12 @@ async function indit(el) {
   const evek = MA ? [...A.evek, A.evek[valodi] + 1] : A.evek; // a csúszkához; a felirat mindig evNev()
   if (MA) {
     for (const [k, u] of Object.entries(A.egysegek)) {
-      const sz = A.becsles.szorzok[k];
+      // A szorzó vagy szám (a legutóbbi évből), vagy [szorzó, évIndex], ha a becslés egy korábbi év valódi árából indul.
+      // A korábbi évből csak az összesített (o) árat hozzuk mára, a típusokét nem.
+      const bs = A.becsles.szorzok[k], sz = Array.isArray(bs) ? bs[0] : bs, bIx = Array.isArray(bs) ? bs[1] : valodi;
+      if (bIx !== valodi) u.alapIx = bIx;
       for (const t of ['o', 't', 'p', 'h']) {
-        if (u.s[t]) { const v = u.s[t][valodi]; u.s[t].push(v != null && sz ? Math.round(v * sz) : null); }
+        if (u.s[t]) { const v = u.s[t][bIx]; u.s[t].push(v != null && sz && (bIx === valodi || t === 'o') ? Math.round(v * sz) : null); }
         if (u.s[`${t}d`]) u.s[`${t}d`].push(null);
       }
       if (A.megfiz?.ertek?.[k]) A.megfiz.ertek[k].push(A.megfiz.ma?.[k] ?? null);
@@ -89,7 +92,7 @@ async function indit(el) {
     skala.innerHTML = `<p class="tk-skala-cim">${S.mutato === 'ar' ? `Átlagár, Ft/m², ${evNev(S.ix)}` : S.mutato === 'evek' ? `Hány évnyi helyi nettó átlagkereset egy ${A.megfiz?.m2 || 50} m²-es lakás, ${evNev(S.ix)}` : `Drágulás ${evek[0]} óta, ${S.ix === MA ? 'mára (becslés)' : `${evek[S.ix]}-ig`}`}${S.tipus !== 'o' && S.mutato !== 'evek' ? `, ${TIPUS[S.tipus].toLowerCase()}` : ''}</p>
 <div class="tk-sav">${SZINEK.map((c, i) => `<i style="background:${c}" title="${i === 0 ? `${cimkek[0]} alatt` : i === SZINEK.length - 1 ? `${cimkek.at(-1)} felett` : `${cimkek[i - 1]} – ${cimkek[i]}`}"></i>`).join('')}</div>
 <div class="tk-sav-cimkek">${cimkek.map((c, i) => `<span style="left:${((i + 1) / SZINEK.length) * 100}%">${i % 2 === 0 || cimkek.length < 6 ? c : ''}</span>`).join('')}</div>
-<p class="tk-skala-nincs"><i></i>${S.mutato === 'evek' ? 'Nincs adat: kevés adásvétel, vagy erre az évre még nincs kereseti adat' : 'Nincs adat: az évben háromnál kevesebb adásvétel volt'}</p>${S.mutato === 'evek' && A.megfiz?.forras ? `<p class="tk-skala-nincs">Kereset: <a href="${esc(A.megfiz.forras.url)}" target="_blank" rel="noopener">KSH, nettó átlagkereset lakóhely szerint</a>; Budapest kerületeinél a budapesti átlag.</p>` : ''}`;
+<p class="tk-skala-nincs"><i></i>${S.mutato === 'evek' ? 'Nincs adat: kevés adásvétel, vagy erre az évre még nincs kereseti adat' : (S.ix === MA ? 'Nincs adat: az utóbbi három évben egyszer sem volt legalább három adásvétel' : 'Nincs adat: az évben háromnál kevesebb adásvétel volt')}</p>${S.mutato === 'evek' && A.megfiz?.forras ? `<p class="tk-skala-nincs">Kereset: <a href="${esc(A.megfiz.forras.url)}" target="_blank" rel="noopener">KSH, nettó átlagkereset lakóhely szerint</a>; Budapest kerületeinél a budapesti átlag.</p>` : ''}`;
   }
 
   // ---- első megjelenés: nyugatról keletre töltődik ki
@@ -157,8 +160,8 @@ async function indit(el) {
 <button type="button" class="tk-bezar" data-bezar aria-label="Bezárás">×</button>
 <p class="tk-hol">${esc(hol)}</p><h3>${esc(u.n)}</h3>
 ${ar != null ? `<p class="tk-nagy">${S.ix === MA ? 'kb. ' : ''}${ft(ar)}<small>/m², ${evNev(S.ix)}${tip !== 'o' ? `, ${TIPUS[tip].toLowerCase()}` : ''}</small></p>
-${S.ix === MA && elozo != null ? `<p class="tk-becsles">Valódi eladási ár ${evBan(evek[valodi])}: <b>${ft(elozo)}/m²</b>${u.s[`${tip}d`]?.[valodi] ? ` (${fmt(u.s[`${tip}d`][valodi])} adásvétel)` : ''}. A becslés ebből indul, a KSH lakásárindexeivel mára hozva.</p>` : ''}${S.ix === valodi && MA && A.becsles?.szorzok?.[k] ? `<p class="tk-becsles">Becsült mai ár, ${A.becsles.cimke}: <b>kb. ${ft(Math.round(ar * A.becsles.szorzok[k]))}/m²</b></p>` : ''}
-<p class="tk-valt">${S.ix === MA ? `${kezd != null ? `${evek[0]} óta ${szaz((ar / kezd - 1) * 100)}.` : ''}` : `${db ? `${fmt(db)} adásvétel alapján. ` : ''}${elozo != null ? `Egy év alatt ${szaz((ar / elozo - 1) * 100)}` : ''}${kezd != null && S.ix > 0 ? `${elozo != null ? ', ' : ''}${evek[0]} óta ${szaz((ar / kezd - 1) * 100)}.` : elozo != null ? '.' : ''}`}</p>` : `<p class="tk-valt">${S.ix === MA ? 'Mára nincs becslés: a legutóbbi évben háromnál kevesebb adásvétel volt.' : `${evek[S.ix]}-re nincs adat: az évben háromnál kevesebb adásvétel volt.`}</p>`}
+${S.ix === MA && elozo != null ? `<p class="tk-becsles">Valódi eladási ár ${evBan(evek[valodi])}: <b>${ft(elozo)}/m²</b>${u.s[`${tip}d`]?.[valodi] ? ` (${fmt(u.s[`${tip}d`][valodi])} adásvétel)` : ''}. A becslés ebből indul, a KSH lakásárindexeivel mára hozva.</p>` : ''}${S.ix === MA && elozo == null && u.alapIx != null && s[u.alapIx] != null ? `<p class="tk-becsles">${evBan(evek[valodi])} háromnál kevesebb adásvétel volt, ezért a becslés a legutóbbi valódi árból indul: ${evBan(evek[u.alapIx])} <b>${ft(s[u.alapIx])}/m²</b>${u.s[`${tip}d`]?.[u.alapIx] ? ` (${fmt(u.s[`${tip}d`][u.alapIx])} adásvétel)` : ''}, a KSH lakásárindexeivel mára hozva. Kevés adásvételből a becslés bizonytalanabb.</p>` : ''}${S.ix === valodi && MA && typeof A.becsles?.szorzok?.[k] === 'number' ? `<p class="tk-becsles">Becsült mai ár, ${A.becsles.cimke}: <b>kb. ${ft(Math.round(ar * A.becsles.szorzok[k]))}/m²</b></p>` : ''}
+<p class="tk-valt">${S.ix === MA ? `${kezd != null ? `${evek[0]} óta ${szaz((ar / kezd - 1) * 100)}.` : ''}` : `${db ? `${fmt(db)} adásvétel alapján. ` : ''}${elozo != null ? `Egy év alatt ${szaz((ar / elozo - 1) * 100)}` : ''}${kezd != null && S.ix > 0 ? `${elozo != null ? ', ' : ''}${evek[0]} óta ${szaz((ar / kezd - 1) * 100)}.` : elozo != null ? '.' : ''}`}</p>` : `<p class="tk-valt">${S.ix === MA ? 'Mára nincs becslés: az utóbbi három évben egyszer sem volt legalább három adásvétel.' : `${evek[S.ix]}-re nincs adat: az évben háromnál kevesebb adásvétel volt.`}</p>`}
 ${grafikon(s)}
 ${sorok ? `<table class="tk-tipusok"><tbody>${sorok}</tbody></table>` : ''}
 ${A.oldalak?.[k] ? `<a class="tk-reszletek" href="${alapUt}${A.oldalak[k].replace(/^lakasarak\//, '')}">Részletek, utcák, évenkénti táblázat</a>` : ''}

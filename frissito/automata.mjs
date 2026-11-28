@@ -8,6 +8,7 @@ import { mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { IA, nevlista, tomorit, hiheto as iaHiheto, arindex, ARINDEX_URL, ARINDEX_OLDAL, KERESET, keresetFeldolgoz, keresetHiheto } from './ingatlanadattar.mjs';
 import { ARJOV, arJovFeldolgoz, arJovHiheto } from './eurostat.mjs';
+import { HNT, xlsxLap, hntFeldolgoz, hntHiheto } from './hnt.mjs';
 
 const szam = (s) => Number(String(s).replace(',', '.'));
 const hu = (n) => String(n).replace('.', ',');
@@ -90,6 +91,13 @@ export function hiheto(uj, regi, { min, max, ugras }) {
   return regi == null || Math.abs(uj - regi) <= ugras;
 }
 
+/** Bináris letöltés (xlsx). 404 esetén null. */
+async function binLetolt(url, ido = 60000) {
+  const r = await fetch(url, { signal: AbortSignal.timeout(ido), headers: { 'user-agent': 'Mozilla/5.0 (Ingatlanmerleg frissito)' } });
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return Buffer.from(await r.arrayBuffer());
+}
 async function letolt(url, ido = 30000) {
   const r = await fetch(url, { headers: { 'user-agent': 'Mozilla/5.0 (onallo-frissito; +https://github.com/czakopeti/lakaskoltseg)', 'accept-language': 'hu,en' }, redirect: 'follow', signal: AbortSignal.timeout(ido) });
   if (r.status === 404) return null;
@@ -101,7 +109,7 @@ async function letolt(url, ido = 30000) {
  * Futtatás. Visszaad: { ma, atirt: [{mi, regi, uj, forras}], gond: [{nev, url, ok}] }.
  * leto: tesztben cserélhető letöltő (url → html | null, ha nincs ilyen oldal).
  */
-export async function futtat({ leto = letolt, ma = maBudapest() } = {}) {
+export async function futtat({ leto = letolt, binLeto = binLetolt, ma = maBudapest() } = {}) {
   const j = { ma, atirt: [], gond: [] };
   const naplo = olvas('data/valtozasok.json');
 
@@ -257,6 +265,26 @@ export async function futtat({ leto = letolt, ma = maBudapest() } = {}) {
       ir('data/arjovedelem.json', { leiras: regi?.leiras || 'Eurostat tipsho60: lakásár és háztartási jövedelem aránya, Magyarország.', forras: { nev: ARJOV.nev, url: ARJOV.oldal, letoltes: ARJOV.url, kelt: valt ? (uj.frissitve || ma) : regi.forras.kelt }, ellenorizve: ma, frissitve: uj.frissitve, evek: uj.evek, lt: uj.lt, bazisEv: uj.bazisEv, ib: uj.ib, becsult: uj.becsult });
     }
   } catch (e) { j.gond.push({ nev: ajNev, url: ARJOV.oldal, ok: String(e.message || e) }); }
+
+  // 8. KSH Helységnévtár (a becslő a települések neveit és irányítószámait innen ismeri): évente egy új kiadás.
+  // Január 15-től próbáljuk az aktuális évit, amíg meg nem jelenik; utána egész évben nem kell.
+  const hNev = 'KSH Helységnévtár';
+  const hEv = Number(ma.slice(0, 4));
+  const hRegi = existsSync(join(GYOKER, 'data/hnt.json')) ? olvas('data/hnt.json') : null;
+  if ((!hRegi || hRegi.ev < hEv) && ma.slice(5) >= '01-15' && binLeto) {
+    try {
+      const buf = await binLeto(HNT.url(hEv));
+      if (buf) {
+        const uj = hntFeldolgoz(xlsxLap(buf, 1), xlsxLap(buf, 2));
+        const gond = hntHiheto(hRegi, uj);
+        if (gond) j.gond.push({ nev: hNev, url: HNT.url(hEv), ok: `${gond[0].toUpperCase()}${gond.slice(1)}. Nem írtam át.` });
+        else {
+          ir('data/hnt.json', { ...(hRegi || {}), forras: { nev: `KSH Helységnévtár, ${hEv}. január 1.`, url: HNT.oldal, letoltes: HNT.url(hEv), kelt: ma }, ev: hEv, ellenorizve: ma, telepulesek: uj });
+          j.atirt.push({ mi: `KSH Helységnévtár, ${hEv}. január 1. (települések száma)`, regi: hRegi ? Object.keys(hRegi.telepulesek).length : null, uj: Object.keys(uj).length, url: HNT.oldal });
+        }
+      } // 404: még nem jelent meg
+    } catch (e) { j.gond.push({ nev: hNev, url: HNT.url(hEv), ok: String(e.message || e) }); }
+  }
 
   for (const a of j.atirt) naplo.bejegyzesek.unshift({ datum: ma, mi: a.mi, regi: a.regi, uj: a.uj, forras: a.url, gepi: true });
   if (j.atirt.length) ir('data/valtozasok.json', naplo);

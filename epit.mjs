@@ -71,7 +71,11 @@ let adatV = '';
   mkdirSync(join(ki, 'utcak'), { recursive: true });
   const { forras, ellenorizve, evek, megyek, egysegek } = adat.arak;
   const becsles = { cimke: null, szorzok: {} };
-  for (const [kod, u] of Object.entries(egysegek)) { const b = S.arBecsles(adat, u); if (b) { becsles.cimke = b.cimke; becsles.szorzok[kod] = Math.round(b.szorzo * 1000) / 1000; } }
+  // A térképen 2 évig visszamegyünk a legutóbbi valódi árig; ilyenkor a szorzó mellett az alapév sorszáma is megy: [szorzó, évIndex]
+  for (const [kod, u] of Object.entries(egysegek)) {
+    const b = S.arBecsles(adat, u, 'o', { visszaEv: 2 });
+    if (b) { becsles.cimke = b.cimke; const sz = Math.round(b.szorzo * 1000) / 1000; becsles.szorzok[kod] = b.regebbi ? [sz, b.alapIx] : sz; }
+  }
   const megfiz = { m2: S.MEGFIZ_M2, forras: adat.kereset.forras, ertek: {} };
   for (const [kod, u] of Object.entries(egysegek)) {
     const s = evek.map((ev) => { const x = S.megfizethetoseg(adat, kod, u, ev); return x ? Math.round(x.evek * 10) / 10 : null; });
@@ -93,7 +97,29 @@ let adatV = '';
       ['Magyarország', 'Lakásár és háztartási jövedelem aránya (Eurostat tipsho60, hosszú távú átlag = 100)', ...aj.lt],
       ...(mm ? mm.sorok.map((s) => [s.nev, `Hány év nettó átlagkereset egy ${S.MEGFIZ_M2} m²-es lakás (KSH)`, ...aj.evek.map((e) => { const i = mm.evek.indexOf(e); return i < 0 || s.ertek[i] == null ? null : Math.round(s.ertek[i] * 10) / 10; })]) : [])]));
   }
-  adatV = createHash('sha1').update(arakSzoveg + JSON.stringify(utcakOssz)).digest('hex').slice(0, 8);
+  // A becslőnek: minden település (KSH Helységnévtár) és irányítószám. Ahol nincs elég friss adat a becsléshez,
+  // ott a legközelebbi három település, ahol van (a térkép-alakzatok középpontja szerint).
+  let telepSzoveg = '';
+  if (existsSync(join(GYOKER, 'data/hnt.json'))) {
+    const hnt = JSON.parse(readFileSync(join(GYOKER, 'data/hnt.json'), 'utf8')).telepulesek;
+    const geo = JSON.parse(readFileSync(join(GYOKER, 'forras/geo/orszag.json'), 'utf8'));
+    const kozep = new Map(geo.u.map(([k, , b]) => [k, [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2]]));
+    const vanAdat = (k) => egysegek[k] && S.frissAtlag(egysegek[k].s.o || [], egysegek[k].s.od || [], egysegek[k].s.o || []) != null;
+    const jok = [...kozep.keys()].filter((k) => vanAdat(k) && egysegek[k].m !== '01');
+    const szomszed = (k) => {
+      const c = kozep.get(k);
+      if (!c) return [];
+      return jok.map((j) => [j, (kozep.get(j)[0] - c[0]) ** 2 + (kozep.get(j)[1] - c[1]) ** 2]).sort((x, y) => x[1] - y[1]).slice(0, 3).map(([j]) => j);
+    };
+    const t = {}, irsz = {};
+    for (const [k, [n, m, , isz]] of Object.entries(hnt)) {
+      for (const z of isz) (irsz[z] ??= []).push(k);
+      if (!vanAdat(k)) t[k] = [n, m, szomszed(k)];
+    }
+    telepSzoveg = JSON.stringify({ forras: { nev: 'KSH Helységnévtár', url: 'https://www.ksh.hu/apps/hntr.main' }, nincs: t, irsz });
+    writeFileSync(join(ki, 'telepulesek.json'), telepSzoveg);
+  }
+  adatV = createHash('sha1').update(arakSzoveg + JSON.stringify(utcakOssz) + telepSzoveg).digest('hex').slice(0, 8);
   for (const f of ['orszag', 'budapest']) cpSync(join(GYOKER, `forras/geo/${f}.json`), join(ki, `${f}.json`));
   for (const f of readdirSync(join(GYOKER, 'data/utcak'))) cpSync(join(GYOKER, 'data/utcak', f), join(ki, 'utcak', f));
 }
