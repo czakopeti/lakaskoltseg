@@ -1,10 +1,14 @@
-# Kézzel indítható: kiírja a havi használati számokat (az /api/meres végpontról), hogy a fejlesztői gépről is látszódjanak.
+# Kézzel indítható: kiírja a havi használati számokat (az /api/meres végpontról), és ha megadsz egy utat,
+# az élő oldal válaszát is (fejlécek és az eleje), hogy a fejlesztői gépről is ellenőrizhető legyen.
 name: Mérés lekérése
 on:
   workflow_dispatch:
     inputs:
       honap:
         description: 'Hónap (ÉÉÉÉ-HH), üresen az aktuális'
+        required: false
+      ut:
+        description: 'Élő oldal ellenőrzése, például /adatok/lakasarak/telepulesek.json (nem kötelező)'
         required: false
 jobs:
   leker:
@@ -15,3 +19,11 @@ jobs:
           H="${{ github.event.inputs.honap }}"
           [ -z "$H" ] && H=$(TZ=Europe/Budapest date +%Y-%m)
           curl -sS --retry 2 "https://ingatlanmerleg.hu/api/meres?honap=$H" | python3 -m json.tool
+      - if: ${{ github.event.inputs.ut != '' }}
+        env:
+          UT: ${{ github.event.inputs.ut }}
+        run: |
+          case "$UT" in /*) ;; *) echo "Az út / jellel kezdődjön"; exit 1;; esac
+          echo "== ÉLŐ: $UT"
+          curl -sS -D - -o /tmp/valasz "https://ingatlanmerleg.hu$UT" | head -20
+          head -c 1500 /tmp/valasz; echo
